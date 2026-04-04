@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_01_contract_bootstrap",
+  "thresholds": [
+    {
+      "workload_id": "surface_blit_fill_convert",
+      "max_regression_ratio": 1.15,
+      "max_absolute_startup_delta_ms": 25
+    },
+    {
+      "workload_id": "renderer_queue_texture_upload",
+      "max_regression_ratio": 1.15,
+      "max_absolute_startup_delta_ms": 25
+    },
+    {
+      "workload_id": "audio_convert_resample_wave_decode",
+      "max_regression_ratio": 1.15,
+      "max_absolute_startup_delta_ms": 25
+    },
+    {
+      "workload_id": "event_queue_and_controller_maps",
+      "max_regression_ratio": 1.15,
+      "max_absolute_startup_delta_ms": 25
+    }
+  ]
+}

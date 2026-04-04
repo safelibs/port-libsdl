@@ -1,0 +1,552 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_01_contract_bootstrap",
+  "headers": [
+    {
+      "header_name": "SDL.h",
+      "install_relpath": "usr/include/SDL2/SDL.h",
+      "source_path": "original/include/SDL.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_assert.h",
+      "install_relpath": "usr/include/SDL2/SDL_assert.h",
+      "source_path": "original/include/SDL_assert.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_atomic.h",
+      "install_relpath": "usr/include/SDL2/SDL_atomic.h",
+      "source_path": "original/include/SDL_atomic.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_audio.h",
+      "install_relpath": "usr/include/SDL2/SDL_audio.h",
+      "source_path": "original/include/SDL_audio.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_bits.h",
+      "install_relpath": "usr/include/SDL2/SDL_bits.h",
+      "source_path": "original/include/SDL_bits.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_blendmode.h",
+      "install_relpath": "usr/include/SDL2/SDL_blendmode.h",
+      "source_path": "original/include/SDL_blendmode.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_clipboard.h",
+      "install_relpath": "usr/include/SDL2/SDL_clipboard.h",
+      "source_path": "original/include/SDL_clipboard.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_config.h",
+      "install_relpath": "usr/include/SDL2/SDL_config.h",
+      "source_path": "original/debian/SDL_config.h",
+      "source_kind": "debian_wrapper"
+    },
+    {
+      "header_name": "SDL_config_android.h",
+      "install_relpath": "usr/include/SDL2/SDL_config_android.h",
+      "source_path": "original/include/SDL_config_android.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_config_emscripten.h",
+      "install_relpath": "usr/include/SDL2/SDL_config_emscripten.h",
+      "source_path": "original/include/SDL_config_emscripten.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_config_iphoneos.h",
+      "install_relpath": "usr/include/SDL2/SDL_config_iphoneos.h",
+      "source_path": "original/include/SDL_config_iphoneos.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_config_macosx.h",
+      "install_relpath": "usr/include/SDL2/SDL_config_macosx.h",
+      "source_path": "original/include/SDL_config_macosx.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_config_minimal.h",
+      "install_relpath": "usr/include/SDL2/SDL_config_minimal.h",
+      "source_path": "original/include/SDL_config_minimal.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_config_ngage.h",
+      "install_relpath": "usr/include/SDL2/SDL_config_ngage.h",
+      "source_path": "original/include/SDL_config_ngage.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_config_os2.h",
+      "install_relpath": "usr/include/SDL2/SDL_config_os2.h",
+      "source_path": "original/include/SDL_config_os2.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_config_pandora.h",
+      "install_relpath": "usr/include/SDL2/SDL_config_pandora.h",
+      "source_path": "original/include/SDL_config_pandora.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_config_windows.h",
+      "install_relpath": "usr/include/SDL2/SDL_config_windows.h",
+      "source_path": "original/include/SDL_config_windows.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_config_wingdk.h",
+      "install_relpath": "usr/include/SDL2/SDL_config_wingdk.h",
+      "source_path": "original/include/SDL_config_wingdk.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_config_winrt.h",
+      "install_relpath": "usr/include/SDL2/SDL_config_winrt.h",
+      "source_path": "original/include/SDL_config_winrt.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_config_xbox.h",
+      "install_relpath": "usr/include/SDL2/SDL_config_xbox.h",
+      "source_path": "original/include/SDL_config_xbox.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_copying.h",
+      "install_relpath": "usr/include/SDL2/SDL_copying.h",
+      "source_path": "original/include/SDL_copying.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_cpuinfo.h",
+      "install_relpath": "usr/include/SDL2/SDL_cpuinfo.h",
+      "source_path": "original/include/SDL_cpuinfo.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_egl.h",
+      "install_relpath": "usr/include/SDL2/SDL_egl.h",
+      "source_path": "original/include/SDL_egl.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_endian.h",
+      "install_relpath": "usr/include/SDL2/SDL_endian.h",
+      "source_path": "original/include/SDL_endian.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_error.h",
+      "install_relpath": "usr/include/SDL2/SDL_error.h",
+      "source_path": "original/include/SDL_error.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_events.h",
+      "install_relpath": "usr/include/SDL2/SDL_events.h",
+      "source_path": "original/include/SDL_events.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_filesystem.h",
+      "install_relpath": "usr/include/SDL2/SDL_filesystem.h",
+      "source_path": "original/include/SDL_filesystem.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_gamecontroller.h",
+      "install_relpath": "usr/include/SDL2/SDL_gamecontroller.h",
+      "source_path": "original/include/SDL_gamecontroller.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_gesture.h",
+      "install_relpath": "usr/include/SDL2/SDL_gesture.h",
+      "source_path": "original/include/SDL_gesture.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_guid.h",
+      "install_relpath": "usr/include/SDL2/SDL_guid.h",
+      "source_path": "original/include/SDL_guid.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_haptic.h",
+      "install_relpath": "usr/include/SDL2/SDL_haptic.h",
+      "source_path": "original/include/SDL_haptic.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_hidapi.h",
+      "install_relpath": "usr/include/SDL2/SDL_hidapi.h",
+      "source_path": "original/include/SDL_hidapi.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_hints.h",
+      "install_relpath": "usr/include/SDL2/SDL_hints.h",
+      "source_path": "original/include/SDL_hints.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_joystick.h",
+      "install_relpath": "usr/include/SDL2/SDL_joystick.h",
+      "source_path": "original/include/SDL_joystick.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_keyboard.h",
+      "install_relpath": "usr/include/SDL2/SDL_keyboard.h",
+      "source_path": "original/include/SDL_keyboard.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_keycode.h",
+      "install_relpath": "usr/include/SDL2/SDL_keycode.h",
+      "source_path": "original/include/SDL_keycode.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_loadso.h",
+      "install_relpath": "usr/include/SDL2/SDL_loadso.h",
+      "source_path": "original/include/SDL_loadso.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_locale.h",
+      "install_relpath": "usr/include/SDL2/SDL_locale.h",
+      "source_path": "original/include/SDL_locale.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_log.h",
+      "install_relpath": "usr/include/SDL2/SDL_log.h",
+      "source_path": "original/include/SDL_log.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_main.h",
+      "install_relpath": "usr/include/SDL2/SDL_main.h",
+      "source_path": "original/include/SDL_main.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_messagebox.h",
+      "install_relpath": "usr/include/SDL2/SDL_messagebox.h",
+      "source_path": "original/include/SDL_messagebox.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_metal.h",
+      "install_relpath": "usr/include/SDL2/SDL_metal.h",
+      "source_path": "original/include/SDL_metal.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_misc.h",
+      "install_relpath": "usr/include/SDL2/SDL_misc.h",
+      "source_path": "original/include/SDL_misc.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_mouse.h",
+      "install_relpath": "usr/include/SDL2/SDL_mouse.h",
+      "source_path": "original/include/SDL_mouse.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_mutex.h",
+      "install_relpath": "usr/include/SDL2/SDL_mutex.h",
+      "source_path": "original/include/SDL_mutex.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_name.h",
+      "install_relpath": "usr/include/SDL2/SDL_name.h",
+      "source_path": "original/include/SDL_name.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_opengl.h",
+      "install_relpath": "usr/include/SDL2/SDL_opengl.h",
+      "source_path": "original/include/SDL_opengl.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_opengl_glext.h",
+      "install_relpath": "usr/include/SDL2/SDL_opengl_glext.h",
+      "source_path": "original/include/SDL_opengl_glext.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_opengles.h",
+      "install_relpath": "usr/include/SDL2/SDL_opengles.h",
+      "source_path": "original/include/SDL_opengles.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_opengles2.h",
+      "install_relpath": "usr/include/SDL2/SDL_opengles2.h",
+      "source_path": "original/include/SDL_opengles2.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_opengles2_gl2.h",
+      "install_relpath": "usr/include/SDL2/SDL_opengles2_gl2.h",
+      "source_path": "original/include/SDL_opengles2_gl2.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_opengles2_gl2ext.h",
+      "install_relpath": "usr/include/SDL2/SDL_opengles2_gl2ext.h",
+      "source_path": "original/include/SDL_opengles2_gl2ext.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_opengles2_gl2platform.h",
+      "install_relpath": "usr/include/SDL2/SDL_opengles2_gl2platform.h",
+      "source_path": "original/include/SDL_opengles2_gl2platform.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_opengles2_khrplatform.h",
+      "install_relpath": "usr/include/SDL2/SDL_opengles2_khrplatform.h",
+      "source_path": "original/include/SDL_opengles2_khrplatform.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_pixels.h",
+      "install_relpath": "usr/include/SDL2/SDL_pixels.h",
+      "source_path": "original/include/SDL_pixels.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_platform.h",
+      "install_relpath": "usr/include/SDL2/SDL_platform.h",
+      "source_path": "original/include/SDL_platform.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_power.h",
+      "install_relpath": "usr/include/SDL2/SDL_power.h",
+      "source_path": "original/include/SDL_power.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_quit.h",
+      "install_relpath": "usr/include/SDL2/SDL_quit.h",
+      "source_path": "original/include/SDL_quit.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_rect.h",
+      "install_relpath": "usr/include/SDL2/SDL_rect.h",
+      "source_path": "original/include/SDL_rect.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_render.h",
+      "install_relpath": "usr/include/SDL2/SDL_render.h",
+      "source_path": "original/include/SDL_render.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_revision.h",
+      "install_relpath": "usr/include/SDL2/SDL_revision.h",
+      "source_path": "generated://SDL_revision.h",
+      "source_kind": "generated"
+    },
+    {
+      "header_name": "SDL_rwops.h",
+      "install_relpath": "usr/include/SDL2/SDL_rwops.h",
+      "source_path": "original/include/SDL_rwops.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_scancode.h",
+      "install_relpath": "usr/include/SDL2/SDL_scancode.h",
+      "source_path": "original/include/SDL_scancode.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_sensor.h",
+      "install_relpath": "usr/include/SDL2/SDL_sensor.h",
+      "source_path": "original/include/SDL_sensor.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_shape.h",
+      "install_relpath": "usr/include/SDL2/SDL_shape.h",
+      "source_path": "original/include/SDL_shape.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_stdinc.h",
+      "install_relpath": "usr/include/SDL2/SDL_stdinc.h",
+      "source_path": "original/include/SDL_stdinc.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_surface.h",
+      "install_relpath": "usr/include/SDL2/SDL_surface.h",
+      "source_path": "original/include/SDL_surface.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_system.h",
+      "install_relpath": "usr/include/SDL2/SDL_system.h",
+      "source_path": "original/include/SDL_system.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_syswm.h",
+      "install_relpath": "usr/include/SDL2/SDL_syswm.h",
+      "source_path": "original/include/SDL_syswm.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_test.h",
+      "install_relpath": "usr/include/SDL2/SDL_test.h",
+      "source_path": "original/include/SDL_test.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_test_assert.h",
+      "install_relpath": "usr/include/SDL2/SDL_test_assert.h",
+      "source_path": "original/include/SDL_test_assert.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_test_common.h",
+      "install_relpath": "usr/include/SDL2/SDL_test_common.h",
+      "source_path": "original/include/SDL_test_common.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_test_compare.h",
+      "install_relpath": "usr/include/SDL2/SDL_test_compare.h",
+      "source_path": "original/include/SDL_test_compare.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_test_crc32.h",
+      "install_relpath": "usr/include/SDL2/SDL_test_crc32.h",
+      "source_path": "original/include/SDL_test_crc32.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_test_font.h",
+      "install_relpath": "usr/include/SDL2/SDL_test_font.h",
+      "source_path": "original/include/SDL_test_font.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_test_fuzzer.h",
+      "install_relpath": "usr/include/SDL2/SDL_test_fuzzer.h",
+      "source_path": "original/include/SDL_test_fuzzer.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_test_harness.h",
+      "install_relpath": "usr/include/SDL2/SDL_test_harness.h",
+      "source_path": "original/include/SDL_test_harness.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_test_images.h",
+      "install_relpath": "usr/include/SDL2/SDL_test_images.h",
+      "source_path": "original/include/SDL_test_images.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_test_log.h",
+      "install_relpath": "usr/include/SDL2/SDL_test_log.h",
+      "source_path": "original/include/SDL_test_log.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_test_md5.h",
+      "install_relpath": "usr/include/SDL2/SDL_test_md5.h",
+      "source_path": "original/include/SDL_test_md5.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_test_memory.h",
+      "install_relpath": "usr/include/SDL2/SDL_test_memory.h",
+      "source_path": "original/include/SDL_test_memory.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_test_random.h",
+      "install_relpath": "usr/include/SDL2/SDL_test_random.h",
+      "source_path": "original/include/SDL_test_random.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_thread.h",
+      "install_relpath": "usr/include/SDL2/SDL_thread.h",
+      "source_path": "original/include/SDL_thread.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_timer.h",
+      "install_relpath": "usr/include/SDL2/SDL_timer.h",
+      "source_path": "original/include/SDL_timer.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_touch.h",
+      "install_relpath": "usr/include/SDL2/SDL_touch.h",
+      "source_path": "original/include/SDL_touch.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_types.h",
+      "install_relpath": "usr/include/SDL2/SDL_types.h",
+      "source_path": "original/include/SDL_types.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_version.h",
+      "install_relpath": "usr/include/SDL2/SDL_version.h",
+      "source_path": "original/include/SDL_version.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_video.h",
+      "install_relpath": "usr/include/SDL2/SDL_video.h",
+      "source_path": "original/include/SDL_video.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "SDL_vulkan.h",
+      "install_relpath": "usr/include/SDL2/SDL_vulkan.h",
+      "source_path": "original/include/SDL_vulkan.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "begin_code.h",
+      "install_relpath": "usr/include/SDL2/begin_code.h",
+      "source_path": "original/include/begin_code.h",
+      "source_kind": "upstream_public_header"
+    },
+    {
+      "header_name": "close_code.h",
+      "install_relpath": "usr/include/SDL2/close_code.h",
+      "source_path": "original/include/close_code.h",
+      "source_kind": "upstream_public_header"
+    }
+  ]
+}

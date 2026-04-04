@@ -1,0 +1,5307 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_01_contract_bootstrap",
+  "toolchain_defaults": {
+    "ubuntu_release": "Ubuntu 24.04",
+    "compiler": "cc",
+    "archive_tool": "ar",
+    "linker": "cc",
+    "include_roots": [
+      "$GENERATED_INCLUDE_DIR",
+      "original/include",
+      "original/test"
+    ],
+    "system_include_dirs": [
+      "/usr/include",
+      "/usr/include/x86_64-linux-gnu"
+    ],
+    "pkg_config_modules": [
+      "sdl2"
+    ],
+    "baseline_compiler_flags": [
+      "-g",
+      "-fno-fast-math"
+    ],
+    "baseline_linker_flags": [],
+    "baseline_link_libraries": [
+      "SDL2_test",
+      "SDL2"
+    ]
+  },
+  "translation_units": [
+    {
+      "object_id": "checkkeys__checkkeys",
+      "source_path": "original/test/checkkeys.c",
+      "language": "c",
+      "target_membership": [
+        "checkkeys"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/checkkeys/checkkeys.o"
+    },
+    {
+      "object_id": "checkkeysthreads__checkkeysthreads",
+      "source_path": "original/test/checkkeysthreads.c",
+      "language": "c",
+      "target_membership": [
+        "checkkeysthreads"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/checkkeysthreads/checkkeysthreads.o"
+    },
+    {
+      "object_id": "controllermap__controllermap",
+      "source_path": "original/test/controllermap.c",
+      "language": "c",
+      "target_membership": [
+        "controllermap"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/controllermap/controllermap.o"
+    },
+    {
+      "object_id": "controllermap__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "controllermap"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/controllermap/testutils.o"
+    },
+    {
+      "object_id": "loopwave__loopwave",
+      "source_path": "original/test/loopwave.c",
+      "language": "c",
+      "target_membership": [
+        "loopwave"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/loopwave/loopwave.o"
+    },
+    {
+      "object_id": "loopwave__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "loopwave"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/loopwave/testutils.o"
+    },
+    {
+      "object_id": "loopwavequeue__loopwavequeue",
+      "source_path": "original/test/loopwavequeue.c",
+      "language": "c",
+      "target_membership": [
+        "loopwavequeue"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/loopwavequeue/loopwavequeue.o"
+    },
+    {
+      "object_id": "loopwavequeue__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "loopwavequeue"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/loopwavequeue/testutils.o"
+    },
+    {
+      "object_id": "testatomic__testatomic",
+      "source_path": "original/test/testatomic.c",
+      "language": "c",
+      "target_membership": [
+        "testatomic"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testatomic/testatomic.o"
+    },
+    {
+      "object_id": "testaudiocapture__testaudiocapture",
+      "source_path": "original/test/testaudiocapture.c",
+      "language": "c",
+      "target_membership": [
+        "testaudiocapture"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testaudiocapture/testaudiocapture.o"
+    },
+    {
+      "object_id": "testaudiohotplug__testaudiohotplug",
+      "source_path": "original/test/testaudiohotplug.c",
+      "language": "c",
+      "target_membership": [
+        "testaudiohotplug"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testaudiohotplug/testaudiohotplug.o"
+    },
+    {
+      "object_id": "testaudiohotplug__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "testaudiohotplug"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testaudiohotplug/testutils.o"
+    },
+    {
+      "object_id": "testaudioinfo__testaudioinfo",
+      "source_path": "original/test/testaudioinfo.c",
+      "language": "c",
+      "target_membership": [
+        "testaudioinfo"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_DUMMYAUDIO"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testaudioinfo/testaudioinfo.o"
+    },
+    {
+      "object_id": "testautomation__testautomation",
+      "source_path": "original/test/testautomation.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_audio",
+      "source_path": "original/test/testautomation_audio.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_audio.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_clipboard",
+      "source_path": "original/test/testautomation_clipboard.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_clipboard.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_events",
+      "source_path": "original/test/testautomation_events.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_events.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_guid",
+      "source_path": "original/test/testautomation_guid.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_guid.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_hints",
+      "source_path": "original/test/testautomation_hints.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_hints.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_joystick",
+      "source_path": "original/test/testautomation_joystick.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_joystick.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_keyboard",
+      "source_path": "original/test/testautomation_keyboard.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_keyboard.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_log",
+      "source_path": "original/test/testautomation_log.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_log.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_main",
+      "source_path": "original/test/testautomation_main.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_main.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_math",
+      "source_path": "original/test/testautomation_math.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_math.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_mouse",
+      "source_path": "original/test/testautomation_mouse.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_mouse.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_pixels",
+      "source_path": "original/test/testautomation_pixels.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_pixels.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_platform",
+      "source_path": "original/test/testautomation_platform.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_platform.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_rect",
+      "source_path": "original/test/testautomation_rect.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_rect.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_render",
+      "source_path": "original/test/testautomation_render.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_render.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_rwops",
+      "source_path": "original/test/testautomation_rwops.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_rwops.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_sdltest",
+      "source_path": "original/test/testautomation_sdltest.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_sdltest.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_stdlib",
+      "source_path": "original/test/testautomation_stdlib.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_stdlib.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_subsystems",
+      "source_path": "original/test/testautomation_subsystems.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_subsystems.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_surface",
+      "source_path": "original/test/testautomation_surface.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_surface.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_syswm",
+      "source_path": "original/test/testautomation_syswm.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_syswm.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_timer",
+      "source_path": "original/test/testautomation_timer.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_timer.o"
+    },
+    {
+      "object_id": "testautomation__testautomation_video",
+      "source_path": "original/test/testautomation_video.c",
+      "language": "c",
+      "target_membership": [
+        "testautomation"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testautomation/testautomation_video.o"
+    },
+    {
+      "object_id": "testbounds__testbounds",
+      "source_path": "original/test/testbounds.c",
+      "language": "c",
+      "target_membership": [
+        "testbounds"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_DUMMYVIDEO"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testbounds/testbounds.o"
+    },
+    {
+      "object_id": "testcustomcursor__testcustomcursor",
+      "source_path": "original/test/testcustomcursor.c",
+      "language": "c",
+      "target_membership": [
+        "testcustomcursor"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testcustomcursor/testcustomcursor.o"
+    },
+    {
+      "object_id": "testdisplayinfo__testdisplayinfo",
+      "source_path": "original/test/testdisplayinfo.c",
+      "language": "c",
+      "target_membership": [
+        "testdisplayinfo"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_DUMMYVIDEO"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testdisplayinfo/testdisplayinfo.o"
+    },
+    {
+      "object_id": "testdraw2__testdraw2",
+      "source_path": "original/test/testdraw2.c",
+      "language": "c",
+      "target_membership": [
+        "testdraw2"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testdraw2/testdraw2.o"
+    },
+    {
+      "object_id": "testdrawchessboard__testdrawchessboard",
+      "source_path": "original/test/testdrawchessboard.c",
+      "language": "c",
+      "target_membership": [
+        "testdrawchessboard"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testdrawchessboard/testdrawchessboard.o"
+    },
+    {
+      "object_id": "testdropfile__testdropfile",
+      "source_path": "original/test/testdropfile.c",
+      "language": "c",
+      "target_membership": [
+        "testdropfile"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testdropfile/testdropfile.o"
+    },
+    {
+      "object_id": "testerror__testerror",
+      "source_path": "original/test/testerror.c",
+      "language": "c",
+      "target_membership": [
+        "testerror"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testerror/testerror.o"
+    },
+    {
+      "object_id": "testevdev__testevdev",
+      "source_path": "original/test/testevdev.c",
+      "language": "c",
+      "target_membership": [
+        "testevdev"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "LINUX",
+        "linux/input.h available"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_LINUX_INPUT_H"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testevdev/testevdev.o"
+    },
+    {
+      "object_id": "testfile__testfile",
+      "source_path": "original/test/testfile.c",
+      "language": "c",
+      "target_membership": [
+        "testfile"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testfile/testfile.o"
+    },
+    {
+      "object_id": "testfilesystem__testfilesystem",
+      "source_path": "original/test/testfilesystem.c",
+      "language": "c",
+      "target_membership": [
+        "testfilesystem"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testfilesystem/testfilesystem.o"
+    },
+    {
+      "object_id": "testgamecontroller__testgamecontroller",
+      "source_path": "original/test/testgamecontroller.c",
+      "language": "c",
+      "target_membership": [
+        "testgamecontroller"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testgamecontroller/testgamecontroller.o"
+    },
+    {
+      "object_id": "testgamecontroller__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "testgamecontroller"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testgamecontroller/testutils.o"
+    },
+    {
+      "object_id": "testgeometry__testgeometry",
+      "source_path": "original/test/testgeometry.c",
+      "language": "c",
+      "target_membership": [
+        "testgeometry"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testgeometry/testgeometry.o"
+    },
+    {
+      "object_id": "testgeometry__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "testgeometry"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testgeometry/testutils.o"
+    },
+    {
+      "object_id": "testgesture__testgesture",
+      "source_path": "original/test/testgesture.c",
+      "language": "c",
+      "target_membership": [
+        "testgesture"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testgesture/testgesture.o"
+    },
+    {
+      "object_id": "testgl2__testgl2",
+      "source_path": "original/test/testgl2.c",
+      "language": "c",
+      "target_membership": [
+        "testgl2"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_OPENGL"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testgl2/testgl2.o"
+    },
+    {
+      "object_id": "testgles__testgles",
+      "source_path": "original/test/testgles.c",
+      "language": "c",
+      "target_membership": [
+        "testgles"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL_ES"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_OPENGLES"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testgles/testgles.o"
+    },
+    {
+      "object_id": "testgles2__testgles2",
+      "source_path": "original/test/testgles2.c",
+      "language": "c",
+      "target_membership": [
+        "testgles2"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL_ES2"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_OPENGLES2"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testgles2/testgles2.o"
+    },
+    {
+      "object_id": "testgles2_sdf__testgles2_sdf",
+      "source_path": "original/test/testgles2_sdf.c",
+      "language": "c",
+      "target_membership": [
+        "testgles2_sdf"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL_ES2"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_OPENGLES2"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testgles2_sdf/testgles2_sdf.o"
+    },
+    {
+      "object_id": "testgles2_sdf__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "testgles2_sdf"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL_ES2"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_OPENGLES2"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testgles2_sdf/testutils.o"
+    },
+    {
+      "object_id": "testhaptic__testhaptic",
+      "source_path": "original/test/testhaptic.c",
+      "language": "c",
+      "target_membership": [
+        "testhaptic"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testhaptic/testhaptic.o"
+    },
+    {
+      "object_id": "testhittesting__testhittesting",
+      "source_path": "original/test/testhittesting.c",
+      "language": "c",
+      "target_membership": [
+        "testhittesting"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testhittesting/testhittesting.o"
+    },
+    {
+      "object_id": "testhotplug__testhotplug",
+      "source_path": "original/test/testhotplug.c",
+      "language": "c",
+      "target_membership": [
+        "testhotplug"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testhotplug/testhotplug.o"
+    },
+    {
+      "object_id": "testiconv__testiconv",
+      "source_path": "original/test/testiconv.c",
+      "language": "c",
+      "target_membership": [
+        "testiconv"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testiconv/testiconv.o"
+    },
+    {
+      "object_id": "testiconv__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "testiconv"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testiconv/testutils.o"
+    },
+    {
+      "object_id": "testime__testime",
+      "source_path": "original/test/testime.c",
+      "language": "c",
+      "target_membership": [
+        "testime"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testime/testime.o"
+    },
+    {
+      "object_id": "testime__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "testime"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testime/testutils.o"
+    },
+    {
+      "object_id": "testintersections__testintersections",
+      "source_path": "original/test/testintersections.c",
+      "language": "c",
+      "target_membership": [
+        "testintersections"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testintersections/testintersections.o"
+    },
+    {
+      "object_id": "testjoystick__testjoystick",
+      "source_path": "original/test/testjoystick.c",
+      "language": "c",
+      "target_membership": [
+        "testjoystick"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testjoystick/testjoystick.o"
+    },
+    {
+      "object_id": "testkeys__testkeys",
+      "source_path": "original/test/testkeys.c",
+      "language": "c",
+      "target_membership": [
+        "testkeys"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_DUMMYVIDEO"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testkeys/testkeys.o"
+    },
+    {
+      "object_id": "testloadso__testloadso",
+      "source_path": "original/test/testloadso.c",
+      "language": "c",
+      "target_membership": [
+        "testloadso"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testloadso/testloadso.o"
+    },
+    {
+      "object_id": "testlocale__testlocale",
+      "source_path": "original/test/testlocale.c",
+      "language": "c",
+      "target_membership": [
+        "testlocale"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testlocale/testlocale.o"
+    },
+    {
+      "object_id": "testlock__testlock",
+      "source_path": "original/test/testlock.c",
+      "language": "c",
+      "target_membership": [
+        "testlock"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testlock/testlock.o"
+    },
+    {
+      "object_id": "testmessage__testmessage",
+      "source_path": "original/test/testmessage.c",
+      "language": "c",
+      "target_membership": [
+        "testmessage"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testmessage/testmessage.o"
+    },
+    {
+      "object_id": "testmouse__testmouse",
+      "source_path": "original/test/testmouse.c",
+      "language": "c",
+      "target_membership": [
+        "testmouse"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testmouse/testmouse.o"
+    },
+    {
+      "object_id": "testmultiaudio__testmultiaudio",
+      "source_path": "original/test/testmultiaudio.c",
+      "language": "c",
+      "target_membership": [
+        "testmultiaudio"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testmultiaudio/testmultiaudio.o"
+    },
+    {
+      "object_id": "testmultiaudio__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "testmultiaudio"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testmultiaudio/testutils.o"
+    },
+    {
+      "object_id": "testnative__testnative",
+      "source_path": "original/test/testnative.c",
+      "language": "c",
+      "target_membership": [
+        "testnative"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "HAVE_X11"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testnative/testnative.o"
+    },
+    {
+      "object_id": "testnative__testnativex11",
+      "source_path": "original/test/testnativex11.c",
+      "language": "c",
+      "target_membership": [
+        "testnative"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "HAVE_X11"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testnative/testnativex11.o"
+    },
+    {
+      "object_id": "testnative__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "testnative"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "HAVE_X11"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testnative/testutils.o"
+    },
+    {
+      "object_id": "testoffscreen__testoffscreen",
+      "source_path": "original/test/testoffscreen.c",
+      "language": "c",
+      "target_membership": [
+        "testoffscreen"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testoffscreen/testoffscreen.o"
+    },
+    {
+      "object_id": "testoverlay2__testoverlay2",
+      "source_path": "original/test/testoverlay2.c",
+      "language": "c",
+      "target_membership": [
+        "testoverlay2"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testoverlay2/testoverlay2.o"
+    },
+    {
+      "object_id": "testoverlay2__testyuv_cvt",
+      "source_path": "original/test/testyuv_cvt.c",
+      "language": "c",
+      "target_membership": [
+        "testoverlay2"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testoverlay2/testyuv_cvt.o"
+    },
+    {
+      "object_id": "testoverlay2__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "testoverlay2"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testoverlay2/testutils.o"
+    },
+    {
+      "object_id": "testplatform__testplatform",
+      "source_path": "original/test/testplatform.c",
+      "language": "c",
+      "target_membership": [
+        "testplatform"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testplatform/testplatform.o"
+    },
+    {
+      "object_id": "testpower__testpower",
+      "source_path": "original/test/testpower.c",
+      "language": "c",
+      "target_membership": [
+        "testpower"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testpower/testpower.o"
+    },
+    {
+      "object_id": "testqsort__testqsort",
+      "source_path": "original/test/testqsort.c",
+      "language": "c",
+      "target_membership": [
+        "testqsort"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testqsort/testqsort.o"
+    },
+    {
+      "object_id": "testrelative__testrelative",
+      "source_path": "original/test/testrelative.c",
+      "language": "c",
+      "target_membership": [
+        "testrelative"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testrelative/testrelative.o"
+    },
+    {
+      "object_id": "testrendercopyex__testrendercopyex",
+      "source_path": "original/test/testrendercopyex.c",
+      "language": "c",
+      "target_membership": [
+        "testrendercopyex"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testrendercopyex/testrendercopyex.o"
+    },
+    {
+      "object_id": "testrendercopyex__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "testrendercopyex"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testrendercopyex/testutils.o"
+    },
+    {
+      "object_id": "testrendertarget__testrendertarget",
+      "source_path": "original/test/testrendertarget.c",
+      "language": "c",
+      "target_membership": [
+        "testrendertarget"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testrendertarget/testrendertarget.o"
+    },
+    {
+      "object_id": "testrendertarget__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "testrendertarget"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testrendertarget/testutils.o"
+    },
+    {
+      "object_id": "testresample__testresample",
+      "source_path": "original/test/testresample.c",
+      "language": "c",
+      "target_membership": [
+        "testresample"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testresample/testresample.o"
+    },
+    {
+      "object_id": "testrumble__testrumble",
+      "source_path": "original/test/testrumble.c",
+      "language": "c",
+      "target_membership": [
+        "testrumble"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testrumble/testrumble.o"
+    },
+    {
+      "object_id": "testscale__testscale",
+      "source_path": "original/test/testscale.c",
+      "language": "c",
+      "target_membership": [
+        "testscale"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testscale/testscale.o"
+    },
+    {
+      "object_id": "testscale__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "testscale"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testscale/testutils.o"
+    },
+    {
+      "object_id": "testsem__testsem",
+      "source_path": "original/test/testsem.c",
+      "language": "c",
+      "target_membership": [
+        "testsem"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testsem/testsem.o"
+    },
+    {
+      "object_id": "testsensor__testsensor",
+      "source_path": "original/test/testsensor.c",
+      "language": "c",
+      "target_membership": [
+        "testsensor"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testsensor/testsensor.o"
+    },
+    {
+      "object_id": "testshader__testshader",
+      "source_path": "original/test/testshader.c",
+      "language": "c",
+      "target_membership": [
+        "testshader"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "HAVE_OPENGL"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testshader/testshader.o"
+    },
+    {
+      "object_id": "testshape__testshape",
+      "source_path": "original/test/testshape.c",
+      "language": "c",
+      "target_membership": [
+        "testshape"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testshape/testshape.o"
+    },
+    {
+      "object_id": "testsprite2__testsprite2",
+      "source_path": "original/test/testsprite2.c",
+      "language": "c",
+      "target_membership": [
+        "testsprite2"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testsprite2/testsprite2.o"
+    },
+    {
+      "object_id": "testsprite2__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "testsprite2"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testsprite2/testutils.o"
+    },
+    {
+      "object_id": "testspriteminimal__testspriteminimal",
+      "source_path": "original/test/testspriteminimal.c",
+      "language": "c",
+      "target_membership": [
+        "testspriteminimal"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testspriteminimal/testspriteminimal.o"
+    },
+    {
+      "object_id": "testspriteminimal__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "testspriteminimal"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testspriteminimal/testutils.o"
+    },
+    {
+      "object_id": "teststreaming__teststreaming",
+      "source_path": "original/test/teststreaming.c",
+      "language": "c",
+      "target_membership": [
+        "teststreaming"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/teststreaming/teststreaming.o"
+    },
+    {
+      "object_id": "teststreaming__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "teststreaming"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/teststreaming/testutils.o"
+    },
+    {
+      "object_id": "testsurround__testsurround",
+      "source_path": "original/test/testsurround.c",
+      "language": "c",
+      "target_membership": [
+        "testsurround"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_DUMMYAUDIO"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testsurround/testsurround.o"
+    },
+    {
+      "object_id": "testthread__testthread",
+      "source_path": "original/test/testthread.c",
+      "language": "c",
+      "target_membership": [
+        "testthread"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testthread/testthread.o"
+    },
+    {
+      "object_id": "testtimer__testtimer",
+      "source_path": "original/test/testtimer.c",
+      "language": "c",
+      "target_membership": [
+        "testtimer"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testtimer/testtimer.o"
+    },
+    {
+      "object_id": "testurl__testurl",
+      "source_path": "original/test/testurl.c",
+      "language": "c",
+      "target_membership": [
+        "testurl"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testurl/testurl.o"
+    },
+    {
+      "object_id": "testver__testver",
+      "source_path": "original/test/testver.c",
+      "language": "c",
+      "target_membership": [
+        "testver"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testver/testver.o"
+    },
+    {
+      "object_id": "testviewport__testviewport",
+      "source_path": "original/test/testviewport.c",
+      "language": "c",
+      "target_membership": [
+        "testviewport"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testviewport/testviewport.o"
+    },
+    {
+      "object_id": "testviewport__testutils",
+      "source_path": "original/test/testutils.c",
+      "language": "c",
+      "target_membership": [
+        "testviewport"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testviewport/testutils.o"
+    },
+    {
+      "object_id": "testvulkan__testvulkan",
+      "source_path": "original/test/testvulkan.c",
+      "language": "c",
+      "target_membership": [
+        "testvulkan"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "public vulkan/vulkan.h available"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [
+        "SDL_PUBLIC_VULKAN_HEADER=\"vulkan/vulkan.h\""
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testvulkan/testvulkan.o"
+    },
+    {
+      "object_id": "testwm2__testwm2",
+      "source_path": "original/test/testwm2.c",
+      "language": "c",
+      "target_membership": [
+        "testwm2"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testwm2/testwm2.o"
+    },
+    {
+      "object_id": "testyuv__testyuv",
+      "source_path": "original/test/testyuv.c",
+      "language": "c",
+      "target_membership": [
+        "testyuv"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testyuv/testyuv.o"
+    },
+    {
+      "object_id": "testyuv__testyuv_cvt",
+      "source_path": "original/test/testyuv_cvt.c",
+      "language": "c",
+      "target_membership": [
+        "testyuv"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/testyuv/testyuv_cvt.o"
+    },
+    {
+      "object_id": "torturethread__torturethread",
+      "source_path": "original/test/torturethread.c",
+      "language": "c",
+      "target_membership": [
+        "torturethread"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "include_dirs": [
+        "$GENERATED_INCLUDE_DIR",
+        "original/include",
+        "original/test"
+      ],
+      "system_include_dirs": [
+        "/usr/include",
+        "/usr/include/x86_64-linux-gnu"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "output_object_relpath": "objects/torturethread/torturethread.o"
+    }
+  ],
+  "targets": [
+    {
+      "target_name": "checkkeys",
+      "output_name": "checkkeys",
+      "object_ids": [
+        "checkkeys__checkkeys"
+      ],
+      "standalone_manifest_key": "checkkeys",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "checkkeysthreads",
+      "output_name": "checkkeysthreads",
+      "object_ids": [
+        "checkkeysthreads__checkkeysthreads"
+      ],
+      "standalone_manifest_key": "checkkeysthreads",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "controllermap",
+      "output_name": "controllermap",
+      "object_ids": [
+        "controllermap__controllermap",
+        "controllermap__testutils"
+      ],
+      "standalone_manifest_key": "controllermap",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "loopwave",
+      "output_name": "loopwave",
+      "object_ids": [
+        "loopwave__loopwave",
+        "loopwave__testutils"
+      ],
+      "standalone_manifest_key": "loopwave",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "loopwavequeue",
+      "output_name": "loopwavequeue",
+      "object_ids": [
+        "loopwavequeue__loopwavequeue",
+        "loopwavequeue__testutils"
+      ],
+      "standalone_manifest_key": "loopwavequeue",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testatomic",
+      "output_name": "testatomic",
+      "object_ids": [
+        "testatomic__testatomic"
+      ],
+      "standalone_manifest_key": "testatomic",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testaudiocapture",
+      "output_name": "testaudiocapture",
+      "object_ids": [
+        "testaudiocapture__testaudiocapture"
+      ],
+      "standalone_manifest_key": "testaudiocapture",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testaudiohotplug",
+      "output_name": "testaudiohotplug",
+      "object_ids": [
+        "testaudiohotplug__testaudiohotplug",
+        "testaudiohotplug__testutils"
+      ],
+      "standalone_manifest_key": "testaudiohotplug",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testaudioinfo",
+      "output_name": "testaudioinfo",
+      "object_ids": [
+        "testaudioinfo__testaudioinfo"
+      ],
+      "standalone_manifest_key": "testaudioinfo",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_DUMMYAUDIO"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testautomation",
+      "output_name": "testautomation",
+      "object_ids": [
+        "testautomation__testautomation",
+        "testautomation__testautomation_audio",
+        "testautomation__testautomation_clipboard",
+        "testautomation__testautomation_events",
+        "testautomation__testautomation_guid",
+        "testautomation__testautomation_hints",
+        "testautomation__testautomation_joystick",
+        "testautomation__testautomation_keyboard",
+        "testautomation__testautomation_log",
+        "testautomation__testautomation_main",
+        "testautomation__testautomation_math",
+        "testautomation__testautomation_mouse",
+        "testautomation__testautomation_pixels",
+        "testautomation__testautomation_platform",
+        "testautomation__testautomation_rect",
+        "testautomation__testautomation_render",
+        "testautomation__testautomation_rwops",
+        "testautomation__testautomation_sdltest",
+        "testautomation__testautomation_stdlib",
+        "testautomation__testautomation_subsystems",
+        "testautomation__testautomation_surface",
+        "testautomation__testautomation_syswm",
+        "testautomation__testautomation_timer",
+        "testautomation__testautomation_video"
+      ],
+      "standalone_manifest_key": "testautomation",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testbounds",
+      "output_name": "testbounds",
+      "object_ids": [
+        "testbounds__testbounds"
+      ],
+      "standalone_manifest_key": "testbounds",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_DUMMYVIDEO"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testcustomcursor",
+      "output_name": "testcustomcursor",
+      "object_ids": [
+        "testcustomcursor__testcustomcursor"
+      ],
+      "standalone_manifest_key": "testcustomcursor",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testdisplayinfo",
+      "output_name": "testdisplayinfo",
+      "object_ids": [
+        "testdisplayinfo__testdisplayinfo"
+      ],
+      "standalone_manifest_key": "testdisplayinfo",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_DUMMYVIDEO"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testdraw2",
+      "output_name": "testdraw2",
+      "object_ids": [
+        "testdraw2__testdraw2"
+      ],
+      "standalone_manifest_key": "testdraw2",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testdrawchessboard",
+      "output_name": "testdrawchessboard",
+      "object_ids": [
+        "testdrawchessboard__testdrawchessboard"
+      ],
+      "standalone_manifest_key": "testdrawchessboard",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testdropfile",
+      "output_name": "testdropfile",
+      "object_ids": [
+        "testdropfile__testdropfile"
+      ],
+      "standalone_manifest_key": "testdropfile",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testerror",
+      "output_name": "testerror",
+      "object_ids": [
+        "testerror__testerror"
+      ],
+      "standalone_manifest_key": "testerror",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testevdev",
+      "output_name": "testevdev",
+      "object_ids": [
+        "testevdev__testevdev"
+      ],
+      "standalone_manifest_key": "testevdev",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "LINUX",
+        "linux/input.h available"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": [
+        "-Wl,--wrap=open",
+        "-Wl,--wrap=close",
+        "-Wl,--wrap=read",
+        "-Wl,--wrap=ioctl"
+      ]
+    },
+    {
+      "target_name": "testfile",
+      "output_name": "testfile",
+      "object_ids": [
+        "testfile__testfile"
+      ],
+      "standalone_manifest_key": "testfile",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testfilesystem",
+      "output_name": "testfilesystem",
+      "object_ids": [
+        "testfilesystem__testfilesystem"
+      ],
+      "standalone_manifest_key": "testfilesystem",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testgamecontroller",
+      "output_name": "testgamecontroller",
+      "object_ids": [
+        "testgamecontroller__testgamecontroller",
+        "testgamecontroller__testutils"
+      ],
+      "standalone_manifest_key": "testgamecontroller",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testgeometry",
+      "output_name": "testgeometry",
+      "object_ids": [
+        "testgeometry__testgeometry",
+        "testgeometry__testutils"
+      ],
+      "standalone_manifest_key": "testgeometry",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testgesture",
+      "output_name": "testgesture",
+      "object_ids": [
+        "testgesture__testgesture"
+      ],
+      "standalone_manifest_key": "testgesture",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [
+        "m"
+      ],
+      "link_options": []
+    },
+    {
+      "target_name": "testgl2",
+      "output_name": "testgl2",
+      "object_ids": [
+        "testgl2__testgl2"
+      ],
+      "standalone_manifest_key": "testgl2",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [
+        "gl"
+      ],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [
+        "GL",
+        "m"
+      ],
+      "link_options": []
+    },
+    {
+      "target_name": "testgles",
+      "output_name": "testgles",
+      "object_ids": [
+        "testgles__testgles"
+      ],
+      "standalone_manifest_key": "testgles",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL_ES"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [
+        "glesv1_cm"
+      ],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [
+        "GLESv1_CM",
+        "m"
+      ],
+      "link_options": []
+    },
+    {
+      "target_name": "testgles2",
+      "output_name": "testgles2",
+      "object_ids": [
+        "testgles2__testgles2"
+      ],
+      "standalone_manifest_key": "testgles2",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL_ES2"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testgles2_sdf",
+      "output_name": "testgles2_sdf",
+      "object_ids": [
+        "testgles2_sdf__testgles2_sdf",
+        "testgles2_sdf__testutils"
+      ],
+      "standalone_manifest_key": "testgles2_sdf",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL_ES2"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [
+        "m"
+      ],
+      "link_options": []
+    },
+    {
+      "target_name": "testhaptic",
+      "output_name": "testhaptic",
+      "object_ids": [
+        "testhaptic__testhaptic"
+      ],
+      "standalone_manifest_key": "testhaptic",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testhittesting",
+      "output_name": "testhittesting",
+      "object_ids": [
+        "testhittesting__testhittesting"
+      ],
+      "standalone_manifest_key": "testhittesting",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testhotplug",
+      "output_name": "testhotplug",
+      "object_ids": [
+        "testhotplug__testhotplug"
+      ],
+      "standalone_manifest_key": "testhotplug",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testiconv",
+      "output_name": "testiconv",
+      "object_ids": [
+        "testiconv__testiconv",
+        "testiconv__testutils"
+      ],
+      "standalone_manifest_key": "testiconv",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testime",
+      "output_name": "testime",
+      "object_ids": [
+        "testime__testime",
+        "testime__testutils"
+      ],
+      "standalone_manifest_key": "testime",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testintersections",
+      "output_name": "testintersections",
+      "object_ids": [
+        "testintersections__testintersections"
+      ],
+      "standalone_manifest_key": "testintersections",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testjoystick",
+      "output_name": "testjoystick",
+      "object_ids": [
+        "testjoystick__testjoystick"
+      ],
+      "standalone_manifest_key": "testjoystick",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testkeys",
+      "output_name": "testkeys",
+      "object_ids": [
+        "testkeys__testkeys"
+      ],
+      "standalone_manifest_key": "testkeys",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_DUMMYVIDEO"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testloadso",
+      "output_name": "testloadso",
+      "object_ids": [
+        "testloadso__testloadso"
+      ],
+      "standalone_manifest_key": "testloadso",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testlocale",
+      "output_name": "testlocale",
+      "object_ids": [
+        "testlocale__testlocale"
+      ],
+      "standalone_manifest_key": "testlocale",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testlock",
+      "output_name": "testlock",
+      "object_ids": [
+        "testlock__testlock"
+      ],
+      "standalone_manifest_key": "testlock",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testmessage",
+      "output_name": "testmessage",
+      "object_ids": [
+        "testmessage__testmessage"
+      ],
+      "standalone_manifest_key": "testmessage",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testmouse",
+      "output_name": "testmouse",
+      "object_ids": [
+        "testmouse__testmouse"
+      ],
+      "standalone_manifest_key": "testmouse",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testmultiaudio",
+      "output_name": "testmultiaudio",
+      "object_ids": [
+        "testmultiaudio__testmultiaudio",
+        "testmultiaudio__testutils"
+      ],
+      "standalone_manifest_key": "testmultiaudio",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testnative",
+      "output_name": "testnative",
+      "object_ids": [
+        "testnative__testnative",
+        "testnative__testnativex11",
+        "testnative__testutils"
+      ],
+      "standalone_manifest_key": "testnative",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "HAVE_X11"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [
+        "x11"
+      ],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [
+        "X11"
+      ],
+      "link_options": []
+    },
+    {
+      "target_name": "testoffscreen",
+      "output_name": "testoffscreen",
+      "object_ids": [
+        "testoffscreen__testoffscreen"
+      ],
+      "standalone_manifest_key": "testoffscreen",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testoverlay2",
+      "output_name": "testoverlay2",
+      "object_ids": [
+        "testoverlay2__testoverlay2",
+        "testoverlay2__testyuv_cvt",
+        "testoverlay2__testutils"
+      ],
+      "standalone_manifest_key": "testoverlay2",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testplatform",
+      "output_name": "testplatform",
+      "object_ids": [
+        "testplatform__testplatform"
+      ],
+      "standalone_manifest_key": "testplatform",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testpower",
+      "output_name": "testpower",
+      "object_ids": [
+        "testpower__testpower"
+      ],
+      "standalone_manifest_key": "testpower",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testqsort",
+      "output_name": "testqsort",
+      "object_ids": [
+        "testqsort__testqsort"
+      ],
+      "standalone_manifest_key": "testqsort",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testrelative",
+      "output_name": "testrelative",
+      "object_ids": [
+        "testrelative__testrelative"
+      ],
+      "standalone_manifest_key": "testrelative",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testrendercopyex",
+      "output_name": "testrendercopyex",
+      "object_ids": [
+        "testrendercopyex__testrendercopyex",
+        "testrendercopyex__testutils"
+      ],
+      "standalone_manifest_key": "testrendercopyex",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [
+        "m"
+      ],
+      "link_options": []
+    },
+    {
+      "target_name": "testrendertarget",
+      "output_name": "testrendertarget",
+      "object_ids": [
+        "testrendertarget__testrendertarget",
+        "testrendertarget__testutils"
+      ],
+      "standalone_manifest_key": "testrendertarget",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testresample",
+      "output_name": "testresample",
+      "object_ids": [
+        "testresample__testresample"
+      ],
+      "standalone_manifest_key": "testresample",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testrumble",
+      "output_name": "testrumble",
+      "object_ids": [
+        "testrumble__testrumble"
+      ],
+      "standalone_manifest_key": "testrumble",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testscale",
+      "output_name": "testscale",
+      "object_ids": [
+        "testscale__testscale",
+        "testscale__testutils"
+      ],
+      "standalone_manifest_key": "testscale",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testsem",
+      "output_name": "testsem",
+      "object_ids": [
+        "testsem__testsem"
+      ],
+      "standalone_manifest_key": "testsem",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testsensor",
+      "output_name": "testsensor",
+      "object_ids": [
+        "testsensor__testsensor"
+      ],
+      "standalone_manifest_key": "testsensor",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testshader",
+      "output_name": "testshader",
+      "object_ids": [
+        "testshader__testshader"
+      ],
+      "standalone_manifest_key": "testshader",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [
+        "gl"
+      ],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [
+        "GL",
+        "m"
+      ],
+      "link_options": []
+    },
+    {
+      "target_name": "testshape",
+      "output_name": "testshape",
+      "object_ids": [
+        "testshape__testshape"
+      ],
+      "standalone_manifest_key": "testshape",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testsprite2",
+      "output_name": "testsprite2",
+      "object_ids": [
+        "testsprite2__testsprite2",
+        "testsprite2__testutils"
+      ],
+      "standalone_manifest_key": "testsprite2",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testspriteminimal",
+      "output_name": "testspriteminimal",
+      "object_ids": [
+        "testspriteminimal__testspriteminimal",
+        "testspriteminimal__testutils"
+      ],
+      "standalone_manifest_key": "testspriteminimal",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [
+        "m"
+      ],
+      "link_options": []
+    },
+    {
+      "target_name": "teststreaming",
+      "output_name": "teststreaming",
+      "object_ids": [
+        "teststreaming__teststreaming",
+        "teststreaming__testutils"
+      ],
+      "standalone_manifest_key": "teststreaming",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [
+        "m"
+      ],
+      "link_options": []
+    },
+    {
+      "target_name": "testsurround",
+      "output_name": "testsurround",
+      "object_ids": [
+        "testsurround__testsurround"
+      ],
+      "standalone_manifest_key": "testsurround",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "SDL_DUMMYAUDIO"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testthread",
+      "output_name": "testthread",
+      "object_ids": [
+        "testthread__testthread"
+      ],
+      "standalone_manifest_key": "testthread",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testtimer",
+      "output_name": "testtimer",
+      "object_ids": [
+        "testtimer__testtimer"
+      ],
+      "standalone_manifest_key": "testtimer",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testurl",
+      "output_name": "testurl",
+      "object_ids": [
+        "testurl__testurl"
+      ],
+      "standalone_manifest_key": "testurl",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testver",
+      "output_name": "testver",
+      "object_ids": [
+        "testver__testver"
+      ],
+      "standalone_manifest_key": "testver",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testviewport",
+      "output_name": "testviewport",
+      "object_ids": [
+        "testviewport__testviewport",
+        "testviewport__testutils"
+      ],
+      "standalone_manifest_key": "testviewport",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testvulkan",
+      "output_name": "testvulkan",
+      "object_ids": [
+        "testvulkan__testvulkan"
+      ],
+      "standalone_manifest_key": "testvulkan",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "public vulkan/vulkan.h available"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testwm2",
+      "output_name": "testwm2",
+      "object_ids": [
+        "testwm2__testwm2"
+      ],
+      "standalone_manifest_key": "testwm2",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "testyuv",
+      "output_name": "testyuv",
+      "object_ids": [
+        "testyuv__testyuv",
+        "testyuv__testyuv_cvt"
+      ],
+      "standalone_manifest_key": "testyuv",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    },
+    {
+      "target_name": "torturethread",
+      "output_name": "torturethread",
+      "object_ids": [
+        "torturethread__torturethread"
+      ],
+      "standalone_manifest_key": "torturethread",
+      "ubuntu_24_04_enabled": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "link_search_paths": [
+        "$STAGE_LIBDIR"
+      ],
+      "link_libraries": [],
+      "link_options": []
+    }
+  ]
+}

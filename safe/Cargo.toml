@@ -1,0 +1,20 @@
+[workspace]
+members = [".", "xtask"]
+resolver = "2"
+
+[package]
+name = "safe-sdl"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Bootstrap SDL2 ABI contract capture and stub surface"
+
+[lib]
+name = "safe_sdl"
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[dependencies]
+
+[build-dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

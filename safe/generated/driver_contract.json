@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_01_contract_bootstrap",
+  "ubuntu_release": "Ubuntu 24.04",
+  "video": {
+    "registry_order": [
+      {
+        "registry_index": 0,
+        "bootstrap_symbol": "X11_bootstrap",
+        "driver_name": "x11",
+        "description": "SDL X11 video driver",
+        "feature_predicates": [
+          "SDL_VIDEO_DRIVER_X11"
+        ],
+        "demand_only": null
+      },
+      {
+        "registry_index": 1,
+        "bootstrap_symbol": "Wayland_bootstrap",
+        "driver_name": "wayland",
+        "description": "SDL Wayland video driver",
+        "feature_predicates": [
+          "SDL_VIDEO_DRIVER_WAYLAND"
+        ],
+        "demand_only": null
+      },
+      {
+        "registry_index": 2,
+        "bootstrap_symbol": "KMSDRM_bootstrap",
+        "driver_name": "KMSDRM",
+        "description": "KMS/DRM Video Driver",
+        "feature_predicates": [
+          "SDL_VIDEO_DRIVER_KMSDRM"
+        ],
+        "demand_only": null
+      },
+      {
+        "registry_index": 3,
+        "bootstrap_symbol": "OFFSCREEN_bootstrap",
+        "driver_name": "offscreen",
+        "description": "SDL offscreen video driver",
+        "feature_predicates": [
+          "SDL_VIDEO_DRIVER_OFFSCREEN"
+        ],
+        "demand_only": null
+      },
+      {
+        "registry_index": 4,
+        "bootstrap_symbol": "DUMMY_bootstrap",
+        "driver_name": "dummy",
+        "description": "SDL dummy video driver",
+        "feature_predicates": [
+          "SDL_VIDEO_DRIVER_DUMMY"
+        ],
+        "demand_only": null
+      },
+      {
+        "registry_index": 5,
+        "bootstrap_symbol": "DUMMY_evdev_bootstrap",
+        "driver_name": "evdev",
+        "description": "SDL dummy video driver with evdev",
+        "feature_predicates": [
+          "SDL_VIDEO_DRIVER_DUMMY",
+          "SDL_INPUT_LINUXEV"
+        ],
+        "demand_only": null
+      }
+    ],
+    "no_hint_probe_order": [
+      "x11",
+      "wayland",
+      "KMSDRM",
+      "offscreen",
+      "dummy",
+      "evdev"
+    ],
+    "single_backend_expectations": [
+      {
+        "driver_name": "x11",
+        "selected_without_hint": "x11",
+        "rationale": "video init walks the registry in order until a backend creates a device"
+      },
+      {
+        "driver_name": "wayland",
+        "selected_without_hint": "wayland",
+        "rationale": "video init walks the registry in order until a backend creates a device"
+      },
+      {
+        "driver_name": "KMSDRM",
+        "selected_without_hint": "KMSDRM",
+        "rationale": "video init walks the registry in order until a backend creates a device"
+      },
+      {
+        "driver_name": "offscreen",
+        "selected_without_hint": "offscreen",
+        "rationale": "video init walks the registry in order until a backend creates a device"
+      },
+      {
+        "driver_name": "dummy",
+        "selected_without_hint": "dummy",
+        "rationale": "video init walks the registry in order until a backend creates a device"
+      },
+      {
+        "driver_name": "evdev",
+        "selected_without_hint": "evdev",
+        "rationale": "video init walks the registry in order until a backend creates a device"
+      }
+    ]
+  },
+  "audio": {
+    "registry_order": [
+      {
+        "registry_index": 0,
+        "bootstrap_symbol": "PULSEAUDIO_bootstrap",
+        "driver_name": "pulseaudio",
+        "description": "PulseAudio",
+        "feature_predicates": [
+          "SDL_AUDIO_DRIVER_PULSEAUDIO"
+        ],
+        "demand_only": false
+      },
+      {
+        "registry_index": 1,
+        "bootstrap_symbol": "ALSA_bootstrap",
+        "driver_name": "alsa",
+        "description": "ALSA PCM audio",
+        "feature_predicates": [
+          "SDL_AUDIO_DRIVER_ALSA"
+        ],
+        "demand_only": false
+      },
+      {
+        "registry_index": 2,
+        "bootstrap_symbol": "SNDIO_bootstrap",
+        "driver_name": "sndio",
+        "description": "OpenBSD sndio",
+        "feature_predicates": [
+          "SDL_AUDIO_DRIVER_SNDIO"
+        ],
+        "demand_only": false
+      },
+      {
+        "registry_index": 3,
+        "bootstrap_symbol": "PIPEWIRE_bootstrap",
+        "driver_name": "pipewire",
+        "description": "Pipewire",
+        "feature_predicates": [
+          "SDL_AUDIO_DRIVER_PIPEWIRE"
+        ],
+        "demand_only": false
+      },
+      {
+        "registry_index": 4,
+        "bootstrap_symbol": "DISKAUDIO_bootstrap",
+        "driver_name": "disk",
+        "description": "direct-to-disk audio",
+        "feature_predicates": [
+          "SDL_AUDIO_DRIVER_DISK"
+        ],
+        "demand_only": true
+      },
+      {
+        "registry_index": 5,
+        "bootstrap_symbol": "DUMMYAUDIO_bootstrap",
+        "driver_name": "dummy",
+        "description": "SDL dummy audio driver",
+        "feature_predicates": [
+          "SDL_AUDIO_DRIVER_DUMMY"
+        ],
+        "demand_only": true
+      }
+    ],
+    "no_hint_probe_order": [
+      "pulseaudio",
+      "alsa",
+      "sndio",
+      "pipewire"
+    ],
+    "single_backend_expectations": [
+      {
+        "driver_name": "pulseaudio",
+        "selected_without_hint": "pulseaudio",
+        "rationale": "audio init walks the registry in order, skipping demand_only backends"
+      },
+      {
+        "driver_name": "alsa",
+        "selected_without_hint": "alsa",
+        "rationale": "audio init walks the registry in order, skipping demand_only backends"
+      },
+      {
+        "driver_name": "sndio",
+        "selected_without_hint": "sndio",
+        "rationale": "audio init walks the registry in order, skipping demand_only backends"
+      },
+      {
+        "driver_name": "pipewire",
+        "selected_without_hint": "pipewire",
+        "rationale": "audio init walks the registry in order, skipping demand_only backends"
+      },
+      {
+        "driver_name": "disk",
+        "selected_without_hint": null,
+        "rationale": "demand_only audio backends are skipped unless explicitly requested"
+      },
+      {
+        "driver_name": "dummy",
+        "selected_without_hint": null,
+        "rationale": "demand_only audio backends are skipped unless explicitly requested"
+      }
+    ]
+  }
+}

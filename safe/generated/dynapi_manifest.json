@@ -1,0 +1,5372 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_01_contract_bootstrap",
+  "slots": [
+    {
+      "slot_index": 0,
+      "name": "SDL_SetError",
+      "line": 34,
+      "guard_stack": [
+        "!SDL_DYNAPI_PROC_NO_VARARGS"
+      ]
+    },
+    {
+      "slot_index": 1,
+      "name": "SDL_Log",
+      "line": 35,
+      "guard_stack": [
+        "!SDL_DYNAPI_PROC_NO_VARARGS"
+      ]
+    },
+    {
+      "slot_index": 2,
+      "name": "SDL_LogVerbose",
+      "line": 36,
+      "guard_stack": [
+        "!SDL_DYNAPI_PROC_NO_VARARGS"
+      ]
+    },
+    {
+      "slot_index": 3,
+      "name": "SDL_LogDebug",
+      "line": 37,
+      "guard_stack": [
+        "!SDL_DYNAPI_PROC_NO_VARARGS"
+      ]
+    },
+    {
+      "slot_index": 4,
+      "name": "SDL_LogInfo",
+      "line": 38,
+      "guard_stack": [
+        "!SDL_DYNAPI_PROC_NO_VARARGS"
+      ]
+    },
+    {
+      "slot_index": 5,
+      "name": "SDL_LogWarn",
+      "line": 39,
+      "guard_stack": [
+        "!SDL_DYNAPI_PROC_NO_VARARGS"
+      ]
+    },
+    {
+      "slot_index": 6,
+      "name": "SDL_LogError",
+      "line": 40,
+      "guard_stack": [
+        "!SDL_DYNAPI_PROC_NO_VARARGS"
+      ]
+    },
+    {
+      "slot_index": 7,
+      "name": "SDL_LogCritical",
+      "line": 41,
+      "guard_stack": [
+        "!SDL_DYNAPI_PROC_NO_VARARGS"
+      ]
+    },
+    {
+      "slot_index": 8,
+      "name": "SDL_LogMessage",
+      "line": 42,
+      "guard_stack": [
+        "!SDL_DYNAPI_PROC_NO_VARARGS"
+      ]
+    },
+    {
+      "slot_index": 9,
+      "name": "SDL_sscanf",
+      "line": 43,
+      "guard_stack": [
+        "!SDL_DYNAPI_PROC_NO_VARARGS"
+      ]
+    },
+    {
+      "slot_index": 10,
+      "name": "SDL_snprintf",
+      "line": 44,
+      "guard_stack": [
+        "!SDL_DYNAPI_PROC_NO_VARARGS"
+      ]
+    },
+    {
+      "slot_index": 11,
+      "name": "SDL_CreateThread",
+      "line": 52,
+      "guard_stack": [
+        "defined(__WIN32__) || defined(__GDK__)"
+      ]
+    },
+    {
+      "slot_index": 12,
+      "name": "SDL_CreateThread",
+      "line": 54,
+      "guard_stack": [
+        "defined(__OS2__)"
+      ]
+    },
+    {
+      "slot_index": 13,
+      "name": "SDL_CreateThread",
+      "line": 56,
+      "guard_stack": [
+        "!(defined(__OS2__))"
+      ]
+    },
+    {
+      "slot_index": 14,
+      "name": "SDL_RWFromFP",
+      "line": 60,
+      "guard_stack": [
+        "HAVE_STDIO_H"
+      ]
+    },
+    {
+      "slot_index": 15,
+      "name": "SDL_RWFromFP",
+      "line": 62,
+      "guard_stack": [
+        "!(HAVE_STDIO_H)"
+      ]
+    },
+    {
+      "slot_index": 16,
+      "name": "SDL_RegisterApp",
+      "line": 66,
+      "guard_stack": [
+        "defined(__WIN32__) || defined(__GDK__)"
+      ]
+    },
+    {
+      "slot_index": 17,
+      "name": "SDL_UnregisterApp",
+      "line": 67,
+      "guard_stack": [
+        "defined(__WIN32__) || defined(__GDK__)"
+      ]
+    },
+    {
+      "slot_index": 18,
+      "name": "SDL_Direct3D9GetAdapterIndex",
+      "line": 71,
+      "guard_stack": [
+        "defined(__WIN32__) || defined(__WINGDK__)"
+      ]
+    },
+    {
+      "slot_index": 19,
+      "name": "SDL_RenderGetD3D9Device",
+      "line": 72,
+      "guard_stack": [
+        "defined(__WIN32__) || defined(__WINGDK__)"
+      ]
+    },
+    {
+      "slot_index": 20,
+      "name": "SDL_iPhoneSetAnimationCallback",
+      "line": 76,
+      "guard_stack": [
+        "__IPHONEOS__"
+      ]
+    },
+    {
+      "slot_index": 21,
+      "name": "SDL_iPhoneSetEventPump",
+      "line": 77,
+      "guard_stack": [
+        "__IPHONEOS__"
+      ]
+    },
+    {
+      "slot_index": 22,
+      "name": "SDL_AndroidGetJNIEnv",
+      "line": 81,
+      "guard_stack": [
+        "__ANDROID__"
+      ]
+    },
+    {
+      "slot_index": 23,
+      "name": "SDL_AndroidGetActivity",
+      "line": 82,
+      "guard_stack": [
+        "__ANDROID__"
+      ]
+    },
+    {
+      "slot_index": 24,
+      "name": "SDL_AndroidGetInternalStoragePath",
+      "line": 83,
+      "guard_stack": [
+        "__ANDROID__"
+      ]
+    },
+    {
+      "slot_index": 25,
+      "name": "SDL_AndroidGetExternalStorageState",
+      "line": 84,
+      "guard_stack": [
+        "__ANDROID__"
+      ]
+    },
+    {
+      "slot_index": 26,
+      "name": "SDL_AndroidGetExternalStoragePath",
+      "line": 85,
+      "guard_stack": [
+        "__ANDROID__"
+      ]
+    },
+    {
+      "slot_index": 27,
+      "name": "SDL_Init",
+      "line": 88,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 28,
+      "name": "SDL_InitSubSystem",
+      "line": 89,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 29,
+      "name": "SDL_QuitSubSystem",
+      "line": 90,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 30,
+      "name": "SDL_WasInit",
+      "line": 91,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 31,
+      "name": "SDL_Quit",
+      "line": 92,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 32,
+      "name": "SDL_ReportAssertion",
+      "line": 93,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 33,
+      "name": "SDL_SetAssertionHandler",
+      "line": 94,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 34,
+      "name": "SDL_GetAssertionReport",
+      "line": 95,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 35,
+      "name": "SDL_ResetAssertionReport",
+      "line": 96,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 36,
+      "name": "SDL_AtomicTryLock",
+      "line": 97,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 37,
+      "name": "SDL_AtomicLock",
+      "line": 98,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 38,
+      "name": "SDL_AtomicUnlock",
+      "line": 99,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 39,
+      "name": "SDL_AtomicCAS",
+      "line": 100,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 40,
+      "name": "SDL_AtomicSet",
+      "line": 101,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 41,
+      "name": "SDL_AtomicGet",
+      "line": 102,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 42,
+      "name": "SDL_AtomicAdd",
+      "line": 103,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 43,
+      "name": "SDL_AtomicCASPtr",
+      "line": 104,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 44,
+      "name": "SDL_AtomicSetPtr",
+      "line": 105,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 45,
+      "name": "SDL_AtomicGetPtr",
+      "line": 106,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 46,
+      "name": "SDL_GetNumAudioDrivers",
+      "line": 107,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 47,
+      "name": "SDL_GetAudioDriver",
+      "line": 108,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 48,
+      "name": "SDL_AudioInit",
+      "line": 109,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 49,
+      "name": "SDL_AudioQuit",
+      "line": 110,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 50,
+      "name": "SDL_GetCurrentAudioDriver",
+      "line": 111,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 51,
+      "name": "SDL_OpenAudio",
+      "line": 112,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 52,
+      "name": "SDL_GetNumAudioDevices",
+      "line": 113,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 53,
+      "name": "SDL_GetAudioDeviceName",
+      "line": 114,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 54,
+      "name": "SDL_OpenAudioDevice",
+      "line": 115,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 55,
+      "name": "SDL_GetAudioStatus",
+      "line": 116,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 56,
+      "name": "SDL_GetAudioDeviceStatus",
+      "line": 117,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 57,
+      "name": "SDL_PauseAudio",
+      "line": 118,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 58,
+      "name": "SDL_PauseAudioDevice",
+      "line": 119,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 59,
+      "name": "SDL_LoadWAV_RW",
+      "line": 120,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 60,
+      "name": "SDL_FreeWAV",
+      "line": 121,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 61,
+      "name": "SDL_BuildAudioCVT",
+      "line": 122,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 62,
+      "name": "SDL_ConvertAudio",
+      "line": 123,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 63,
+      "name": "SDL_MixAudio",
+      "line": 124,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 64,
+      "name": "SDL_MixAudioFormat",
+      "line": 125,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 65,
+      "name": "SDL_LockAudio",
+      "line": 126,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 66,
+      "name": "SDL_LockAudioDevice",
+      "line": 127,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 67,
+      "name": "SDL_UnlockAudio",
+      "line": 128,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 68,
+      "name": "SDL_UnlockAudioDevice",
+      "line": 129,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 69,
+      "name": "SDL_CloseAudio",
+      "line": 130,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 70,
+      "name": "SDL_CloseAudioDevice",
+      "line": 131,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 71,
+      "name": "SDL_SetClipboardText",
+      "line": 132,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 72,
+      "name": "SDL_GetClipboardText",
+      "line": 133,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 73,
+      "name": "SDL_HasClipboardText",
+      "line": 134,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 74,
+      "name": "SDL_GetCPUCount",
+      "line": 135,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 75,
+      "name": "SDL_GetCPUCacheLineSize",
+      "line": 136,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 76,
+      "name": "SDL_HasRDTSC",
+      "line": 137,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 77,
+      "name": "SDL_HasAltiVec",
+      "line": 138,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 78,
+      "name": "SDL_HasMMX",
+      "line": 139,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 79,
+      "name": "SDL_Has3DNow",
+      "line": 140,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 80,
+      "name": "SDL_HasSSE",
+      "line": 141,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 81,
+      "name": "SDL_HasSSE2",
+      "line": 142,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 82,
+      "name": "SDL_HasSSE3",
+      "line": 143,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 83,
+      "name": "SDL_HasSSE41",
+      "line": 144,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 84,
+      "name": "SDL_HasSSE42",
+      "line": 145,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 85,
+      "name": "SDL_GetSystemRAM",
+      "line": 146,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 86,
+      "name": "SDL_GetError",
+      "line": 147,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 87,
+      "name": "SDL_ClearError",
+      "line": 148,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 88,
+      "name": "SDL_Error",
+      "line": 149,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 89,
+      "name": "SDL_PumpEvents",
+      "line": 150,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 90,
+      "name": "SDL_PeepEvents",
+      "line": 151,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 91,
+      "name": "SDL_HasEvent",
+      "line": 152,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 92,
+      "name": "SDL_HasEvents",
+      "line": 153,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 93,
+      "name": "SDL_FlushEvent",
+      "line": 154,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 94,
+      "name": "SDL_FlushEvents",
+      "line": 155,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 95,
+      "name": "SDL_PollEvent",
+      "line": 156,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 96,
+      "name": "SDL_WaitEvent",
+      "line": 157,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 97,
+      "name": "SDL_WaitEventTimeout",
+      "line": 158,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 98,
+      "name": "SDL_PushEvent",
+      "line": 159,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 99,
+      "name": "SDL_SetEventFilter",
+      "line": 160,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 100,
+      "name": "SDL_GetEventFilter",
+      "line": 161,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 101,
+      "name": "SDL_AddEventWatch",
+      "line": 162,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 102,
+      "name": "SDL_DelEventWatch",
+      "line": 163,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 103,
+      "name": "SDL_FilterEvents",
+      "line": 164,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 104,
+      "name": "SDL_EventState",
+      "line": 165,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 105,
+      "name": "SDL_RegisterEvents",
+      "line": 166,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 106,
+      "name": "SDL_GetBasePath",
+      "line": 167,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 107,
+      "name": "SDL_GetPrefPath",
+      "line": 168,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 108,
+      "name": "SDL_GameControllerAddMapping",
+      "line": 169,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 109,
+      "name": "SDL_GameControllerMappingForGUID",
+      "line": 170,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 110,
+      "name": "SDL_GameControllerMapping",
+      "line": 171,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 111,
+      "name": "SDL_IsGameController",
+      "line": 172,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 112,
+      "name": "SDL_GameControllerNameForIndex",
+      "line": 173,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 113,
+      "name": "SDL_GameControllerOpen",
+      "line": 174,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 114,
+      "name": "SDL_GameControllerName",
+      "line": 175,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 115,
+      "name": "SDL_GameControllerGetAttached",
+      "line": 176,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 116,
+      "name": "SDL_GameControllerGetJoystick",
+      "line": 177,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 117,
+      "name": "SDL_GameControllerEventState",
+      "line": 178,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 118,
+      "name": "SDL_GameControllerUpdate",
+      "line": 179,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 119,
+      "name": "SDL_GameControllerGetAxisFromString",
+      "line": 180,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 120,
+      "name": "SDL_GameControllerGetStringForAxis",
+      "line": 181,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 121,
+      "name": "SDL_GameControllerGetBindForAxis",
+      "line": 182,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 122,
+      "name": "SDL_GameControllerGetAxis",
+      "line": 183,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 123,
+      "name": "SDL_GameControllerGetButtonFromString",
+      "line": 184,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 124,
+      "name": "SDL_GameControllerGetStringForButton",
+      "line": 185,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 125,
+      "name": "SDL_GameControllerGetBindForButton",
+      "line": 186,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 126,
+      "name": "SDL_GameControllerGetButton",
+      "line": 187,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 127,
+      "name": "SDL_GameControllerClose",
+      "line": 188,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 128,
+      "name": "SDL_RecordGesture",
+      "line": 189,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 129,
+      "name": "SDL_SaveAllDollarTemplates",
+      "line": 190,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 130,
+      "name": "SDL_SaveDollarTemplate",
+      "line": 191,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 131,
+      "name": "SDL_LoadDollarTemplates",
+      "line": 192,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 132,
+      "name": "SDL_NumHaptics",
+      "line": 193,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 133,
+      "name": "SDL_HapticName",
+      "line": 194,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 134,
+      "name": "SDL_HapticOpen",
+      "line": 195,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 135,
+      "name": "SDL_HapticOpened",
+      "line": 196,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 136,
+      "name": "SDL_HapticIndex",
+      "line": 197,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 137,
+      "name": "SDL_MouseIsHaptic",
+      "line": 198,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 138,
+      "name": "SDL_HapticOpenFromMouse",
+      "line": 199,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 139,
+      "name": "SDL_JoystickIsHaptic",
+      "line": 200,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 140,
+      "name": "SDL_HapticOpenFromJoystick",
+      "line": 201,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 141,
+      "name": "SDL_HapticClose",
+      "line": 202,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 142,
+      "name": "SDL_HapticNumEffects",
+      "line": 203,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 143,
+      "name": "SDL_HapticNumEffectsPlaying",
+      "line": 204,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 144,
+      "name": "SDL_HapticQuery",
+      "line": 205,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 145,
+      "name": "SDL_HapticNumAxes",
+      "line": 206,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 146,
+      "name": "SDL_HapticEffectSupported",
+      "line": 207,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 147,
+      "name": "SDL_HapticNewEffect",
+      "line": 208,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 148,
+      "name": "SDL_HapticUpdateEffect",
+      "line": 209,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 149,
+      "name": "SDL_HapticRunEffect",
+      "line": 210,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 150,
+      "name": "SDL_HapticStopEffect",
+      "line": 211,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 151,
+      "name": "SDL_HapticDestroyEffect",
+      "line": 212,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 152,
+      "name": "SDL_HapticGetEffectStatus",
+      "line": 213,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 153,
+      "name": "SDL_HapticSetGain",
+      "line": 214,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 154,
+      "name": "SDL_HapticSetAutocenter",
+      "line": 215,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 155,
+      "name": "SDL_HapticPause",
+      "line": 216,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 156,
+      "name": "SDL_HapticUnpause",
+      "line": 217,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 157,
+      "name": "SDL_HapticStopAll",
+      "line": 218,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 158,
+      "name": "SDL_HapticRumbleSupported",
+      "line": 219,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 159,
+      "name": "SDL_HapticRumbleInit",
+      "line": 220,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 160,
+      "name": "SDL_HapticRumblePlay",
+      "line": 221,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 161,
+      "name": "SDL_HapticRumbleStop",
+      "line": 222,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 162,
+      "name": "SDL_SetHintWithPriority",
+      "line": 223,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 163,
+      "name": "SDL_SetHint",
+      "line": 224,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 164,
+      "name": "SDL_GetHint",
+      "line": 225,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 165,
+      "name": "SDL_AddHintCallback",
+      "line": 226,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 166,
+      "name": "SDL_DelHintCallback",
+      "line": 227,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 167,
+      "name": "SDL_ClearHints",
+      "line": 228,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 168,
+      "name": "SDL_NumJoysticks",
+      "line": 229,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 169,
+      "name": "SDL_JoystickNameForIndex",
+      "line": 230,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 170,
+      "name": "SDL_JoystickOpen",
+      "line": 231,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 171,
+      "name": "SDL_JoystickName",
+      "line": 232,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 172,
+      "name": "SDL_JoystickGetDeviceGUID",
+      "line": 233,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 173,
+      "name": "SDL_JoystickGetGUID",
+      "line": 234,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 174,
+      "name": "SDL_JoystickGetGUIDString",
+      "line": 235,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 175,
+      "name": "SDL_JoystickGetGUIDFromString",
+      "line": 236,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 176,
+      "name": "SDL_JoystickGetAttached",
+      "line": 237,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 177,
+      "name": "SDL_JoystickInstanceID",
+      "line": 238,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 178,
+      "name": "SDL_JoystickNumAxes",
+      "line": 239,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 179,
+      "name": "SDL_JoystickNumBalls",
+      "line": 240,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 180,
+      "name": "SDL_JoystickNumHats",
+      "line": 241,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 181,
+      "name": "SDL_JoystickNumButtons",
+      "line": 242,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 182,
+      "name": "SDL_JoystickUpdate",
+      "line": 243,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 183,
+      "name": "SDL_JoystickEventState",
+      "line": 244,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 184,
+      "name": "SDL_JoystickGetAxis",
+      "line": 245,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 185,
+      "name": "SDL_JoystickGetHat",
+      "line": 246,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 186,
+      "name": "SDL_JoystickGetBall",
+      "line": 247,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 187,
+      "name": "SDL_JoystickGetButton",
+      "line": 248,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 188,
+      "name": "SDL_JoystickClose",
+      "line": 249,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 189,
+      "name": "SDL_GetKeyboardFocus",
+      "line": 250,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 190,
+      "name": "SDL_GetKeyboardState",
+      "line": 251,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 191,
+      "name": "SDL_GetModState",
+      "line": 252,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 192,
+      "name": "SDL_SetModState",
+      "line": 253,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 193,
+      "name": "SDL_GetKeyFromScancode",
+      "line": 254,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 194,
+      "name": "SDL_GetScancodeFromKey",
+      "line": 255,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 195,
+      "name": "SDL_GetScancodeName",
+      "line": 256,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 196,
+      "name": "SDL_GetScancodeFromName",
+      "line": 257,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 197,
+      "name": "SDL_GetKeyName",
+      "line": 258,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 198,
+      "name": "SDL_GetKeyFromName",
+      "line": 259,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 199,
+      "name": "SDL_StartTextInput",
+      "line": 260,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 200,
+      "name": "SDL_IsTextInputActive",
+      "line": 261,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 201,
+      "name": "SDL_StopTextInput",
+      "line": 262,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 202,
+      "name": "SDL_SetTextInputRect",
+      "line": 263,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 203,
+      "name": "SDL_HasScreenKeyboardSupport",
+      "line": 264,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 204,
+      "name": "SDL_IsScreenKeyboardShown",
+      "line": 265,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 205,
+      "name": "SDL_LoadObject",
+      "line": 266,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 206,
+      "name": "SDL_LoadFunction",
+      "line": 267,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 207,
+      "name": "SDL_UnloadObject",
+      "line": 268,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 208,
+      "name": "SDL_LogSetAllPriority",
+      "line": 269,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 209,
+      "name": "SDL_LogSetPriority",
+      "line": 270,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 210,
+      "name": "SDL_LogGetPriority",
+      "line": 271,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 211,
+      "name": "SDL_LogResetPriorities",
+      "line": 272,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 212,
+      "name": "SDL_LogMessageV",
+      "line": 273,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 213,
+      "name": "SDL_LogGetOutputFunction",
+      "line": 274,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 214,
+      "name": "SDL_LogSetOutputFunction",
+      "line": 275,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 215,
+      "name": "SDL_SetMainReady",
+      "line": 276,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 216,
+      "name": "SDL_ShowMessageBox",
+      "line": 277,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 217,
+      "name": "SDL_ShowSimpleMessageBox",
+      "line": 278,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 218,
+      "name": "SDL_GetMouseFocus",
+      "line": 279,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 219,
+      "name": "SDL_GetMouseState",
+      "line": 280,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 220,
+      "name": "SDL_GetRelativeMouseState",
+      "line": 281,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 221,
+      "name": "SDL_WarpMouseInWindow",
+      "line": 282,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 222,
+      "name": "SDL_SetRelativeMouseMode",
+      "line": 283,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 223,
+      "name": "SDL_GetRelativeMouseMode",
+      "line": 284,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 224,
+      "name": "SDL_CreateCursor",
+      "line": 285,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 225,
+      "name": "SDL_CreateColorCursor",
+      "line": 286,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 226,
+      "name": "SDL_CreateSystemCursor",
+      "line": 287,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 227,
+      "name": "SDL_SetCursor",
+      "line": 288,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 228,
+      "name": "SDL_GetCursor",
+      "line": 289,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 229,
+      "name": "SDL_GetDefaultCursor",
+      "line": 290,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 230,
+      "name": "SDL_FreeCursor",
+      "line": 291,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 231,
+      "name": "SDL_ShowCursor",
+      "line": 292,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 232,
+      "name": "SDL_CreateMutex",
+      "line": 293,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 233,
+      "name": "SDL_LockMutex",
+      "line": 294,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 234,
+      "name": "SDL_TryLockMutex",
+      "line": 295,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 235,
+      "name": "SDL_UnlockMutex",
+      "line": 296,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 236,
+      "name": "SDL_DestroyMutex",
+      "line": 297,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 237,
+      "name": "SDL_CreateSemaphore",
+      "line": 298,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 238,
+      "name": "SDL_DestroySemaphore",
+      "line": 299,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 239,
+      "name": "SDL_SemWait",
+      "line": 300,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 240,
+      "name": "SDL_SemTryWait",
+      "line": 301,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 241,
+      "name": "SDL_SemWaitTimeout",
+      "line": 302,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 242,
+      "name": "SDL_SemPost",
+      "line": 303,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 243,
+      "name": "SDL_SemValue",
+      "line": 304,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 244,
+      "name": "SDL_CreateCond",
+      "line": 305,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 245,
+      "name": "SDL_DestroyCond",
+      "line": 306,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 246,
+      "name": "SDL_CondSignal",
+      "line": 307,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 247,
+      "name": "SDL_CondBroadcast",
+      "line": 308,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 248,
+      "name": "SDL_CondWait",
+      "line": 309,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 249,
+      "name": "SDL_CondWaitTimeout",
+      "line": 310,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 250,
+      "name": "SDL_GetPixelFormatName",
+      "line": 311,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 251,
+      "name": "SDL_PixelFormatEnumToMasks",
+      "line": 312,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 252,
+      "name": "SDL_MasksToPixelFormatEnum",
+      "line": 313,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 253,
+      "name": "SDL_AllocFormat",
+      "line": 314,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 254,
+      "name": "SDL_FreeFormat",
+      "line": 315,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 255,
+      "name": "SDL_AllocPalette",
+      "line": 316,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 256,
+      "name": "SDL_SetPixelFormatPalette",
+      "line": 317,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 257,
+      "name": "SDL_SetPaletteColors",
+      "line": 318,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 258,
+      "name": "SDL_FreePalette",
+      "line": 319,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 259,
+      "name": "SDL_MapRGB",
+      "line": 320,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 260,
+      "name": "SDL_MapRGBA",
+      "line": 321,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 261,
+      "name": "SDL_GetRGB",
+      "line": 322,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 262,
+      "name": "SDL_GetRGBA",
+      "line": 323,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 263,
+      "name": "SDL_CalculateGammaRamp",
+      "line": 324,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 264,
+      "name": "SDL_GetPlatform",
+      "line": 325,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 265,
+      "name": "SDL_GetPowerInfo",
+      "line": 326,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 266,
+      "name": "SDL_HasIntersection",
+      "line": 327,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 267,
+      "name": "SDL_IntersectRect",
+      "line": 328,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 268,
+      "name": "SDL_UnionRect",
+      "line": 329,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 269,
+      "name": "SDL_EnclosePoints",
+      "line": 330,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 270,
+      "name": "SDL_IntersectRectAndLine",
+      "line": 331,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 271,
+      "name": "SDL_GetNumRenderDrivers",
+      "line": 332,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 272,
+      "name": "SDL_GetRenderDriverInfo",
+      "line": 333,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 273,
+      "name": "SDL_CreateWindowAndRenderer",
+      "line": 334,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 274,
+      "name": "SDL_CreateRenderer",
+      "line": 335,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 275,
+      "name": "SDL_CreateSoftwareRenderer",
+      "line": 336,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 276,
+      "name": "SDL_GetRenderer",
+      "line": 337,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 277,
+      "name": "SDL_GetRendererInfo",
+      "line": 338,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 278,
+      "name": "SDL_GetRendererOutputSize",
+      "line": 339,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 279,
+      "name": "SDL_CreateTexture",
+      "line": 340,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 280,
+      "name": "SDL_CreateTextureFromSurface",
+      "line": 341,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 281,
+      "name": "SDL_QueryTexture",
+      "line": 342,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 282,
+      "name": "SDL_SetTextureColorMod",
+      "line": 343,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 283,
+      "name": "SDL_GetTextureColorMod",
+      "line": 344,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 284,
+      "name": "SDL_SetTextureAlphaMod",
+      "line": 345,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 285,
+      "name": "SDL_GetTextureAlphaMod",
+      "line": 346,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 286,
+      "name": "SDL_SetTextureBlendMode",
+      "line": 347,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 287,
+      "name": "SDL_GetTextureBlendMode",
+      "line": 348,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 288,
+      "name": "SDL_UpdateTexture",
+      "line": 349,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 289,
+      "name": "SDL_UpdateYUVTexture",
+      "line": 350,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 290,
+      "name": "SDL_LockTexture",
+      "line": 351,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 291,
+      "name": "SDL_UnlockTexture",
+      "line": 352,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 292,
+      "name": "SDL_RenderTargetSupported",
+      "line": 353,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 293,
+      "name": "SDL_SetRenderTarget",
+      "line": 354,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 294,
+      "name": "SDL_GetRenderTarget",
+      "line": 355,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 295,
+      "name": "SDL_RenderSetLogicalSize",
+      "line": 356,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 296,
+      "name": "SDL_RenderGetLogicalSize",
+      "line": 357,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 297,
+      "name": "SDL_RenderSetViewport",
+      "line": 358,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 298,
+      "name": "SDL_RenderGetViewport",
+      "line": 359,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 299,
+      "name": "SDL_RenderSetClipRect",
+      "line": 360,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 300,
+      "name": "SDL_RenderGetClipRect",
+      "line": 361,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 301,
+      "name": "SDL_RenderSetScale",
+      "line": 362,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 302,
+      "name": "SDL_RenderGetScale",
+      "line": 363,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 303,
+      "name": "SDL_SetRenderDrawColor",
+      "line": 364,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 304,
+      "name": "SDL_GetRenderDrawColor",
+      "line": 365,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 305,
+      "name": "SDL_SetRenderDrawBlendMode",
+      "line": 366,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 306,
+      "name": "SDL_GetRenderDrawBlendMode",
+      "line": 367,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 307,
+      "name": "SDL_RenderClear",
+      "line": 368,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 308,
+      "name": "SDL_RenderDrawPoint",
+      "line": 369,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 309,
+      "name": "SDL_RenderDrawPoints",
+      "line": 370,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 310,
+      "name": "SDL_RenderDrawLine",
+      "line": 371,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 311,
+      "name": "SDL_RenderDrawLines",
+      "line": 372,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 312,
+      "name": "SDL_RenderDrawRect",
+      "line": 373,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 313,
+      "name": "SDL_RenderDrawRects",
+      "line": 374,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 314,
+      "name": "SDL_RenderFillRect",
+      "line": 375,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 315,
+      "name": "SDL_RenderFillRects",
+      "line": 376,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 316,
+      "name": "SDL_RenderCopy",
+      "line": 377,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 317,
+      "name": "SDL_RenderCopyEx",
+      "line": 378,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 318,
+      "name": "SDL_RenderReadPixels",
+      "line": 379,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 319,
+      "name": "SDL_RenderPresent",
+      "line": 380,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 320,
+      "name": "SDL_DestroyTexture",
+      "line": 381,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 321,
+      "name": "SDL_DestroyRenderer",
+      "line": 382,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 322,
+      "name": "SDL_GL_BindTexture",
+      "line": 383,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 323,
+      "name": "SDL_GL_UnbindTexture",
+      "line": 384,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 324,
+      "name": "SDL_RWFromFile",
+      "line": 385,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 325,
+      "name": "SDL_RWFromMem",
+      "line": 386,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 326,
+      "name": "SDL_RWFromConstMem",
+      "line": 387,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 327,
+      "name": "SDL_AllocRW",
+      "line": 388,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 328,
+      "name": "SDL_FreeRW",
+      "line": 389,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 329,
+      "name": "SDL_ReadU8",
+      "line": 390,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 330,
+      "name": "SDL_ReadLE16",
+      "line": 391,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 331,
+      "name": "SDL_ReadBE16",
+      "line": 392,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 332,
+      "name": "SDL_ReadLE32",
+      "line": 393,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 333,
+      "name": "SDL_ReadBE32",
+      "line": 394,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 334,
+      "name": "SDL_ReadLE64",
+      "line": 395,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 335,
+      "name": "SDL_ReadBE64",
+      "line": 396,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 336,
+      "name": "SDL_WriteU8",
+      "line": 397,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 337,
+      "name": "SDL_WriteLE16",
+      "line": 398,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 338,
+      "name": "SDL_WriteBE16",
+      "line": 399,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 339,
+      "name": "SDL_WriteLE32",
+      "line": 400,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 340,
+      "name": "SDL_WriteBE32",
+      "line": 401,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 341,
+      "name": "SDL_WriteLE64",
+      "line": 402,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 342,
+      "name": "SDL_WriteBE64",
+      "line": 403,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 343,
+      "name": "SDL_CreateShapedWindow",
+      "line": 404,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 344,
+      "name": "SDL_IsShapedWindow",
+      "line": 405,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 345,
+      "name": "SDL_SetWindowShape",
+      "line": 406,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 346,
+      "name": "SDL_GetShapedWindowMode",
+      "line": 407,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 347,
+      "name": "SDL_malloc",
+      "line": 408,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 348,
+      "name": "SDL_calloc",
+      "line": 409,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 349,
+      "name": "SDL_realloc",
+      "line": 410,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 350,
+      "name": "SDL_free",
+      "line": 411,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 351,
+      "name": "SDL_getenv",
+      "line": 412,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 352,
+      "name": "SDL_setenv",
+      "line": 413,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 353,
+      "name": "SDL_qsort",
+      "line": 414,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 354,
+      "name": "SDL_abs",
+      "line": 415,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 355,
+      "name": "SDL_isdigit",
+      "line": 416,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 356,
+      "name": "SDL_isspace",
+      "line": 417,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 357,
+      "name": "SDL_toupper",
+      "line": 418,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 358,
+      "name": "SDL_tolower",
+      "line": 419,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 359,
+      "name": "SDL_memset",
+      "line": 420,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 360,
+      "name": "SDL_memcpy",
+      "line": 421,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 361,
+      "name": "SDL_memmove",
+      "line": 422,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 362,
+      "name": "SDL_memcmp",
+      "line": 423,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 363,
+      "name": "SDL_wcslen",
+      "line": 424,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 364,
+      "name": "SDL_wcslcpy",
+      "line": 425,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 365,
+      "name": "SDL_wcslcat",
+      "line": 426,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 366,
+      "name": "SDL_strlen",
+      "line": 427,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 367,
+      "name": "SDL_strlcpy",
+      "line": 428,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 368,
+      "name": "SDL_utf8strlcpy",
+      "line": 429,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 369,
+      "name": "SDL_strlcat",
+      "line": 430,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 370,
+      "name": "SDL_strdup",
+      "line": 431,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 371,
+      "name": "SDL_strrev",
+      "line": 432,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 372,
+      "name": "SDL_strupr",
+      "line": 433,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 373,
+      "name": "SDL_strlwr",
+      "line": 434,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 374,
+      "name": "SDL_strchr",
+      "line": 435,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 375,
+      "name": "SDL_strrchr",
+      "line": 436,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 376,
+      "name": "SDL_strstr",
+      "line": 437,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 377,
+      "name": "SDL_itoa",
+      "line": 438,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 378,
+      "name": "SDL_uitoa",
+      "line": 439,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 379,
+      "name": "SDL_ltoa",
+      "line": 440,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 380,
+      "name": "SDL_ultoa",
+      "line": 441,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 381,
+      "name": "SDL_lltoa",
+      "line": 442,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 382,
+      "name": "SDL_ulltoa",
+      "line": 443,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 383,
+      "name": "SDL_atoi",
+      "line": 444,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 384,
+      "name": "SDL_atof",
+      "line": 445,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 385,
+      "name": "SDL_strtol",
+      "line": 446,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 386,
+      "name": "SDL_strtoul",
+      "line": 447,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 387,
+      "name": "SDL_strtoll",
+      "line": 448,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 388,
+      "name": "SDL_strtoull",
+      "line": 449,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 389,
+      "name": "SDL_strtod",
+      "line": 450,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 390,
+      "name": "SDL_strcmp",
+      "line": 451,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 391,
+      "name": "SDL_strncmp",
+      "line": 452,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 392,
+      "name": "SDL_strcasecmp",
+      "line": 453,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 393,
+      "name": "SDL_strncasecmp",
+      "line": 454,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 394,
+      "name": "SDL_vsnprintf",
+      "line": 455,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 395,
+      "name": "SDL_acos",
+      "line": 456,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 396,
+      "name": "SDL_asin",
+      "line": 457,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 397,
+      "name": "SDL_atan",
+      "line": 458,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 398,
+      "name": "SDL_atan2",
+      "line": 459,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 399,
+      "name": "SDL_ceil",
+      "line": 460,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 400,
+      "name": "SDL_copysign",
+      "line": 461,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 401,
+      "name": "SDL_cos",
+      "line": 462,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 402,
+      "name": "SDL_cosf",
+      "line": 463,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 403,
+      "name": "SDL_fabs",
+      "line": 464,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 404,
+      "name": "SDL_floor",
+      "line": 465,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 405,
+      "name": "SDL_log",
+      "line": 466,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 406,
+      "name": "SDL_pow",
+      "line": 467,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 407,
+      "name": "SDL_scalbn",
+      "line": 468,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 408,
+      "name": "SDL_sin",
+      "line": 469,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 409,
+      "name": "SDL_sinf",
+      "line": 470,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 410,
+      "name": "SDL_sqrt",
+      "line": 471,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 411,
+      "name": "SDL_iconv_open",
+      "line": 472,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 412,
+      "name": "SDL_iconv_close",
+      "line": 473,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 413,
+      "name": "SDL_iconv",
+      "line": 474,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 414,
+      "name": "SDL_iconv_string",
+      "line": 475,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 415,
+      "name": "SDL_CreateRGBSurface",
+      "line": 476,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 416,
+      "name": "SDL_CreateRGBSurfaceFrom",
+      "line": 477,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 417,
+      "name": "SDL_FreeSurface",
+      "line": 478,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 418,
+      "name": "SDL_SetSurfacePalette",
+      "line": 479,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 419,
+      "name": "SDL_LockSurface",
+      "line": 480,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 420,
+      "name": "SDL_UnlockSurface",
+      "line": 481,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 421,
+      "name": "SDL_LoadBMP_RW",
+      "line": 482,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 422,
+      "name": "SDL_SaveBMP_RW",
+      "line": 483,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 423,
+      "name": "SDL_SetSurfaceRLE",
+      "line": 484,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 424,
+      "name": "SDL_SetColorKey",
+      "line": 485,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 425,
+      "name": "SDL_GetColorKey",
+      "line": 486,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 426,
+      "name": "SDL_SetSurfaceColorMod",
+      "line": 487,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 427,
+      "name": "SDL_GetSurfaceColorMod",
+      "line": 488,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 428,
+      "name": "SDL_SetSurfaceAlphaMod",
+      "line": 489,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 429,
+      "name": "SDL_GetSurfaceAlphaMod",
+      "line": 490,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 430,
+      "name": "SDL_SetSurfaceBlendMode",
+      "line": 491,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 431,
+      "name": "SDL_GetSurfaceBlendMode",
+      "line": 492,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 432,
+      "name": "SDL_SetClipRect",
+      "line": 493,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 433,
+      "name": "SDL_GetClipRect",
+      "line": 494,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 434,
+      "name": "SDL_ConvertSurface",
+      "line": 495,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 435,
+      "name": "SDL_ConvertSurfaceFormat",
+      "line": 496,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 436,
+      "name": "SDL_ConvertPixels",
+      "line": 497,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 437,
+      "name": "SDL_FillRect",
+      "line": 498,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 438,
+      "name": "SDL_FillRects",
+      "line": 499,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 439,
+      "name": "SDL_UpperBlit",
+      "line": 500,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 440,
+      "name": "SDL_LowerBlit",
+      "line": 501,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 441,
+      "name": "SDL_SoftStretch",
+      "line": 502,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 442,
+      "name": "SDL_UpperBlitScaled",
+      "line": 503,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 443,
+      "name": "SDL_LowerBlitScaled",
+      "line": 504,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 444,
+      "name": "SDL_GetWindowWMInfo",
+      "line": 505,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 445,
+      "name": "SDL_GetThreadName",
+      "line": 506,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 446,
+      "name": "SDL_ThreadID",
+      "line": 507,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 447,
+      "name": "SDL_GetThreadID",
+      "line": 508,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 448,
+      "name": "SDL_SetThreadPriority",
+      "line": 509,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 449,
+      "name": "SDL_WaitThread",
+      "line": 510,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 450,
+      "name": "SDL_DetachThread",
+      "line": 511,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 451,
+      "name": "SDL_TLSCreate",
+      "line": 512,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 452,
+      "name": "SDL_TLSGet",
+      "line": 513,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 453,
+      "name": "SDL_TLSSet",
+      "line": 514,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 454,
+      "name": "SDL_GetTicks",
+      "line": 515,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 455,
+      "name": "SDL_GetPerformanceCounter",
+      "line": 516,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 456,
+      "name": "SDL_GetPerformanceFrequency",
+      "line": 517,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 457,
+      "name": "SDL_Delay",
+      "line": 518,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 458,
+      "name": "SDL_AddTimer",
+      "line": 519,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 459,
+      "name": "SDL_RemoveTimer",
+      "line": 520,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 460,
+      "name": "SDL_GetNumTouchDevices",
+      "line": 521,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 461,
+      "name": "SDL_GetTouchDevice",
+      "line": 522,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 462,
+      "name": "SDL_GetNumTouchFingers",
+      "line": 523,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 463,
+      "name": "SDL_GetTouchFinger",
+      "line": 524,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 464,
+      "name": "SDL_GetVersion",
+      "line": 525,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 465,
+      "name": "SDL_GetRevision",
+      "line": 526,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 466,
+      "name": "SDL_GetRevisionNumber",
+      "line": 527,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 467,
+      "name": "SDL_GetNumVideoDrivers",
+      "line": 528,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 468,
+      "name": "SDL_GetVideoDriver",
+      "line": 529,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 469,
+      "name": "SDL_VideoInit",
+      "line": 530,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 470,
+      "name": "SDL_VideoQuit",
+      "line": 531,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 471,
+      "name": "SDL_GetCurrentVideoDriver",
+      "line": 532,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 472,
+      "name": "SDL_GetNumVideoDisplays",
+      "line": 533,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 473,
+      "name": "SDL_GetDisplayName",
+      "line": 534,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 474,
+      "name": "SDL_GetDisplayBounds",
+      "line": 535,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 475,
+      "name": "SDL_GetNumDisplayModes",
+      "line": 536,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 476,
+      "name": "SDL_GetDisplayMode",
+      "line": 537,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 477,
+      "name": "SDL_GetDesktopDisplayMode",
+      "line": 538,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 478,
+      "name": "SDL_GetCurrentDisplayMode",
+      "line": 539,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 479,
+      "name": "SDL_GetClosestDisplayMode",
+      "line": 540,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 480,
+      "name": "SDL_GetWindowDisplayIndex",
+      "line": 541,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 481,
+      "name": "SDL_SetWindowDisplayMode",
+      "line": 542,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 482,
+      "name": "SDL_GetWindowDisplayMode",
+      "line": 543,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 483,
+      "name": "SDL_GetWindowPixelFormat",
+      "line": 544,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 484,
+      "name": "SDL_CreateWindow",
+      "line": 545,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 485,
+      "name": "SDL_CreateWindowFrom",
+      "line": 546,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 486,
+      "name": "SDL_GetWindowID",
+      "line": 547,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 487,
+      "name": "SDL_GetWindowFromID",
+      "line": 548,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 488,
+      "name": "SDL_GetWindowFlags",
+      "line": 549,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 489,
+      "name": "SDL_SetWindowTitle",
+      "line": 550,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 490,
+      "name": "SDL_GetWindowTitle",
+      "line": 551,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 491,
+      "name": "SDL_SetWindowIcon",
+      "line": 552,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 492,
+      "name": "SDL_SetWindowData",
+      "line": 553,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 493,
+      "name": "SDL_GetWindowData",
+      "line": 554,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 494,
+      "name": "SDL_SetWindowPosition",
+      "line": 555,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 495,
+      "name": "SDL_GetWindowPosition",
+      "line": 556,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 496,
+      "name": "SDL_SetWindowSize",
+      "line": 557,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 497,
+      "name": "SDL_GetWindowSize",
+      "line": 558,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 498,
+      "name": "SDL_SetWindowMinimumSize",
+      "line": 559,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 499,
+      "name": "SDL_GetWindowMinimumSize",
+      "line": 560,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 500,
+      "name": "SDL_SetWindowMaximumSize",
+      "line": 561,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 501,
+      "name": "SDL_GetWindowMaximumSize",
+      "line": 562,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 502,
+      "name": "SDL_SetWindowBordered",
+      "line": 563,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 503,
+      "name": "SDL_ShowWindow",
+      "line": 564,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 504,
+      "name": "SDL_HideWindow",
+      "line": 565,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 505,
+      "name": "SDL_RaiseWindow",
+      "line": 566,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 506,
+      "name": "SDL_MaximizeWindow",
+      "line": 567,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 507,
+      "name": "SDL_MinimizeWindow",
+      "line": 568,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 508,
+      "name": "SDL_RestoreWindow",
+      "line": 569,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 509,
+      "name": "SDL_SetWindowFullscreen",
+      "line": 570,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 510,
+      "name": "SDL_GetWindowSurface",
+      "line": 571,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 511,
+      "name": "SDL_UpdateWindowSurface",
+      "line": 572,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 512,
+      "name": "SDL_UpdateWindowSurfaceRects",
+      "line": 573,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 513,
+      "name": "SDL_SetWindowGrab",
+      "line": 574,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 514,
+      "name": "SDL_GetWindowGrab",
+      "line": 575,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 515,
+      "name": "SDL_SetWindowBrightness",
+      "line": 576,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 516,
+      "name": "SDL_GetWindowBrightness",
+      "line": 577,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 517,
+      "name": "SDL_SetWindowGammaRamp",
+      "line": 578,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 518,
+      "name": "SDL_GetWindowGammaRamp",
+      "line": 579,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 519,
+      "name": "SDL_DestroyWindow",
+      "line": 580,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 520,
+      "name": "SDL_IsScreenSaverEnabled",
+      "line": 581,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 521,
+      "name": "SDL_EnableScreenSaver",
+      "line": 582,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 522,
+      "name": "SDL_DisableScreenSaver",
+      "line": 583,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 523,
+      "name": "SDL_GL_LoadLibrary",
+      "line": 584,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 524,
+      "name": "SDL_GL_GetProcAddress",
+      "line": 585,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 525,
+      "name": "SDL_GL_UnloadLibrary",
+      "line": 586,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 526,
+      "name": "SDL_GL_ExtensionSupported",
+      "line": 587,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 527,
+      "name": "SDL_GL_SetAttribute",
+      "line": 588,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 528,
+      "name": "SDL_GL_GetAttribute",
+      "line": 589,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 529,
+      "name": "SDL_GL_CreateContext",
+      "line": 590,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 530,
+      "name": "SDL_GL_MakeCurrent",
+      "line": 591,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 531,
+      "name": "SDL_GL_GetCurrentWindow",
+      "line": 592,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 532,
+      "name": "SDL_GL_GetCurrentContext",
+      "line": 593,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 533,
+      "name": "SDL_GL_GetDrawableSize",
+      "line": 594,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 534,
+      "name": "SDL_GL_SetSwapInterval",
+      "line": 595,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 535,
+      "name": "SDL_GL_GetSwapInterval",
+      "line": 596,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 536,
+      "name": "SDL_GL_SwapWindow",
+      "line": 597,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 537,
+      "name": "SDL_GL_DeleteContext",
+      "line": 598,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 538,
+      "name": "SDL_vsscanf",
+      "line": 599,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 539,
+      "name": "SDL_GameControllerAddMappingsFromRW",
+      "line": 600,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 540,
+      "name": "SDL_GL_ResetAttributes",
+      "line": 601,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 541,
+      "name": "SDL_HasAVX",
+      "line": 602,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 542,
+      "name": "SDL_GetDefaultAssertionHandler",
+      "line": 603,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 543,
+      "name": "SDL_GetAssertionHandler",
+      "line": 604,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 544,
+      "name": "SDL_DXGIGetOutputInfo",
+      "line": 606,
+      "guard_stack": [
+        "defined(__WIN32__) || defined(__WINGDK__)"
+      ]
+    },
+    {
+      "slot_index": 545,
+      "name": "SDL_RenderIsClipEnabled",
+      "line": 608,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 546,
+      "name": "SDL_WinRTRunApp",
+      "line": 610,
+      "guard_stack": [
+        "__WINRT__"
+      ]
+    },
+    {
+      "slot_index": 547,
+      "name": "SDL_WinRTGetFSPathUNICODE",
+      "line": 611,
+      "guard_stack": [
+        "__WINRT__"
+      ]
+    },
+    {
+      "slot_index": 548,
+      "name": "SDL_WinRTGetFSPathUTF8",
+      "line": 612,
+      "guard_stack": [
+        "__WINRT__"
+      ]
+    },
+    {
+      "slot_index": 549,
+      "name": "SDL_WarpMouseGlobal",
+      "line": 614,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 550,
+      "name": "SDL_sqrtf",
+      "line": 615,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 551,
+      "name": "SDL_tan",
+      "line": 616,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 552,
+      "name": "SDL_tanf",
+      "line": 617,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 553,
+      "name": "SDL_CaptureMouse",
+      "line": 618,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 554,
+      "name": "SDL_SetWindowHitTest",
+      "line": 619,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 555,
+      "name": "SDL_GetGlobalMouseState",
+      "line": 620,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 556,
+      "name": "SDL_HasAVX2",
+      "line": 621,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 557,
+      "name": "SDL_QueueAudio",
+      "line": 622,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 558,
+      "name": "SDL_GetQueuedAudioSize",
+      "line": 623,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 559,
+      "name": "SDL_ClearQueuedAudio",
+      "line": 624,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 560,
+      "name": "SDL_GetGrabbedWindow",
+      "line": 625,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 561,
+      "name": "SDL_SetWindowsMessageHook",
+      "line": 627,
+      "guard_stack": [
+        "defined(__WIN32__) || defined(__GDK__)"
+      ]
+    },
+    {
+      "slot_index": 562,
+      "name": "SDL_GetDisplayDPI",
+      "line": 629,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 563,
+      "name": "SDL_JoystickCurrentPowerLevel",
+      "line": 630,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 564,
+      "name": "SDL_GameControllerFromInstanceID",
+      "line": 631,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 565,
+      "name": "SDL_JoystickFromInstanceID",
+      "line": 632,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 566,
+      "name": "SDL_GetDisplayUsableBounds",
+      "line": 633,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 567,
+      "name": "SDL_GetWindowBordersSize",
+      "line": 634,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 568,
+      "name": "SDL_SetWindowOpacity",
+      "line": 635,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 569,
+      "name": "SDL_GetWindowOpacity",
+      "line": 636,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 570,
+      "name": "SDL_SetWindowInputFocus",
+      "line": 637,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 571,
+      "name": "SDL_SetWindowModalFor",
+      "line": 638,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 572,
+      "name": "SDL_RenderSetIntegerScale",
+      "line": 639,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 573,
+      "name": "SDL_RenderGetIntegerScale",
+      "line": 640,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 574,
+      "name": "SDL_DequeueAudio",
+      "line": 641,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 575,
+      "name": "SDL_SetWindowResizable",
+      "line": 642,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 576,
+      "name": "SDL_CreateRGBSurfaceWithFormat",
+      "line": 643,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 577,
+      "name": "SDL_CreateRGBSurfaceWithFormatFrom",
+      "line": 644,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 578,
+      "name": "SDL_GetHintBoolean",
+      "line": 645,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 579,
+      "name": "SDL_JoystickGetDeviceVendor",
+      "line": 646,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 580,
+      "name": "SDL_JoystickGetDeviceProduct",
+      "line": 647,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 581,
+      "name": "SDL_JoystickGetDeviceProductVersion",
+      "line": 648,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 582,
+      "name": "SDL_JoystickGetVendor",
+      "line": 649,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 583,
+      "name": "SDL_JoystickGetProduct",
+      "line": 650,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 584,
+      "name": "SDL_JoystickGetProductVersion",
+      "line": 651,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 585,
+      "name": "SDL_GameControllerGetVendor",
+      "line": 652,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 586,
+      "name": "SDL_GameControllerGetProduct",
+      "line": 653,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 587,
+      "name": "SDL_GameControllerGetProductVersion",
+      "line": 654,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 588,
+      "name": "SDL_HasNEON",
+      "line": 655,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 589,
+      "name": "SDL_GameControllerNumMappings",
+      "line": 656,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 590,
+      "name": "SDL_GameControllerMappingForIndex",
+      "line": 657,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 591,
+      "name": "SDL_JoystickGetAxisInitialState",
+      "line": 658,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 592,
+      "name": "SDL_JoystickGetDeviceType",
+      "line": 659,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 593,
+      "name": "SDL_JoystickGetType",
+      "line": 660,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 594,
+      "name": "SDL_MemoryBarrierReleaseFunction",
+      "line": 661,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 595,
+      "name": "SDL_MemoryBarrierAcquireFunction",
+      "line": 662,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 596,
+      "name": "SDL_JoystickGetDeviceInstanceID",
+      "line": 663,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 597,
+      "name": "SDL_utf8strlen",
+      "line": 664,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 598,
+      "name": "SDL_LoadFile_RW",
+      "line": 665,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 599,
+      "name": "SDL_wcscmp",
+      "line": 666,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 600,
+      "name": "SDL_ComposeCustomBlendMode",
+      "line": 667,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 601,
+      "name": "SDL_DuplicateSurface",
+      "line": 668,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 602,
+      "name": "SDL_Vulkan_LoadLibrary",
+      "line": 669,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 603,
+      "name": "SDL_Vulkan_GetVkGetInstanceProcAddr",
+      "line": 670,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 604,
+      "name": "SDL_Vulkan_UnloadLibrary",
+      "line": 671,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 605,
+      "name": "SDL_Vulkan_GetInstanceExtensions",
+      "line": 672,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 606,
+      "name": "SDL_Vulkan_CreateSurface",
+      "line": 673,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 607,
+      "name": "SDL_Vulkan_GetDrawableSize",
+      "line": 674,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 608,
+      "name": "SDL_LockJoysticks",
+      "line": 675,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 609,
+      "name": "SDL_UnlockJoysticks",
+      "line": 676,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 610,
+      "name": "SDL_GetMemoryFunctions",
+      "line": 677,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 611,
+      "name": "SDL_SetMemoryFunctions",
+      "line": 678,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 612,
+      "name": "SDL_GetNumAllocations",
+      "line": 679,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 613,
+      "name": "SDL_NewAudioStream",
+      "line": 680,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 614,
+      "name": "SDL_AudioStreamPut",
+      "line": 681,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 615,
+      "name": "SDL_AudioStreamGet",
+      "line": 682,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 616,
+      "name": "SDL_AudioStreamClear",
+      "line": 683,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 617,
+      "name": "SDL_AudioStreamAvailable",
+      "line": 684,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 618,
+      "name": "SDL_FreeAudioStream",
+      "line": 685,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 619,
+      "name": "SDL_AudioStreamFlush",
+      "line": 686,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 620,
+      "name": "SDL_acosf",
+      "line": 687,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 621,
+      "name": "SDL_asinf",
+      "line": 688,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 622,
+      "name": "SDL_atanf",
+      "line": 689,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 623,
+      "name": "SDL_atan2f",
+      "line": 690,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 624,
+      "name": "SDL_ceilf",
+      "line": 691,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 625,
+      "name": "SDL_copysignf",
+      "line": 692,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 626,
+      "name": "SDL_fabsf",
+      "line": 693,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 627,
+      "name": "SDL_floorf",
+      "line": 694,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 628,
+      "name": "SDL_logf",
+      "line": 695,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 629,
+      "name": "SDL_powf",
+      "line": 696,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 630,
+      "name": "SDL_scalbnf",
+      "line": 697,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 631,
+      "name": "SDL_fmod",
+      "line": 698,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 632,
+      "name": "SDL_fmodf",
+      "line": 699,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 633,
+      "name": "SDL_SetYUVConversionMode",
+      "line": 700,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 634,
+      "name": "SDL_GetYUVConversionMode",
+      "line": 701,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 635,
+      "name": "SDL_GetYUVConversionModeForResolution",
+      "line": 702,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 636,
+      "name": "SDL_RenderGetMetalLayer",
+      "line": 703,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 637,
+      "name": "SDL_RenderGetMetalCommandEncoder",
+      "line": 704,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 638,
+      "name": "SDL_WinRTGetDeviceFamily",
+      "line": 706,
+      "guard_stack": [
+        "__WINRT__"
+      ]
+    },
+    {
+      "slot_index": 639,
+      "name": "SDL_IsAndroidTV",
+      "line": 709,
+      "guard_stack": [
+        "__ANDROID__"
+      ]
+    },
+    {
+      "slot_index": 640,
+      "name": "SDL_log10",
+      "line": 711,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 641,
+      "name": "SDL_log10f",
+      "line": 712,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 642,
+      "name": "SDL_GameControllerMappingForDeviceIndex",
+      "line": 713,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 643,
+      "name": "SDL_LinuxSetThreadPriority",
+      "line": 715,
+      "guard_stack": [
+        "__LINUX__"
+      ]
+    },
+    {
+      "slot_index": 644,
+      "name": "SDL_HasAVX512F",
+      "line": 717,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 645,
+      "name": "SDL_IsChromebook",
+      "line": 719,
+      "guard_stack": [
+        "__ANDROID__"
+      ]
+    },
+    {
+      "slot_index": 646,
+      "name": "SDL_IsDeXMode",
+      "line": 720,
+      "guard_stack": [
+        "__ANDROID__"
+      ]
+    },
+    {
+      "slot_index": 647,
+      "name": "SDL_AndroidBackButton",
+      "line": 721,
+      "guard_stack": [
+        "__ANDROID__"
+      ]
+    },
+    {
+      "slot_index": 648,
+      "name": "SDL_exp",
+      "line": 723,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 649,
+      "name": "SDL_expf",
+      "line": 724,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 650,
+      "name": "SDL_wcsdup",
+      "line": 725,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 651,
+      "name": "SDL_GameControllerRumble",
+      "line": 726,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 652,
+      "name": "SDL_JoystickRumble",
+      "line": 727,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 653,
+      "name": "SDL_NumSensors",
+      "line": 728,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 654,
+      "name": "SDL_SensorGetDeviceName",
+      "line": 729,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 655,
+      "name": "SDL_SensorGetDeviceType",
+      "line": 730,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 656,
+      "name": "SDL_SensorGetDeviceNonPortableType",
+      "line": 731,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 657,
+      "name": "SDL_SensorGetDeviceInstanceID",
+      "line": 732,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 658,
+      "name": "SDL_SensorOpen",
+      "line": 733,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 659,
+      "name": "SDL_SensorFromInstanceID",
+      "line": 734,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 660,
+      "name": "SDL_SensorGetName",
+      "line": 735,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 661,
+      "name": "SDL_SensorGetType",
+      "line": 736,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 662,
+      "name": "SDL_SensorGetNonPortableType",
+      "line": 737,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 663,
+      "name": "SDL_SensorGetInstanceID",
+      "line": 738,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 664,
+      "name": "SDL_SensorGetData",
+      "line": 739,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 665,
+      "name": "SDL_SensorClose",
+      "line": 740,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 666,
+      "name": "SDL_SensorUpdate",
+      "line": 741,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 667,
+      "name": "SDL_IsTablet",
+      "line": 742,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 668,
+      "name": "SDL_GetDisplayOrientation",
+      "line": 743,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 669,
+      "name": "SDL_HasColorKey",
+      "line": 744,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 670,
+      "name": "SDL_CreateThreadWithStackSize",
+      "line": 751,
+      "guard_stack": [
+        "defined(__WIN32__) || defined(__GDK__)"
+      ]
+    },
+    {
+      "slot_index": 671,
+      "name": "SDL_CreateThreadWithStackSize",
+      "line": 753,
+      "guard_stack": [
+        "defined(__OS2__)"
+      ]
+    },
+    {
+      "slot_index": 672,
+      "name": "SDL_CreateThreadWithStackSize",
+      "line": 755,
+      "guard_stack": [
+        "!(defined(__OS2__))"
+      ]
+    },
+    {
+      "slot_index": 673,
+      "name": "SDL_JoystickGetDevicePlayerIndex",
+      "line": 758,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 674,
+      "name": "SDL_JoystickGetPlayerIndex",
+      "line": 759,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 675,
+      "name": "SDL_GameControllerGetPlayerIndex",
+      "line": 760,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 676,
+      "name": "SDL_RenderFlush",
+      "line": 761,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 677,
+      "name": "SDL_RenderDrawPointF",
+      "line": 762,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 678,
+      "name": "SDL_RenderDrawPointsF",
+      "line": 763,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 679,
+      "name": "SDL_RenderDrawLineF",
+      "line": 764,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 680,
+      "name": "SDL_RenderDrawLinesF",
+      "line": 765,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 681,
+      "name": "SDL_RenderDrawRectF",
+      "line": 766,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 682,
+      "name": "SDL_RenderDrawRectsF",
+      "line": 767,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 683,
+      "name": "SDL_RenderFillRectF",
+      "line": 768,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 684,
+      "name": "SDL_RenderFillRectsF",
+      "line": 769,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 685,
+      "name": "SDL_RenderCopyF",
+      "line": 770,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 686,
+      "name": "SDL_RenderCopyExF",
+      "line": 771,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 687,
+      "name": "SDL_GetTouchDeviceType",
+      "line": 772,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 688,
+      "name": "SDL_UIKitRunApp",
+      "line": 774,
+      "guard_stack": [
+        "__IPHONEOS__"
+      ]
+    },
+    {
+      "slot_index": 689,
+      "name": "SDL_SIMDGetAlignment",
+      "line": 776,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 690,
+      "name": "SDL_SIMDAlloc",
+      "line": 777,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 691,
+      "name": "SDL_SIMDFree",
+      "line": 778,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 692,
+      "name": "SDL_RWsize",
+      "line": 779,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 693,
+      "name": "SDL_RWseek",
+      "line": 780,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 694,
+      "name": "SDL_RWtell",
+      "line": 781,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 695,
+      "name": "SDL_RWread",
+      "line": 782,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 696,
+      "name": "SDL_RWwrite",
+      "line": 783,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 697,
+      "name": "SDL_RWclose",
+      "line": 784,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 698,
+      "name": "SDL_LoadFile",
+      "line": 785,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 699,
+      "name": "SDL_Metal_CreateView",
+      "line": 786,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 700,
+      "name": "SDL_Metal_DestroyView",
+      "line": 787,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 701,
+      "name": "SDL_LockTextureToSurface",
+      "line": 788,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 702,
+      "name": "SDL_HasARMSIMD",
+      "line": 789,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 703,
+      "name": "SDL_strtokr",
+      "line": 790,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 704,
+      "name": "SDL_wcsstr",
+      "line": 791,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 705,
+      "name": "SDL_wcsncmp",
+      "line": 792,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 706,
+      "name": "SDL_GameControllerTypeForIndex",
+      "line": 793,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 707,
+      "name": "SDL_GameControllerGetType",
+      "line": 794,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 708,
+      "name": "SDL_GameControllerFromPlayerIndex",
+      "line": 795,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 709,
+      "name": "SDL_GameControllerSetPlayerIndex",
+      "line": 796,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 710,
+      "name": "SDL_JoystickFromPlayerIndex",
+      "line": 797,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 711,
+      "name": "SDL_JoystickSetPlayerIndex",
+      "line": 798,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 712,
+      "name": "SDL_SetTextureScaleMode",
+      "line": 799,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 713,
+      "name": "SDL_GetTextureScaleMode",
+      "line": 800,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 714,
+      "name": "SDL_OnApplicationWillTerminate",
+      "line": 801,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 715,
+      "name": "SDL_OnApplicationDidReceiveMemoryWarning",
+      "line": 802,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 716,
+      "name": "SDL_OnApplicationWillResignActive",
+      "line": 803,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 717,
+      "name": "SDL_OnApplicationDidEnterBackground",
+      "line": 804,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 718,
+      "name": "SDL_OnApplicationWillEnterForeground",
+      "line": 805,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 719,
+      "name": "SDL_OnApplicationDidBecomeActive",
+      "line": 806,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 720,
+      "name": "SDL_OnApplicationDidChangeStatusBarOrientation",
+      "line": 808,
+      "guard_stack": [
+        "__IPHONEOS__"
+      ]
+    },
+    {
+      "slot_index": 721,
+      "name": "SDL_GetAndroidSDKVersion",
+      "line": 811,
+      "guard_stack": [
+        "__ANDROID__"
+      ]
+    },
+    {
+      "slot_index": 722,
+      "name": "SDL_isupper",
+      "line": 813,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 723,
+      "name": "SDL_islower",
+      "line": 814,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 724,
+      "name": "SDL_JoystickAttachVirtual",
+      "line": 815,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 725,
+      "name": "SDL_JoystickDetachVirtual",
+      "line": 816,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 726,
+      "name": "SDL_JoystickIsVirtual",
+      "line": 817,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 727,
+      "name": "SDL_JoystickSetVirtualAxis",
+      "line": 818,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 728,
+      "name": "SDL_JoystickSetVirtualButton",
+      "line": 819,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 729,
+      "name": "SDL_JoystickSetVirtualHat",
+      "line": 820,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 730,
+      "name": "SDL_GetErrorMsg",
+      "line": 821,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 731,
+      "name": "SDL_LockSensors",
+      "line": 822,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 732,
+      "name": "SDL_UnlockSensors",
+      "line": 823,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 733,
+      "name": "SDL_Metal_GetLayer",
+      "line": 824,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 734,
+      "name": "SDL_Metal_GetDrawableSize",
+      "line": 825,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 735,
+      "name": "SDL_trunc",
+      "line": 826,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 736,
+      "name": "SDL_truncf",
+      "line": 827,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 737,
+      "name": "SDL_GetPreferredLocales",
+      "line": 828,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 738,
+      "name": "SDL_SIMDRealloc",
+      "line": 829,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 739,
+      "name": "SDL_AndroidRequestPermission",
+      "line": 831,
+      "guard_stack": [
+        "__ANDROID__"
+      ]
+    },
+    {
+      "slot_index": 740,
+      "name": "SDL_OpenURL",
+      "line": 833,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 741,
+      "name": "SDL_HasSurfaceRLE",
+      "line": 834,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 742,
+      "name": "SDL_GameControllerHasLED",
+      "line": 835,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 743,
+      "name": "SDL_GameControllerSetLED",
+      "line": 836,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 744,
+      "name": "SDL_JoystickHasLED",
+      "line": 837,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 745,
+      "name": "SDL_JoystickSetLED",
+      "line": 838,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 746,
+      "name": "SDL_GameControllerRumbleTriggers",
+      "line": 839,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 747,
+      "name": "SDL_JoystickRumbleTriggers",
+      "line": 840,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 748,
+      "name": "SDL_GameControllerHasAxis",
+      "line": 841,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 749,
+      "name": "SDL_GameControllerHasButton",
+      "line": 842,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 750,
+      "name": "SDL_GameControllerGetNumTouchpads",
+      "line": 843,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 751,
+      "name": "SDL_GameControllerGetNumTouchpadFingers",
+      "line": 844,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 752,
+      "name": "SDL_GameControllerGetTouchpadFinger",
+      "line": 845,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 753,
+      "name": "SDL_crc32",
+      "line": 846,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 754,
+      "name": "SDL_GameControllerGetSerial",
+      "line": 847,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 755,
+      "name": "SDL_JoystickGetSerial",
+      "line": 848,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 756,
+      "name": "SDL_GameControllerHasSensor",
+      "line": 849,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 757,
+      "name": "SDL_GameControllerSetSensorEnabled",
+      "line": 850,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 758,
+      "name": "SDL_GameControllerIsSensorEnabled",
+      "line": 851,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 759,
+      "name": "SDL_GameControllerGetSensorData",
+      "line": 852,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 760,
+      "name": "SDL_wcscasecmp",
+      "line": 853,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 761,
+      "name": "SDL_wcsncasecmp",
+      "line": 854,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 762,
+      "name": "SDL_round",
+      "line": 855,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 763,
+      "name": "SDL_roundf",
+      "line": 856,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 764,
+      "name": "SDL_lround",
+      "line": 857,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 765,
+      "name": "SDL_lroundf",
+      "line": 858,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 766,
+      "name": "SDL_SoftStretchLinear",
+      "line": 859,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 767,
+      "name": "SDL_RenderGetD3D11Device",
+      "line": 861,
+      "guard_stack": [
+        "defined(__WIN32__) || defined(__WINGDK__)"
+      ]
+    },
+    {
+      "slot_index": 768,
+      "name": "SDL_UpdateNVTexture",
+      "line": 863,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 769,
+      "name": "SDL_SetWindowKeyboardGrab",
+      "line": 864,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 770,
+      "name": "SDL_SetWindowMouseGrab",
+      "line": 865,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 771,
+      "name": "SDL_GetWindowKeyboardGrab",
+      "line": 866,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 772,
+      "name": "SDL_GetWindowMouseGrab",
+      "line": 867,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 773,
+      "name": "SDL_isalpha",
+      "line": 868,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 774,
+      "name": "SDL_isalnum",
+      "line": 869,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 775,
+      "name": "SDL_isblank",
+      "line": 870,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 776,
+      "name": "SDL_iscntrl",
+      "line": 871,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 777,
+      "name": "SDL_isxdigit",
+      "line": 872,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 778,
+      "name": "SDL_ispunct",
+      "line": 873,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 779,
+      "name": "SDL_isprint",
+      "line": 874,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 780,
+      "name": "SDL_isgraph",
+      "line": 875,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 781,
+      "name": "SDL_AndroidShowToast",
+      "line": 877,
+      "guard_stack": [
+        "__ANDROID__"
+      ]
+    },
+    {
+      "slot_index": 782,
+      "name": "SDL_GetAudioDeviceSpec",
+      "line": 879,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 783,
+      "name": "SDL_TLSCleanup",
+      "line": 880,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 784,
+      "name": "SDL_SetWindowAlwaysOnTop",
+      "line": 881,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 785,
+      "name": "SDL_FlashWindow",
+      "line": 882,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 786,
+      "name": "SDL_GameControllerSendEffect",
+      "line": 883,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 787,
+      "name": "SDL_JoystickSendEffect",
+      "line": 884,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 788,
+      "name": "SDL_GameControllerGetSensorDataRate",
+      "line": 885,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 789,
+      "name": "SDL_SetTextureUserData",
+      "line": 886,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 790,
+      "name": "SDL_GetTextureUserData",
+      "line": 887,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 791,
+      "name": "SDL_RenderGeometry",
+      "line": 888,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 792,
+      "name": "SDL_RenderGeometryRaw",
+      "line": 889,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 793,
+      "name": "SDL_RenderSetVSync",
+      "line": 890,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 794,
+      "name": "SDL_asprintf",
+      "line": 892,
+      "guard_stack": [
+        "!SDL_DYNAPI_PROC_NO_VARARGS"
+      ]
+    },
+    {
+      "slot_index": 795,
+      "name": "SDL_vasprintf",
+      "line": 894,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 796,
+      "name": "SDL_GetWindowICCProfile",
+      "line": 895,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 797,
+      "name": "SDL_GetTicks64",
+      "line": 896,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 798,
+      "name": "SDL_LinuxSetThreadPriorityAndPolicy",
+      "line": 898,
+      "guard_stack": [
+        "__LINUX__"
+      ]
+    },
+    {
+      "slot_index": 799,
+      "name": "SDL_GameControllerGetAppleSFSymbolsNameForButton",
+      "line": 900,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 800,
+      "name": "SDL_GameControllerGetAppleSFSymbolsNameForAxis",
+      "line": 901,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 801,
+      "name": "SDL_hid_init",
+      "line": 902,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 802,
+      "name": "SDL_hid_exit",
+      "line": 903,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 803,
+      "name": "SDL_hid_device_change_count",
+      "line": 904,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 804,
+      "name": "SDL_hid_enumerate",
+      "line": 905,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 805,
+      "name": "SDL_hid_free_enumeration",
+      "line": 906,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 806,
+      "name": "SDL_hid_open",
+      "line": 907,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 807,
+      "name": "SDL_hid_open_path",
+      "line": 908,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 808,
+      "name": "SDL_hid_write",
+      "line": 909,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 809,
+      "name": "SDL_hid_read_timeout",
+      "line": 910,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 810,
+      "name": "SDL_hid_read",
+      "line": 911,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 811,
+      "name": "SDL_hid_set_nonblocking",
+      "line": 912,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 812,
+      "name": "SDL_hid_send_feature_report",
+      "line": 913,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 813,
+      "name": "SDL_hid_get_feature_report",
+      "line": 914,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 814,
+      "name": "SDL_hid_close",
+      "line": 915,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 815,
+      "name": "SDL_hid_get_manufacturer_string",
+      "line": 916,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 816,
+      "name": "SDL_hid_get_product_string",
+      "line": 917,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 817,
+      "name": "SDL_hid_get_serial_number_string",
+      "line": 918,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 818,
+      "name": "SDL_hid_get_indexed_string",
+      "line": 919,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 819,
+      "name": "SDL_SetWindowMouseRect",
+      "line": 920,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 820,
+      "name": "SDL_GetWindowMouseRect",
+      "line": 921,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 821,
+      "name": "SDL_RenderWindowToLogical",
+      "line": 922,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 822,
+      "name": "SDL_RenderLogicalToWindow",
+      "line": 923,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 823,
+      "name": "SDL_JoystickHasRumble",
+      "line": 924,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 824,
+      "name": "SDL_JoystickHasRumbleTriggers",
+      "line": 925,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 825,
+      "name": "SDL_GameControllerHasRumble",
+      "line": 926,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 826,
+      "name": "SDL_GameControllerHasRumbleTriggers",
+      "line": 927,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 827,
+      "name": "SDL_hid_ble_scan",
+      "line": 928,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 828,
+      "name": "SDL_PremultiplyAlpha",
+      "line": 929,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 829,
+      "name": "SDL_AndroidSendMessage",
+      "line": 931,
+      "guard_stack": [
+        "__ANDROID__"
+      ]
+    },
+    {
+      "slot_index": 830,
+      "name": "SDL_GetTouchName",
+      "line": 933,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 831,
+      "name": "SDL_ClearComposition",
+      "line": 934,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 832,
+      "name": "SDL_IsTextInputShown",
+      "line": 935,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 833,
+      "name": "SDL_HasIntersectionF",
+      "line": 936,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 834,
+      "name": "SDL_IntersectFRect",
+      "line": 937,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 835,
+      "name": "SDL_UnionFRect",
+      "line": 938,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 836,
+      "name": "SDL_EncloseFPoints",
+      "line": 939,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 837,
+      "name": "SDL_IntersectFRectAndLine",
+      "line": 940,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 838,
+      "name": "SDL_RenderGetWindow",
+      "line": 941,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 839,
+      "name": "SDL_bsearch",
+      "line": 942,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 840,
+      "name": "SDL_GameControllerPathForIndex",
+      "line": 943,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 841,
+      "name": "SDL_GameControllerPath",
+      "line": 944,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 842,
+      "name": "SDL_JoystickPathForIndex",
+      "line": 945,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 843,
+      "name": "SDL_JoystickPath",
+      "line": 946,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 844,
+      "name": "SDL_JoystickAttachVirtualEx",
+      "line": 947,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 845,
+      "name": "SDL_GameControllerGetFirmwareVersion",
+      "line": 948,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 846,
+      "name": "SDL_JoystickGetFirmwareVersion",
+      "line": 949,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 847,
+      "name": "SDL_GUIDToString",
+      "line": 950,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 848,
+      "name": "SDL_GUIDFromString",
+      "line": 951,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 849,
+      "name": "SDL_HasLSX",
+      "line": 952,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 850,
+      "name": "SDL_HasLASX",
+      "line": 953,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 851,
+      "name": "SDL_RenderGetD3D12Device",
+      "line": 955,
+      "guard_stack": [
+        "defined(__WIN32__) || defined(__GDK__)"
+      ]
+    },
+    {
+      "slot_index": 852,
+      "name": "SDL_utf8strnlen",
+      "line": 957,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 853,
+      "name": "SDL_GDKGetTaskQueue",
+      "line": 960,
+      "guard_stack": [
+        "defined(__GDK__)"
+      ]
+    },
+    {
+      "slot_index": 854,
+      "name": "SDL_GDKRunApp",
+      "line": 961,
+      "guard_stack": [
+        "defined(__GDK__)"
+      ]
+    },
+    {
+      "slot_index": 855,
+      "name": "SDL_GetOriginalMemoryFunctions",
+      "line": 963,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 856,
+      "name": "SDL_ResetKeyboard",
+      "line": 964,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 857,
+      "name": "SDL_GetDefaultAudioInfo",
+      "line": 965,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 858,
+      "name": "SDL_GetPointDisplayIndex",
+      "line": 966,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 859,
+      "name": "SDL_GetRectDisplayIndex",
+      "line": 967,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 860,
+      "name": "SDL_ResetHint",
+      "line": 968,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 861,
+      "name": "SDL_crc16",
+      "line": 969,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 862,
+      "name": "SDL_GetWindowSizeInPixels",
+      "line": 970,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 863,
+      "name": "SDL_GetJoystickGUIDInfo",
+      "line": 971,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 864,
+      "name": "SDL_SetPrimarySelectionText",
+      "line": 972,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 865,
+      "name": "SDL_GetPrimarySelectionText",
+      "line": 973,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 866,
+      "name": "SDL_HasPrimarySelectionText",
+      "line": 974,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 867,
+      "name": "SDL_GameControllerGetSensorDataWithTimestamp",
+      "line": 975,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 868,
+      "name": "SDL_SensorGetDataWithTimestamp",
+      "line": 976,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 869,
+      "name": "SDL_ResetHints",
+      "line": 977,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 870,
+      "name": "SDL_strcasestr",
+      "line": 978,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 871,
+      "name": "SDL_GDKSuspendComplete",
+      "line": 980,
+      "guard_stack": [
+        "defined(__GDK__)"
+      ]
+    },
+    {
+      "slot_index": 872,
+      "name": "SDL_HasWindowSurface",
+      "line": 982,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 873,
+      "name": "SDL_DestroyWindowSurface",
+      "line": 983,
+      "guard_stack": []
+    },
+    {
+      "slot_index": 874,
+      "name": "SDL_GDKGetDefaultUser",
+      "line": 985,
+      "guard_stack": [
+        "defined(__GDK__)"
+      ]
+    },
+    {
+      "slot_index": 875,
+      "name": "SDL_GameControllerGetSteamHandle",
+      "line": 987,
+      "guard_stack": []
+    }
+  ]
+}

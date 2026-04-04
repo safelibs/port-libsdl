@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_01_contract_bootstrap",
+  "repo_package_version": "2.30.0+dfsg-1ubuntu3.1",
+  "dependent_package_count": 12,
+  "dependent_samples": [
+    "QEMU system GUI modules",
+    "FFmpeg",
+    "scrcpy",
+    "LOVE",
+    "pygame"
+  ],
+  "tracked_cves": [
+    {
+      "id": "CVE-2022-4743",
+      "summary": "A potential memory leak issue was discovered in SDL2 in GLES_CreateTexture() in SDL_render_gles.c, allowing denial of service.",
+      "included_because": "This is a resource-lifecycle bug, not a memory-corruption bug.",
+      "rust_port_focus": [
+        "Use RAII for renderer and texture creation so partially initialized resources are always cleaned up.",
+        "Add failure-path tests for GLES texture creation and other backend allocation paths."
+      ]
+    },
+    {
+      "id": "CVE-2020-14409",
+      "summary": "SDL_BlitCopy in video/SDL_blit_copy.c had an integer overflow, with heap corruption as the C-language consequence, when processing crafted BMP input.",
+      "included_because": "The root issue is unchecked size arithmetic, even though the published exploit path ends in memory corruption.",
+      "rust_port_focus": [
+        "Centralize checked_mul and checked_add handling for surface sizes, pitches, and blit copy lengths.",
+        "Fuzz malformed BMP headers that force extreme dimensions or row sizes."
+      ]
+    },
+    {
+      "id": "CVE-2019-13626",
+      "summary": "Fill_IMA_ADPCM_block in audio/SDL_wave.c had a heap over-read caused by an integer overflow in IMA_ADPCM_decode().",
+      "included_because": "The summary identifies integer overflow as the root cause, so the bug class is parser arithmetic validation rather than purely memory corruption.",
+      "rust_port_focus": [
+        "Use checked arithmetic for ADPCM block-size and sample-count derivation.",
+        "Reject malformed WAVE metadata before allocating or stepping decode state."
+      ]
+    },
+    {
+      "id": "CVE-2017-2888",
+      "summary": "Creating a new RGB surface in SDL 2.0.5 could integer-overflow, under-allocate, and then lead to a later buffer overflow on crafted image input.",
+      "included_because": "The core defect is unchecked dimension and allocation math.",
+      "rust_port_focus": [
+        "Provide one checked surface-size calculation path shared by all surface constructors.",
+        "Reject dimensions whose total byte size cannot fit in the chosen allocation and indexing model."
+      ]
+    }
+  ]
+}

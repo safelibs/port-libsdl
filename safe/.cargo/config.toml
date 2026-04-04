@@ -1,0 +1,5 @@
+[build]
+target-dir = "target"
+
+[env]
+LIBCLANG_PATH = "/lib/x86_64-linux-gnu"

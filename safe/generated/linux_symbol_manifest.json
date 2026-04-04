@@ -1,0 +1,5043 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_01_contract_bootstrap",
+  "soname": "libSDL2-2.0.so.0",
+  "runtime_filename": "libSDL2-2.0.so.0.0.0",
+  "development_link_name": "libSDL2.so",
+  "symbols": [
+    {
+      "ordinal": 0,
+      "name": "SDL_LinuxSetThreadPriority",
+      "version": "2.0.12",
+      "architecture_predicate": "arch=linux-any"
+    },
+    {
+      "ordinal": 1,
+      "name": "SDL_LinuxSetThreadPriorityAndPolicy",
+      "version": "2.0.18",
+      "architecture_predicate": "arch=linux-any"
+    },
+    {
+      "ordinal": 2,
+      "name": "SDL_AddEventWatch",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 3,
+      "name": "SDL_AddHintCallback",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 4,
+      "name": "SDL_AddTimer",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 5,
+      "name": "SDL_AllocFormat",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 6,
+      "name": "SDL_AllocPalette",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 7,
+      "name": "SDL_AllocRW",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 8,
+      "name": "SDL_AtomicAdd",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 9,
+      "name": "SDL_AtomicCAS",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 10,
+      "name": "SDL_AtomicCASPtr",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 11,
+      "name": "SDL_AtomicGet",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 12,
+      "name": "SDL_AtomicGetPtr",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 13,
+      "name": "SDL_AtomicLock",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 14,
+      "name": "SDL_AtomicSet",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 15,
+      "name": "SDL_AtomicSetPtr",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 16,
+      "name": "SDL_AtomicTryLock",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 17,
+      "name": "SDL_AtomicUnlock",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 18,
+      "name": "SDL_AudioInit",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 19,
+      "name": "SDL_AudioQuit",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 20,
+      "name": "SDL_AudioStreamAvailable",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 21,
+      "name": "SDL_AudioStreamClear",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 22,
+      "name": "SDL_AudioStreamFlush",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 23,
+      "name": "SDL_AudioStreamGet",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 24,
+      "name": "SDL_AudioStreamPut",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 25,
+      "name": "SDL_BuildAudioCVT",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 26,
+      "name": "SDL_CalculateGammaRamp",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 27,
+      "name": "SDL_CaptureMouse",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 28,
+      "name": "SDL_ClearComposition",
+      "version": "2.0.22",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 29,
+      "name": "SDL_ClearError",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 30,
+      "name": "SDL_ClearHints",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 31,
+      "name": "SDL_ClearQueuedAudio",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 32,
+      "name": "SDL_CloseAudio",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 33,
+      "name": "SDL_CloseAudioDevice",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 34,
+      "name": "SDL_ComposeCustomBlendMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 35,
+      "name": "SDL_CondBroadcast",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 36,
+      "name": "SDL_CondSignal",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 37,
+      "name": "SDL_CondWait",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 38,
+      "name": "SDL_CondWaitTimeout",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 39,
+      "name": "SDL_ConvertAudio",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 40,
+      "name": "SDL_ConvertPixels",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 41,
+      "name": "SDL_ConvertSurface",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 42,
+      "name": "SDL_ConvertSurfaceFormat",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 43,
+      "name": "SDL_CreateColorCursor",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 44,
+      "name": "SDL_CreateCond",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 45,
+      "name": "SDL_CreateCursor",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 46,
+      "name": "SDL_CreateMutex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 47,
+      "name": "SDL_CreateRGBSurface",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 48,
+      "name": "SDL_CreateRGBSurfaceFrom",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 49,
+      "name": "SDL_CreateRGBSurfaceWithFormat",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 50,
+      "name": "SDL_CreateRGBSurfaceWithFormatFrom",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 51,
+      "name": "SDL_CreateRenderer",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 52,
+      "name": "SDL_CreateSemaphore",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 53,
+      "name": "SDL_CreateShapedWindow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 54,
+      "name": "SDL_CreateSoftwareRenderer",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 55,
+      "name": "SDL_CreateSystemCursor",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 56,
+      "name": "SDL_CreateTexture",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 57,
+      "name": "SDL_CreateTextureFromSurface",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 58,
+      "name": "SDL_CreateThread",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 59,
+      "name": "SDL_CreateThreadWithStackSize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 60,
+      "name": "SDL_CreateWindow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 61,
+      "name": "SDL_CreateWindowAndRenderer",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 62,
+      "name": "SDL_CreateWindowFrom",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 63,
+      "name": "SDL_DYNAPI_entry",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 64,
+      "name": "SDL_DelEventWatch",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 65,
+      "name": "SDL_DelHintCallback",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 66,
+      "name": "SDL_Delay",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 67,
+      "name": "SDL_DequeueAudio",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 68,
+      "name": "SDL_DestroyCond",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 69,
+      "name": "SDL_DestroyMutex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 70,
+      "name": "SDL_DestroyRenderer",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 71,
+      "name": "SDL_DestroySemaphore",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 72,
+      "name": "SDL_DestroyTexture",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 73,
+      "name": "SDL_DestroyWindow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 74,
+      "name": "SDL_DestroyWindowSurface",
+      "version": "2.28.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 75,
+      "name": "SDL_DetachThread",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 76,
+      "name": "SDL_DisableScreenSaver",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 77,
+      "name": "SDL_DuplicateSurface",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 78,
+      "name": "SDL_EnableScreenSaver",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 79,
+      "name": "SDL_EncloseFPoints",
+      "version": "2.0.22",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 80,
+      "name": "SDL_EnclosePoints",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 81,
+      "name": "SDL_Error",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 82,
+      "name": "SDL_EventState",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 83,
+      "name": "SDL_FillRect",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 84,
+      "name": "SDL_FillRects",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 85,
+      "name": "SDL_FilterEvents",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 86,
+      "name": "SDL_FlashWindow",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 87,
+      "name": "SDL_FlushEvent",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 88,
+      "name": "SDL_FlushEvents",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 89,
+      "name": "SDL_FreeAudioStream",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 90,
+      "name": "SDL_FreeCursor",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 91,
+      "name": "SDL_FreeFormat",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 92,
+      "name": "SDL_FreePalette",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 93,
+      "name": "SDL_FreeRW",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 94,
+      "name": "SDL_FreeSurface",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 95,
+      "name": "SDL_FreeWAV",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 96,
+      "name": "SDL_GL_BindTexture",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 97,
+      "name": "SDL_GL_CreateContext",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 98,
+      "name": "SDL_GL_DeleteContext",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 99,
+      "name": "SDL_GL_ExtensionSupported",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 100,
+      "name": "SDL_GL_GetAttribute",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 101,
+      "name": "SDL_GL_GetCurrentContext",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 102,
+      "name": "SDL_GL_GetCurrentWindow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 103,
+      "name": "SDL_GL_GetDrawableSize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 104,
+      "name": "SDL_GL_GetProcAddress",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 105,
+      "name": "SDL_GL_GetSwapInterval",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 106,
+      "name": "SDL_GL_LoadLibrary",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 107,
+      "name": "SDL_GL_MakeCurrent",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 108,
+      "name": "SDL_GL_ResetAttributes",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 109,
+      "name": "SDL_GL_SetAttribute",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 110,
+      "name": "SDL_GL_SetSwapInterval",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 111,
+      "name": "SDL_GL_SwapWindow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 112,
+      "name": "SDL_GL_UnbindTexture",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 113,
+      "name": "SDL_GL_UnloadLibrary",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 114,
+      "name": "SDL_GUIDFromString",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 115,
+      "name": "SDL_GUIDToString",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 116,
+      "name": "SDL_GameControllerAddMapping",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 117,
+      "name": "SDL_GameControllerAddMappingsFromRW",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 118,
+      "name": "SDL_GameControllerClose",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 119,
+      "name": "SDL_GameControllerEventState",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 120,
+      "name": "SDL_GameControllerFromInstanceID",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 121,
+      "name": "SDL_GameControllerFromPlayerIndex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 122,
+      "name": "SDL_GameControllerGetAppleSFSymbolsNameForAxis",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 123,
+      "name": "SDL_GameControllerGetAppleSFSymbolsNameForButton",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 124,
+      "name": "SDL_GameControllerGetAttached",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 125,
+      "name": "SDL_GameControllerGetAxis",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 126,
+      "name": "SDL_GameControllerGetAxisFromString",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 127,
+      "name": "SDL_GameControllerGetBindForAxis",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 128,
+      "name": "SDL_GameControllerGetBindForButton",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 129,
+      "name": "SDL_GameControllerGetButton",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 130,
+      "name": "SDL_GameControllerGetButtonFromString",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 131,
+      "name": "SDL_GameControllerGetFirmwareVersion",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 132,
+      "name": "SDL_GameControllerGetJoystick",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 133,
+      "name": "SDL_GameControllerGetNumTouchpadFingers",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 134,
+      "name": "SDL_GameControllerGetNumTouchpads",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 135,
+      "name": "SDL_GameControllerGetPlayerIndex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 136,
+      "name": "SDL_GameControllerGetProduct",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 137,
+      "name": "SDL_GameControllerGetProductVersion",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 138,
+      "name": "SDL_GameControllerGetSensorData",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 139,
+      "name": "SDL_GameControllerGetSensorDataRate",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 140,
+      "name": "SDL_GameControllerGetSensorDataWithTimestamp",
+      "version": "2.26.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 141,
+      "name": "SDL_GameControllerGetSerial",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 142,
+      "name": "SDL_GameControllerGetSteamHandle",
+      "version": "2.30.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 143,
+      "name": "SDL_GameControllerGetStringForAxis",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 144,
+      "name": "SDL_GameControllerGetStringForButton",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 145,
+      "name": "SDL_GameControllerGetTouchpadFinger",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 146,
+      "name": "SDL_GameControllerGetType",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 147,
+      "name": "SDL_GameControllerGetVendor",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 148,
+      "name": "SDL_GameControllerHasAxis",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 149,
+      "name": "SDL_GameControllerHasButton",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 150,
+      "name": "SDL_GameControllerHasLED",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 151,
+      "name": "SDL_GameControllerHasRumble",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 152,
+      "name": "SDL_GameControllerHasRumbleTriggers",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 153,
+      "name": "SDL_GameControllerHasSensor",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 154,
+      "name": "SDL_GameControllerIsSensorEnabled",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 155,
+      "name": "SDL_GameControllerMapping",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 156,
+      "name": "SDL_GameControllerMappingForDeviceIndex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 157,
+      "name": "SDL_GameControllerMappingForGUID",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 158,
+      "name": "SDL_GameControllerMappingForIndex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 159,
+      "name": "SDL_GameControllerName",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 160,
+      "name": "SDL_GameControllerNameForIndex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 161,
+      "name": "SDL_GameControllerNumMappings",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 162,
+      "name": "SDL_GameControllerOpen",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 163,
+      "name": "SDL_GameControllerPath",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 164,
+      "name": "SDL_GameControllerPathForIndex",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 165,
+      "name": "SDL_GameControllerRumble",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 166,
+      "name": "SDL_GameControllerRumbleTriggers",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 167,
+      "name": "SDL_GameControllerSendEffect",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 168,
+      "name": "SDL_GameControllerSetLED",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 169,
+      "name": "SDL_GameControllerSetPlayerIndex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 170,
+      "name": "SDL_GameControllerSetSensorEnabled",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 171,
+      "name": "SDL_GameControllerTypeForIndex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 172,
+      "name": "SDL_GameControllerUpdate",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 173,
+      "name": "SDL_GetAssertionHandler",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 174,
+      "name": "SDL_GetAssertionReport",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 175,
+      "name": "SDL_GetAudioDeviceName",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 176,
+      "name": "SDL_GetAudioDeviceSpec",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 177,
+      "name": "SDL_GetAudioDeviceStatus",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 178,
+      "name": "SDL_GetAudioDriver",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 179,
+      "name": "SDL_GetAudioStatus",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 180,
+      "name": "SDL_GetBasePath",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 181,
+      "name": "SDL_GetCPUCacheLineSize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 182,
+      "name": "SDL_GetCPUCount",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 183,
+      "name": "SDL_GetClipRect",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 184,
+      "name": "SDL_GetClipboardText",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 185,
+      "name": "SDL_GetClosestDisplayMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 186,
+      "name": "SDL_GetColorKey",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 187,
+      "name": "SDL_GetCurrentAudioDriver",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 188,
+      "name": "SDL_GetCurrentDisplayMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 189,
+      "name": "SDL_GetCurrentVideoDriver",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 190,
+      "name": "SDL_GetCursor",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 191,
+      "name": "SDL_GetDefaultAssertionHandler",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 192,
+      "name": "SDL_GetDefaultAudioInfo",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 193,
+      "name": "SDL_GetDefaultCursor",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 194,
+      "name": "SDL_GetDesktopDisplayMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 195,
+      "name": "SDL_GetDisplayBounds",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 196,
+      "name": "SDL_GetDisplayDPI",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 197,
+      "name": "SDL_GetDisplayMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 198,
+      "name": "SDL_GetDisplayName",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 199,
+      "name": "SDL_GetDisplayOrientation",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 200,
+      "name": "SDL_GetDisplayUsableBounds",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 201,
+      "name": "SDL_GetError",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 202,
+      "name": "SDL_GetErrorMsg",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 203,
+      "name": "SDL_GetEventFilter",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 204,
+      "name": "SDL_GetGlobalMouseState",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 205,
+      "name": "SDL_GetGrabbedWindow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 206,
+      "name": "SDL_GetHint",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 207,
+      "name": "SDL_GetHintBoolean",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 208,
+      "name": "SDL_GetJoystickGUIDInfo",
+      "version": "2.26.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 209,
+      "name": "SDL_GetKeyFromName",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 210,
+      "name": "SDL_GetKeyFromScancode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 211,
+      "name": "SDL_GetKeyName",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 212,
+      "name": "SDL_GetKeyboardFocus",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 213,
+      "name": "SDL_GetKeyboardState",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 214,
+      "name": "SDL_GetMemoryFunctions",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 215,
+      "name": "SDL_GetModState",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 216,
+      "name": "SDL_GetMouseFocus",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 217,
+      "name": "SDL_GetMouseState",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 218,
+      "name": "SDL_GetNumAllocations",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 219,
+      "name": "SDL_GetNumAudioDevices",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 220,
+      "name": "SDL_GetNumAudioDrivers",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 221,
+      "name": "SDL_GetNumDisplayModes",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 222,
+      "name": "SDL_GetNumRenderDrivers",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 223,
+      "name": "SDL_GetNumTouchDevices",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 224,
+      "name": "SDL_GetNumTouchFingers",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 225,
+      "name": "SDL_GetNumVideoDisplays",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 226,
+      "name": "SDL_GetNumVideoDrivers",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 227,
+      "name": "SDL_GetOriginalMemoryFunctions",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 228,
+      "name": "SDL_GetPerformanceCounter",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 229,
+      "name": "SDL_GetPerformanceFrequency",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 230,
+      "name": "SDL_GetPixelFormatName",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 231,
+      "name": "SDL_GetPlatform",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 232,
+      "name": "SDL_GetPointDisplayIndex",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 233,
+      "name": "SDL_GetPowerInfo",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 234,
+      "name": "SDL_GetPrefPath",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 235,
+      "name": "SDL_GetPreferredLocales",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 236,
+      "name": "SDL_GetPrimarySelectionText",
+      "version": "2.26.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 237,
+      "name": "SDL_GetQueuedAudioSize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 238,
+      "name": "SDL_GetRGB",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 239,
+      "name": "SDL_GetRGBA",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 240,
+      "name": "SDL_GetRectDisplayIndex",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 241,
+      "name": "SDL_GetRelativeMouseMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 242,
+      "name": "SDL_GetRelativeMouseState",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 243,
+      "name": "SDL_GetRenderDrawBlendMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 244,
+      "name": "SDL_GetRenderDrawColor",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 245,
+      "name": "SDL_GetRenderDriverInfo",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 246,
+      "name": "SDL_GetRenderTarget",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 247,
+      "name": "SDL_GetRenderer",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 248,
+      "name": "SDL_GetRendererInfo",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 249,
+      "name": "SDL_GetRendererOutputSize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 250,
+      "name": "SDL_GetRevision",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 251,
+      "name": "SDL_GetRevisionNumber",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 252,
+      "name": "SDL_GetScancodeFromKey",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 253,
+      "name": "SDL_GetScancodeFromName",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 254,
+      "name": "SDL_GetScancodeName",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 255,
+      "name": "SDL_GetShapedWindowMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 256,
+      "name": "SDL_GetSurfaceAlphaMod",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 257,
+      "name": "SDL_GetSurfaceBlendMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 258,
+      "name": "SDL_GetSurfaceColorMod",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 259,
+      "name": "SDL_GetSystemRAM",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 260,
+      "name": "SDL_GetTextureAlphaMod",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 261,
+      "name": "SDL_GetTextureBlendMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 262,
+      "name": "SDL_GetTextureColorMod",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 263,
+      "name": "SDL_GetTextureScaleMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 264,
+      "name": "SDL_GetTextureUserData",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 265,
+      "name": "SDL_GetThreadID",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 266,
+      "name": "SDL_GetThreadName",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 267,
+      "name": "SDL_GetTicks64",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 268,
+      "name": "SDL_GetTicks",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 269,
+      "name": "SDL_GetTouchDevice",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 270,
+      "name": "SDL_GetTouchDeviceType",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 271,
+      "name": "SDL_GetTouchFinger",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 272,
+      "name": "SDL_GetTouchName",
+      "version": "2.0.22",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 273,
+      "name": "SDL_GetVersion",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 274,
+      "name": "SDL_GetVideoDriver",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 275,
+      "name": "SDL_GetWindowBordersSize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 276,
+      "name": "SDL_GetWindowBrightness",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 277,
+      "name": "SDL_GetWindowData",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 278,
+      "name": "SDL_GetWindowDisplayIndex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 279,
+      "name": "SDL_GetWindowDisplayMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 280,
+      "name": "SDL_GetWindowFlags",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 281,
+      "name": "SDL_GetWindowFromID",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 282,
+      "name": "SDL_GetWindowGammaRamp",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 283,
+      "name": "SDL_GetWindowGrab",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 284,
+      "name": "SDL_GetWindowICCProfile",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 285,
+      "name": "SDL_GetWindowID",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 286,
+      "name": "SDL_GetWindowKeyboardGrab",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 287,
+      "name": "SDL_GetWindowMaximumSize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 288,
+      "name": "SDL_GetWindowMinimumSize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 289,
+      "name": "SDL_GetWindowMouseGrab",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 290,
+      "name": "SDL_GetWindowMouseRect",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 291,
+      "name": "SDL_GetWindowOpacity",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 292,
+      "name": "SDL_GetWindowPixelFormat",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 293,
+      "name": "SDL_GetWindowPosition",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 294,
+      "name": "SDL_GetWindowSize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 295,
+      "name": "SDL_GetWindowSizeInPixels",
+      "version": "2.26.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 296,
+      "name": "SDL_GetWindowSurface",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 297,
+      "name": "SDL_GetWindowTitle",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 298,
+      "name": "SDL_GetWindowWMInfo",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 299,
+      "name": "SDL_GetYUVConversionMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 300,
+      "name": "SDL_GetYUVConversionModeForResolution",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 301,
+      "name": "SDL_HapticClose",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 302,
+      "name": "SDL_HapticDestroyEffect",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 303,
+      "name": "SDL_HapticEffectSupported",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 304,
+      "name": "SDL_HapticGetEffectStatus",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 305,
+      "name": "SDL_HapticIndex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 306,
+      "name": "SDL_HapticName",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 307,
+      "name": "SDL_HapticNewEffect",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 308,
+      "name": "SDL_HapticNumAxes",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 309,
+      "name": "SDL_HapticNumEffects",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 310,
+      "name": "SDL_HapticNumEffectsPlaying",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 311,
+      "name": "SDL_HapticOpen",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 312,
+      "name": "SDL_HapticOpenFromJoystick",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 313,
+      "name": "SDL_HapticOpenFromMouse",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 314,
+      "name": "SDL_HapticOpened",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 315,
+      "name": "SDL_HapticPause",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 316,
+      "name": "SDL_HapticQuery",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 317,
+      "name": "SDL_HapticRumbleInit",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 318,
+      "name": "SDL_HapticRumblePlay",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 319,
+      "name": "SDL_HapticRumbleStop",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 320,
+      "name": "SDL_HapticRumbleSupported",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 321,
+      "name": "SDL_HapticRunEffect",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 322,
+      "name": "SDL_HapticSetAutocenter",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 323,
+      "name": "SDL_HapticSetGain",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 324,
+      "name": "SDL_HapticStopAll",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 325,
+      "name": "SDL_HapticStopEffect",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 326,
+      "name": "SDL_HapticUnpause",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 327,
+      "name": "SDL_HapticUpdateEffect",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 328,
+      "name": "SDL_Has3DNow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 329,
+      "name": "SDL_HasARMSIMD",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 330,
+      "name": "SDL_HasAVX2",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 331,
+      "name": "SDL_HasAVX512F",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 332,
+      "name": "SDL_HasAVX",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 333,
+      "name": "SDL_HasAltiVec",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 334,
+      "name": "SDL_HasClipboardText",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 335,
+      "name": "SDL_HasColorKey",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 336,
+      "name": "SDL_HasEvent",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 337,
+      "name": "SDL_HasEvents",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 338,
+      "name": "SDL_HasIntersection",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 339,
+      "name": "SDL_HasIntersectionF",
+      "version": "2.0.22",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 340,
+      "name": "SDL_HasLASX",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 341,
+      "name": "SDL_HasLSX",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 342,
+      "name": "SDL_HasMMX",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 343,
+      "name": "SDL_HasNEON",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 344,
+      "name": "SDL_HasPrimarySelectionText",
+      "version": "2.26.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 345,
+      "name": "SDL_HasRDTSC",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 346,
+      "name": "SDL_HasSSE2",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 347,
+      "name": "SDL_HasSSE3",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 348,
+      "name": "SDL_HasSSE41",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 349,
+      "name": "SDL_HasSSE42",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 350,
+      "name": "SDL_HasSSE",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 351,
+      "name": "SDL_HasScreenKeyboardSupport",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 352,
+      "name": "SDL_HasSurfaceRLE",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 353,
+      "name": "SDL_HasWindowSurface",
+      "version": "2.28.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 354,
+      "name": "SDL_HideWindow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 355,
+      "name": "SDL_Init",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 356,
+      "name": "SDL_InitSubSystem",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 357,
+      "name": "SDL_IntersectFRect",
+      "version": "2.0.22",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 358,
+      "name": "SDL_IntersectFRectAndLine",
+      "version": "2.0.22",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 359,
+      "name": "SDL_IntersectRect",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 360,
+      "name": "SDL_IntersectRectAndLine",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 361,
+      "name": "SDL_IsGameController",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 362,
+      "name": "SDL_IsScreenKeyboardShown",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 363,
+      "name": "SDL_IsScreenSaverEnabled",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 364,
+      "name": "SDL_IsShapedWindow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 365,
+      "name": "SDL_IsTablet",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 366,
+      "name": "SDL_IsTextInputActive",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 367,
+      "name": "SDL_IsTextInputShown",
+      "version": "2.0.22",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 368,
+      "name": "SDL_JoystickAttachVirtual",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 369,
+      "name": "SDL_JoystickAttachVirtualEx",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 370,
+      "name": "SDL_JoystickClose",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 371,
+      "name": "SDL_JoystickCurrentPowerLevel",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 372,
+      "name": "SDL_JoystickDetachVirtual",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 373,
+      "name": "SDL_JoystickEventState",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 374,
+      "name": "SDL_JoystickFromInstanceID",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 375,
+      "name": "SDL_JoystickFromPlayerIndex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 376,
+      "name": "SDL_JoystickGetAttached",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 377,
+      "name": "SDL_JoystickGetAxis",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 378,
+      "name": "SDL_JoystickGetAxisInitialState",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 379,
+      "name": "SDL_JoystickGetBall",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 380,
+      "name": "SDL_JoystickGetButton",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 381,
+      "name": "SDL_JoystickGetDeviceGUID",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 382,
+      "name": "SDL_JoystickGetDeviceInstanceID",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 383,
+      "name": "SDL_JoystickGetDevicePlayerIndex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 384,
+      "name": "SDL_JoystickGetDeviceProduct",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 385,
+      "name": "SDL_JoystickGetDeviceProductVersion",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 386,
+      "name": "SDL_JoystickGetDeviceType",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 387,
+      "name": "SDL_JoystickGetDeviceVendor",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 388,
+      "name": "SDL_JoystickGetFirmwareVersion",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 389,
+      "name": "SDL_JoystickGetGUID",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 390,
+      "name": "SDL_JoystickGetGUIDFromString",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 391,
+      "name": "SDL_JoystickGetGUIDString",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 392,
+      "name": "SDL_JoystickGetHat",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 393,
+      "name": "SDL_JoystickGetPlayerIndex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 394,
+      "name": "SDL_JoystickGetProduct",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 395,
+      "name": "SDL_JoystickGetProductVersion",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 396,
+      "name": "SDL_JoystickGetSerial",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 397,
+      "name": "SDL_JoystickGetType",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 398,
+      "name": "SDL_JoystickGetVendor",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 399,
+      "name": "SDL_JoystickHasLED",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 400,
+      "name": "SDL_JoystickHasRumble",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 401,
+      "name": "SDL_JoystickHasRumbleTriggers",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 402,
+      "name": "SDL_JoystickInstanceID",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 403,
+      "name": "SDL_JoystickIsHaptic",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 404,
+      "name": "SDL_JoystickIsVirtual",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 405,
+      "name": "SDL_JoystickName",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 406,
+      "name": "SDL_JoystickNameForIndex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 407,
+      "name": "SDL_JoystickNumAxes",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 408,
+      "name": "SDL_JoystickNumBalls",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 409,
+      "name": "SDL_JoystickNumButtons",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 410,
+      "name": "SDL_JoystickNumHats",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 411,
+      "name": "SDL_JoystickOpen",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 412,
+      "name": "SDL_JoystickPath",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 413,
+      "name": "SDL_JoystickPathForIndex",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 414,
+      "name": "SDL_JoystickRumble",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 415,
+      "name": "SDL_JoystickRumbleTriggers",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 416,
+      "name": "SDL_JoystickSendEffect",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 417,
+      "name": "SDL_JoystickSetLED",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 418,
+      "name": "SDL_JoystickSetPlayerIndex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 419,
+      "name": "SDL_JoystickSetVirtualAxis",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 420,
+      "name": "SDL_JoystickSetVirtualButton",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 421,
+      "name": "SDL_JoystickSetVirtualHat",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 422,
+      "name": "SDL_JoystickUpdate",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 423,
+      "name": "SDL_LoadBMP_RW",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 424,
+      "name": "SDL_LoadDollarTemplates",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 425,
+      "name": "SDL_LoadFile",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 426,
+      "name": "SDL_LoadFile_RW",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 427,
+      "name": "SDL_LoadFunction",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 428,
+      "name": "SDL_LoadObject",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 429,
+      "name": "SDL_LoadWAV_RW",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 430,
+      "name": "SDL_LockAudio",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 431,
+      "name": "SDL_LockAudioDevice",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 432,
+      "name": "SDL_LockJoysticks",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 433,
+      "name": "SDL_LockMutex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 434,
+      "name": "SDL_LockSensors",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 435,
+      "name": "SDL_LockSurface",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 436,
+      "name": "SDL_LockTexture",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 437,
+      "name": "SDL_LockTextureToSurface",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 438,
+      "name": "SDL_Log",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 439,
+      "name": "SDL_LogCritical",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 440,
+      "name": "SDL_LogDebug",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 441,
+      "name": "SDL_LogError",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 442,
+      "name": "SDL_LogGetOutputFunction",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 443,
+      "name": "SDL_LogGetPriority",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 444,
+      "name": "SDL_LogInfo",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 445,
+      "name": "SDL_LogMessage",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 446,
+      "name": "SDL_LogMessageV",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 447,
+      "name": "SDL_LogResetPriorities",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 448,
+      "name": "SDL_LogSetAllPriority",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 449,
+      "name": "SDL_LogSetOutputFunction",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 450,
+      "name": "SDL_LogSetPriority",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 451,
+      "name": "SDL_LogVerbose",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 452,
+      "name": "SDL_LogWarn",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 453,
+      "name": "SDL_LowerBlit",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 454,
+      "name": "SDL_LowerBlitScaled",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 455,
+      "name": "SDL_MapRGB",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 456,
+      "name": "SDL_MapRGBA",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 457,
+      "name": "SDL_MasksToPixelFormatEnum",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 458,
+      "name": "SDL_MaximizeWindow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 459,
+      "name": "SDL_MemoryBarrierAcquireFunction",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 460,
+      "name": "SDL_MemoryBarrierReleaseFunction",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 461,
+      "name": "SDL_Metal_CreateView",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 462,
+      "name": "SDL_Metal_DestroyView",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 463,
+      "name": "SDL_Metal_GetDrawableSize",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 464,
+      "name": "SDL_Metal_GetLayer",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 465,
+      "name": "SDL_MinimizeWindow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 466,
+      "name": "SDL_MixAudio",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 467,
+      "name": "SDL_MixAudioFormat",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 468,
+      "name": "SDL_MouseIsHaptic",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 469,
+      "name": "SDL_NewAudioStream",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 470,
+      "name": "SDL_NumHaptics",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 471,
+      "name": "SDL_NumJoysticks",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 472,
+      "name": "SDL_NumSensors",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 473,
+      "name": "SDL_OnApplicationDidBecomeActive",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 474,
+      "name": "SDL_OnApplicationDidEnterBackground",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 475,
+      "name": "SDL_OnApplicationDidReceiveMemoryWarning",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 476,
+      "name": "SDL_OnApplicationWillEnterForeground",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 477,
+      "name": "SDL_OnApplicationWillResignActive",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 478,
+      "name": "SDL_OnApplicationWillTerminate",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 479,
+      "name": "SDL_OpenAudio",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 480,
+      "name": "SDL_OpenAudioDevice",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 481,
+      "name": "SDL_OpenURL",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 482,
+      "name": "SDL_PauseAudio",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 483,
+      "name": "SDL_PauseAudioDevice",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 484,
+      "name": "SDL_PeepEvents",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 485,
+      "name": "SDL_PixelFormatEnumToMasks",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 486,
+      "name": "SDL_PollEvent",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 487,
+      "name": "SDL_PremultiplyAlpha",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 488,
+      "name": "SDL_PumpEvents",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 489,
+      "name": "SDL_PushEvent",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 490,
+      "name": "SDL_QueryTexture",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 491,
+      "name": "SDL_QueueAudio",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 492,
+      "name": "SDL_Quit",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 493,
+      "name": "SDL_QuitSubSystem",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 494,
+      "name": "SDL_RWFromConstMem",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 495,
+      "name": "SDL_RWFromFP",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 496,
+      "name": "SDL_RWFromFile",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 497,
+      "name": "SDL_RWFromMem",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 498,
+      "name": "SDL_RWclose",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 499,
+      "name": "SDL_RWread",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 500,
+      "name": "SDL_RWseek",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 501,
+      "name": "SDL_RWsize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 502,
+      "name": "SDL_RWtell",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 503,
+      "name": "SDL_RWwrite",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 504,
+      "name": "SDL_RaiseWindow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 505,
+      "name": "SDL_ReadBE16",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 506,
+      "name": "SDL_ReadBE32",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 507,
+      "name": "SDL_ReadBE64",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 508,
+      "name": "SDL_ReadLE16",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 509,
+      "name": "SDL_ReadLE32",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 510,
+      "name": "SDL_ReadLE64",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 511,
+      "name": "SDL_ReadU8",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 512,
+      "name": "SDL_RecordGesture",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 513,
+      "name": "SDL_RegisterEvents",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 514,
+      "name": "SDL_RemoveTimer",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 515,
+      "name": "SDL_RenderClear",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 516,
+      "name": "SDL_RenderCopy",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 517,
+      "name": "SDL_RenderCopyEx",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 518,
+      "name": "SDL_RenderCopyExF",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 519,
+      "name": "SDL_RenderCopyF",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 520,
+      "name": "SDL_RenderDrawLine",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 521,
+      "name": "SDL_RenderDrawLineF",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 522,
+      "name": "SDL_RenderDrawLines",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 523,
+      "name": "SDL_RenderDrawLinesF",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 524,
+      "name": "SDL_RenderDrawPoint",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 525,
+      "name": "SDL_RenderDrawPointF",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 526,
+      "name": "SDL_RenderDrawPoints",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 527,
+      "name": "SDL_RenderDrawPointsF",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 528,
+      "name": "SDL_RenderDrawRect",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 529,
+      "name": "SDL_RenderDrawRectF",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 530,
+      "name": "SDL_RenderDrawRects",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 531,
+      "name": "SDL_RenderDrawRectsF",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 532,
+      "name": "SDL_RenderFillRect",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 533,
+      "name": "SDL_RenderFillRectF",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 534,
+      "name": "SDL_RenderFillRects",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 535,
+      "name": "SDL_RenderFillRectsF",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 536,
+      "name": "SDL_RenderFlush",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 537,
+      "name": "SDL_RenderGeometry",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 538,
+      "name": "SDL_RenderGeometryRaw",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 539,
+      "name": "SDL_RenderGetClipRect",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 540,
+      "name": "SDL_RenderGetIntegerScale",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 541,
+      "name": "SDL_RenderGetLogicalSize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 542,
+      "name": "SDL_RenderGetMetalCommandEncoder",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 543,
+      "name": "SDL_RenderGetMetalLayer",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 544,
+      "name": "SDL_RenderGetScale",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 545,
+      "name": "SDL_RenderGetViewport",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 546,
+      "name": "SDL_RenderGetWindow",
+      "version": "2.0.22",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 547,
+      "name": "SDL_RenderIsClipEnabled",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 548,
+      "name": "SDL_RenderLogicalToWindow",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 549,
+      "name": "SDL_RenderPresent",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 550,
+      "name": "SDL_RenderReadPixels",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 551,
+      "name": "SDL_RenderSetClipRect",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 552,
+      "name": "SDL_RenderSetIntegerScale",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 553,
+      "name": "SDL_RenderSetLogicalSize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 554,
+      "name": "SDL_RenderSetScale",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 555,
+      "name": "SDL_RenderSetVSync",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 556,
+      "name": "SDL_RenderSetViewport",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 557,
+      "name": "SDL_RenderTargetSupported",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 558,
+      "name": "SDL_RenderWindowToLogical",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 559,
+      "name": "SDL_ReportAssertion",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 560,
+      "name": "SDL_ResetAssertionReport",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 561,
+      "name": "SDL_ResetHint",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 562,
+      "name": "SDL_ResetHints",
+      "version": "2.26.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 563,
+      "name": "SDL_ResetKeyboard",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 564,
+      "name": "SDL_RestoreWindow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 565,
+      "name": "SDL_SIMDAlloc",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 566,
+      "name": "SDL_SIMDFree",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 567,
+      "name": "SDL_SIMDGetAlignment",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 568,
+      "name": "SDL_SIMDRealloc",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 569,
+      "name": "SDL_SaveAllDollarTemplates",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 570,
+      "name": "SDL_SaveBMP_RW",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 571,
+      "name": "SDL_SaveDollarTemplate",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 572,
+      "name": "SDL_SemPost",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 573,
+      "name": "SDL_SemTryWait",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 574,
+      "name": "SDL_SemValue",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 575,
+      "name": "SDL_SemWait",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 576,
+      "name": "SDL_SemWaitTimeout",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 577,
+      "name": "SDL_SensorClose",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 578,
+      "name": "SDL_SensorFromInstanceID",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 579,
+      "name": "SDL_SensorGetData",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 580,
+      "name": "SDL_SensorGetDataWithTimestamp",
+      "version": "2.26.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 581,
+      "name": "SDL_SensorGetDeviceInstanceID",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 582,
+      "name": "SDL_SensorGetDeviceName",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 583,
+      "name": "SDL_SensorGetDeviceNonPortableType",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 584,
+      "name": "SDL_SensorGetDeviceType",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 585,
+      "name": "SDL_SensorGetInstanceID",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 586,
+      "name": "SDL_SensorGetName",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 587,
+      "name": "SDL_SensorGetNonPortableType",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 588,
+      "name": "SDL_SensorGetType",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 589,
+      "name": "SDL_SensorOpen",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 590,
+      "name": "SDL_SensorUpdate",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 591,
+      "name": "SDL_SetAssertionHandler",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 592,
+      "name": "SDL_SetClipRect",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 593,
+      "name": "SDL_SetClipboardText",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 594,
+      "name": "SDL_SetColorKey",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 595,
+      "name": "SDL_SetCursor",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 596,
+      "name": "SDL_SetError",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 597,
+      "name": "SDL_SetEventFilter",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 598,
+      "name": "SDL_SetHint",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 599,
+      "name": "SDL_SetHintWithPriority",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 600,
+      "name": "SDL_SetMainReady",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 601,
+      "name": "SDL_SetMemoryFunctions",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 602,
+      "name": "SDL_SetModState",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 603,
+      "name": "SDL_SetPaletteColors",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 604,
+      "name": "SDL_SetPixelFormatPalette",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 605,
+      "name": "SDL_SetPrimarySelectionText",
+      "version": "2.26.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 606,
+      "name": "SDL_SetRelativeMouseMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 607,
+      "name": "SDL_SetRenderDrawBlendMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 608,
+      "name": "SDL_SetRenderDrawColor",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 609,
+      "name": "SDL_SetRenderTarget",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 610,
+      "name": "SDL_SetSurfaceAlphaMod",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 611,
+      "name": "SDL_SetSurfaceBlendMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 612,
+      "name": "SDL_SetSurfaceColorMod",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 613,
+      "name": "SDL_SetSurfacePalette",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 614,
+      "name": "SDL_SetSurfaceRLE",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 615,
+      "name": "SDL_SetTextInputRect",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 616,
+      "name": "SDL_SetTextureAlphaMod",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 617,
+      "name": "SDL_SetTextureBlendMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 618,
+      "name": "SDL_SetTextureColorMod",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 619,
+      "name": "SDL_SetTextureScaleMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 620,
+      "name": "SDL_SetTextureUserData",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 621,
+      "name": "SDL_SetThreadPriority",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 622,
+      "name": "SDL_SetWindowAlwaysOnTop",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 623,
+      "name": "SDL_SetWindowBordered",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 624,
+      "name": "SDL_SetWindowBrightness",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 625,
+      "name": "SDL_SetWindowData",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 626,
+      "name": "SDL_SetWindowDisplayMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 627,
+      "name": "SDL_SetWindowFullscreen",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 628,
+      "name": "SDL_SetWindowGammaRamp",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 629,
+      "name": "SDL_SetWindowGrab",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 630,
+      "name": "SDL_SetWindowHitTest",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 631,
+      "name": "SDL_SetWindowIcon",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 632,
+      "name": "SDL_SetWindowInputFocus",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 633,
+      "name": "SDL_SetWindowKeyboardGrab",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 634,
+      "name": "SDL_SetWindowMaximumSize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 635,
+      "name": "SDL_SetWindowMinimumSize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 636,
+      "name": "SDL_SetWindowModalFor",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 637,
+      "name": "SDL_SetWindowMouseGrab",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 638,
+      "name": "SDL_SetWindowMouseRect",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 639,
+      "name": "SDL_SetWindowOpacity",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 640,
+      "name": "SDL_SetWindowPosition",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 641,
+      "name": "SDL_SetWindowResizable",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 642,
+      "name": "SDL_SetWindowShape",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 643,
+      "name": "SDL_SetWindowSize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 644,
+      "name": "SDL_SetWindowTitle",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 645,
+      "name": "SDL_SetYUVConversionMode",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 646,
+      "name": "SDL_ShowCursor",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 647,
+      "name": "SDL_ShowMessageBox",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 648,
+      "name": "SDL_ShowSimpleMessageBox",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 649,
+      "name": "SDL_ShowWindow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 650,
+      "name": "SDL_SoftStretch",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 651,
+      "name": "SDL_SoftStretchLinear",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 652,
+      "name": "SDL_StartTextInput",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 653,
+      "name": "SDL_StopTextInput",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 654,
+      "name": "SDL_TLSCleanup",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 655,
+      "name": "SDL_TLSCreate",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 656,
+      "name": "SDL_TLSGet",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 657,
+      "name": "SDL_TLSSet",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 658,
+      "name": "SDL_ThreadID",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 659,
+      "name": "SDL_TryLockMutex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 660,
+      "name": "SDL_UnionFRect",
+      "version": "2.0.22",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 661,
+      "name": "SDL_UnionRect",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 662,
+      "name": "SDL_UnloadObject",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 663,
+      "name": "SDL_UnlockAudio",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 664,
+      "name": "SDL_UnlockAudioDevice",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 665,
+      "name": "SDL_UnlockJoysticks",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 666,
+      "name": "SDL_UnlockMutex",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 667,
+      "name": "SDL_UnlockSensors",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 668,
+      "name": "SDL_UnlockSurface",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 669,
+      "name": "SDL_UnlockTexture",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 670,
+      "name": "SDL_UpdateNVTexture",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 671,
+      "name": "SDL_UpdateTexture",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 672,
+      "name": "SDL_UpdateWindowSurface",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 673,
+      "name": "SDL_UpdateWindowSurfaceRects",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 674,
+      "name": "SDL_UpdateYUVTexture",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 675,
+      "name": "SDL_UpperBlit",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 676,
+      "name": "SDL_UpperBlitScaled",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 677,
+      "name": "SDL_VideoInit",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 678,
+      "name": "SDL_VideoQuit",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 679,
+      "name": "SDL_Vulkan_CreateSurface",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 680,
+      "name": "SDL_Vulkan_GetDrawableSize",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 681,
+      "name": "SDL_Vulkan_GetInstanceExtensions",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 682,
+      "name": "SDL_Vulkan_GetVkGetInstanceProcAddr",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 683,
+      "name": "SDL_Vulkan_LoadLibrary",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 684,
+      "name": "SDL_Vulkan_UnloadLibrary",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 685,
+      "name": "SDL_WaitEvent",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 686,
+      "name": "SDL_WaitEventTimeout",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 687,
+      "name": "SDL_WaitThread",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 688,
+      "name": "SDL_WarpMouseGlobal",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 689,
+      "name": "SDL_WarpMouseInWindow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 690,
+      "name": "SDL_WasInit",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 691,
+      "name": "SDL_WriteBE16",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 692,
+      "name": "SDL_WriteBE32",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 693,
+      "name": "SDL_WriteBE64",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 694,
+      "name": "SDL_WriteLE16",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 695,
+      "name": "SDL_WriteLE32",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 696,
+      "name": "SDL_WriteLE64",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 697,
+      "name": "SDL_WriteU8",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 698,
+      "name": "SDL_abs",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 699,
+      "name": "SDL_acos",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 700,
+      "name": "SDL_acosf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 701,
+      "name": "SDL_asin",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 702,
+      "name": "SDL_asinf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 703,
+      "name": "SDL_asprintf",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 704,
+      "name": "SDL_atan2",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 705,
+      "name": "SDL_atan2f",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 706,
+      "name": "SDL_atan",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 707,
+      "name": "SDL_atanf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 708,
+      "name": "SDL_atof",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 709,
+      "name": "SDL_atoi",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 710,
+      "name": "SDL_bsearch",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 711,
+      "name": "SDL_calloc",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 712,
+      "name": "SDL_ceil",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 713,
+      "name": "SDL_ceilf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 714,
+      "name": "SDL_copysign",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 715,
+      "name": "SDL_copysignf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 716,
+      "name": "SDL_cos",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 717,
+      "name": "SDL_cosf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 718,
+      "name": "SDL_crc16",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 719,
+      "name": "SDL_crc32",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 720,
+      "name": "SDL_exp",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 721,
+      "name": "SDL_expf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 722,
+      "name": "SDL_fabs",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 723,
+      "name": "SDL_fabsf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 724,
+      "name": "SDL_floor",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 725,
+      "name": "SDL_floorf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 726,
+      "name": "SDL_fmod",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 727,
+      "name": "SDL_fmodf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 728,
+      "name": "SDL_free",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 729,
+      "name": "SDL_getenv",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 730,
+      "name": "SDL_hid_ble_scan",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 731,
+      "name": "SDL_hid_close",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 732,
+      "name": "SDL_hid_device_change_count",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 733,
+      "name": "SDL_hid_enumerate",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 734,
+      "name": "SDL_hid_exit",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 735,
+      "name": "SDL_hid_free_enumeration",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 736,
+      "name": "SDL_hid_get_feature_report",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 737,
+      "name": "SDL_hid_get_indexed_string",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 738,
+      "name": "SDL_hid_get_manufacturer_string",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 739,
+      "name": "SDL_hid_get_product_string",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 740,
+      "name": "SDL_hid_get_serial_number_string",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 741,
+      "name": "SDL_hid_init",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 742,
+      "name": "SDL_hid_open",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 743,
+      "name": "SDL_hid_open_path",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 744,
+      "name": "SDL_hid_read",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 745,
+      "name": "SDL_hid_read_timeout",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 746,
+      "name": "SDL_hid_send_feature_report",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 747,
+      "name": "SDL_hid_set_nonblocking",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 748,
+      "name": "SDL_hid_write",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 749,
+      "name": "SDL_iconv",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 750,
+      "name": "SDL_iconv_close",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 751,
+      "name": "SDL_iconv_open",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 752,
+      "name": "SDL_iconv_string",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 753,
+      "name": "SDL_isalnum",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 754,
+      "name": "SDL_isalpha",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 755,
+      "name": "SDL_isblank",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 756,
+      "name": "SDL_iscntrl",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 757,
+      "name": "SDL_isdigit",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 758,
+      "name": "SDL_isgraph",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 759,
+      "name": "SDL_islower",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 760,
+      "name": "SDL_isprint",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 761,
+      "name": "SDL_ispunct",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 762,
+      "name": "SDL_isspace",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 763,
+      "name": "SDL_isupper",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 764,
+      "name": "SDL_isxdigit",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 765,
+      "name": "SDL_itoa",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 766,
+      "name": "SDL_lltoa",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 767,
+      "name": "SDL_log10",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 768,
+      "name": "SDL_log10f",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 769,
+      "name": "SDL_log",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 770,
+      "name": "SDL_logf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 771,
+      "name": "SDL_lround",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 772,
+      "name": "SDL_lroundf",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 773,
+      "name": "SDL_ltoa",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 774,
+      "name": "SDL_malloc",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 775,
+      "name": "SDL_memcmp",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 776,
+      "name": "SDL_memcpy",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 777,
+      "name": "SDL_memmove",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 778,
+      "name": "SDL_memset",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 779,
+      "name": "SDL_pow",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 780,
+      "name": "SDL_powf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 781,
+      "name": "SDL_qsort",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 782,
+      "name": "SDL_realloc",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 783,
+      "name": "SDL_round",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 784,
+      "name": "SDL_roundf",
+      "version": "2.0.16",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 785,
+      "name": "SDL_scalbn",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 786,
+      "name": "SDL_scalbnf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 787,
+      "name": "SDL_setenv",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 788,
+      "name": "SDL_sin",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 789,
+      "name": "SDL_sinf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 790,
+      "name": "SDL_snprintf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 791,
+      "name": "SDL_sqrt",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 792,
+      "name": "SDL_sqrtf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 793,
+      "name": "SDL_sscanf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 794,
+      "name": "SDL_strcasecmp",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 795,
+      "name": "SDL_strcasestr",
+      "version": "2.26.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 796,
+      "name": "SDL_strchr",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 797,
+      "name": "SDL_strcmp",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 798,
+      "name": "SDL_strdup",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 799,
+      "name": "SDL_strlcat",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 800,
+      "name": "SDL_strlcpy",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 801,
+      "name": "SDL_strlen",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 802,
+      "name": "SDL_strlwr",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 803,
+      "name": "SDL_strncasecmp",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 804,
+      "name": "SDL_strncmp",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 805,
+      "name": "SDL_strrchr",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 806,
+      "name": "SDL_strrev",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 807,
+      "name": "SDL_strstr",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 808,
+      "name": "SDL_strtod",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 809,
+      "name": "SDL_strtokr",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 810,
+      "name": "SDL_strtol",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 811,
+      "name": "SDL_strtoll",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 812,
+      "name": "SDL_strtoul",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 813,
+      "name": "SDL_strtoull",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 814,
+      "name": "SDL_strupr",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 815,
+      "name": "SDL_tan",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 816,
+      "name": "SDL_tanf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 817,
+      "name": "SDL_tolower",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 818,
+      "name": "SDL_toupper",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 819,
+      "name": "SDL_trunc",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 820,
+      "name": "SDL_truncf",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 821,
+      "name": "SDL_uitoa",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 822,
+      "name": "SDL_ulltoa",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 823,
+      "name": "SDL_ultoa",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 824,
+      "name": "SDL_utf8strlcpy",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 825,
+      "name": "SDL_utf8strlen",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 826,
+      "name": "SDL_utf8strnlen",
+      "version": "2.24.0",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 827,
+      "name": "SDL_vasprintf",
+      "version": "2.0.18",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 828,
+      "name": "SDL_vsnprintf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 829,
+      "name": "SDL_vsscanf",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 830,
+      "name": "SDL_wcscasecmp",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 831,
+      "name": "SDL_wcscmp",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 832,
+      "name": "SDL_wcsdup",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 833,
+      "name": "SDL_wcslcat",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 834,
+      "name": "SDL_wcslcpy",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 835,
+      "name": "SDL_wcslen",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 836,
+      "name": "SDL_wcsncasecmp",
+      "version": "2.0.14",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 837,
+      "name": "SDL_wcsncmp",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    },
+    {
+      "ordinal": 838,
+      "name": "SDL_wcsstr",
+      "version": "2.0.12",
+      "architecture_predicate": null
+    }
+  ]
+}

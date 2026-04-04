@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_01_contract_bootstrap",
+  "target_name": "testautomation",
+  "source_paths": [
+    "original/test/testautomation.c",
+    "original/test/testautomation_audio.c",
+    "original/test/testautomation_clipboard.c",
+    "original/test/testautomation_events.c",
+    "original/test/testautomation_guid.c",
+    "original/test/testautomation_hints.c",
+    "original/test/testautomation_joystick.c",
+    "original/test/testautomation_keyboard.c",
+    "original/test/testautomation_log.c",
+    "original/test/testautomation_main.c",
+    "original/test/testautomation_math.c",
+    "original/test/testautomation_mouse.c",
+    "original/test/testautomation_pixels.c",
+    "original/test/testautomation_platform.c",
+    "original/test/testautomation_rect.c",
+    "original/test/testautomation_render.c",
+    "original/test/testautomation_rwops.c",
+    "original/test/testautomation_sdltest.c",
+    "original/test/testautomation_stdlib.c",
+    "original/test/testautomation_subsystems.c",
+    "original/test/testautomation_surface.c",
+    "original/test/testautomation_syswm.c",
+    "original/test/testautomation_timer.c",
+    "original/test/testautomation_video.c"
+  ],
+  "suite_to_phase_ownership": [
+    {
+      "suite_name": "core",
+      "source_path": "original/test/testautomation.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "audio",
+      "source_path": "original/test/testautomation_audio.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "clipboard",
+      "source_path": "original/test/testautomation_clipboard.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "events",
+      "source_path": "original/test/testautomation_events.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "guid",
+      "source_path": "original/test/testautomation_guid.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "hints",
+      "source_path": "original/test/testautomation_hints.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "joystick",
+      "source_path": "original/test/testautomation_joystick.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "keyboard",
+      "source_path": "original/test/testautomation_keyboard.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "log",
+      "source_path": "original/test/testautomation_log.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "main",
+      "source_path": "original/test/testautomation_main.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "math",
+      "source_path": "original/test/testautomation_math.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "mouse",
+      "source_path": "original/test/testautomation_mouse.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "pixels",
+      "source_path": "original/test/testautomation_pixels.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "platform",
+      "source_path": "original/test/testautomation_platform.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "rect",
+      "source_path": "original/test/testautomation_rect.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "render",
+      "source_path": "original/test/testautomation_render.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "rwops",
+      "source_path": "original/test/testautomation_rwops.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "sdltest",
+      "source_path": "original/test/testautomation_sdltest.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "stdlib",
+      "source_path": "original/test/testautomation_stdlib.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "subsystems",
+      "source_path": "original/test/testautomation_subsystems.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "surface",
+      "source_path": "original/test/testautomation_surface.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "syswm",
+      "source_path": "original/test/testautomation_syswm.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "timer",
+      "source_path": "original/test/testautomation_timer.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    },
+    {
+      "suite_name": "video",
+      "source_path": "original/test/testautomation_video.c",
+      "owning_phase": "impl_phase_01_contract_bootstrap"
+    }
+  ]
+}

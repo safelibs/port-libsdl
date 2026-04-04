@@ -1,0 +1,2745 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_01_contract_bootstrap",
+  "authoritative_auto_run_targets": [
+    "testautomation",
+    "testatomic",
+    "testerror",
+    "testevdev",
+    "testthread",
+    "testlocale",
+    "testplatform",
+    "testpower",
+    "testfilesystem",
+    "testtimer",
+    "testver",
+    "testqsort",
+    "testaudioinfo",
+    "testsurround",
+    "testkeys",
+    "testbounds",
+    "testdisplayinfo"
+  ],
+  "targets": [
+    {
+      "target_name": "checkkeys",
+      "source_paths": [
+        "original/test/checkkeys.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "checkkeysthreads",
+      "source_paths": [
+        "original/test/checkkeysthreads.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "controllermap",
+      "source_paths": [
+        "original/test/controllermap.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "loopwave",
+      "source_paths": [
+        "original/test/loopwave.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "loopwavequeue",
+      "source_paths": [
+        "original/test/loopwavequeue.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testatomic",
+      "source_paths": [
+        "original/test/testatomic.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 10,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testaudiocapture",
+      "source_paths": [
+        "original/test/testaudiocapture.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testaudiohotplug",
+      "source_paths": [
+        "original/test/testaudiohotplug.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testaudioinfo",
+      "source_paths": [
+        "original/test/testaudioinfo.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "SDL_DUMMYAUDIO"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 10,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testautomation",
+      "source_paths": [
+        "original/test/testautomation.c",
+        "original/test/testautomation_audio.c",
+        "original/test/testautomation_clipboard.c",
+        "original/test/testautomation_events.c",
+        "original/test/testautomation_guid.c",
+        "original/test/testautomation_hints.c",
+        "original/test/testautomation_joystick.c",
+        "original/test/testautomation_keyboard.c",
+        "original/test/testautomation_log.c",
+        "original/test/testautomation_main.c",
+        "original/test/testautomation_math.c",
+        "original/test/testautomation_mouse.c",
+        "original/test/testautomation_pixels.c",
+        "original/test/testautomation_platform.c",
+        "original/test/testautomation_rect.c",
+        "original/test/testautomation_render.c",
+        "original/test/testautomation_rwops.c",
+        "original/test/testautomation_sdltest.c",
+        "original/test/testautomation_stdlib.c",
+        "original/test/testautomation_subsystems.c",
+        "original/test/testautomation_surface.c",
+        "original/test/testautomation_syswm.c",
+        "original/test/testautomation_timer.c",
+        "original/test/testautomation_video.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [
+        "HAVE_WFORMAT_OVERFLOW",
+        "HAVE_WFORMAT",
+        "HAVE_WFORMAT_EXTRA_ARGS"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 120,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testbounds",
+      "source_paths": [
+        "original/test/testbounds.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "SDL_DUMMYVIDEO"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 10,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testcustomcursor",
+      "source_paths": [
+        "original/test/testcustomcursor.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testdisplayinfo",
+      "source_paths": [
+        "original/test/testdisplayinfo.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "SDL_DUMMYVIDEO"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 10,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testdraw2",
+      "source_paths": [
+        "original/test/testdraw2.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testdrawchessboard",
+      "source_paths": [
+        "original/test/testdrawchessboard.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testdropfile",
+      "source_paths": [
+        "original/test/testdropfile.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testerror",
+      "source_paths": [
+        "original/test/testerror.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 10,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testevdev",
+      "source_paths": [
+        "original/test/testevdev.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "LINUX",
+        "linux/input.h available"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [
+        "HAVE_LINUX_INPUT_H"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [
+        "-Wl,--wrap=open",
+        "-Wl,--wrap=close",
+        "-Wl,--wrap=read",
+        "-Wl,--wrap=ioctl"
+      ],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 10,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testfile",
+      "source_paths": [
+        "original/test/testfile.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testfilesystem",
+      "source_paths": [
+        "original/test/testfilesystem.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 10,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testfilesystem_pre",
+      "source_paths": [
+        "original/test/testfilesystem_pre.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": false,
+      "linux_runnable": false,
+      "build_predicates": [
+        "WIN32 && CMAKE_SIZEOF_VOID_P == 4"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "not_buildable",
+      "ci_runner": "unavailable_on_ubuntu_24_04",
+      "timeout_seconds": 0,
+      "automation_reason": "target is not Linux-buildable under the authoritative upstream conditions",
+      "checker_runner_contract": {
+        "runner": "unavailable_on_ubuntu_24_04",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testgamecontroller",
+      "source_paths": [
+        "original/test/testgamecontroller.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testgeometry",
+      "source_paths": [
+        "original/test/testgeometry.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testgesture",
+      "source_paths": [
+        "original/test/testgesture.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [
+        "m"
+      ],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testgl2",
+      "source_paths": [
+        "original/test/testgl2.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [
+        "gl"
+      ],
+      "compile_definitions": [
+        "HAVE_OPENGL"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [
+        "GL",
+        "m"
+      ],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testgles",
+      "source_paths": [
+        "original/test/testgles.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL_ES"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [
+        "glesv1_cm"
+      ],
+      "compile_definitions": [
+        "HAVE_OPENGLES"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [
+        "GLESv1_CM",
+        "m"
+      ],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testgles2",
+      "source_paths": [
+        "original/test/testgles2.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL_ES2"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [
+        "HAVE_OPENGLES2"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testgles2_sdf",
+      "source_paths": [
+        "original/test/testgles2_sdf.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL_ES2"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [
+        "HAVE_OPENGLES2"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [
+        "m"
+      ],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testhaptic",
+      "source_paths": [
+        "original/test/testhaptic.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testhittesting",
+      "source_paths": [
+        "original/test/testhittesting.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testhotplug",
+      "source_paths": [
+        "original/test/testhotplug.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testiconv",
+      "source_paths": [
+        "original/test/testiconv.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testime",
+      "source_paths": [
+        "original/test/testime.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testintersections",
+      "source_paths": [
+        "original/test/testintersections.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testjoystick",
+      "source_paths": [
+        "original/test/testjoystick.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testkeys",
+      "source_paths": [
+        "original/test/testkeys.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "SDL_DUMMYVIDEO"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 10,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testloadso",
+      "source_paths": [
+        "original/test/testloadso.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testlocale",
+      "source_paths": [
+        "original/test/testlocale.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 10,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testlock",
+      "source_paths": [
+        "original/test/testlock.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testmessage",
+      "source_paths": [
+        "original/test/testmessage.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testmouse",
+      "source_paths": [
+        "original/test/testmouse.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testmultiaudio",
+      "source_paths": [
+        "original/test/testmultiaudio.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testnative",
+      "source_paths": [
+        "original/test/testnative.c",
+        "original/test/testnativex11.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "HAVE_X11"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [
+        "x11"
+      ],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [
+        "X11"
+      ],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testoffscreen",
+      "source_paths": [
+        "original/test/testoffscreen.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testoverlay2",
+      "source_paths": [
+        "original/test/testoverlay2.c",
+        "original/test/testyuv_cvt.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testplatform",
+      "source_paths": [
+        "original/test/testplatform.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 10,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testpower",
+      "source_paths": [
+        "original/test/testpower.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 10,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testqsort",
+      "source_paths": [
+        "original/test/testqsort.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 10,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testrelative",
+      "source_paths": [
+        "original/test/testrelative.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testrendercopyex",
+      "source_paths": [
+        "original/test/testrendercopyex.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [
+        "m"
+      ],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testrendertarget",
+      "source_paths": [
+        "original/test/testrendertarget.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testresample",
+      "source_paths": [
+        "original/test/testresample.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testrumble",
+      "source_paths": [
+        "original/test/testrumble.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testscale",
+      "source_paths": [
+        "original/test/testscale.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testsem",
+      "source_paths": [
+        "original/test/testsem.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testsensor",
+      "source_paths": [
+        "original/test/testsensor.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testshader",
+      "source_paths": [
+        "original/test/testshader.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "SDL_VIDEO_OPENGL"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [
+        "gl"
+      ],
+      "compile_definitions": [
+        "HAVE_OPENGL"
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [
+        "GL",
+        "m"
+      ],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testshape",
+      "source_paths": [
+        "original/test/testshape.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testsprite2",
+      "source_paths": [
+        "original/test/testsprite2.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testspriteminimal",
+      "source_paths": [
+        "original/test/testspriteminimal.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [
+        "m"
+      ],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "teststreaming",
+      "source_paths": [
+        "original/test/teststreaming.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [
+        "m"
+      ],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testsurround",
+      "source_paths": [
+        "original/test/testsurround.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "SDL_DUMMYAUDIO"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 10,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testthread",
+      "source_paths": [
+        "original/test/testthread.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 40,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testtimer",
+      "source_paths": [
+        "original/test/testtimer.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 60,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testurl",
+      "source_paths": [
+        "original/test/testurl.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testver",
+      "source_paths": [
+        "original/test/testver.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "auto_run",
+      "ci_runner": "sdl_dummy_audio_video",
+      "timeout_seconds": 10,
+      "automation_reason": "target is part of the authoritative upstream noninteractive Ubuntu/Linux automation set",
+      "checker_runner_contract": {
+        "runner": "sdl_dummy_audio_video",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {
+          "SDL_AUDIODRIVER": "dummy",
+          "SDL_VIDEODRIVER": "dummy"
+        }
+      }
+    },
+    {
+      "target_name": "testviewport",
+      "source_paths": [
+        "original/test/testviewport.c",
+        "original/test/testutils.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testvulkan",
+      "source_paths": [
+        "original/test/testvulkan.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "public vulkan/vulkan.h available"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [
+        "SDL_PUBLIC_VULKAN_HEADER=\"vulkan/vulkan.h\""
+      ],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testwm2",
+      "source_paths": [
+        "original/test/testwm2.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "testyuv",
+      "source_paths": [
+        "original/test/testyuv.c",
+        "original/test/testyuv_cvt.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/icon.bmp",
+        "original/test/moose.dat",
+        "original/test/sample.bmp",
+        "original/test/sample.wav",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp",
+        "original/test/testyuv.bmp",
+        "original/test/utf8.txt"
+      ],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    },
+    {
+      "target_name": "torturethread",
+      "source_paths": [
+        "original/test/torturethread.c"
+      ],
+      "upstream_build_systems": [
+        "cmake"
+      ],
+      "linux_buildable": true,
+      "linux_runnable": true,
+      "build_predicates": [
+        "enabled on Ubuntu 24.04"
+      ],
+      "resource_paths": [],
+      "pkg_config_modules": [],
+      "compile_definitions": [],
+      "compile_flags": [
+        "-g",
+        "-fno-fast-math"
+      ],
+      "link_options": [],
+      "link_libraries": [],
+      "ci_validation_mode": "build_only",
+      "ci_runner": "build_only",
+      "timeout_seconds": 0,
+      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "checker_runner_contract": {
+        "runner": "build_only",
+        "working_directory": "$TARGET_BINARY_DIR",
+        "environment": {}
+      }
+    }
+  ]
+}

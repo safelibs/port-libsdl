@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_01_contract_bootstrap",
+  "workloads": [
+    {
+      "workload_id": "surface_blit_fill_convert",
+      "subsystem": "video_surface",
+      "driver_sources": [
+        "original/test/testsprite2.c",
+        "original/test/testspriteminimal.c",
+        "original/test/testyuv.c",
+        "original/test/testautomation_surface.c"
+      ],
+      "resource_paths": [
+        "original/test/sample.bmp",
+        "original/test/axis.bmp",
+        "original/test/button.bmp"
+      ],
+      "description": "Exercise surface load, blit, fill, and pixel conversion paths with authoritative upstream sample images."
+    },
+    {
+      "workload_id": "renderer_queue_texture_upload",
+      "subsystem": "render",
+      "driver_sources": [
+        "original/test/testrendercopyex.c",
+        "original/test/testrendertarget.c",
+        "original/test/teststreaming.c",
+        "original/test/testgles2_sdf.c"
+      ],
+      "resource_paths": [
+        "original/test/moose.dat",
+        "original/test/testgles2_sdf_img_normal.bmp",
+        "original/test/testgles2_sdf_img_sdf.bmp"
+      ],
+      "description": "Measure renderer command queue pressure and texture upload using upstream render smoke assets."
+    },
+    {
+      "workload_id": "audio_convert_resample_wave_decode",
+      "subsystem": "audio",
+      "driver_sources": [
+        "original/test/loopwave.c",
+        "original/test/loopwavequeue.c",
+        "original/test/testresample.c",
+        "original/test/testautomation_audio.c"
+      ],
+      "resource_paths": [
+        "original/test/sample.wav"
+      ],
+      "description": "Stress the authoritative WAVE decode, conversion, and resample scenarios from the upstream tests."
+    },
+    {
+      "workload_id": "event_queue_and_controller_maps",
+      "subsystem": "events_and_input",
+      "driver_sources": [
+        "original/test/testautomation_events.c",
+        "original/test/testgamecontroller.c",
+        "original/test/controllermap.c"
+      ],
+      "resource_paths": [
+        "original/test/axis.bmp",
+        "original/test/button.bmp",
+        "original/test/controllermap.bmp",
+        "original/test/controllermap_back.bmp",
+        "original/test/utf8.txt"
+      ],
+      "description": "Cover event queue churn and controller map lookups using the existing upstream controller resources."
+    }
+  ]
+}
