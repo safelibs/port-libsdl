@@ -155,6 +155,14 @@ add_sdl_test_executable(testerror NONINTERACTIVE testerror.c)
 
 if(LINUX)
     add_sdl_test_executable(testevdev NONINTERACTIVE testevdev.c)
+    if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+        target_link_options(testevdev PRIVATE
+            "-Wl,--wrap=open"
+            "-Wl,--wrap=close"
+            "-Wl,--wrap=read"
+            "-Wl,--wrap=ioctl"
+        )
+    endif()
 endif()
 
 add_sdl_test_executable(testfile testfile.c)
