@@ -229,9 +229,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testatomic.rs",
+      "owning_phase": "impl_phase_02_core_runtime",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testatomic"
       ]
@@ -337,9 +337,9 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_02_core_runtime",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_hints.rs",
+      "rust_target_path": "safe/tests/upstream_port_core.rs",
       "upstream_targets": [
         "testautomation"
       ]
@@ -373,9 +373,9 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_02_core_runtime",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_log.rs",
+      "rust_target_path": "safe/tests/upstream_port_core.rs",
       "upstream_targets": [
         "testautomation"
       ]
@@ -385,9 +385,9 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_02_core_runtime",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_main.rs",
+      "rust_target_path": "safe/tests/upstream_port_core.rs",
       "upstream_targets": [
         "testautomation"
       ]
@@ -397,9 +397,9 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_02_core_runtime",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_math.rs",
+      "rust_target_path": "safe/tests/upstream_port_core.rs",
       "upstream_targets": [
         "testautomation"
       ]
@@ -433,9 +433,9 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_02_core_runtime",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_platform.rs",
+      "rust_target_path": "safe/tests/upstream_port_core.rs",
       "upstream_targets": [
         "testautomation"
       ]
@@ -493,9 +493,9 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_02_core_runtime",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_stdlib.rs",
+      "rust_target_path": "safe/tests/upstream_port_core.rs",
       "upstream_targets": [
         "testautomation"
       ]
@@ -541,9 +541,9 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_02_core_runtime",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_timer.rs",
+      "rust_target_path": "safe/tests/upstream_port_core.rs",
       "upstream_targets": [
         "testautomation"
       ]
@@ -637,9 +637,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testerror.rs",
+      "owning_phase": "impl_phase_02_core_runtime",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testerror"
       ]
@@ -673,9 +673,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testfilesystem.rs",
+      "owning_phase": "impl_phase_02_core_runtime",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testfilesystem"
       ]
@@ -685,9 +685,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": false,
       "ubuntu_runnable": false,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_02_core_runtime",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testfilesystem_pre.rs",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testfilesystem_pre"
       ]
@@ -817,9 +817,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testiconv.rs",
+      "owning_phase": "impl_phase_02_core_runtime",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testiconv"
       ]
@@ -877,9 +877,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testloadso.rs",
+      "owning_phase": "impl_phase_02_core_runtime",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testloadso"
       ]
@@ -889,9 +889,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testlocale.rs",
+      "owning_phase": "impl_phase_02_core_runtime",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testlocale"
       ]
@@ -1027,9 +1027,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testplatform.rs",
+      "owning_phase": "impl_phase_02_core_runtime",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testplatform"
       ]
@@ -1039,9 +1039,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testpower.rs",
+      "owning_phase": "impl_phase_02_core_runtime",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testpower"
       ]
@@ -1051,9 +1051,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testqsort.rs",
+      "owning_phase": "impl_phase_02_core_runtime",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testqsort"
       ]
@@ -1135,9 +1135,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testsem.rs",
+      "owning_phase": "impl_phase_02_core_runtime",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testsem"
       ]
@@ -1231,9 +1231,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testthread.rs",
+      "owning_phase": "impl_phase_02_core_runtime",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testthread"
       ]
@@ -1243,9 +1243,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testtimer.rs",
+      "owning_phase": "impl_phase_02_core_runtime",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testtimer"
       ]
@@ -1255,9 +1255,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testurl.rs",
+      "owning_phase": "impl_phase_02_core_runtime",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testurl"
       ]
@@ -1267,9 +1267,9 @@
       "source_kind": "helper source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": false,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_02_core_runtime",
       "rust_target_kind": "support_module",
-      "rust_target_path": "safe/tests/support/testutils.rs",
+      "rust_target_path": "safe/tests/common/testutils.rs",
       "upstream_targets": [
         "controllermap",
         "loopwave",
@@ -1297,9 +1297,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testver.rs",
+      "owning_phase": "impl_phase_02_core_runtime",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testver"
       ]
@@ -1370,9 +1370,9 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/torturethread.rs",
+      "owning_phase": "impl_phase_02_core_runtime",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "torturethread"
       ]
@@ -1407,7 +1407,7 @@
     {
       "target_name": "testatomic",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "target_name": "testaudiocapture",
@@ -1462,7 +1462,7 @@
     {
       "target_name": "testerror",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "target_name": "testevdev",
@@ -1477,7 +1477,7 @@
     {
       "target_name": "testfilesystem",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "target_name": "testfilesystem_pre",
@@ -1537,7 +1537,7 @@
     {
       "target_name": "testiconv",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "target_name": "testime",
@@ -1562,12 +1562,12 @@
     {
       "target_name": "testloadso",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "target_name": "testlocale",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "target_name": "testlock",
@@ -1607,17 +1607,17 @@
     {
       "target_name": "testplatform",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "target_name": "testpower",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "target_name": "testqsort",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "target_name": "testrelative",
@@ -1652,7 +1652,7 @@
     {
       "target_name": "testsem",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "target_name": "testsensor",
@@ -1692,22 +1692,22 @@
     {
       "target_name": "testthread",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "target_name": "testtimer",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "target_name": "testurl",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "target_name": "testver",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "target_name": "testviewport",
@@ -1732,7 +1732,7 @@
     {
       "target_name": "torturethread",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     }
   ]
 }

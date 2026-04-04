@@ -58,13 +58,12 @@ pub fn verify_bootstrap_stage(args: VerifyBootstrapStageArgs) -> Result<()> {
 
     verify_headers(&stage_root, &inventory)?;
 
-    for required in [
-        format!("usr/lib/{UBUNTU_MULTIARCH}/pkgconfig/sdl2.pc"),
-        "usr/bin/sdl2-config".to_string(),
-        "usr/share/aclocal/sdl2.m4".to_string(),
-        format!("usr/lib/{UBUNTU_MULTIARCH}/libSDL2main.a"),
-        format!("usr/lib/{UBUNTU_MULTIARCH}/libSDL2_test.a"),
-    ] {
+    for required in install_contract
+        .dev_paths
+        .iter()
+        .chain(install_contract.runtime_paths.iter())
+        .cloned()
+    {
         ensure_exists(&stage_root.join(&required))?;
     }
 
@@ -130,7 +129,7 @@ fn install_pkg_config(original_dir: &Path, stage_root: &Path) -> Result<()> {
         .replace("@SDL_RLD_FLAGS@", "")
         .replace("@SDL_LIBS@", "-lSDL2")
         .replace("@PKGCONFIG_LIBS_PRIV@", "")
-        .replace("@SDL_STATIC_LIBS@", "")
+        .replace("@SDL_STATIC_LIBS@", &static_private_link_flags())
         .replace("@SDL_CFLAGS@", "");
     let destination = stage_root.join(format!("usr/lib/{UBUNTU_MULTIARCH}/pkgconfig/sdl2.pc"));
     if let Some(parent) = destination.parent() {
@@ -146,9 +145,10 @@ fn install_sdl2_config_script(stage_root: &Path) -> Result<()> {
         fs::create_dir_all(parent)?;
     }
     let script = format!(
-        "#!/bin/sh\nset -eu\nprefix=$(CDPATH= cd -- \"$(dirname -- \"$0\")/..\" && pwd)\nexec_prefix=\"$prefix\"\nlibdir=\"$prefix/lib/{triplet}\"\nincludedir=\"$prefix/include\"\ncase \"${{1:-}}\" in\n  --prefix) echo \"$prefix\" ;;\n  --exec-prefix) echo \"$exec_prefix\" ;;\n  --version) echo \"{version}\" ;;\n  --cflags) echo \"-I${{includedir}} -I${{includedir}}/SDL2\" ;;\n  --libs) echo \"-L${{libdir}} -lSDL2\" ;;\n  --static-libs) echo \"-L${{libdir}} -lSDL2main -lSDL2\" ;;\n  *) echo \"usage: $0 [--prefix|--exec-prefix|--version|--cflags|--libs|--static-libs]\" >&2; exit 1 ;;\nesac\n",
+        "#!/bin/sh\nset -eu\nbindir=$(CDPATH= cd -- \"$(dirname -- \"$0\")\" && pwd)\nprefix=$(CDPATH= cd -- \"$bindir/..\" && pwd)\nexec_prefix=\"$prefix\"\nexec_prefix_set=no\nusage='Usage: $0 [--prefix[=DIR]] [--exec-prefix[=DIR]] [--version] [--cflags] [--libs] [--static-libs]'\nif [ \"$#\" -eq 0 ]; then\n  echo \"$usage\" >&2\n  exit 1\nfi\noutput=''\nappend_output() {{\n  if [ -n \"$output\" ]; then\n    output=\"$output $1\"\n  else\n    output=\"$1\"\n  fi\n}}\nwhile [ \"$#\" -gt 0 ]; do\n  case \"$1\" in\n    --prefix=*)\n      prefix=${{1#--prefix=}}\n      if [ \"$exec_prefix_set\" = no ]; then\n        exec_prefix=\"$prefix\"\n      fi\n      ;;\n    --prefix)\n      append_output \"$prefix\"\n      ;;\n    --exec-prefix=*)\n      exec_prefix=${{1#--exec-prefix=}}\n      exec_prefix_set=yes\n      ;;\n    --exec-prefix)\n      append_output \"$exec_prefix\"\n      ;;\n    --version)\n      append_output '{version}'\n      ;;\n    --cflags)\n      append_output \"-I$prefix/include/SDL2\"\n      ;;\n    --libs)\n      append_output \"-L$prefix/lib/{triplet} -lSDL2\"\n      ;;\n    --static-libs)\n      append_output \"$prefix/lib/{triplet}/libSDL2.a {static_private}\"\n      ;;\n    *)\n      echo \"$usage\" >&2\n      exit 1\n      ;;\n  esac\n  shift\ndone\nprintf '%s\\n' \"$output\"\n",
         triplet = UBUNTU_MULTIARCH,
         version = SDL_VERSION,
+        static_private = static_private_link_flags(),
     );
     fs::write(&destination, script)?;
     let mut perms = fs::metadata(&destination)?.permissions();
@@ -227,13 +227,13 @@ fn install_cmake_surface(original_dir: &Path, stage_root: &Path) -> Result<()> {
 fn render_lowercase_cmake_config(original_dir: &Path) -> Result<String> {
     let template = fs::read_to_string(original_dir.join("sdl2-config.cmake.in"))?;
     Ok(template
-        .replace("@cmake_prefix_relpath@", "../../..")
+        .replace("@cmake_prefix_relpath@", "../../../..")
         .replace("@exec_prefix@", "${prefix}")
         .replace("@bindir@", "${prefix}/bin")
         .replace("@libdir@", &format!("${{prefix}}/lib/{UBUNTU_MULTIARCH}"))
         .replace("@includedir@", "${prefix}/include")
         .replace("@SDL_LIBS@", "-lSDL2")
-        .replace("@SDL_STATIC_LIBS@", "")
+        .replace("@SDL_STATIC_LIBS@", &static_private_link_flags())
         .replace("@SDL_VERSION@", SDL_VERSION))
 }
 
@@ -451,4 +451,8 @@ fn absolutize(repo_root: &Path, path: &Path) -> PathBuf {
     } else {
         repo_root.join(path)
     }
+}
+
+fn static_private_link_flags() -> String {
+    "-ldl -lm -pthread -lrt".to_string()
 }

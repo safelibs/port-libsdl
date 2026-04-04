@@ -1,3 +1,4 @@
+use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -7,7 +8,7 @@ use tempfile::tempdir;
 
 use crate::contracts::{
     generate_real_sdl_config, generate_sdl_revision_header, load_original_test_object_manifest,
-    load_standalone_test_manifest,
+    load_original_test_port_map, load_standalone_test_manifest, UBUNTU_MULTIARCH,
 };
 
 pub struct CompileOriginalTestObjectsArgs {
@@ -29,6 +30,25 @@ pub struct RunRelinkedOriginalTestsArgs {
     pub generated_dir: PathBuf,
     pub bin_dir: PathBuf,
     pub filter: Option<String>,
+}
+
+pub struct BuildOriginalStandaloneArgs {
+    pub repo_root: PathBuf,
+    pub generated_dir: PathBuf,
+    pub standalone_manifest: PathBuf,
+    pub stage_root: PathBuf,
+    pub build_dir: PathBuf,
+    pub phase: String,
+}
+
+pub struct RunOriginalStandaloneArgs {
+    pub repo_root: PathBuf,
+    pub generated_dir: PathBuf,
+    pub standalone_manifest: PathBuf,
+    pub build_dir: PathBuf,
+    pub phase: String,
+    pub validation_mode: String,
+    pub skip_if_empty: bool,
 }
 
 pub fn compile_original_test_objects(args: CompileOriginalTestObjectsArgs) -> Result<()> {
@@ -175,6 +195,210 @@ pub fn run_relinked_original_tests(args: RunRelinkedOriginalTestsArgs) -> Result
     Ok(())
 }
 
+pub fn build_original_standalone(args: BuildOriginalStandaloneArgs) -> Result<()> {
+    let generated_dir = absolutize(&args.repo_root, &args.generated_dir);
+    let stage_root = absolutize(&args.repo_root, &args.stage_root);
+    let build_dir = absolutize(&args.repo_root, &args.build_dir);
+    let standalone_manifest =
+        load_standalone_test_manifest(&absolutize(&args.repo_root, &args.standalone_manifest))?;
+    let object_manifest =
+        load_original_test_object_manifest(&generated_dir.join("original_test_object_manifest.json"))?;
+    let port_map = load_original_test_port_map(&generated_dir.join("original_test_port_map.json"))?;
+
+    let owned_targets = port_map
+        .target_ownership
+        .iter()
+        .filter(|entry| entry.owning_phase == args.phase && entry.linux_buildable)
+        .map(|entry| entry.target_name.clone())
+        .collect::<BTreeSet<_>>();
+    if owned_targets.is_empty() {
+        bail!("phase {} owns no Linux-buildable standalone targets", args.phase);
+    }
+
+    let selected_targets = object_manifest
+        .targets
+        .iter()
+        .filter(|target| {
+            target.ubuntu_24_04_enabled
+                && owned_targets.contains(&target.target_name)
+                && standalone_manifest
+                    .targets
+                    .iter()
+                    .any(|standalone| standalone.target_name == target.target_name && standalone.linux_buildable)
+        })
+        .collect::<Vec<_>>();
+    if selected_targets.is_empty() {
+        bail!("phase {} selected no standalone build targets", args.phase);
+    }
+
+    if build_dir.exists() {
+        fs::remove_dir_all(&build_dir)
+            .with_context(|| format!("remove {}", build_dir.display()))?;
+    }
+    fs::create_dir_all(&build_dir)?;
+
+    let stage_include_root = stage_root.join("usr/include");
+    let stage_header_dir = stage_include_root.join("SDL2");
+    let stage_multiarch_include = stage_include_root.join(UBUNTU_MULTIARCH);
+    let stage_libdir = stage_root.join(format!("usr/lib/{UBUNTU_MULTIARCH}"));
+    let objects_dir = build_dir.join("objects");
+    fs::create_dir_all(&objects_dir)?;
+
+    let needed_object_ids = selected_targets
+        .iter()
+        .flat_map(|target| target.object_ids.iter().cloned())
+        .collect::<BTreeSet<_>>();
+    for unit in object_manifest
+        .translation_units
+        .iter()
+        .filter(|unit| unit.ubuntu_24_04_enabled && needed_object_ids.contains(&unit.object_id))
+    {
+        let output_path = objects_dir.join(&unit.output_object_relpath);
+        if let Some(parent) = output_path.parent() {
+            fs::create_dir_all(parent)?;
+        }
+
+        let mut cmd = Command::new(&object_manifest.toolchain_defaults.compiler);
+        cmd.current_dir(&args.repo_root)
+            .arg("-c")
+            .arg(&unit.source_path)
+            .arg("-o")
+            .arg(&output_path)
+            .arg("-I")
+            .arg(&stage_header_dir)
+            .arg("-I")
+            .arg(&stage_multiarch_include)
+            .arg("-I")
+            .arg(args.repo_root.join("original/test"));
+
+        for definition in &unit.compile_definitions {
+            cmd.arg(format!("-D{definition}"));
+        }
+        for flag in &object_manifest.toolchain_defaults.baseline_compiler_flags {
+            cmd.arg(flag);
+        }
+        for flag in &unit.compile_flags {
+            cmd.arg(flag);
+        }
+
+        let output = cmd
+            .output()
+            .with_context(|| format!("compile {}", unit.source_path))?;
+        if !output.status.success() {
+            bail!(
+                "compiling {} failed:\n{}",
+                unit.source_path,
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+    }
+
+    for target in &selected_targets {
+        let standalone = standalone_manifest
+            .targets
+            .iter()
+            .find(|entry| entry.target_name == target.target_name)
+            .ok_or_else(|| anyhow!("missing standalone manifest target {}", target.target_name))?;
+        let output_path = build_dir.join(&target.output_name);
+        let mut cmd = Command::new(&object_manifest.toolchain_defaults.linker);
+        cmd.current_dir(&args.repo_root).arg("-o").arg(&output_path);
+        for object_id in &target.object_ids {
+            let unit = object_manifest
+                .translation_units
+                .iter()
+                .find(|unit| &unit.object_id == object_id)
+                .ok_or_else(|| anyhow!("missing translation unit {}", object_id))?;
+            cmd.arg(objects_dir.join(&unit.output_object_relpath));
+        }
+        cmd.arg(format!("-L{}", stage_libdir.display()))
+            .arg(format!("-Wl,-rpath,{}", stage_libdir.display()));
+        for flag in &object_manifest.toolchain_defaults.baseline_linker_flags {
+            cmd.arg(flag);
+        }
+        for library in &object_manifest.toolchain_defaults.baseline_link_libraries {
+            cmd.arg(render_library_arg(library));
+        }
+        for library in &target.link_libraries {
+            cmd.arg(render_library_arg(library));
+        }
+        for option in &target.link_options {
+            cmd.arg(option);
+        }
+
+        let output = cmd
+            .output()
+            .with_context(|| format!("link {}", target.target_name))?;
+        if !output.status.success() {
+            bail!(
+                "linking {} failed:\n{}",
+                target.target_name,
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+
+        copy_target_resources(&args.repo_root, &build_dir, &standalone.resource_paths)?;
+    }
+
+    Ok(())
+}
+
+pub fn run_original_standalone(args: RunOriginalStandaloneArgs) -> Result<()> {
+    let generated_dir = absolutize(&args.repo_root, &args.generated_dir);
+    let build_dir = absolutize(&args.repo_root, &args.build_dir);
+    let standalone_manifest =
+        load_standalone_test_manifest(&absolutize(&args.repo_root, &args.standalone_manifest))?;
+    let port_map = load_original_test_port_map(&generated_dir.join("original_test_port_map.json"))?;
+    let owned_targets = port_map
+        .target_ownership
+        .iter()
+        .filter(|entry| entry.owning_phase == args.phase && entry.linux_buildable)
+        .map(|entry| entry.target_name.clone())
+        .collect::<BTreeSet<_>>();
+
+    let selected_targets = standalone_manifest
+        .targets
+        .iter()
+        .filter(|target| {
+            owned_targets.contains(&target.target_name)
+                && target.linux_runnable
+                && target.ci_validation_mode == args.validation_mode
+        })
+        .collect::<Vec<_>>();
+
+    if selected_targets.is_empty() {
+        if args.skip_if_empty {
+            return Ok(());
+        }
+        bail!(
+            "phase {} has no runnable standalone targets for validation mode {}",
+            args.phase,
+            args.validation_mode
+        );
+    }
+
+    for target in selected_targets {
+        let executable = build_dir.join(&target.target_name);
+        if !executable.exists() {
+            bail!("missing standalone binary {}", executable.display());
+        }
+
+        let mut cmd = Command::new(&executable);
+        cmd.current_dir(&build_dir)
+            .env("SDL_TESTS_QUICK", "1");
+        for (key, value) in &target.checker_runner_contract.environment {
+            cmd.env(key, value);
+        }
+        let status = cmd
+            .status()
+            .with_context(|| format!("run {}", target.target_name))?;
+        if !status.success() {
+            bail!("standalone target {} failed", target.target_name);
+        }
+    }
+
+    Ok(())
+}
+
 fn resolve_token(value: &str, generated_include_dir: &Path, stage_libdir: Option<&Path>) -> Result<String> {
     match value {
         "$GENERATED_INCLUDE_DIR" => Ok(generated_include_dir.display().to_string()),
@@ -202,4 +426,18 @@ fn absolutize(repo_root: &Path, path: &Path) -> PathBuf {
     } else {
         repo_root.join(path)
     }
+}
+
+fn copy_target_resources(repo_root: &Path, build_dir: &Path, resources: &[String]) -> Result<()> {
+    for resource in resources {
+        let source = repo_root.join(resource);
+        let destination = build_dir.join(
+            source
+                .file_name()
+                .ok_or_else(|| anyhow!("resource path {} has no filename", source.display()))?,
+        );
+        fs::copy(&source, &destination)
+            .with_context(|| format!("copy {} to {}", source.display(), destination.display()))?;
+    }
+    Ok(())
 }

@@ -57,7 +57,7 @@
     {
       "suite_name": "hints",
       "source_path": "original/test/testautomation_hints.c",
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "suite_name": "joystick",
@@ -72,17 +72,17 @@
     {
       "suite_name": "log",
       "source_path": "original/test/testautomation_log.c",
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "suite_name": "main",
       "source_path": "original/test/testautomation_main.c",
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "suite_name": "math",
       "source_path": "original/test/testautomation_math.c",
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "suite_name": "mouse",
@@ -97,7 +97,7 @@
     {
       "suite_name": "platform",
       "source_path": "original/test/testautomation_platform.c",
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "suite_name": "rect",
@@ -122,7 +122,7 @@
     {
       "suite_name": "stdlib",
       "source_path": "original/test/testautomation_stdlib.c",
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "suite_name": "subsystems",
@@ -142,7 +142,7 @@
     {
       "suite_name": "timer",
       "source_path": "original/test/testautomation_timer.c",
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_02_core_runtime"
     },
     {
       "suite_name": "video",

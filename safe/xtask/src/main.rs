@@ -7,10 +7,15 @@ use std::path::PathBuf;
 
 use anyhow::{anyhow, bail, Result};
 
-use contracts::{abi_check, capture_contracts, verify_captured_contracts, verify_test_port_map, ContractArgs};
+use contracts::{
+    abi_check, capture_contracts, verify_captured_contracts, verify_test_port_coverage,
+    verify_test_port_map, ContractArgs,
+};
 use original_tests::{
-    compile_original_test_objects, relink_original_test_objects, run_relinked_original_tests,
-    CompileOriginalTestObjectsArgs, RelinkOriginalTestObjectsArgs, RunRelinkedOriginalTestsArgs,
+    build_original_standalone, compile_original_test_objects, relink_original_test_objects,
+    run_original_standalone, run_relinked_original_tests, BuildOriginalStandaloneArgs,
+    CompileOriginalTestObjectsArgs, RelinkOriginalTestObjectsArgs, RunOriginalStandaloneArgs,
+    RunRelinkedOriginalTestsArgs,
 };
 use stage_install::{
     stage_install, verify_bootstrap_stage, StageInstallArgs, VerifyBootstrapStageArgs,
@@ -68,6 +73,13 @@ fn main() -> Result<()> {
                 parsed.expect_executable_targets,
             )
         }
+        "verify-test-port-coverage" => {
+            let parsed = VerifyTestPortCoverageArgs::parse(&remaining)?;
+            let map_path = parsed
+                .map
+                .unwrap_or_else(|| parsed.generated.join("original_test_port_map.json"));
+            verify_test_port_coverage(&repo_root, &map_path, &parsed.phase)
+        }
         "stage-install" => {
             let parsed = StageInstallCliArgs::parse(&remaining)?;
             stage_install(StageInstallArgs {
@@ -104,6 +116,17 @@ fn main() -> Result<()> {
                 library_path: parsed.library,
             })
         }
+        "build-original-standalone" => {
+            let parsed = BuildOriginalStandaloneCliArgs::parse(&remaining)?;
+            build_original_standalone(BuildOriginalStandaloneArgs {
+                repo_root,
+                generated_dir: parsed.generated,
+                standalone_manifest: parsed.manifest,
+                stage_root: parsed.destdir,
+                build_dir: parsed.build_dir,
+                phase: parsed.phase,
+            })
+        }
         "run-relinked-original-tests" => {
             let parsed = RunRelinkedCliArgs::parse(&remaining)?;
             run_relinked_original_tests(RunRelinkedOriginalTestsArgs {
@@ -113,13 +136,25 @@ fn main() -> Result<()> {
                 filter: parsed.target,
             })
         }
+        "run-original-standalone" => {
+            let parsed = RunOriginalStandaloneCliArgs::parse(&remaining)?;
+            run_original_standalone(RunOriginalStandaloneArgs {
+                repo_root,
+                generated_dir: parsed.generated,
+                standalone_manifest: parsed.manifest,
+                build_dir: parsed.build_dir,
+                phase: parsed.phase,
+                validation_mode: parsed.validation_mode,
+                skip_if_empty: parsed.skip_if_empty,
+            })
+        }
         _ => usage(),
     }
 }
 
 fn usage<T>() -> Result<T> {
     bail!(
-        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|stage-install|verify-bootstrap-stage|compile-original-test-objects|relink-original-test-objects|run-relinked-original-tests> ..."
+        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|verify-bootstrap-stage|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone> ..."
     )
 }
 
@@ -255,6 +290,35 @@ impl VerifyTestPortMapArgs {
 }
 
 #[derive(Debug)]
+struct VerifyTestPortCoverageArgs {
+    generated: PathBuf,
+    map: Option<PathBuf>,
+    phase: String,
+}
+
+impl VerifyTestPortCoverageArgs {
+    fn parse(args: &[String]) -> Result<Self> {
+        let mut generated = PathBuf::from("safe/generated");
+        let mut map = None;
+        let mut phase = None;
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            match arg.as_str() {
+                "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
+                "--map" => map = Some(PathBuf::from(require_value(&mut iter, "--map")?)),
+                "--phase" => phase = Some(require_value(&mut iter, "--phase")?.to_string()),
+                other => bail!("unknown argument {other}"),
+            }
+        }
+        Ok(Self {
+            generated,
+            map,
+            phase: phase.ok_or_else(|| anyhow!("--phase is required"))?,
+        })
+    }
+}
+
+#[derive(Debug)]
 struct StageInstallCliArgs {
     generated: PathBuf,
     original: PathBuf,
@@ -283,14 +347,54 @@ impl StageInstallCliArgs {
             }
         }
         let mode = mode.unwrap_or_else(|| "bootstrap".to_string());
-        if mode != "bootstrap" {
-            bail!("unsupported --mode {mode}; phase 1 only supports bootstrap staging");
+        if mode != "bootstrap" && mode != "runtime" {
+            bail!("unsupported --mode {mode}");
         }
         Ok(Self {
             generated,
             original,
             root: root.ok_or_else(|| anyhow!("--root or --destdir is required"))?,
             library,
+        })
+    }
+}
+
+#[derive(Debug)]
+struct BuildOriginalStandaloneCliArgs {
+    generated: PathBuf,
+    manifest: PathBuf,
+    destdir: PathBuf,
+    build_dir: PathBuf,
+    phase: String,
+}
+
+impl BuildOriginalStandaloneCliArgs {
+    fn parse(args: &[String]) -> Result<Self> {
+        let mut generated = PathBuf::from("safe/generated");
+        let mut manifest = None;
+        let mut destdir = None;
+        let mut build_dir = None;
+        let mut phase = None;
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            match arg.as_str() {
+                "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
+                "--manifest" => manifest = Some(PathBuf::from(require_value(&mut iter, "--manifest")?)),
+                "--destdir" | "--root" => {
+                    destdir = Some(PathBuf::from(require_value(&mut iter, arg)?))
+                }
+                "--build-dir" => build_dir = Some(PathBuf::from(require_value(&mut iter, "--build-dir")?)),
+                "--phase" => phase = Some(require_value(&mut iter, "--phase")?.to_string()),
+                other => bail!("unknown argument {other}"),
+            }
+        }
+        Ok(Self {
+            generated,
+            manifest: manifest
+                .unwrap_or_else(|| PathBuf::from("safe/generated/standalone_test_manifest.json")),
+            destdir: destdir.ok_or_else(|| anyhow!("--destdir or --root is required"))?,
+            build_dir: build_dir.ok_or_else(|| anyhow!("--build-dir is required"))?,
+            phase: phase.ok_or_else(|| anyhow!("--phase is required"))?,
         })
     }
 }
@@ -408,6 +512,50 @@ impl RunRelinkedCliArgs {
             generated,
             bin_dir: bin_dir.ok_or_else(|| anyhow!("--bin-dir is required"))?,
             target,
+        })
+    }
+}
+
+#[derive(Debug)]
+struct RunOriginalStandaloneCliArgs {
+    generated: PathBuf,
+    manifest: PathBuf,
+    build_dir: PathBuf,
+    phase: String,
+    validation_mode: String,
+    skip_if_empty: bool,
+}
+
+impl RunOriginalStandaloneCliArgs {
+    fn parse(args: &[String]) -> Result<Self> {
+        let mut generated = PathBuf::from("safe/generated");
+        let mut manifest = None;
+        let mut build_dir = None;
+        let mut phase = None;
+        let mut validation_mode = "auto_run".to_string();
+        let mut skip_if_empty = false;
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            match arg.as_str() {
+                "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
+                "--manifest" => manifest = Some(PathBuf::from(require_value(&mut iter, "--manifest")?)),
+                "--build-dir" => build_dir = Some(PathBuf::from(require_value(&mut iter, "--build-dir")?)),
+                "--phase" => phase = Some(require_value(&mut iter, "--phase")?.to_string()),
+                "--validation-mode" => {
+                    validation_mode = require_value(&mut iter, "--validation-mode")?.to_string()
+                }
+                "--skip-if-empty" => skip_if_empty = true,
+                other => bail!("unknown argument {other}"),
+            }
+        }
+        Ok(Self {
+            generated,
+            manifest: manifest
+                .unwrap_or_else(|| PathBuf::from("safe/generated/standalone_test_manifest.json")),
+            build_dir: build_dir.ok_or_else(|| anyhow!("--build-dir is required"))?,
+            phase: phase.ok_or_else(|| anyhow!("--phase is required"))?,
+            validation_mode,
+            skip_if_empty,
         })
     }
 }

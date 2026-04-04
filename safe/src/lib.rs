@@ -7,9 +7,12 @@ pub mod abi {
     pub mod generated_types;
 }
 
+pub mod core;
 pub mod dynapi {
     pub mod generated;
 }
+
+pub mod main_archive;
 
 pub mod exports {
     #[inline(never)]
