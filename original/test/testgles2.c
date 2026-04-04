@@ -31,10 +31,43 @@
 
 #include "SDL_opengles2.h"
 
+#ifdef __NACL__
+#define GLES2_SHADER_SOURCE_PARAMS (GLuint, GLsizei, const GLchar **, const GLint *)
+#else
+#define GLES2_SHADER_SOURCE_PARAMS (GLuint, GLsizei, const GLchar *const *, const GLint *)
+#endif
+
+#define GLES2_CONTEXT_FUNCTIONS() \
+    SDL_PROC(void, glAttachShader, (GLuint, GLuint)); \
+    SDL_PROC(void, glBindBuffer, (GLenum, GLuint)); \
+    SDL_PROC(void, glBufferData, (GLenum, GLsizeiptr, const GLvoid *, GLenum)); \
+    SDL_PROC(void, glClear, (GLbitfield)); \
+    SDL_PROC(void, glCompileShader, (GLuint)); \
+    SDL_PROC(GLuint, glCreateProgram, (void)); \
+    SDL_PROC(GLuint, glCreateShader, (GLenum)); \
+    SDL_PROC(void, glDrawArrays, (GLenum, GLint, GLsizei)); \
+    SDL_PROC(void, glEnable, (GLenum)); \
+    SDL_PROC(void, glEnableVertexAttribArray, (GLuint)); \
+    SDL_PROC(void, glGenBuffers, (GLsizei, GLuint *)); \
+    SDL_PROC(GLint, glGetAttribLocation, (GLuint, const GLchar *)); \
+    SDL_PROC(GLenum, glGetError, (void)); \
+    SDL_PROC(void, glGetProgramInfoLog, (GLuint, GLsizei, GLsizei *, GLchar *)); \
+    SDL_PROC(void, glGetProgramiv, (GLuint, GLenum, GLint *)); \
+    SDL_PROC(void, glGetShaderInfoLog, (GLuint, GLsizei, GLsizei *, char *)); \
+    SDL_PROC(void, glGetShaderiv, (GLuint, GLenum, GLint *)); \
+    SDL_PROC(const GLubyte *, glGetString, (GLenum)); \
+    SDL_PROC(GLint, glGetUniformLocation, (GLuint, const char *)); \
+    SDL_PROC(void, glLinkProgram, (GLuint)); \
+    SDL_PROC(void, glShaderSource, GLES2_SHADER_SOURCE_PARAMS); \
+    SDL_PROC(void, glUniformMatrix4fv, (GLint, GLsizei, GLboolean, const GLfloat *)); \
+    SDL_PROC(void, glUseProgram, (GLuint)); \
+    SDL_PROC(void, glVertexAttribPointer, (GLuint, GLint, GLenum, GLboolean, GLsizei, const void *)); \
+    SDL_PROC(void, glViewport, (GLint, GLint, GLsizei, GLsizei))
+
 typedef struct GLES2_Context
 {
-#define SDL_PROC(ret, func, params) ret (APIENTRY *func) params;
-#include "../src/render/opengles2/SDL_gles2funcs.h"
+#define SDL_PROC(ret, func, params) ret (APIENTRY *func) params
+    GLES2_CONTEXT_FUNCTIONS();
 #undef SDL_PROC
 } GLES2_Context;
 
@@ -74,18 +107,18 @@ static int LoadContext(GLES2_Context *data)
 #endif
 
 #if defined __SDL_NOGETPROCADDR__
-#define SDL_PROC(ret, func, params) data->func = func;
+#define SDL_PROC(ret, func, params) data->func = (ret (APIENTRY *) params)func
 #else
 #define SDL_PROC(ret, func, params)                                                            \
     do {                                                                                       \
-        data->func = SDL_GL_GetProcAddress(#func);                                             \
+        data->func = (ret (APIENTRY *) params)SDL_GL_GetProcAddress(#func);                    \
         if (!data->func) {                                                                     \
             return SDL_SetError("Couldn't load GLES2 function %s: %s", #func, SDL_GetError()); \
         }                                                                                      \
-    } while (0);
+    } while (0)
 #endif /* __SDL_NOGETPROCADDR__ */
 
-#include "../src/render/opengles2/SDL_gles2funcs.h"
+    GLES2_CONTEXT_FUNCTIONS();
 #undef SDL_PROC
     return 0;
 }

@@ -4,7 +4,9 @@
 
 #include "SDL.h"
 #include "SDL_test.h"
-#include "../src/joystick/usb_ids.h"
+
+#define TEST_USB_VENDOR_NVIDIA 0x0955
+#define TEST_USB_PRODUCT_NVIDIA_SHIELD_CONTROLLER_V104 0x7214
 
 /* ================= Test Case Implementation ================== */
 
@@ -29,8 +31,8 @@ TestVirtualJoystick(void *arg)
     desc.type = SDL_JOYSTICK_TYPE_GAMECONTROLLER;
     desc.naxes = SDL_CONTROLLER_AXIS_MAX;
     desc.nbuttons = SDL_CONTROLLER_BUTTON_MAX;
-    desc.vendor_id = USB_VENDOR_NVIDIA;
-    desc.product_id = USB_PRODUCT_NVIDIA_SHIELD_CONTROLLER_V104;
+    desc.vendor_id = TEST_USB_VENDOR_NVIDIA;
+    desc.product_id = TEST_USB_PRODUCT_NVIDIA_SHIELD_CONTROLLER_V104;
     desc.name = "Virtual NVIDIA SHIELD Controller";
     device_index = SDL_JoystickAttachVirtualEx(&desc);
     SDLTest_AssertCheck(device_index >= 0, "SDL_JoystickAttachVirtualEx()");

@@ -27,13 +27,28 @@ int main(int argc, char *argv[])
 #else
 
 #define VK_NO_PROTOTYPES
-#ifdef HAVE_VULKAN_H
+#if defined(HAVE_VULKAN_H)
 #include <vulkan/vulkan.h>
-#else
-/* SDL includes a copy for building on systems without the Vulkan SDK */
-#include "../src/video/khronos/vulkan/vulkan.h"
+#define SDL_TEST_HAVE_PUBLIC_VULKAN_H 1
+#elif defined(__has_include)
+#if __has_include(<vulkan/vulkan.h>)
+#include <vulkan/vulkan.h>
+#define SDL_TEST_HAVE_PUBLIC_VULKAN_H 1
+#endif
 #endif
 #include "SDL_vulkan.h"
+
+#ifndef SDL_TEST_HAVE_PUBLIC_VULKAN_H
+
+int main(int argc, char *argv[])
+{
+    (void)argc;
+    (void)argv;
+    SDL_Log("Skipping Vulkan test because public Vulkan headers are unavailable");
+    return 0;
+}
+
+#else
 
 #ifndef UINT64_MAX /* VS2008 */
 #define UINT64_MAX 18446744073709551615
@@ -1154,4 +1169,5 @@ int main(int argc, char **argv)
     return 0;
 }
 
+#endif /* SDL_TEST_HAVE_PUBLIC_VULKAN_H */
 #endif

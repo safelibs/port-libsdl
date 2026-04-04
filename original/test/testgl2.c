@@ -24,10 +24,28 @@
 
 #include "SDL_opengl.h"
 
+#define GL_CONTEXT_FUNCTIONS() \
+    SDL_PROC(void, glBegin, (GLenum)); \
+    SDL_PROC(void, glClear, (GLbitfield)); \
+    SDL_PROC(void, glClearColor, (GLclampf, GLclampf, GLclampf, GLclampf)); \
+    SDL_PROC(void, glColor3f, (GLfloat, GLfloat, GLfloat)); \
+    SDL_PROC(void, glColor3fv, (const GLfloat *)); \
+    SDL_PROC(void, glDepthFunc, (GLenum)); \
+    SDL_PROC(void, glEnable, (GLenum)); \
+    SDL_PROC(void, glEnd, (void)); \
+    SDL_PROC(const GLubyte *, glGetString, (GLenum)); \
+    SDL_PROC(void, glLoadIdentity, (void)); \
+    SDL_PROC(void, glMatrixMode, (GLenum)); \
+    SDL_PROC(void, glOrtho, (GLdouble, GLdouble, GLdouble, GLdouble, GLdouble, GLdouble)); \
+    SDL_PROC(void, glRotatef, (GLfloat, GLfloat, GLfloat, GLfloat)); \
+    SDL_PROC(void, glShadeModel, (GLenum)); \
+    SDL_PROC(void, glVertex3fv, (const GLfloat *)); \
+    SDL_PROC(void, glViewport, (GLint, GLint, GLsizei, GLsizei))
+
 typedef struct GL_Context
 {
-#define SDL_PROC(ret, func, params) ret (APIENTRY *func) params;
-#include "../src/render/opengl/SDL_glfuncs.h"
+#define SDL_PROC(ret, func, params) ret (APIENTRY *func) params
+    GL_CONTEXT_FUNCTIONS();
 #undef SDL_PROC
 } GL_Context;
 
@@ -49,18 +67,18 @@ static int LoadContext(GL_Context *data)
 #endif
 
 #if defined __SDL_NOGETPROCADDR__
-#define SDL_PROC(ret, func, params) data->func = func;
+#define SDL_PROC(ret, func, params) data->func = (ret (APIENTRY *) params)func
 #else
 #define SDL_PROC(ret, func, params)                                                         \
     do {                                                                                    \
-        data->func = SDL_GL_GetProcAddress(#func);                                          \
+        data->func = (ret (APIENTRY *) params)SDL_GL_GetProcAddress(#func);                 \
         if (!data->func) {                                                                  \
             return SDL_SetError("Couldn't load GL function %s: %s", #func, SDL_GetError()); \
         }                                                                                   \
-    } while (0);
+    } while (0)
 #endif /* __SDL_NOGETPROCADDR__ */
 
-#include "../src/render/opengl/SDL_glfuncs.h"
+    GL_CONTEXT_FUNCTIONS();
 #undef SDL_PROC
     return 0;
 }
