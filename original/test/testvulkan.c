@@ -184,7 +184,6 @@ typedef struct VulkanContext
 static SDLTest_CommonState *state;
 static VulkanContext *vulkanContexts = NULL; // an array of state->num_windows items
 static VulkanContext *vulkanContext = NULL;  // for the currently-rendering window
-static SDL_bool vulkanStalled = SDL_FALSE;
 
 #define TEST_VULKAN_MAX_FRAMES 120
 #define TEST_VULKAN_FIRST_RESIZE_FRAME 30
@@ -199,12 +198,12 @@ static void shutdownVulkan(SDL_bool doDestroySwapchain);
 #if defined(__unix__) || defined(__APPLE__)
 static void handleVulkanWatchdogSignal(int sig)
 {
-    static const char message[] = "Skipping Vulkan test after a startup/runtime stall\n";
+    static const char message[] = "Vulkan test timed out during startup or rendering\n";
     ssize_t written;
     (void)sig;
     written = write(STDERR_FILENO, message, sizeof(message) - 1);
     (void)written;
-    _exit(0);
+    _exit(2);
 }
 
 static void armVulkanWatchdog(void)
@@ -950,9 +949,6 @@ static void rerecordCommandBuffer(uint32_t frameIndex, const VkClearColorValue *
 
 static void destroySwapchainAndSwapchainSpecificStuff(SDL_bool doDestroySwapchain)
 {
-    if (vulkanStalled) {
-        return;
-    }
     if (vkDeviceWaitIdle != NULL) {
         vkDeviceWaitIdle(vulkanContext->device);
     }
@@ -1016,9 +1012,6 @@ static void shutdownVulkan(SDL_bool doDestroySwapchain)
         int i;
         for (i = 0; i < state->num_windows; ++i) {
             vulkanContext = &vulkanContexts[i];
-            if (vulkanStalled) {
-                continue;
-            }
             if (vulkanContext->device && vkDeviceWaitIdle) {
                 vkDeviceWaitIdle(vulkanContext->device);
             }
@@ -1082,9 +1075,8 @@ static SDL_bool render(void)
         return createNewSwapchainAndSwapchainSpecificStuff();
     }
     if (result == VK_TIMEOUT) {
-        SDL_Log("Skipping Vulkan test after vkAcquireNextImageKHR() timed out");
-        vulkanStalled = SDL_TRUE;
-        return SDL_FALSE;
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "vkAcquireNextImageKHR() timed out\n");
+        quit(2);
     }
 
     if ((result != VK_SUBOPTIMAL_KHR) && (result != VK_SUCCESS)) {
@@ -1099,9 +1091,8 @@ static SDL_bool render(void)
                              VK_FALSE,
                              TEST_VULKAN_FRAME_TIMEOUT_NS);
     if (result == VK_TIMEOUT) {
-        SDL_Log("Skipping Vulkan test after vkWaitForFences() timed out");
-        vulkanStalled = SDL_TRUE;
-        return SDL_FALSE;
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "vkWaitForFences() timed out\n");
+        quit(2);
     }
     if (result != VK_SUCCESS) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "vkWaitForFences(): %s\n", getVulkanResultString(result));
@@ -1243,10 +1234,6 @@ int main(int argc, char **argv)
                 if (state->windows[i]) {
                     vulkanContext = &vulkanContexts[i];
                     render();
-                    if (vulkanStalled) {
-                        done = 1;
-                        break;
-                    }
                 }
             }
             if (vulkanContexts[0].swapchainRebuildCount > initial_swapchain_rebuilds) {
@@ -1255,9 +1242,7 @@ int main(int argc, char **argv)
         }
     }
 
-    if (vulkanStalled) {
-        rc = 0;
-    } else if (!requested_first_resize || !requested_second_resize) {
+    if (!requested_first_resize || !requested_second_resize) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Timed out before issuing automated resize requests\n");
         rc = 2;
     } else if (!saw_resize_rebuild) {
