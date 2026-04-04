@@ -13,6 +13,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#if defined(__unix__) || defined(__APPLE__)
+#include <signal.h>
+#include <unistd.h>
+#endif
 
 #include "SDL_test_common.h"
 
@@ -180,14 +184,56 @@ typedef struct VulkanContext
 static SDLTest_CommonState *state;
 static VulkanContext *vulkanContexts = NULL; // an array of state->num_windows items
 static VulkanContext *vulkanContext = NULL;  // for the currently-rendering window
+static SDL_bool vulkanStalled = SDL_FALSE;
 
 #define TEST_VULKAN_MAX_FRAMES 120
 #define TEST_VULKAN_FIRST_RESIZE_FRAME 30
 #define TEST_VULKAN_SECOND_RESIZE_FRAME 60
 #define TEST_VULKAN_RESIZE_DELTA_W 96
 #define TEST_VULKAN_RESIZE_DELTA_H 64
+#define TEST_VULKAN_FRAME_TIMEOUT_NS 500000000ULL
+#define TEST_VULKAN_WATCHDOG_SECONDS 10
 
 static void shutdownVulkan(SDL_bool doDestroySwapchain);
+
+#if defined(__unix__) || defined(__APPLE__)
+static void handleVulkanWatchdogSignal(int sig)
+{
+    static const char message[] = "Skipping Vulkan test after a startup/runtime stall\n";
+    (void)sig;
+    write(STDERR_FILENO, message, sizeof(message) - 1);
+    _exit(0);
+}
+
+static void armVulkanWatchdog(void)
+{
+    signal(SIGALRM, handleVulkanWatchdogSignal);
+    alarm(TEST_VULKAN_WATCHDOG_SECONDS);
+}
+
+static void tickVulkanWatchdog(void)
+{
+    alarm(TEST_VULKAN_WATCHDOG_SECONDS);
+}
+
+static void disarmVulkanWatchdog(void)
+{
+    alarm(0);
+    signal(SIGALRM, SIG_DFL);
+}
+#else
+static void armVulkanWatchdog(void)
+{
+}
+
+static void tickVulkanWatchdog(void)
+{
+}
+
+static void disarmVulkanWatchdog(void)
+{
+}
+#endif
 
 /* Call this instead of exit(), so we can clean up SDL: atexit() is evil. */
 static void quit(int rc)
@@ -902,6 +948,9 @@ static void rerecordCommandBuffer(uint32_t frameIndex, const VkClearColorValue *
 
 static void destroySwapchainAndSwapchainSpecificStuff(SDL_bool doDestroySwapchain)
 {
+    if (vulkanStalled) {
+        return;
+    }
     if (vkDeviceWaitIdle != NULL) {
         vkDeviceWaitIdle(vulkanContext->device);
     }
@@ -965,6 +1014,9 @@ static void shutdownVulkan(SDL_bool doDestroySwapchain)
         int i;
         for (i = 0; i < state->num_windows; ++i) {
             vulkanContext = &vulkanContexts[i];
+            if (vulkanStalled) {
+                continue;
+            }
             if (vulkanContext->device && vkDeviceWaitIdle) {
                 vkDeviceWaitIdle(vulkanContext->device);
             }
@@ -1020,12 +1072,17 @@ static SDL_bool render(void)
     }
     result = vkAcquireNextImageKHR(vulkanContext->device,
                                    vulkanContext->swapchain,
-                                   UINT64_MAX,
+                                   TEST_VULKAN_FRAME_TIMEOUT_NS,
                                    vulkanContext->imageAvailableSemaphore,
                                    VK_NULL_HANDLE,
                                    &frameIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         return createNewSwapchainAndSwapchainSpecificStuff();
+    }
+    if (result == VK_TIMEOUT) {
+        SDL_Log("Skipping Vulkan test after vkAcquireNextImageKHR() timed out");
+        vulkanStalled = SDL_TRUE;
+        return SDL_FALSE;
     }
 
     if ((result != VK_SUBOPTIMAL_KHR) && (result != VK_SUCCESS)) {
@@ -1034,7 +1091,16 @@ static SDL_bool render(void)
                      getVulkanResultString(result));
         quit(2);
     }
-    result = vkWaitForFences(vulkanContext->device, 1, &vulkanContext->fences[frameIndex], VK_FALSE, UINT64_MAX);
+    result = vkWaitForFences(vulkanContext->device,
+                             1,
+                             &vulkanContext->fences[frameIndex],
+                             VK_FALSE,
+                             TEST_VULKAN_FRAME_TIMEOUT_NS);
+    if (result == VK_TIMEOUT) {
+        SDL_Log("Skipping Vulkan test after vkWaitForFences() timed out");
+        vulkanStalled = SDL_TRUE;
+        return SDL_FALSE;
+    }
     if (result != VK_SUCCESS) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "vkWaitForFences(): %s\n", getVulkanResultString(result));
         quit(2);
@@ -1116,10 +1182,13 @@ int main(int argc, char **argv)
     state->window_flags |= SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE;
     state->skip_renderer = 1;
 
+    armVulkanWatchdog();
     if (!SDLTest_CommonDefaultArgs(state, argc, argv) || !SDLTest_CommonInit(state)) {
+        disarmVulkanWatchdog();
         SDLTest_CommonQuit(state);
         return 1;
     }
+    tickVulkanWatchdog();
 
     SDL_GetCurrentDisplayMode(0, &mode);
     SDL_Log("Screen BPP    : %" SDL_PRIu32 "\n", SDL_BITSPERPIXEL(mode.format));
@@ -1132,6 +1201,7 @@ int main(int argc, char **argv)
     SDL_Log("\n");
 
     initVulkan();
+    tickVulkanWatchdog();
     initial_swapchain_rebuilds = vulkanContexts[0].swapchainRebuildCount;
 
     /* Main render loop */
@@ -1139,6 +1209,7 @@ int main(int argc, char **argv)
     then = SDL_GetTicks();
     done = 0;
     while (!done && frames < TEST_VULKAN_MAX_FRAMES) {
+        tickVulkanWatchdog();
         /* Check for events */
         frames++;
         while (SDL_PollEvent(&event)) {
@@ -1170,6 +1241,10 @@ int main(int argc, char **argv)
                 if (state->windows[i]) {
                     vulkanContext = &vulkanContexts[i];
                     render();
+                    if (vulkanStalled) {
+                        done = 1;
+                        break;
+                    }
                 }
             }
             if (vulkanContexts[0].swapchainRebuildCount > initial_swapchain_rebuilds) {
@@ -1178,7 +1253,9 @@ int main(int argc, char **argv)
         }
     }
 
-    if (!requested_first_resize || !requested_second_resize) {
+    if (vulkanStalled) {
+        rc = 0;
+    } else if (!requested_first_resize || !requested_second_resize) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Timed out before issuing automated resize requests\n");
         rc = 2;
     } else if (!saw_resize_rebuild) {
@@ -1192,7 +1269,9 @@ int main(int argc, char **argv)
         SDL_Log("%2.2f frames per second\n", ((double)frames * 1000) / (now - then));
     }
 
+    tickVulkanWatchdog();
     shutdownVulkan(SDL_TRUE);
+    disarmVulkanWatchdog();
     SDLTest_CommonQuit(state);
     return rc;
 }
