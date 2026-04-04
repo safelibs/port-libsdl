@@ -16,7 +16,14 @@ EXE	= @EXE@
 CFLAGS  = @CFLAGS@ -g
 LIBS	= @LIBS@
 TESTEVDEV_LDFLAGS = -Wl,--wrap=open -Wl,--wrap=close -Wl,--wrap=read -Wl,--wrap=ioctl
+
+HAVE_PUBLIC_VULKAN_HEADER := $(shell printf '%s\n' '#include <vulkan/vulkan.h>' | $(CC) $(CFLAGS) -E -x c - >/dev/null 2>&1 && echo yes)
+TESTVULKAN_TARGET =
+TESTVULKAN_CFLAGS =
+ifeq ($(HAVE_PUBLIC_VULKAN_HEADER),yes)
+TESTVULKAN_TARGET = testvulkan$(EXE)
 TESTVULKAN_CFLAGS = -DSDL_PUBLIC_VULKAN_HEADER=\"vulkan/vulkan.h\"
+endif
 
 TARGETS = \
 	checkkeys$(EXE) \
@@ -79,7 +86,7 @@ TARGETS = \
 	testurl$(EXE) \
 	testver$(EXE) \
 	testviewport$(EXE) \
-	testvulkan$(EXE) \
+	$(TESTVULKAN_TARGET) \
 	testwm2$(EXE) \
 	testyuv$(EXE) \
 	torturethread$(EXE) \
@@ -371,8 +378,10 @@ testcustomcursor$(EXE): $(srcdir)/testcustomcursor.c
 controllermap$(EXE): $(srcdir)/controllermap.c $(srcdir)/testutils.c
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
+ifeq ($(HAVE_PUBLIC_VULKAN_HEADER),yes)
 testvulkan$(EXE): $(srcdir)/testvulkan.c
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) $(TESTVULKAN_CFLAGS)
+endif
 
 testlocale$(EXE): $(srcdir)/testlocale.c
 	$(CC) -o $@ $? $(CFLAGS) $(LIBS)
