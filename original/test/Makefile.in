@@ -21,6 +21,7 @@ TESTEVDEV_LDFLAGS = -Wl,--wrap=open -Wl,--wrap=close -Wl,--wrap=read -Wl,--wrap=
 TESTVULKAN_TARGET =
 TESTVULKAN_CFLAGS =
 TESTVULKAN_CPPFLAGS =
+DEFAULT_PUBLIC_VULKAN_HEADER = $(firstword $(wildcard /usr/include/vulkan/vulkan.h /usr/local/include/vulkan/vulkan.h /opt/homebrew/include/vulkan/vulkan.h /opt/local/include/vulkan/vulkan.h))
 ifdef SDL_PUBLIC_VULKAN_HEADER
 TESTVULKAN_TARGET = testvulkan$(EXE)
 TESTVULKAN_CFLAGS = -DSDL_PUBLIC_VULKAN_HEADER=$(SDL_PUBLIC_VULKAN_HEADER)
@@ -29,6 +30,13 @@ ifeq ($(TESTVULKAN_TARGET),)
 ifdef VULKAN_SDK
 TESTVULKAN_TARGET = testvulkan$(EXE)
 TESTVULKAN_CPPFLAGS = -I$(VULKAN_SDK)/include
+TESTVULKAN_CFLAGS = -DSDL_PUBLIC_VULKAN_HEADER=\"vulkan/vulkan.h\"
+endif
+endif
+ifeq ($(TESTVULKAN_TARGET),)
+ifneq ($(DEFAULT_PUBLIC_VULKAN_HEADER),)
+TESTVULKAN_TARGET = testvulkan$(EXE)
+TESTVULKAN_CPPFLAGS = -I$(patsubst %/vulkan/vulkan.h,%,$(DEFAULT_PUBLIC_VULKAN_HEADER))
 TESTVULKAN_CFLAGS = -DSDL_PUBLIC_VULKAN_HEADER=\"vulkan/vulkan.h\"
 endif
 endif
