@@ -8,8 +8,18 @@ pub mod abi {
 }
 
 pub mod core;
+pub mod security {
+    pub mod checked_math;
+}
 pub mod dynapi {
     pub mod generated;
+}
+pub mod video {
+    pub mod blit;
+    pub mod bmp;
+    pub mod pixels;
+    pub mod rect;
+    pub mod surface;
 }
 
 pub mod main_archive;

@@ -1,7 +1,10 @@
 use std::ffi::CStr;
 use std::ptr;
 
-use crate::abi::generated_types::{SDL_RWops, SDL_bool, Sint64, Uint16, Uint32, Uint64, Uint8};
+use crate::abi::generated_types::{
+    SDL_RWops, SDL_bool, Sint64, Uint16, Uint32, Uint64, Uint8, SDL_RWOPS_MEMORY,
+    SDL_RWOPS_MEMORY_RO, SDL_RWOPS_STDFILE,
+};
 use crate::core::system::sdl_to_bool;
 
 #[repr(C)]
@@ -178,6 +181,11 @@ unsafe fn configure_mem_rwops(
     (*rw).read = Some(mem_read);
     (*rw).write = Some(if writable { mem_write } else { mem_write_const });
     (*rw).close = Some(mem_close);
+    (*rw).type_ = if writable {
+        SDL_RWOPS_MEMORY
+    } else {
+        SDL_RWOPS_MEMORY_RO
+    };
     (*rw).hidden.mem.base = mem;
     (*rw).hidden.mem.here = mem;
     (*rw).hidden.mem.stop = mem.add(size as usize);
@@ -238,6 +246,7 @@ pub unsafe extern "C" fn SDL_RWFromFP(
     (*rw).read = Some(stdio_read);
     (*rw).write = Some(stdio_write);
     (*rw).close = Some(stdio_close);
+    (*rw).type_ = SDL_RWOPS_STDFILE;
     (*rw).hidden.unknown.data1 = Box::into_raw(backend).cast();
     (*rw).hidden.unknown.data2 = std::ptr::null_mut();
     rw
@@ -252,7 +261,7 @@ pub unsafe extern "C" fn SDL_RWFromMem(
         let _ = crate::core::error::invalid_param_error("mem");
         return std::ptr::null_mut();
     }
-    if size < 0 {
+    if size <= 0 {
         let _ = crate::core::error::invalid_param_error("size");
         return std::ptr::null_mut();
     }
@@ -268,7 +277,7 @@ pub unsafe extern "C" fn SDL_RWFromConstMem(
         let _ = crate::core::error::invalid_param_error("mem");
         return std::ptr::null_mut();
     }
-    if size < 0 {
+    if size <= 0 {
         let _ = crate::core::error::invalid_param_error("size");
         return std::ptr::null_mut();
     }

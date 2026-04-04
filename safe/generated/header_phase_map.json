@@ -41,8 +41,8 @@
       "header_name": "SDL_blendmode.h",
       "install_relpath": "usr/include/SDL2/SDL_blendmode.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_03_surface_pixels",
+      "rationale": "phase 3 owns the blend-mode behavior used by surface fill, modulation, and software blit paths"
     },
     {
       "header_name": "SDL_clipboard.h",
@@ -384,8 +384,8 @@
       "header_name": "SDL_pixels.h",
       "install_relpath": "usr/include/SDL2/SDL_pixels.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_03_surface_pixels",
+      "rationale": "phase 3 owns pixel-format, palette, and color conversion semantics"
     },
     {
       "header_name": "SDL_platform.h",
@@ -412,8 +412,8 @@
       "header_name": "SDL_rect.h",
       "install_relpath": "usr/include/SDL2/SDL_rect.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_03_surface_pixels",
+      "rationale": "phase 3 owns rectangle intersection, union, enclosure, and clipping semantics"
     },
     {
       "header_name": "SDL_render.h",
@@ -468,8 +468,8 @@
       "header_name": "SDL_surface.h",
       "install_relpath": "usr/include/SDL2/SDL_surface.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_03_surface_pixels",
+      "rationale": "phase 3 owns surface lifecycle, BMP I/O, fill, and software blit semantics"
     },
     {
       "header_name": "SDL_system.h",

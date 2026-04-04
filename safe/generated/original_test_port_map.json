@@ -458,13 +458,13 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_03_surface_pixels",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_pixels.rs",
+      "rust_target_path": "safe/tests/upstream_port_surface.rs",
       "upstream_targets": [
         "testautomation"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testautomation_platform.c",
@@ -484,13 +484,13 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_03_surface_pixels",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_rect.rs",
+      "rust_target_path": "safe/tests/upstream_port_surface.rs",
       "upstream_targets": [
         "testautomation"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testautomation_render.c",
@@ -510,13 +510,13 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_03_surface_pixels",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_rwops.rs",
+      "rust_target_path": "safe/tests/upstream_port_surface.rs",
       "upstream_targets": [
         "testautomation"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testautomation_sdltest.c",
@@ -562,13 +562,13 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_03_surface_pixels",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_surface.rs",
+      "rust_target_path": "safe/tests/upstream_port_surface.rs",
       "upstream_targets": [
         "testautomation"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testautomation_syswm.c",
@@ -718,13 +718,13 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testfile.rs",
+      "owning_phase": "impl_phase_03_surface_pixels",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_surface.rs",
       "upstream_targets": [
         "testfile"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testfilesystem.c",
@@ -913,13 +913,13 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testintersections.rs",
+      "owning_phase": "impl_phase_03_surface_pixels",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_surface.rs",
       "upstream_targets": [
         "testintersections"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testjoystick.c",
@@ -1606,8 +1606,8 @@
     {
       "target_name": "testfile",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_03_surface_pixels",
+      "completion_state": "complete"
     },
     {
       "target_name": "testfilesystem",
@@ -1696,8 +1696,8 @@
     {
       "target_name": "testintersections",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_03_surface_pixels",
+      "completion_state": "complete"
     },
     {
       "target_name": "testjoystick",
