@@ -15,6 +15,7 @@ CC      = @CC@
 EXE	= @EXE@
 CFLAGS  = @CFLAGS@ -g
 LIBS	= @LIBS@
+TESTEVDEV_LDFLAGS = -Wl,--wrap=open -Wl,--wrap=close -Wl,--wrap=read -Wl,--wrap=ioctl
 TESTVULKAN_CFLAGS = -DSDL_PUBLIC_VULKAN_HEADER=\"vulkan/vulkan.h\"
 
 TARGETS = \
@@ -194,7 +195,7 @@ testerror$(EXE): $(srcdir)/testerror.c
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 testevdev$(EXE): $(srcdir)/testevdev.c
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+	$(CC) -o $@ $^ $(CFLAGS) $(TESTEVDEV_LDFLAGS) $(LIBS)
 
 testfile$(EXE): $(srcdir)/testfile.c
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
