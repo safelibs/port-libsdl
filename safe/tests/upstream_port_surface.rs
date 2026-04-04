@@ -11,6 +11,7 @@ use safe_sdl::abi::generated_types::{
     SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGBA8888, SDL_Point, SDL_Rect, Uint32, SDL_RWOPS_MEMORY,
     SDL_RWOPS_MEMORY_RO,
 };
+use safe_sdl::core::error::SDL_ClearError;
 use safe_sdl::core::rwops::{
     SDL_RWFromConstMem, SDL_RWFromFile, SDL_RWFromMem, SDL_RWclose, SDL_RWread, SDL_RWseek,
     SDL_RWtell, SDL_RWwrite, SDL_ReadLE32,
@@ -20,12 +21,13 @@ use safe_sdl::video::blit::{
 };
 use safe_sdl::video::bmp::{SDL_LoadBMP_RW, SDL_SaveBMP_RW};
 use safe_sdl::video::pixels::{
-    SDL_AllocFormat, SDL_AllocPalette, SDL_FreeFormat, SDL_FreePalette, SDL_GetPixelFormatName,
-    SDL_GetRGBA, SDL_MapRGBA, SDL_MasksToPixelFormatEnum, SDL_PixelFormatEnumToMasks,
-    SDL_SetPaletteColors, SDL_SetPixelFormatPalette,
+    SDL_AllocFormat, SDL_AllocPalette, SDL_CalculateGammaRamp, SDL_FreeFormat, SDL_FreePalette,
+    SDL_GetPixelFormatName, SDL_GetRGBA, SDL_MapRGBA, SDL_MasksToPixelFormatEnum,
+    SDL_PixelFormatEnumToMasks, SDL_SetPaletteColors, SDL_SetPixelFormatPalette,
 };
 use safe_sdl::video::rect::{
-    SDL_EnclosePoints, SDL_IntersectRect, SDL_IntersectRectAndLine, SDL_UnionRect,
+    SDL_EnclosePoints, SDL_HasIntersection, SDL_IntersectRect, SDL_IntersectRectAndLine,
+    SDL_UnionRect,
 };
 use safe_sdl::video::surface::{
     SDL_ConvertSurfaceFormat, SDL_CreateRGBSurfaceWithFormat, SDL_DuplicateSurface, SDL_FillRect,
@@ -219,6 +221,78 @@ fn rect_intersection_union_enclose_and_line_clipping_match_upstream_cases() {
         );
         assert_eq!((x1, y1, x2, y2), (0, 15, 31, 15));
         assert_eq!((rect.x, rect.y, rect.w, rect.h), (0, 0, 32, 32));
+    }
+}
+
+#[test]
+fn pixels_and_rect_invalid_parameters_preserve_upstream_error_messages() {
+    let _serial = testutils::serial_lock();
+
+    unsafe {
+        let mut ramp = [0xbeefu16; 256];
+        SDL_ClearError();
+        SDL_CalculateGammaRamp(-1.0, ramp.as_mut_ptr());
+        assert_eq!(testutils::current_error(), "Parameter 'gamma' is invalid");
+        assert!(ramp.iter().all(|&value| value == 0xbeef));
+
+        SDL_ClearError();
+        SDL_CalculateGammaRamp(0.5, ptr::null_mut());
+        assert_eq!(testutils::current_error(), "Parameter 'ramp' is invalid");
+
+        let a = SDL_Rect {
+            x: 0,
+            y: 0,
+            w: 32,
+            h: 32,
+        };
+        let b = SDL_Rect {
+            x: 8,
+            y: 8,
+            w: 8,
+            h: 8,
+        };
+        let points = [SDL_Point { x: 4, y: 6 }];
+
+        SDL_ClearError();
+        assert_eq!(SDL_HasIntersection(ptr::null(), &b), 0);
+        assert_eq!(testutils::current_error(), "Parameter 'A' is invalid");
+
+        SDL_ClearError();
+        assert_eq!(SDL_IntersectRect(&a, &b, ptr::null_mut()), 0);
+        assert_eq!(testutils::current_error(), "Parameter 'result' is invalid");
+
+        let mut union = SDL_Rect {
+            x: -1,
+            y: -1,
+            w: -1,
+            h: -1,
+        };
+        SDL_ClearError();
+        SDL_UnionRect(&a, ptr::null(), &mut union);
+        assert_eq!(testutils::current_error(), "Parameter 'B' is invalid");
+
+        SDL_ClearError();
+        assert_eq!(
+            SDL_EnclosePoints(ptr::null(), 1, ptr::null(), &mut union),
+            0
+        );
+        assert_eq!(testutils::current_error(), "Parameter 'points' is invalid");
+
+        SDL_ClearError();
+        assert_eq!(
+            SDL_EnclosePoints(points.as_ptr(), 0, ptr::null(), &mut union),
+            0
+        );
+        assert_eq!(testutils::current_error(), "Parameter 'count' is invalid");
+
+        let (x1, mut y1, mut x2, mut y2) = (4, 4, 40, 40);
+        SDL_ClearError();
+        assert_eq!(
+            SDL_IntersectRectAndLine(&a, ptr::null_mut(), &mut y1, &mut x2, &mut y2),
+            0
+        );
+        assert_eq!(testutils::current_error(), "Parameter 'X1' is invalid");
+        assert_eq!((x1, y1, x2, y2), (4, 4, 40, 40));
     }
 }
 

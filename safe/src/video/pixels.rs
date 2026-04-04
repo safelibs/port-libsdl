@@ -1,6 +1,7 @@
 use crate::abi::generated_types::{
     SDL_Color, SDL_Palette, SDL_PixelFormat, SDL_bool, Uint32, Uint8,
 };
+use crate::core::error::invalid_param_error;
 use crate::video::surface::{clear_real_error, real_sdl, sync_error_from_real};
 
 #[no_mangle]
@@ -140,5 +141,13 @@ pub unsafe extern "C" fn SDL_GetRGBA(
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_CalculateGammaRamp(gamma: f32, ramp: *mut u16) {
+    if gamma <= 0.0 {
+        let _ = invalid_param_error("gamma");
+        return;
+    }
+    if ramp.is_null() {
+        let _ = invalid_param_error("ramp");
+        return;
+    }
     (real_sdl().calculate_gamma_ramp)(gamma, ramp);
 }
