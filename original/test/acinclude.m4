@@ -21,7 +21,10 @@ AC_ARG_ENABLE(sdltest, [  --disable-sdltest       Do not try to compile and run 
 
   min_sdl_version=ifelse([$1], ,2.0.0,$1)
 
-  if test "x$sdl_prefix$sdl_exec_prefix" = x ; then
+  SDL_TEST_LIBS="-lSDL2_test"
+  if test x${SDL2_CONFIG+set} = xset ; then
+    sdl_pc=no
+  elif test "x$sdl_prefix$sdl_exec_prefix" = x ; then
     PKG_CHECK_MODULES([SDL], [sdl2 >= $min_sdl_version],
            [sdl_pc=yes],
            [sdl_pc=no])
@@ -71,6 +74,42 @@ AC_ARG_ENABLE(sdltest, [  --disable-sdltest       Do not try to compile and run 
       SDL_STATIC_LIBS=`$SDL2_CONFIG $sdl_config_args --static-libs 2>/dev/null`
       if test "x$SDL_STATIC_LIBS" = x ; then
         SDL_STATIC_LIBS="$SDL_LIBS"
+      fi
+      case "$SDL2_CONFIG" in
+        *\ * | *\	* )
+          sdl_config_path=""
+          ;;
+        *)
+          sdl_config_path="$SDL2_CONFIG"
+          ;;
+      esac
+      if test "x$sdl_config_path" != x ; then
+        sdl_config_dir=`dirname "$sdl_config_path"`
+        sdl_build_libdir="$sdl_config_dir/build/.libs"
+        if test -f "$sdl_build_libdir/libSDL2.la" ; then
+          sdl_build_cflags=""
+          if test -f "$sdl_config_dir/include/SDL_config.h" ; then
+            sdl_build_cflags="-I$sdl_config_dir/include"
+          fi
+          if test -f "$sdl_config_dir/../include/SDL.h" ; then
+            sdl_build_cflags="$sdl_build_cflags -I$sdl_config_dir/../include"
+          elif test -f "$sdl_config_dir/../original/include/SDL.h" ; then
+            sdl_build_cflags="$sdl_build_cflags -I$sdl_config_dir/../original/include"
+          fi
+          if test "x$sdl_build_cflags" != x ; then
+            SDL_CFLAGS="$sdl_build_cflags $SDL_CFLAGS"
+          fi
+          sdl_build_dependency_libs=`sed -n "s/^dependency_libs='\\(.*\\)'$/\\1/p" "$sdl_build_libdir/libSDL2.la"`
+          if test -f "$sdl_build_libdir/libSDL2.so" ; then
+            SDL_LIBS="-Wl,-rpath,$sdl_build_libdir $sdl_build_libdir/libSDL2.so $sdl_build_dependency_libs"
+          fi
+          if test -f "$sdl_build_libdir/libSDL2.a" ; then
+            SDL_STATIC_LIBS="$sdl_build_libdir/libSDL2.a $sdl_build_dependency_libs"
+          fi
+          if test -f "$sdl_build_libdir/libSDL2_test.a" ; then
+            SDL_TEST_LIBS="$sdl_build_libdir/libSDL2_test.a"
+          fi
+        fi
       fi
 
       sdl_major_version=`$SDL2_CONFIG $sdl_config_args --version | \
@@ -184,11 +223,13 @@ int main(int argc, char *argv[])
      SDL_CFLAGS=""
      SDL_LIBS=""
      SDL_STATIC_LIBS=""
+     SDL_TEST_LIBS=""
      ifelse([$3], , :, [$3])
   fi
   AC_SUBST(SDL_CFLAGS)
   AC_SUBST(SDL_LIBS)
   AC_SUBST(SDL_STATIC_LIBS)
+  AC_SUBST(SDL_TEST_LIBS)
   rm -f conf.sdltest
 ])
 # pkg.m4 - Macros to locate and utilise pkg-config.            -*- Autoconf -*-

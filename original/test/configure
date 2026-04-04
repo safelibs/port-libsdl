@@ -613,6 +613,38 @@ PACKAGE_BUGREPORT=''
 PACKAGE_URL=''
 
 ac_unique_file="loopwave.c"
+# Factoring default headers for most tests.
+ac_includes_default="\
+#include <stddef.h>
+#ifdef HAVE_STDIO_H
+# include <stdio.h>
+#endif
+#ifdef HAVE_STDLIB_H
+# include <stdlib.h>
+#endif
+#ifdef HAVE_STRING_H
+# include <string.h>
+#endif
+#ifdef HAVE_INTTYPES_H
+# include <inttypes.h>
+#endif
+#ifdef HAVE_STDINT_H
+# include <stdint.h>
+#endif
+#ifdef HAVE_STRINGS_H
+# include <strings.h>
+#endif
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_STAT_H
+# include <sys/stat.h>
+#endif
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif"
+
+ac_header_c_list=
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 LIBUNWIND_LIBS
@@ -628,6 +660,7 @@ OPENGLES1_TARGETS
 CPP
 XMKMF
 TESTEVDEV_LIBS
+SDL_TEST_LIBS
 SDL_STATIC_LIBS
 SDL2_CONFIG
 SDL2_CONFIG_BINARY
@@ -636,6 +669,8 @@ SDL_CFLAGS
 PKG_CONFIG_LIBDIR
 PKG_CONFIG_PATH
 PKG_CONFIG
+TESTEVDEV_LDFLAGS
+TESTEVDEV_CFLAGS
 ISOS2
 ISUNIX
 ISWINDOWS
@@ -1546,6 +1581,39 @@ fi
 
 } # ac_fn_c_try_link
 
+# ac_fn_c_check_header_compile LINENO HEADER VAR INCLUDES
+# -------------------------------------------------------
+# Tests whether HEADER exists and can be compiled using the include files in
+# INCLUDES, setting the cache variable VAR accordingly.
+ac_fn_c_check_header_compile ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
+printf %s "checking for $2... " >&6; }
+if eval test \${$3+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+#include <$2>
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  eval "$3=yes"
+else $as_nop
+  eval "$3=no"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+fi
+eval ac_res=\$$3
+	       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+printf "%s\n" "$ac_res" >&6; }
+  eval $as_lineno_stack; ${as_lineno_stack:+:} unset as_lineno
+
+} # ac_fn_c_check_header_compile
+
 # ac_fn_c_try_run LINENO
 # ----------------------
 # Try to run conftest.$ac_ext, and return whether this succeeded. Assumes that
@@ -2229,6 +2297,15 @@ main (int argc, char **argv)
 }
 "
 
+as_fn_append ac_header_c_list " stdio.h stdio_h HAVE_STDIO_H"
+as_fn_append ac_header_c_list " stdlib.h stdlib_h HAVE_STDLIB_H"
+as_fn_append ac_header_c_list " string.h string_h HAVE_STRING_H"
+as_fn_append ac_header_c_list " inttypes.h inttypes_h HAVE_INTTYPES_H"
+as_fn_append ac_header_c_list " stdint.h stdint_h HAVE_STDINT_H"
+as_fn_append ac_header_c_list " strings.h strings_h HAVE_STRINGS_H"
+as_fn_append ac_header_c_list " sys/stat.h sys_stat_h HAVE_SYS_STAT_H"
+as_fn_append ac_header_c_list " sys/types.h sys_types_h HAVE_SYS_TYPES_H"
+as_fn_append ac_header_c_list " unistd.h unistd_h HAVE_UNISTD_H"
 
 # Auxiliary files required by this configure script.
 ac_aux_files="config.guess config.sub"
@@ -3721,6 +3798,50 @@ esac
 
 
 
+TESTEVDEV_CFLAGS=""
+TESTEVDEV_LDFLAGS=""
+ac_header= ac_cache=
+for ac_item in $ac_header_c_list
+do
+  if test $ac_cache; then
+    ac_fn_c_check_header_compile "$LINENO" $ac_header ac_cv_header_$ac_cache "$ac_includes_default"
+    if eval test \"x\$ac_cv_header_$ac_cache\" = xyes; then
+      printf "%s\n" "#define $ac_item 1" >> confdefs.h
+    fi
+    ac_header= ac_cache=
+  elif test $ac_header; then
+    ac_cache=$ac_item
+  else
+    ac_header=$ac_item
+  fi
+done
+
+
+
+
+
+
+
+
+if test $ac_cv_header_stdlib_h = yes && test $ac_cv_header_string_h = yes
+then :
+
+printf "%s\n" "#define STDC_HEADERS 1" >>confdefs.h
+
+fi
+       for ac_header in linux/input.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "linux/input.h" "ac_cv_header_linux_input_h" "$ac_includes_default"
+if test "x$ac_cv_header_linux_input_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_LINUX_INPUT_H 1" >>confdefs.h
+ TESTEVDEV_CFLAGS="-DHAVE_LINUX_INPUT_H"
+                  TESTEVDEV_LDFLAGS="-Wl,--wrap=open -Wl,--wrap=close -Wl,--wrap=read -Wl,--wrap=ioctl"
+fi
+
+done
+
+
 
 SDL_VERSION=2.0.18
 BASE_LIBS="$LIBS"
@@ -3882,7 +4003,10 @@ fi
 
   min_sdl_version=$SDL_VERSION
 
-  if test "x$sdl_prefix$sdl_exec_prefix" = x ; then
+  SDL_TEST_LIBS="-lSDL2_test"
+  if test x${SDL2_CONFIG+set} = xset ; then
+    sdl_pc=no
+  elif test "x$sdl_prefix$sdl_exec_prefix" = x ; then
 
 pkg_failed=no
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for sdl2 >= $min_sdl_version" >&5
@@ -4090,6 +4214,42 @@ printf %s "checking for SDL - version >= $min_sdl_version... " >&6; }
       if test "x$SDL_STATIC_LIBS" = x ; then
         SDL_STATIC_LIBS="$SDL_LIBS"
       fi
+      case "$SDL2_CONFIG" in
+        *\ * | *\	* )
+          sdl_config_path=""
+          ;;
+        *)
+          sdl_config_path="$SDL2_CONFIG"
+          ;;
+      esac
+      if test "x$sdl_config_path" != x ; then
+        sdl_config_dir=`dirname "$sdl_config_path"`
+        sdl_build_libdir="$sdl_config_dir/build/.libs"
+        if test -f "$sdl_build_libdir/libSDL2.la" ; then
+          sdl_build_cflags=""
+          if test -f "$sdl_config_dir/include/SDL_config.h" ; then
+            sdl_build_cflags="-I$sdl_config_dir/include"
+          fi
+          if test -f "$sdl_config_dir/../include/SDL.h" ; then
+            sdl_build_cflags="$sdl_build_cflags -I$sdl_config_dir/../include"
+          elif test -f "$sdl_config_dir/../original/include/SDL.h" ; then
+            sdl_build_cflags="$sdl_build_cflags -I$sdl_config_dir/../original/include"
+          fi
+          if test "x$sdl_build_cflags" != x ; then
+            SDL_CFLAGS="$sdl_build_cflags $SDL_CFLAGS"
+          fi
+          sdl_build_dependency_libs=`sed -n "s/^dependency_libs='\\(.*\\)'$/\\1/p" "$sdl_build_libdir/libSDL2.la"`
+          if test -f "$sdl_build_libdir/libSDL2.so" ; then
+            SDL_LIBS="-Wl,-rpath,$sdl_build_libdir $sdl_build_libdir/libSDL2.so $sdl_build_dependency_libs"
+          fi
+          if test -f "$sdl_build_libdir/libSDL2.a" ; then
+            SDL_STATIC_LIBS="$sdl_build_libdir/libSDL2.a $sdl_build_dependency_libs"
+          fi
+          if test -f "$sdl_build_libdir/libSDL2_test.a" ; then
+            SDL_TEST_LIBS="$sdl_build_libdir/libSDL2_test.a"
+          fi
+        fi
+      fi
 
       sdl_major_version=`$SDL2_CONFIG $sdl_config_args --version | \
              sed 's/\([0-9]*\).\([0-9]*\).\([0-9]*\)/\1/'`
@@ -4233,18 +4393,20 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
      SDL_CFLAGS=""
      SDL_LIBS=""
      SDL_STATIC_LIBS=""
+     SDL_TEST_LIBS=""
      as_fn_error $? "*** SDL version $SDL_VERSION not found!" "$LINENO" 5
 
   fi
 
 
 
+
   rm -f conf.sdltest
 
-TESTEVDEV_LIBS="$BASE_LIBS -lSDL2_test $SDL_STATIC_LIBS"
+TESTEVDEV_LIBS="$BASE_LIBS $SDL_TEST_LIBS $SDL_STATIC_LIBS"
 
 CFLAGS="$CFLAGS $SDL_CFLAGS"
-LIBS="$LIBS -lSDL2_test $SDL_LIBS"
+LIBS="$LIBS $SDL_TEST_LIBS $SDL_LIBS"
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'

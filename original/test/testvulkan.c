@@ -195,6 +195,8 @@ static VulkanContext *vulkanContext = NULL;  // for the currently-rendering wind
 
 static void shutdownVulkan(SDL_bool doDestroySwapchain);
 
+static SDL_bool initVulkanTestState(void);
+
 #if defined(__unix__) || defined(__APPLE__)
 static void handleVulkanWatchdogSignal(int sig)
 {
@@ -242,6 +244,75 @@ static void quit(int rc)
     shutdownVulkan(SDL_TRUE);
     SDLTest_CommonQuit(state);
     exit(rc);
+}
+
+static SDL_bool initVulkanTestState(void)
+{
+    int i;
+
+    if (SDL_VideoInit(state->videodriver) < 0) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                     "Couldn't initialize video driver: %s\n",
+                     SDL_GetError());
+        return SDL_FALSE;
+    }
+
+    state->windows = (SDL_Window **)SDL_calloc(state->num_windows, sizeof(*state->windows));
+    state->renderers = (SDL_Renderer **)SDL_calloc(state->num_windows, sizeof(*state->renderers));
+    state->targets = (SDL_Texture **)SDL_calloc(state->num_windows, sizeof(*state->targets));
+    if (!state->windows || !state->renderers || !state->targets) {
+        SDL_OutOfMemory();
+        return SDL_FALSE;
+    }
+
+    for (i = 0; i < state->num_windows; ++i) {
+        char title[1024];
+        SDL_Rect r;
+        const Uint32 create_flags = state->window_flags | SDL_WINDOW_HIDDEN;
+
+        r.x = state->window_x;
+        r.y = state->window_y;
+        r.w = state->window_w;
+        r.h = state->window_h;
+
+        if ((r.x == -1) && (r.y == -1) && (r.w == -1) && (r.h == -1)) {
+            SDL_GetDisplayUsableBounds(state->display, &r);
+        }
+
+        if (state->num_windows > 1) {
+            (void)SDL_snprintf(title, SDL_arraysize(title), "%s %d",
+                               state->window_title, i + 1);
+        } else {
+            SDL_strlcpy(title, state->window_title, SDL_arraysize(title));
+        }
+
+        state->windows[i] = SDL_CreateWindow(title, r.x, r.y, r.w, r.h, create_flags);
+        if (!state->windows[i]) {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                         "Couldn't create window: %s\n",
+                         SDL_GetError());
+            return SDL_FALSE;
+        }
+
+        if (state->window_minW || state->window_minH) {
+            SDL_SetWindowMinimumSize(state->windows[i], state->window_minW, state->window_minH);
+        }
+        if (state->window_maxW || state->window_maxH) {
+            SDL_SetWindowMaximumSize(state->windows[i], state->window_maxW, state->window_maxH);
+        }
+        if (state->window_icon) {
+            SDL_Surface *icon = SDL_LoadBMP(state->window_icon);
+            if (icon) {
+                SDL_SetWindowIcon(state->windows[i], icon);
+                SDL_FreeSurface(icon);
+            }
+        }
+        if (!SDL_RectEmpty(&state->confine)) {
+            SDL_SetWindowMouseRect(state->windows[i], &state->confine);
+        }
+    }
+
+    return SDL_TRUE;
 }
 
 static void loadGlobalFunctions(void)
@@ -704,6 +775,9 @@ static SDL_bool createSwapchain(void)
 
     // get size
     SDL_Vulkan_GetDrawableSize(vulkanContext->window, &w, &h);
+    if (w == 0 || h == 0) {
+        SDL_GetWindowSize(vulkanContext->window, &w, &h);
+    }
 
     // Clamp the size to the allowable image extent.
     // SDL_Vulkan_GetDrawableSize()'s result it not always in this range (bug #3287)
@@ -1141,6 +1215,9 @@ static SDL_bool render(void)
         quit(2);
     }
     SDL_Vulkan_GetDrawableSize(vulkanContext->window, &w, &h);
+    if (w == 0 || h == 0) {
+        SDL_GetWindowSize(vulkanContext->window, &w, &h);
+    }
     if (w != (int)vulkanContext->swapchainSize.width || h != (int)vulkanContext->swapchainSize.height) {
         return createNewSwapchainAndSwapchainSpecificStuff();
     }
@@ -1176,7 +1253,7 @@ int main(int argc, char **argv)
     state->skip_renderer = 1;
 
     armVulkanWatchdog();
-    if (!SDLTest_CommonDefaultArgs(state, argc, argv) || !SDLTest_CommonInit(state)) {
+    if (!SDLTest_CommonDefaultArgs(state, argc, argv) || !initVulkanTestState()) {
         disarmVulkanWatchdog();
         SDLTest_CommonQuit(state);
         return 1;
