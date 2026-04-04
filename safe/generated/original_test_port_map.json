@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "phase_id": "impl_phase_01_contract_bootstrap",
   "expected_source_file_count": 116,
   "expected_target_count": 71,
@@ -12,7 +12,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_assert.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/src/test/SDL_test_common.c",
@@ -22,7 +23,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_common.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/src/test/SDL_test_compare.c",
@@ -32,7 +34,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_compare.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/src/test/SDL_test_crc32.c",
@@ -42,7 +45,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_crc32.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/src/test/SDL_test_font.c",
@@ -52,7 +56,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_font.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/src/test/SDL_test_fuzzer.c",
@@ -62,7 +67,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_fuzzer.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/src/test/SDL_test_harness.c",
@@ -72,7 +78,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_harness.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/src/test/SDL_test_imageBlit.c",
@@ -82,7 +89,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_imageBlit.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/src/test/SDL_test_imageBlitBlend.c",
@@ -92,7 +100,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_imageBlitBlend.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/src/test/SDL_test_imageFace.c",
@@ -102,7 +111,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_imageFace.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/src/test/SDL_test_imagePrimitives.c",
@@ -112,7 +122,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_imagePrimitives.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/src/test/SDL_test_imagePrimitivesBlend.c",
@@ -122,7 +133,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_imagePrimitivesBlend.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/src/test/SDL_test_log.c",
@@ -132,7 +144,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_log.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/src/test/SDL_test_md5.c",
@@ -142,7 +155,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_md5.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/src/test/SDL_test_memory.c",
@@ -152,7 +166,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_memory.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/src/test/SDL_test_random.c",
@@ -162,7 +177,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "static_archive_support",
       "rust_target_path": "safe/src/test_support/SDL_test_random.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/checkkeys.c",
@@ -174,7 +190,8 @@
       "rust_target_path": "safe/tests/upstream/checkkeys.rs",
       "upstream_targets": [
         "checkkeys"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/checkkeysthreads.c",
@@ -186,7 +203,8 @@
       "rust_target_path": "safe/tests/upstream/checkkeysthreads.rs",
       "upstream_targets": [
         "checkkeysthreads"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/controllermap.c",
@@ -198,7 +216,8 @@
       "rust_target_path": "safe/tests/upstream/controllermap.rs",
       "upstream_targets": [
         "controllermap"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/loopwave.c",
@@ -210,7 +229,8 @@
       "rust_target_path": "safe/tests/upstream/loopwave.rs",
       "upstream_targets": [
         "loopwave"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/loopwavequeue.c",
@@ -222,7 +242,8 @@
       "rust_target_path": "safe/tests/upstream/loopwavequeue.rs",
       "upstream_targets": [
         "loopwavequeue"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testatomic.c",
@@ -234,7 +255,8 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testatomic"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testaudiocapture.c",
@@ -246,7 +268,8 @@
       "rust_target_path": "safe/tests/upstream/testaudiocapture.rs",
       "upstream_targets": [
         "testaudiocapture"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testaudiohotplug.c",
@@ -258,7 +281,8 @@
       "rust_target_path": "safe/tests/upstream/testaudiohotplug.rs",
       "upstream_targets": [
         "testaudiohotplug"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testaudioinfo.c",
@@ -270,7 +294,8 @@
       "rust_target_path": "safe/tests/upstream/testaudioinfo.rs",
       "upstream_targets": [
         "testaudioinfo"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation.c",
@@ -282,7 +307,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_audio.c",
@@ -294,7 +320,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_audio.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_clipboard.c",
@@ -306,7 +333,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_clipboard.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_events.c",
@@ -318,7 +346,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_events.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_guid.c",
@@ -330,7 +359,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_guid.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_hints.c",
@@ -342,7 +372,8 @@
       "rust_target_path": "safe/tests/upstream_port_core.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testautomation_joystick.c",
@@ -354,7 +385,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_joystick.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_keyboard.c",
@@ -366,7 +398,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_keyboard.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_log.c",
@@ -378,7 +411,8 @@
       "rust_target_path": "safe/tests/upstream_port_core.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testautomation_main.c",
@@ -390,7 +424,8 @@
       "rust_target_path": "safe/tests/upstream_port_core.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testautomation_math.c",
@@ -402,7 +437,8 @@
       "rust_target_path": "safe/tests/upstream_port_core.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testautomation_mouse.c",
@@ -414,7 +450,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_mouse.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_pixels.c",
@@ -426,7 +463,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_pixels.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_platform.c",
@@ -438,7 +476,8 @@
       "rust_target_path": "safe/tests/upstream_port_core.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testautomation_rect.c",
@@ -450,7 +489,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_rect.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_render.c",
@@ -462,7 +502,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_render.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_rwops.c",
@@ -474,7 +515,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_rwops.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_sdltest.c",
@@ -486,7 +528,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_sdltest.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_stdlib.c",
@@ -498,7 +541,8 @@
       "rust_target_path": "safe/tests/upstream_port_core.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testautomation_subsystems.c",
@@ -510,7 +554,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_subsystems.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_surface.c",
@@ -522,7 +567,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_surface.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_syswm.c",
@@ -534,7 +580,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_syswm.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testautomation_timer.c",
@@ -546,7 +593,8 @@
       "rust_target_path": "safe/tests/upstream_port_core.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testautomation_video.c",
@@ -558,7 +606,8 @@
       "rust_target_path": "safe/tests/testautomation/testautomation_video.rs",
       "upstream_targets": [
         "testautomation"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testbounds.c",
@@ -570,7 +619,8 @@
       "rust_target_path": "safe/tests/upstream/testbounds.rs",
       "upstream_targets": [
         "testbounds"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testcustomcursor.c",
@@ -582,7 +632,8 @@
       "rust_target_path": "safe/tests/upstream/testcustomcursor.rs",
       "upstream_targets": [
         "testcustomcursor"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testdisplayinfo.c",
@@ -594,7 +645,8 @@
       "rust_target_path": "safe/tests/upstream/testdisplayinfo.rs",
       "upstream_targets": [
         "testdisplayinfo"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testdraw2.c",
@@ -606,7 +658,8 @@
       "rust_target_path": "safe/tests/upstream/testdraw2.rs",
       "upstream_targets": [
         "testdraw2"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testdrawchessboard.c",
@@ -618,7 +671,8 @@
       "rust_target_path": "safe/tests/upstream/testdrawchessboard.rs",
       "upstream_targets": [
         "testdrawchessboard"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testdropfile.c",
@@ -630,7 +684,8 @@
       "rust_target_path": "safe/tests/upstream/testdropfile.rs",
       "upstream_targets": [
         "testdropfile"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testerror.c",
@@ -642,7 +697,8 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testerror"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testevdev.c",
@@ -654,7 +710,8 @@
       "rust_target_path": "safe/tests/upstream/testevdev.rs",
       "upstream_targets": [
         "testevdev"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testfile.c",
@@ -666,7 +723,8 @@
       "rust_target_path": "safe/tests/upstream/testfile.rs",
       "upstream_targets": [
         "testfile"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testfilesystem.c",
@@ -678,7 +736,8 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testfilesystem"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testfilesystem_pre.c",
@@ -690,7 +749,8 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testfilesystem_pre"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testgamecontroller.c",
@@ -702,7 +762,8 @@
       "rust_target_path": "safe/tests/upstream/testgamecontroller.rs",
       "upstream_targets": [
         "testgamecontroller"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testgeometry.c",
@@ -714,7 +775,8 @@
       "rust_target_path": "safe/tests/upstream/testgeometry.rs",
       "upstream_targets": [
         "testgeometry"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testgesture.c",
@@ -726,7 +788,8 @@
       "rust_target_path": "safe/tests/upstream/testgesture.rs",
       "upstream_targets": [
         "testgesture"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testgl2.c",
@@ -738,7 +801,8 @@
       "rust_target_path": "safe/tests/upstream/testgl2.rs",
       "upstream_targets": [
         "testgl2"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testgles.c",
@@ -750,7 +814,8 @@
       "rust_target_path": "safe/tests/upstream/testgles.rs",
       "upstream_targets": [
         "testgles"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testgles2.c",
@@ -762,7 +827,8 @@
       "rust_target_path": "safe/tests/upstream/testgles2.rs",
       "upstream_targets": [
         "testgles2"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testgles2_sdf.c",
@@ -774,7 +840,8 @@
       "rust_target_path": "safe/tests/upstream/testgles2_sdf.rs",
       "upstream_targets": [
         "testgles2_sdf"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testhaptic.c",
@@ -786,7 +853,8 @@
       "rust_target_path": "safe/tests/upstream/testhaptic.rs",
       "upstream_targets": [
         "testhaptic"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testhittesting.c",
@@ -798,7 +866,8 @@
       "rust_target_path": "safe/tests/upstream/testhittesting.rs",
       "upstream_targets": [
         "testhittesting"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testhotplug.c",
@@ -810,7 +879,8 @@
       "rust_target_path": "safe/tests/upstream/testhotplug.rs",
       "upstream_targets": [
         "testhotplug"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testiconv.c",
@@ -822,7 +892,8 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testiconv"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testime.c",
@@ -834,7 +905,8 @@
       "rust_target_path": "safe/tests/upstream/testime.rs",
       "upstream_targets": [
         "testime"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testintersections.c",
@@ -846,7 +918,8 @@
       "rust_target_path": "safe/tests/upstream/testintersections.rs",
       "upstream_targets": [
         "testintersections"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testjoystick.c",
@@ -858,7 +931,8 @@
       "rust_target_path": "safe/tests/upstream/testjoystick.rs",
       "upstream_targets": [
         "testjoystick"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testkeys.c",
@@ -870,7 +944,8 @@
       "rust_target_path": "safe/tests/upstream/testkeys.rs",
       "upstream_targets": [
         "testkeys"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testloadso.c",
@@ -882,7 +957,8 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testloadso"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testlocale.c",
@@ -894,7 +970,8 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testlocale"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testlock.c",
@@ -906,7 +983,8 @@
       "rust_target_path": "safe/tests/upstream/testlock.rs",
       "upstream_targets": [
         "testlock"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testmessage.c",
@@ -918,7 +996,8 @@
       "rust_target_path": "safe/tests/upstream/testmessage.rs",
       "upstream_targets": [
         "testmessage"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testmouse.c",
@@ -930,7 +1009,8 @@
       "rust_target_path": "safe/tests/upstream/testmouse.rs",
       "upstream_targets": [
         "testmouse"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testmultiaudio.c",
@@ -942,7 +1022,8 @@
       "rust_target_path": "safe/tests/upstream/testmultiaudio.rs",
       "upstream_targets": [
         "testmultiaudio"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testnative.c",
@@ -954,7 +1035,8 @@
       "rust_target_path": "safe/tests/upstream/testnative.rs",
       "upstream_targets": [
         "testnative"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testnativecocoa.m",
@@ -964,7 +1046,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "cfg_gated_test",
       "rust_target_path": "safe/tests/upstream/testnativecocoa.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testnativeos2.c",
@@ -974,7 +1057,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "cfg_gated_test",
       "rust_target_path": "safe/tests/upstream/testnativeos2.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testnativew32.c",
@@ -984,7 +1068,8 @@
       "owning_phase": "impl_phase_01_contract_bootstrap",
       "rust_target_kind": "cfg_gated_test",
       "rust_target_path": "safe/tests/upstream/testnativew32.rs",
-      "upstream_targets": []
+      "upstream_targets": [],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testnativex11.c",
@@ -996,7 +1081,8 @@
       "rust_target_path": "safe/tests/upstream/testnative.rs",
       "upstream_targets": [
         "testnative"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testoffscreen.c",
@@ -1008,7 +1094,8 @@
       "rust_target_path": "safe/tests/upstream/testoffscreen.rs",
       "upstream_targets": [
         "testoffscreen"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testoverlay2.c",
@@ -1020,7 +1107,8 @@
       "rust_target_path": "safe/tests/upstream/testoverlay2.rs",
       "upstream_targets": [
         "testoverlay2"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testplatform.c",
@@ -1032,7 +1120,8 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testplatform"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testpower.c",
@@ -1044,7 +1133,8 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testpower"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testqsort.c",
@@ -1056,7 +1146,8 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testqsort"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testrelative.c",
@@ -1068,7 +1159,8 @@
       "rust_target_path": "safe/tests/upstream/testrelative.rs",
       "upstream_targets": [
         "testrelative"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testrendercopyex.c",
@@ -1080,7 +1172,8 @@
       "rust_target_path": "safe/tests/upstream/testrendercopyex.rs",
       "upstream_targets": [
         "testrendercopyex"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testrendertarget.c",
@@ -1092,7 +1185,8 @@
       "rust_target_path": "safe/tests/upstream/testrendertarget.rs",
       "upstream_targets": [
         "testrendertarget"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testresample.c",
@@ -1104,7 +1198,8 @@
       "rust_target_path": "safe/tests/upstream/testresample.rs",
       "upstream_targets": [
         "testresample"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testrumble.c",
@@ -1116,7 +1211,8 @@
       "rust_target_path": "safe/tests/upstream/testrumble.rs",
       "upstream_targets": [
         "testrumble"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testscale.c",
@@ -1128,7 +1224,8 @@
       "rust_target_path": "safe/tests/upstream/testscale.rs",
       "upstream_targets": [
         "testscale"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testsem.c",
@@ -1140,7 +1237,8 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testsem"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testsensor.c",
@@ -1152,7 +1250,8 @@
       "rust_target_path": "safe/tests/upstream/testsensor.rs",
       "upstream_targets": [
         "testsensor"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testshader.c",
@@ -1164,7 +1263,8 @@
       "rust_target_path": "safe/tests/upstream/testshader.rs",
       "upstream_targets": [
         "testshader"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testshape.c",
@@ -1176,7 +1276,8 @@
       "rust_target_path": "safe/tests/upstream/testshape.rs",
       "upstream_targets": [
         "testshape"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testsprite2.c",
@@ -1188,7 +1289,8 @@
       "rust_target_path": "safe/tests/upstream/testsprite2.rs",
       "upstream_targets": [
         "testsprite2"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testspriteminimal.c",
@@ -1200,7 +1302,8 @@
       "rust_target_path": "safe/tests/upstream/testspriteminimal.rs",
       "upstream_targets": [
         "testspriteminimal"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/teststreaming.c",
@@ -1212,7 +1315,8 @@
       "rust_target_path": "safe/tests/upstream/teststreaming.rs",
       "upstream_targets": [
         "teststreaming"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testsurround.c",
@@ -1224,7 +1328,8 @@
       "rust_target_path": "safe/tests/upstream/testsurround.rs",
       "upstream_targets": [
         "testsurround"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testthread.c",
@@ -1236,7 +1341,8 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testthread"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testtimer.c",
@@ -1248,7 +1354,8 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testtimer"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testurl.c",
@@ -1260,7 +1367,8 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testurl"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testutils.c",
@@ -1290,7 +1398,8 @@
         "testspriteminimal",
         "teststreaming",
         "testviewport"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testver.c",
@@ -1302,7 +1411,8 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "testver"
-      ]
+      ],
+      "completion_state": "complete"
     },
     {
       "original_path": "original/test/testviewport.c",
@@ -1314,7 +1424,8 @@
       "rust_target_path": "safe/tests/upstream/testviewport.rs",
       "upstream_targets": [
         "testviewport"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testvulkan.c",
@@ -1326,7 +1437,8 @@
       "rust_target_path": "safe/tests/upstream/testvulkan.rs",
       "upstream_targets": [
         "testvulkan"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testwm2.c",
@@ -1338,7 +1450,8 @@
       "rust_target_path": "safe/tests/upstream/testwm2.rs",
       "upstream_targets": [
         "testwm2"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testyuv.c",
@@ -1350,7 +1463,8 @@
       "rust_target_path": "safe/tests/upstream/testyuv.rs",
       "upstream_targets": [
         "testyuv"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/testyuv_cvt.c",
@@ -1363,7 +1477,8 @@
       "upstream_targets": [
         "testoverlay2",
         "testyuv"
-      ]
+      ],
+      "completion_state": "incomplete"
     },
     {
       "original_path": "original/test/torturethread.c",
@@ -1375,364 +1490,436 @@
       "rust_target_path": "safe/tests/original_apps_core.rs",
       "upstream_targets": [
         "torturethread"
-      ]
+      ],
+      "completion_state": "complete"
     }
   ],
   "target_ownership": [
     {
       "target_name": "checkkeys",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "checkkeysthreads",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "controllermap",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "loopwave",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "loopwavequeue",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testatomic",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_02_core_runtime"
+      "owning_phase": "impl_phase_02_core_runtime",
+      "completion_state": "complete"
     },
     {
       "target_name": "testaudiocapture",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testaudiohotplug",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testaudioinfo",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testautomation",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testbounds",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testcustomcursor",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testdisplayinfo",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testdraw2",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testdrawchessboard",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testdropfile",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testerror",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_02_core_runtime"
+      "owning_phase": "impl_phase_02_core_runtime",
+      "completion_state": "complete"
     },
     {
       "target_name": "testevdev",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testfile",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testfilesystem",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_02_core_runtime"
+      "owning_phase": "impl_phase_02_core_runtime",
+      "completion_state": "complete"
     },
     {
       "target_name": "testfilesystem_pre",
       "linux_buildable": false,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testgamecontroller",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testgeometry",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testgesture",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testgl2",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testgles",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testgles2",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testgles2_sdf",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testhaptic",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testhittesting",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testhotplug",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testiconv",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_02_core_runtime"
+      "owning_phase": "impl_phase_02_core_runtime",
+      "completion_state": "complete"
     },
     {
       "target_name": "testime",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testintersections",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testjoystick",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testkeys",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testloadso",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_02_core_runtime"
+      "owning_phase": "impl_phase_02_core_runtime",
+      "completion_state": "complete"
     },
     {
       "target_name": "testlocale",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_02_core_runtime"
+      "owning_phase": "impl_phase_02_core_runtime",
+      "completion_state": "complete"
     },
     {
       "target_name": "testlock",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testmessage",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testmouse",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testmultiaudio",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testnative",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testoffscreen",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testoverlay2",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testplatform",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_02_core_runtime"
+      "owning_phase": "impl_phase_02_core_runtime",
+      "completion_state": "complete"
     },
     {
       "target_name": "testpower",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_02_core_runtime"
+      "owning_phase": "impl_phase_02_core_runtime",
+      "completion_state": "complete"
     },
     {
       "target_name": "testqsort",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_02_core_runtime"
+      "owning_phase": "impl_phase_02_core_runtime",
+      "completion_state": "complete"
     },
     {
       "target_name": "testrelative",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testrendercopyex",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testrendertarget",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testresample",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testrumble",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testscale",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testsem",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_02_core_runtime"
+      "owning_phase": "impl_phase_02_core_runtime",
+      "completion_state": "complete"
     },
     {
       "target_name": "testsensor",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testshader",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testshape",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testsprite2",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testspriteminimal",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "teststreaming",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testsurround",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testthread",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_02_core_runtime"
+      "owning_phase": "impl_phase_02_core_runtime",
+      "completion_state": "complete"
     },
     {
       "target_name": "testtimer",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_02_core_runtime"
+      "owning_phase": "impl_phase_02_core_runtime",
+      "completion_state": "complete"
     },
     {
       "target_name": "testurl",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_02_core_runtime"
+      "owning_phase": "impl_phase_02_core_runtime",
+      "completion_state": "complete"
     },
     {
       "target_name": "testver",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_02_core_runtime"
+      "owning_phase": "impl_phase_02_core_runtime",
+      "completion_state": "complete"
     },
     {
       "target_name": "testviewport",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testvulkan",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testwm2",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "testyuv",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "completion_state": "incomplete"
     },
     {
       "target_name": "torturethread",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_02_core_runtime"
+      "owning_phase": "impl_phase_02_core_runtime",
+      "completion_state": "complete"
     }
   ]
 }

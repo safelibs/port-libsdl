@@ -333,6 +333,17 @@ pub struct OriginalTestPortMap {
     pub target_ownership: Vec<TargetOwnership>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PortCompletionState {
+    Incomplete,
+    Complete,
+}
+
+fn default_port_completion_state() -> PortCompletionState {
+    PortCompletionState::Incomplete
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TestPortEntry {
     pub original_path: String,
@@ -340,6 +351,10 @@ pub struct TestPortEntry {
     pub ubuntu_buildable: bool,
     pub ubuntu_runnable: bool,
     pub owning_phase: String,
+    #[serde(default = "default_port_completion_state")]
+    pub completion_state: PortCompletionState,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub completion_note: Option<String>,
     pub rust_target_kind: String,
     pub rust_target_path: String,
     pub upstream_targets: Vec<String>,
@@ -350,6 +365,10 @@ pub struct TargetOwnership {
     pub target_name: String,
     pub linux_buildable: bool,
     pub owning_phase: String,
+    #[serde(default = "default_port_completion_state")]
+    pub completion_state: PortCompletionState,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub completion_note: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -861,6 +880,36 @@ pub fn verify_test_port_coverage(repo_root: &Path, map_path: &Path, phase: &str)
 
     if phase_entries.is_empty() && phase_targets.is_empty() {
         bail!("no test-port ownership found for phase {phase}");
+    }
+
+    let incomplete_entries = phase_entries
+        .iter()
+        .filter(|entry| entry.completion_state != PortCompletionState::Complete)
+        .map(|entry| match &entry.completion_note {
+            Some(note) => format!("{} ({note})", entry.original_path),
+            None => entry.original_path.clone(),
+        })
+        .collect::<Vec<_>>();
+    if !incomplete_entries.is_empty() {
+        bail!(
+            "phase {phase} has incomplete owned test-port entries: {:?}",
+            incomplete_entries
+        );
+    }
+
+    let incomplete_targets = phase_targets
+        .iter()
+        .filter(|target| target.completion_state != PortCompletionState::Complete)
+        .map(|target| match &target.completion_note {
+            Some(note) => format!("{} ({note})", target.target_name),
+            None => target.target_name.clone(),
+        })
+        .collect::<Vec<_>>();
+    if !incomplete_targets.is_empty() {
+        bail!(
+            "phase {phase} has incomplete owned standalone targets: {:?}",
+            incomplete_targets
+        );
     }
 
     let missing_targets = phase_entries
@@ -1623,6 +1672,36 @@ fn build_original_test_object_manifest(target_plans: &[TargetPlan]) -> OriginalT
 
 fn build_port_map(inputs: &Inputs, target_plans: &[TargetPlan]) -> Result<OriginalTestPortMap> {
     let expected_sources = upstream_test_source_files(&inputs.original_dir)?;
+    let existing_map =
+        load_original_test_port_map(&inputs.generated_dir.join("original_test_port_map.json")).ok();
+    let existing_entry_statuses = existing_map
+        .as_ref()
+        .map(|map| {
+            map.entries
+                .iter()
+                .map(|entry| {
+                    (
+                        entry.original_path.clone(),
+                        (entry.completion_state, entry.completion_note.clone()),
+                    )
+                })
+                .collect::<BTreeMap<_, _>>()
+        })
+        .unwrap_or_default();
+    let existing_target_statuses = existing_map
+        .as_ref()
+        .map(|map| {
+            map.target_ownership
+                .iter()
+                .map(|target| {
+                    (
+                        target.target_name.clone(),
+                        (target.completion_state, target.completion_note.clone()),
+                    )
+                })
+                .collect::<BTreeMap<_, _>>()
+        })
+        .unwrap_or_default();
     let mut source_to_targets: BTreeMap<String, Vec<String>> = BTreeMap::new();
     let plan_map: BTreeMap<_, _> = target_plans
         .iter()
@@ -1721,12 +1800,18 @@ fn build_port_map(inputs: &Inputs, target_plans: &[TargetPlan]) -> Result<Origin
                     format!("safe/tests/upstream/{}.rs", primary),
                 )
             };
+        let (completion_state, completion_note) = existing_entry_statuses
+            .get(source)
+            .cloned()
+            .unwrap_or((PortCompletionState::Incomplete, None));
         entries.push(TestPortEntry {
             original_path: source.clone(),
             source_kind,
             ubuntu_buildable,
             ubuntu_runnable,
             owning_phase: PHASE_ID.to_string(),
+            completion_state,
+            completion_note,
             rust_target_kind,
             rust_target_path,
             upstream_targets: targets,
@@ -1735,15 +1820,23 @@ fn build_port_map(inputs: &Inputs, target_plans: &[TargetPlan]) -> Result<Origin
 
     let target_ownership = target_plans
         .iter()
-        .map(|plan| TargetOwnership {
-            target_name: plan.name.clone(),
-            linux_buildable: plan.linux_buildable,
-            owning_phase: PHASE_ID.to_string(),
+        .map(|plan| {
+            let (completion_state, completion_note) = existing_target_statuses
+                .get(&plan.name)
+                .cloned()
+                .unwrap_or((PortCompletionState::Incomplete, None));
+            TargetOwnership {
+                target_name: plan.name.clone(),
+                linux_buildable: plan.linux_buildable,
+                owning_phase: PHASE_ID.to_string(),
+                completion_state,
+                completion_note,
+            }
         })
         .collect();
 
     Ok(OriginalTestPortMap {
-        schema_version: 1,
+        schema_version: 2,
         phase_id: PHASE_ID.to_string(),
         expected_source_file_count: 116,
         expected_target_count: 71,
