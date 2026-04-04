@@ -231,8 +231,21 @@ add_sdl_test_executable(testqsort NONINTERACTIVE testqsort.c)
 add_sdl_test_executable(testbounds testbounds.c)
 add_sdl_test_executable(testcustomcursor testcustomcursor.c)
 add_sdl_test_executable(controllermap NEEDS_RESOURCES controllermap.c testutils.c)
-add_sdl_test_executable(testvulkan testvulkan.c)
 add_sdl_test_executable(testoffscreen testoffscreen.c)
+
+find_path(SDL_TEST_PUBLIC_VULKAN_INCLUDE_DIR NAMES vulkan/vulkan.h)
+get_filename_component(SDL_TEST_PRIVATE_VULKAN_INCLUDE_DIR "${SDL2_SOURCE_DIR}/src/video/khronos" REALPATH)
+if(SDL_TEST_PUBLIC_VULKAN_INCLUDE_DIR)
+    get_filename_component(SDL_TEST_PUBLIC_VULKAN_INCLUDE_DIR_REAL "${SDL_TEST_PUBLIC_VULKAN_INCLUDE_DIR}" REALPATH)
+endif()
+
+if(SDL_TEST_PUBLIC_VULKAN_INCLUDE_DIR AND NOT SDL_TEST_PUBLIC_VULKAN_INCLUDE_DIR_REAL STREQUAL SDL_TEST_PRIVATE_VULKAN_INCLUDE_DIR)
+    file(TO_CMAKE_PATH "${SDL_TEST_PUBLIC_VULKAN_INCLUDE_DIR_REAL}/vulkan/vulkan.h" SDL_TEST_PUBLIC_VULKAN_HEADER)
+    add_sdl_test_executable(testvulkan testvulkan.c)
+    target_compile_definitions(testvulkan PRIVATE SDL_PUBLIC_VULKAN_HEADER=\"${SDL_TEST_PUBLIC_VULKAN_HEADER}\")
+else()
+    message(STATUS "Skipping testvulkan because no external public Vulkan headers were found")
+endif()
 
 cmake_push_check_state(RESET)
 

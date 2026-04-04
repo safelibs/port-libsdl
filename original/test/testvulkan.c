@@ -12,6 +12,13 @@
 #include <stdio.h>
 
 #include "SDL.h"
+
+#define VK_NO_PROTOTYPES
+#ifndef SDL_PUBLIC_VULKAN_HEADER
+#error "testvulkan requires an explicitly configured public Vulkan header"
+#endif
+#include SDL_PUBLIC_VULKAN_HEADER
+
 #include "SDL_vulkan.h"
 
 #if defined(__ANDROID__) && defined(__ARM_EABI__) && !defined(__ARM_ARCH_7A__)
@@ -20,64 +27,11 @@ int main(int argc, char *argv[])
 {
     (void)argc;
     (void)argv;
-    SDL_Log("Skipping Vulkan test on this system");
-    return 0;
+    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "No Vulkan support on this system");
+    return 1;
 }
 
 #else
-
-#if defined(_WIN32)
-#define VKAPI_CALL __stdcall
-#else
-#define VKAPI_CALL
-#endif
-#define VKAPI_PTR VKAPI_CALL *
-
-typedef Sint32 VkResult;
-typedef Uint32 VkFlags;
-typedef Uint32 VkStructureType;
-typedef struct VkAllocationCallbacks VkAllocationCallbacks;
-typedef struct VkApplicationInfo
-{
-    VkStructureType sType;
-    const void *pNext;
-    const char *pApplicationName;
-    Uint32 applicationVersion;
-    const char *pEngineName;
-    Uint32 engineVersion;
-    Uint32 apiVersion;
-} VkApplicationInfo;
-
-typedef struct VkInstanceCreateInfo
-{
-    VkStructureType sType;
-    const void *pNext;
-    VkFlags flags;
-    const VkApplicationInfo *pApplicationInfo;
-    Uint32 enabledLayerCount;
-    const char *const *ppEnabledLayerNames;
-    Uint32 enabledExtensionCount;
-    const char *const *ppEnabledExtensionNames;
-} VkInstanceCreateInfo;
-
-typedef void (*PFN_vkVoidFunction)(void);
-typedef PFN_vkVoidFunction(VKAPI_PTR PFN_vkGetInstanceProcAddr)(VkInstance instance, const char *pName);
-typedef VkResult(VKAPI_PTR PFN_vkCreateInstance)(const VkInstanceCreateInfo *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkInstance *pInstance);
-typedef void(VKAPI_PTR PFN_vkDestroyInstance)(VkInstance instance, const VkAllocationCallbacks *pAllocator);
-typedef void(VKAPI_PTR PFN_vkDestroySurfaceKHR)(VkInstance instance, VkSurfaceKHR surface, const VkAllocationCallbacks *pAllocator);
-
-#define VK_SUCCESS 0
-#define VK_STRUCTURE_TYPE_APPLICATION_INFO 0
-#define VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO 1
-#define VK_API_VERSION_1_0 ((Uint32)(1u << 22))
-#define VK_NULL_HANDLE 0
-
-static int
-skip_test(const char *message)
-{
-    SDL_Log("%s", message);
-    return 0;
-}
 
 static int
 fail_sdl(const char *operation)
@@ -93,24 +47,64 @@ fail_vk(const char *operation, VkResult result)
     return 1;
 }
 
+static int
+fail_message(const char *message)
+{
+    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", message);
+    return 1;
+}
+
+static int
+load_vulkan_loader(void **loader_handle)
+{
+#if defined(_WIN32)
+    static const char *library_names[] = { "vulkan-1.dll" };
+#elif defined(__APPLE__)
+    static const char *library_names[] = {
+        "vulkan.framework/vulkan",
+        "libvulkan.1.dylib",
+        "MoltenVK.framework/MoltenVK",
+        "libMoltenVK.dylib"
+    };
+#else
+    static const char *library_names[] = {
+        "libvulkan.so.1",
+        "libvulkan.so"
+    };
+#endif
+    int i;
+
+    *loader_handle = NULL;
+
+    for (i = 0; i < SDL_arraysize(library_names); ++i) {
+        *loader_handle = SDL_LoadObject(library_names[i]);
+        if (*loader_handle) {
+            return 0;
+        }
+    }
+
+    SDL_SetError("Could not load the public Vulkan loader library");
+    return -1;
+}
+
 int main(int argc, char *argv[])
 {
     SDL_Window *window = NULL;
     const char **extensions = NULL;
-    PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = NULL;
+    void *loader_handle = NULL;
     PFN_vkCreateInstance vkCreateInstance = NULL;
     PFN_vkDestroyInstance vkDestroyInstance = NULL;
     PFN_vkDestroySurfaceKHR vkDestroySurfaceKHR = NULL;
+    PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices = NULL;
     VkApplicationInfo appInfo;
     VkInstanceCreateInfo instanceCreateInfo;
     VkInstance instance = VK_NULL_HANDLE;
     VkSurfaceKHR surface = VK_NULL_HANDLE;
     VkResult vk_result = VK_SUCCESS;
     unsigned int extensionCount = 0;
+    Uint32 physicalDeviceCount = 0;
     int drawableW = 0;
     int drawableH = 0;
-    SDL_bool instance_created = SDL_FALSE;
-    SDL_bool surface_created = SDL_FALSE;
     int result = 1;
 
     (void)argc;
@@ -123,17 +117,12 @@ int main(int argc, char *argv[])
         return fail_sdl("SDL_Init(SDL_INIT_VIDEO)");
     }
 
-    if (SDL_Vulkan_LoadLibrary(NULL) < 0) {
-        result = skip_test("Skipping Vulkan test because no public Vulkan loader is available");
-        goto done;
-    }
-
     window = SDL_CreateWindow("SDL Vulkan Public API Test",
                               SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                               128, 128,
                               SDL_WINDOW_VULKAN | SDL_WINDOW_HIDDEN);
     if (!window) {
-        result = skip_test("Skipping Vulkan test because the active video driver cannot create Vulkan windows");
+        result = fail_sdl("SDL_CreateWindow(SDL_WINDOW_VULKAN)");
         goto done;
     }
 
@@ -142,8 +131,7 @@ int main(int argc, char *argv[])
         goto done;
     }
     if (extensionCount == 0) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_Vulkan_GetInstanceExtensions returned no extensions");
-        result = 1;
+        result = fail_message("SDL_Vulkan_GetInstanceExtensions returned no extensions");
         goto done;
     }
 
@@ -158,16 +146,15 @@ int main(int argc, char *argv[])
         goto done;
     }
 
-    vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)SDL_Vulkan_GetVkGetInstanceProcAddr();
-    if (!vkGetInstanceProcAddr) {
-        result = fail_sdl("SDL_Vulkan_GetVkGetInstanceProcAddr");
+    if (load_vulkan_loader(&loader_handle) < 0) {
+        result = fail_sdl("load_vulkan_loader");
         goto done;
     }
 
-    vkCreateInstance = (PFN_vkCreateInstance)vkGetInstanceProcAddr(VK_NULL_HANDLE, "vkCreateInstance");
-    vkDestroyInstance = (PFN_vkDestroyInstance)vkGetInstanceProcAddr(VK_NULL_HANDLE, "vkDestroyInstance");
+    vkCreateInstance = (PFN_vkCreateInstance)SDL_LoadFunction(loader_handle, "vkCreateInstance");
+    vkDestroyInstance = (PFN_vkDestroyInstance)SDL_LoadFunction(loader_handle, "vkDestroyInstance");
     if (!vkCreateInstance || !vkDestroyInstance) {
-        result = skip_test("Skipping Vulkan test because the loaded Vulkan loader is missing core entry points");
+        result = fail_message("SDL_LoadFunction failed to resolve core Vulkan entry points");
         goto done;
     }
 
@@ -186,12 +173,21 @@ int main(int argc, char *argv[])
         result = fail_vk("vkCreateInstance", vk_result);
         goto done;
     }
-    instance_created = SDL_TRUE;
 
-    vkDestroySurfaceKHR = (PFN_vkDestroySurfaceKHR)vkGetInstanceProcAddr(instance, "vkDestroySurfaceKHR");
-    if (!vkDestroySurfaceKHR) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "vkGetInstanceProcAddr(vkDestroySurfaceKHR) returned NULL");
-        result = 1;
+    vkDestroySurfaceKHR = (PFN_vkDestroySurfaceKHR)SDL_LoadFunction(loader_handle, "vkDestroySurfaceKHR");
+    vkEnumeratePhysicalDevices = (PFN_vkEnumeratePhysicalDevices)SDL_LoadFunction(loader_handle, "vkEnumeratePhysicalDevices");
+    if (!vkDestroySurfaceKHR || !vkEnumeratePhysicalDevices) {
+        result = fail_message("SDL_LoadFunction failed to resolve instance Vulkan entry points");
+        goto done;
+    }
+
+    vk_result = vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, NULL);
+    if (vk_result != VK_SUCCESS) {
+        result = fail_vk("vkEnumeratePhysicalDevices", vk_result);
+        goto done;
+    }
+    if (physicalDeviceCount == 0) {
+        result = fail_message("vkEnumeratePhysicalDevices reported no devices");
         goto done;
     }
 
@@ -199,7 +195,6 @@ int main(int argc, char *argv[])
         result = fail_sdl("SDL_Vulkan_CreateSurface");
         goto done;
     }
-    surface_created = SDL_TRUE;
 
     SDL_Vulkan_GetDrawableSize(window, &drawableW, &drawableH);
     if (drawableW <= 0 || drawableH <= 0) {
@@ -213,15 +208,18 @@ int main(int argc, char *argv[])
     result = 0;
 
 done:
-    if (surface_created && vkDestroySurfaceKHR) {
+    if (surface != VK_NULL_HANDLE && vkDestroySurfaceKHR) {
         vkDestroySurfaceKHR(instance, surface, NULL);
     }
-    if (instance_created && vkDestroyInstance) {
+    if (instance != VK_NULL_HANDLE && vkDestroyInstance) {
         vkDestroyInstance(instance, NULL);
     }
     SDL_free(extensions);
     if (window) {
         SDL_DestroyWindow(window);
+    }
+    if (loader_handle) {
+        SDL_UnloadObject(loader_handle);
     }
     SDL_Vulkan_UnloadLibrary();
     SDL_Quit();
