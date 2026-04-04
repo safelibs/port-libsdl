@@ -504,6 +504,19 @@ foreach(TESTCASE ${SDL_TESTS_NONINTERACTIVE})
     endif()
 endforeach()
 
+if(TARGET testvulkan)
+    add_test(
+        NAME testvulkan
+        COMMAND testvulkan
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
+    set_tests_properties(testvulkan
+        PROPERTIES
+            ENVIRONMENT "SDL_AUDIODRIVER=dummy"
+            TIMEOUT 20
+    )
+endif()
+
 set_tests_properties(testautomation PROPERTIES TIMEOUT 120)
 set_tests_properties(testthread PROPERTIES TIMEOUT 40)
 set_tests_properties(testtimer PROPERTIES TIMEOUT 60)
