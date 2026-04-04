@@ -1,0 +1,40 @@
+From 87dd0500217ad6be5888c04393083698dc37faa1 Mon Sep 17 00:00:00 2001
+From: Tyson Whitehead <twhitehead@gmail.com>
+Date: Thu, 4 Apr 2024 12:06:28 -0400
+Subject: [PATCH] Initialize udev before joystick manual scan so class lookup
+ works
+
+LINUX_JoystickInit does a manual scan first so devices are sorted.
+If SDL_UDEV_Init hasn't run by then, then the product info cannot
+be looked up by SDL_UDEV_GetProductInfo and the initial-plugged-
+in-device classification falls back to heuristic guessing.
+
+Origin: backport, https://github.com/twhitehead/SDL/commit/87dd0500217ad6be5888c04393083698dc37faa1
+Bug: https://github.com/libsdl-org/sdl/issues/9092/
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/libsdl2/+bug/2085140
+Last-Update: 2024-02-03
+---
+ src/joystick/linux/SDL_sysjoystick.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+--- a/src/joystick/linux/SDL_sysjoystick.c
++++ b/src/joystick/linux/SDL_sysjoystick.c
+@@ -986,6 +986,9 @@
+ static int LINUX_JoystickInit(void)
+ {
+     const char *devices = SDL_GetHint(SDL_HINT_JOYSTICK_DEVICE);
++#ifdef SDL_USE_LIBUDEV
++    int udev_status = SDL_UDEV_Init();
++#endif
+ 
+     SDL_classic_joysticks = SDL_GetHintBoolean(SDL_HINT_LINUX_JOYSTICK_CLASSIC, SDL_FALSE);
+ 
+@@ -1036,7 +1039,7 @@
+     }
+ 
+     if (enumeration_method == ENUMERATION_LIBUDEV) {
+-        if (SDL_UDEV_Init() < 0) {
++        if (udev_status < 0) {
+             return SDL_SetError("Could not initialize UDEV");
+         }
+ 

@@ -1,0 +1,7 @@
+debian/no-libdir.patch
+debian/test-Don-t-install-bundled-copy-of-unifont.patch
+
+
+ubuntu/fix-order-n-squared-device-walking-issue.patch
+ubuntu/initialize-udev-before-joystick-scan.patch
+ubuntu/avoid-opening-non-joystick-devices.patch

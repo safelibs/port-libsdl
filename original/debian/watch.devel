@@ -1,0 +1,12 @@
+version=4
+# Upstream releases official Autotools 'make dist' tarballs, so we use
+# those in preference to git tags
+opts="\
+    compression=gzip, \
+    dversionmangle=s/\+(?:git)?[0-9]*(?:\+g[0-9a-f]*)//;s/[+~](?:ds|dfsg)[0-9]*//, \
+    downloadurlmangle=s#/tag/#/download/#;s#((?:pre)?release-?@ANY_VERSION@)$#$1/SDL2-$2.tar.gz#, \
+    filenamemangle=s#(?:pre)?release-?@ANY_VERSION@#SDL2-$1.tar.gz#, \
+    pgpmode=auto, \
+    repack, \
+    repacksuffix=+dfsg" \
+https://github.com/libsdl-org/SDL/tags .*/releases/tag/(?:pre)?release-?(2\.[0-9.]+)

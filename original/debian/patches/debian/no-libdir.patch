@@ -1,0 +1,67 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Mon, 15 Aug 2022 16:47:26 +0100
+Subject: Avoid hard-coding libdir in sdl2-config
+
+This makes the -dev package multiarch co-installable, allowing compilation
+of SDL programs for more than one architecture on the same system.
+
+This is not an upstreamable change, since it relies on Debian-specific
+assumptions:
+
+* we are installing the library into a directory on the linker's default
+  search path
+* static linking is done with at least one of:
+  - $DEB_HOST_MULTIARCH set, or
+  - $PKG_CONFIG set to the host architecture pkg-config, or
+  - $CC set to a compiler for the host architecture that supports the
+    -print-multiarch argument (which Debian's gcc and older Debian
+    packages for clang do), or
+  - a native build (so the build architecture pkg-config is correct)
+
+Adapted from an earlier patch by Gianfranco Costamagna.
+
+Co-authored-by: Gianfranco Costamagna <locutusofborg@debian.org>
+Forwarded: not-needed
+Last-Update: 2023-09-18
+---
+ sdl2-config.in | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/sdl2-config.in b/sdl2-config.in
+index f6eca76..d7b7945 100644
+--- a/sdl2-config.in
++++ b/sdl2-config.in
+@@ -7,7 +7,6 @@ bindir=$(cd -P -- "$(dirname -- "$0")" && printf '%s\n' "$(pwd -P)")
+ prefix=$(cd -P -- "$bindir/@bin_prefix_relpath@" && printf '%s\n' "$(pwd -P)")
+ exec_prefix=@exec_prefix@
+ exec_prefix_set=no
+-libdir=@libdir@
+ 
+ @ENABLE_STATIC_FALSE@usage="\
+ @ENABLE_STATIC_FALSE@Usage: $0 [--prefix[=DIR]] [--exec-prefix[=DIR]] [--version] [--cflags] [--libs]"
+@@ -49,12 +48,23 @@ while test $# -gt 0; do
+       echo -I@includedir@/SDL2 @SDL_CFLAGS@
+       ;;
+ @ENABLE_SHARED_TRUE@    --libs)
+-@ENABLE_SHARED_TRUE@      echo -L@libdir@ @SDL_RLD_FLAGS@ @SDL_LIBS@
++@ENABLE_SHARED_TRUE@      echo @SDL_RLD_FLAGS@ @SDL_LIBS@
+ @ENABLE_SHARED_TRUE@      ;;
+ @ENABLE_STATIC_TRUE@@ENABLE_SHARED_TRUE@    --static-libs)
+ @ENABLE_STATIC_TRUE@@ENABLE_SHARED_FALSE@    --libs|--static-libs)
++@ENABLE_STATIC_TRUE@      if [ -n "${DEB_HOST_MULTIARCH-}" ]; then
++@ENABLE_STATIC_TRUE@          libdir="/usr/lib/$DEB_HOST_MULTIARCH"
++@ENABLE_STATIC_TRUE@      elif [ -n "${PKG_CONFIG}" ]; then
++@ENABLE_STATIC_TRUE@          libdir="$("$PKG_CONFIG" --variable=libdir sdl2)"
++@ENABLE_STATIC_TRUE@      elif [ -n "$CC" ] && multiarch=$("$CC" -print-multiarch); then
++@ENABLE_STATIC_TRUE@          # Assume CC is set to a suitable gcc or clang version
++@ENABLE_STATIC_TRUE@          libdir="/usr/lib/$multiarch"
++@ENABLE_STATIC_TRUE@      else
++@ENABLE_STATIC_TRUE@          # Assume not cross-compiling
++@ENABLE_STATIC_TRUE@          libdir="$(pkg-config --variable=libdir sdl2)"
++@ENABLE_STATIC_TRUE@      fi
+ @ENABLE_STATIC_TRUE@      sdl_static_libs=$(echo "@SDL_LIBS@ @SDL_STATIC_LIBS@" | sed -E "s#-lSDL2[ $]#$libdir/libSDL2.a #g")
+-@ENABLE_STATIC_TRUE@      echo -L@libdir@ $sdl_static_libs
++@ENABLE_STATIC_TRUE@      echo $sdl_static_libs
+ @ENABLE_STATIC_TRUE@      ;;
+     *)
+       echo "${usage}" 1>&2

@@ -1,0 +1,9 @@
+debian/build-tests/
+docs/SDL.tag
+docs/doxygen_warn.txt
+include/SDL_config.h
+include/SDL_revision.h
+sdl2-config-version.cmake
+sdl2-config.cmake
+sdl2.pc
+tests-failed

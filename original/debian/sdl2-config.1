@@ -1,0 +1,132 @@
+.TH sdl2-config 1 "2024-01-10" "SDL 2.0"
+.SH NAME
+sdl2-config \- script to get information about the installed version of SDL
+.SH SYNOPSIS
+.B sdl2-config
+[\fB--prefix\fR[\fB=\fIDIR\fR]]
+[\fB--exec-prefix\fR[\fB=\fIDIR\fR]]
+[\fB--version\fR]
+[\fB--cflags\fR]
+[\fB--libs\fR]
+[\fB--static-libs\fR]
+.SH DESCRIPTION
+.B sdl2-config
+is a tool that is used to configure and determine the compiler and linker
+flags that should be used to compile and link programs, libraries, and
+plugins that use SDL.  It is also used internally by the m4 macros that are
+included with SDL.
+.P
+In new code, consider using
+.BR pkg-config (1)
+or
+.BR pkgconf (1)
+instead of
+.B sdl2-config.
+To support cross-compiling, if the environment variable
+.B PKG_CONFIG
+is set, its value should be used instead of the literal name
+.B pkg-config
+or
+.BR pkgconf .
+.P
+In Autotools build systems, the preferred way to detect SDL is with the
+.B "PKG_CHECK_MODULES([SDL], [sdl2])"
+macro invocation from
+.BR pkg.m4 (7).
+.P
+In Meson build systems, the preferred way to detect SDL is with Meson's
+usual
+.B dependency('sdl2')
+function call.
+.P
+In CMake build systems, the preferred way to detect SDL is to use
+.B "find_package(SDL2 CONFIG)"
+and optionally
+.BR "find_package(SDL2 CONFIG COMPONENTS SDL2main)" ,
+then link to
+.B SDL2::SDL2
+and optionally
+.BR SDL2::SDL2main .
+.SH OPTIONS
+.TP
+.B --cflags
+Print the compiler flags that are necessary to compile a program or library
+that uses SDL.
+.IP
+The pkg-config equivalent is
+.BR "${PKG_CONFIG:-pkg-config} --cflags sdl2" .
+.TP
+.BI --exec-prefix\fR[=\fIDIR\fR]
+If \fIDIR\fR is not specified, print the exec prefix of the current SDL
+installation.
+The pkg-config equivalent is
+.BR "${PKG_CONFIG:-pkg-config} --variable=exec_prefix sdl2" .
+.IP
+If \fIDIR\fR is specified, use it instead of the installation exec prefix that
+SDL was built with when computing the output for the --cflags, --libs and
+--static-libs options.  This option must be specified before any of the options
+--cflags, --libs and --static-libs.
+The pkg-config equivalent is
+.B ${PKG_CONFIG:-pkg-config}
+.BI --define-variable=exec_prefix= DIR
+.BR "" [ --cflags | --libs "|...]"
+.BR sdl2 .
+.TP
+.B --libs
+Print the linker flags that are necessary to link a program that uses SDL.
+.IP
+The pkg-config equivalent is
+.BR "${PKG_CONFIG:-pkg-config} --libs sdl2" .
+.TP
+.B --static-libs
+Print the linker flags that are necessary to statically link a program that uses SDL.
+.IP
+The pkg-config equivalent is
+.BR "${PKG_CONFIG:-pkg-config} --static --libs sdl2" .
+.TP
+.BI --prefix\fR[=\fIDIR\fR]
+If \fIDIR\fR is not specified, print the prefix of the current SDL installation.
+The pkg-config equivalent is
+.BR "${PKG_CONFIG:-pkg-config} --variable=prefix sdl2" .
+.IP
+If \fIDIR\fR is specified, use it instead of the installation prefix that SDL
+was built with when computing the output for the --cflags, --libs and
+--static-libs options.  This option is also used for the exec prefix if
+--exec-prefix was not specified.  This option must be specified before any of
+the options --cflags, --libs and --static-libs.
+The pkg-config equivalent is
+.B ${PKG_CONFIG:-pkg-config}
+.BI --define-variable=prefix= DIR
+.BR "" [ --cflags | --libs "|...]"
+.BR sdl2 .
+.TP
+.B --version
+Prints the currently installed version of SDL on standard output.
+The pkg-config equivalent is
+.B ${PKG_CONFIG:-pkg-config} --modversion
+.BR sdl2 .
+.SH EXAMPLES
+.TP
+gcc -o main.o $(sdl2-config --cflags) main.c
+is how you might use
+.B sdl2-config
+to compile a C source file for an executable program.
+.TP
+gcc -o my_app $(sdl2-config --libs) main.o util.o
+is how you might use
+.B sdl2-config
+to link compiled objects into an executable program.
+.SH SEE ALSO
+.BR pkgconf (1),
+.BR pkg-config (1),
+.BR pc (5),
+.BR pkg.m4 (7)
+.SH AUTHOR
+The Simple DirectMedia Layer (SDL) library was written by Sam Lantinga.
+.PP
+This manual page was written by Branden Robinson, originally for Progeny
+Linux Systems, Inc., and the Debian Project.
+.br
+Updated in 2013 by Manuel A. Fernandez Montecelo <mafm@debian.org>.
+.br
+Updated in 2024 by Simon McVittie.
