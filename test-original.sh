@@ -194,7 +194,9 @@ install_runtime_packages() {
   fi
   selection_matches scummvm "ScummVM" && packages+=(scummvm)
   selection_matches scrcpy "scrcpy" && packages+=(scrcpy)
+  selection_matches supertuxkart "SuperTuxKart" && packages+=(supertuxkart)
   selection_matches tuxpaint "Tux Paint" && packages+=(tuxpaint)
+  selection_matches 0ad "0 A.D." && packages+=(0ad)
 
   if ((${#packages[@]})); then
     apt_install "${packages[@]}"
@@ -209,64 +211,6 @@ install_runtime_packages() {
     fi
     apt_install love
   fi
-}
-
-build_dummy_package() {
-  local package_name="$1"
-  local version="$2"
-  local staging_root="/tmp/dummy-${package_name}"
-  local output="/tmp/${package_name}_${version}_all.deb"
-
-  rm -rf "$staging_root"
-  mkdir -p "$staging_root/DEBIAN"
-  cat >"$staging_root/DEBIAN/control" <<EOF
-Package: ${package_name}
-Version: ${version}
-Section: misc
-Priority: optional
-Architecture: all
-Maintainer: SDL smoke tests <noreply@example.com>
-Description: Minimal dummy asset package for SDL dependent smoke tests.
-EOF
-
-  dpkg-deb --build "$staging_root" "$output" >/dev/null
-  printf '%s\n' "$output"
-}
-
-install_heavy_packages_without_assets() {
-  local need_0ad=0
-  local need_supertuxkart=0
-
-  selection_matches 0ad "0 A.D." && need_0ad=1
-  selection_matches supertuxkart "SuperTuxKart" && need_supertuxkart=1
-
-  if [[ "$need_0ad" != "1" && "$need_supertuxkart" != "1" ]]; then
-    return 0
-  fi
-
-  log_step "Installing heavy dependents with dummy asset packages"
-
-  local dummy_packages=()
-  local runtime_packages=()
-
-  if [[ "$need_0ad" == "1" ]]; then
-    dummy_packages+=(
-      "$(build_dummy_package 0ad-data 0.0.26)"
-      "$(build_dummy_package 0ad-data-common 0.0.26)"
-    )
-    runtime_packages+=(0ad)
-  fi
-
-  if [[ "$need_supertuxkart" == "1" ]]; then
-    dummy_packages+=(
-      "$(build_dummy_package supertuxkart-data 1.4+dfsg-3ubuntu1)"
-    )
-    runtime_packages+=(supertuxkart)
-  fi
-
-  apt_install "${dummy_packages[@]}"
-  apt-mark hold 0ad-data 0ad-data-common supertuxkart-data >/dev/null 2>&1 || true
-  apt_install "${runtime_packages[@]}"
 }
 
 build_original_sdl() {
@@ -426,18 +370,32 @@ run_window_smoke() {
   "$@" >"$logfile" 2>&1 &
   local pid=$!
   local found=0
+  local baseline_window_count=0
 
-  for _ in $(seq 1 80); do
+  if [[ "$window_pattern" == "*" ]]; then
+    baseline_window_count="$(xwininfo -root -tree 2>/dev/null | awk '/^[[:space:]]+0x[0-9a-f]+ / {count++} END {print count + 0}')"
+  fi
+
+  for _ in $(seq 1 160); do
     if ! kill -0 "$pid" >/dev/null 2>&1; then
       cat "$logfile" >&2 || true
       die "$slug exited before creating a window"
     fi
 
-    if xdotool search --onlyvisible --name "$window_pattern" >/tmp/${slug}-windows.log 2>/dev/null \
-      || xwininfo -root -tree 2>/dev/null | grep -F "\"$window_pattern\"" >/tmp/${slug}-windows.log
-    then
-      found=1
-      break
+    if [[ "$window_pattern" == "*" ]]; then
+      local current_window_count
+      current_window_count="$(xwininfo -root -tree 2>/dev/null | awk '/^[[:space:]]+0x[0-9a-f]+ / {count++} END {print count + 0}')"
+      if (( current_window_count > baseline_window_count )); then
+        found=1
+        break
+      fi
+    else
+      if xdotool search --onlyvisible --name "$window_pattern" >/tmp/${slug}-windows.log 2>/dev/null \
+        || xwininfo -root -tree 2>/dev/null | grep -E "\"${window_pattern}\"" >/tmp/${slug}-windows.log
+      then
+        found=1
+        break
+      fi
     fi
     sleep 0.25
   done
@@ -483,8 +441,356 @@ test_scrcpy() {
   [[ -n "$scrcpy_elf" ]] || die "failed to locate scrcpy ELF binary"
   assert_uses_original_sdl "$scrcpy_elf"
 
-  scrcpy --version >/tmp/scrcpy.log 2>&1
-  require_contains /tmp/scrcpy.log "scrcpy "
+  # The packaged scrcpy binary cannot reach its SDL viewer path without an
+  # attached Android device, so build a narrow smoke probe around scrcpy's
+  # actual SDL OTG frontend implementation instead.
+  rm -rf /tmp/scrcpy-source /tmp/scrcpy-probe
+  mkdir -p /tmp/scrcpy-source /tmp/scrcpy-probe/util
+  if ! (
+    cd /tmp/scrcpy-source
+    apt-get source scrcpy >/tmp/scrcpy-source.log 2>&1
+  ); then
+    cat /tmp/scrcpy-source.log >&2 || true
+    die "failed to fetch scrcpy source package"
+  fi
+
+  local scrcpy_src
+  scrcpy_src="$(find /tmp/scrcpy-source -mindepth 1 -maxdepth 1 -type d -name 'scrcpy-[0-9]*' | head -n1)"
+  [[ -n "$scrcpy_src" ]] || die "failed to locate scrcpy source tree"
+
+  cp "$scrcpy_src/app/src/usb/screen_otg.c" /tmp/scrcpy-probe/screen_otg.c
+  cp "$scrcpy_src/app/src/usb/screen_otg.h" /tmp/scrcpy-probe/screen_otg.h
+
+  cat >/tmp/scrcpy-probe/common.h <<'EOF'
+#ifndef SC_COMMON_H
+#define SC_COMMON_H
+
+#include <assert.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#define ARRAY_LEN(a) (sizeof(a) / sizeof((a)[0]))
+#define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
+#define MAX(X,Y) ((X) > (Y) ? (X) : (Y))
+#define CLAMP(V,X,Y) MIN(MAX((V), (X)), (Y))
+#define container_of(ptr, type, member) \
+    ((type *) (((char *) (ptr)) - offsetof(type, member)))
+
+#endif
+EOF
+
+  cat >/tmp/scrcpy-probe/options.h <<'EOF'
+#ifndef SCRCPY_OPTIONS_H
+#define SCRCPY_OPTIONS_H
+
+enum sc_log_level {
+    SC_LOG_LEVEL_VERBOSE,
+    SC_LOG_LEVEL_DEBUG,
+    SC_LOG_LEVEL_INFO,
+    SC_LOG_LEVEL_WARN,
+    SC_LOG_LEVEL_ERROR,
+};
+
+#define SC_WINDOW_POSITION_UNDEFINED (-0x8000)
+
+#endif
+EOF
+
+  cat >/tmp/scrcpy-probe/input_events.h <<'EOF'
+#ifndef SC_INPUT_EVENTS_H
+#define SC_INPUT_EVENTS_H
+
+#include "common.h"
+
+#include <SDL2/SDL_events.h>
+
+enum sc_action {
+    SC_ACTION_DOWN,
+    SC_ACTION_UP,
+};
+
+enum sc_keycode {
+    SC_KEYCODE_UNKNOWN = SDLK_UNKNOWN,
+};
+
+enum sc_scancode {
+    SC_SCANCODE_UNKNOWN = SDL_SCANCODE_UNKNOWN,
+};
+
+enum sc_mouse_button {
+    SC_MOUSE_BUTTON_UNKNOWN = 0,
+    SC_MOUSE_BUTTON_LEFT = SDL_BUTTON(SDL_BUTTON_LEFT),
+    SC_MOUSE_BUTTON_RIGHT = SDL_BUTTON(SDL_BUTTON_RIGHT),
+    SC_MOUSE_BUTTON_MIDDLE = SDL_BUTTON(SDL_BUTTON_MIDDLE),
+    SC_MOUSE_BUTTON_X1 = SDL_BUTTON(SDL_BUTTON_X1),
+    SC_MOUSE_BUTTON_X2 = SDL_BUTTON(SDL_BUTTON_X2),
+};
+
+struct sc_position {
+    int unused;
+};
+
+struct sc_key_event {
+    enum sc_action action;
+    enum sc_keycode keycode;
+    enum sc_scancode scancode;
+    uint16_t mods_state;
+    bool repeat;
+};
+
+struct sc_text_event {
+    const char *text;
+};
+
+struct sc_mouse_click_event {
+    struct sc_position position;
+    enum sc_action action;
+    enum sc_mouse_button button;
+    uint64_t pointer_id;
+    uint8_t buttons_state;
+};
+
+struct sc_mouse_scroll_event {
+    struct sc_position position;
+    float hscroll;
+    float vscroll;
+    uint8_t buttons_state;
+};
+
+struct sc_mouse_motion_event {
+    struct sc_position position;
+    uint64_t pointer_id;
+    int32_t xrel;
+    int32_t yrel;
+    uint8_t buttons_state;
+};
+
+struct sc_touch_event {
+    struct sc_position position;
+    int unused;
+};
+
+#define SC_SEQUENCE_INVALID 0
+
+static inline uint16_t
+sc_mods_state_from_sdl(uint16_t mods_state) {
+    return mods_state;
+}
+
+static inline enum sc_keycode
+sc_keycode_from_sdl(SDL_Keycode keycode) {
+    (void) keycode;
+    return SC_KEYCODE_UNKNOWN;
+}
+
+static inline enum sc_scancode
+sc_scancode_from_sdl(SDL_Scancode scancode) {
+    (void) scancode;
+    return SC_SCANCODE_UNKNOWN;
+}
+
+static inline enum sc_action
+sc_action_from_sdl_keyboard_type(uint32_t type) {
+    return type == SDL_KEYDOWN ? SC_ACTION_DOWN : SC_ACTION_UP;
+}
+
+static inline enum sc_action
+sc_action_from_sdl_mousebutton_type(uint32_t type) {
+    return type == SDL_MOUSEBUTTONDOWN ? SC_ACTION_DOWN : SC_ACTION_UP;
+}
+
+static inline enum sc_mouse_button
+sc_mouse_button_from_sdl(uint8_t button) {
+    if (button >= SDL_BUTTON_LEFT && button <= SDL_BUTTON_X2) {
+        return SDL_BUTTON(button);
+    }
+    return SC_MOUSE_BUTTON_UNKNOWN;
+}
+
+static inline uint8_t
+sc_mouse_buttons_state_from_sdl(uint32_t buttons_state,
+                                bool forward_all_clicks) {
+    uint8_t mask = SC_MOUSE_BUTTON_LEFT;
+    if (forward_all_clicks) {
+        mask |= SC_MOUSE_BUTTON_RIGHT
+              | SC_MOUSE_BUTTON_MIDDLE
+              | SC_MOUSE_BUTTON_X1
+              | SC_MOUSE_BUTTON_X2;
+    }
+    return buttons_state & mask;
+}
+
+#endif
+EOF
+
+  cat >/tmp/scrcpy-probe/hid_keyboard.h <<'EOF'
+#ifndef SC_HID_KEYBOARD_H
+#define SC_HID_KEYBOARD_H
+
+#include "common.h"
+#include "input_events.h"
+
+struct sc_key_processor;
+
+struct sc_key_processor_ops {
+    void (*process_key)(struct sc_key_processor *kp,
+                        const struct sc_key_event *event,
+                        uint64_t ack_to_wait);
+    void (*process_text)(struct sc_key_processor *kp,
+                         const struct sc_text_event *event);
+};
+
+struct sc_key_processor {
+    bool async_paste;
+    const struct sc_key_processor_ops *ops;
+};
+
+struct sc_hid_keyboard {
+    struct sc_key_processor key_processor;
+};
+
+#endif
+EOF
+
+  cat >/tmp/scrcpy-probe/hid_mouse.h <<'EOF'
+#ifndef SC_HID_MOUSE_H
+#define SC_HID_MOUSE_H
+
+#include "common.h"
+#include "input_events.h"
+
+struct sc_mouse_processor;
+
+struct sc_mouse_processor_ops {
+    void (*process_mouse_motion)(struct sc_mouse_processor *mp,
+                                 const struct sc_mouse_motion_event *event);
+    void (*process_mouse_click)(struct sc_mouse_processor *mp,
+                                const struct sc_mouse_click_event *event);
+    void (*process_mouse_scroll)(struct sc_mouse_processor *mp,
+                                 const struct sc_mouse_scroll_event *event);
+    void (*process_touch)(struct sc_mouse_processor *mp,
+                          const struct sc_touch_event *event);
+};
+
+struct sc_mouse_processor {
+    const struct sc_mouse_processor_ops *ops;
+    bool relative_mode;
+};
+
+struct sc_hid_mouse {
+    struct sc_mouse_processor mouse_processor;
+};
+
+#endif
+EOF
+
+  cat >/tmp/scrcpy-probe/icon.h <<'EOF'
+#ifndef SC_ICON_H
+#define SC_ICON_H
+
+#include <SDL2/SDL.h>
+
+SDL_Surface *scrcpy_icon_load(void);
+void scrcpy_icon_destroy(SDL_Surface *icon);
+
+#endif
+EOF
+
+  cat >/tmp/scrcpy-probe/util/log.h <<'EOF'
+#ifndef SC_LOG_H
+#define SC_LOG_H
+
+#include <SDL2/SDL_log.h>
+
+#define LOGV(...) SDL_LogVerbose(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__)
+#define LOGD(...) SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__)
+#define LOGI(...) SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__)
+#define LOGW(...) SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__)
+#define LOGE(...) SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, __VA_ARGS__)
+#define LOG_OOM() LOGE("OOM: %s:%d %s()", __FILE__, __LINE__, __func__)
+
+#endif
+EOF
+
+  cat >/tmp/scrcpy-probe/icon.c <<'EOF'
+#include "icon.h"
+
+SDL_Surface *
+scrcpy_icon_load(void) {
+    SDL_Surface *surface =
+        SDL_CreateRGBSurfaceWithFormat(0, 16, 16, 32, SDL_PIXELFORMAT_RGBA32);
+    if (!surface) {
+        return NULL;
+    }
+
+    SDL_FillRect(surface, NULL,
+                 SDL_MapRGBA(surface->format, 0x2d, 0x96, 0xf0, 0xff));
+    return surface;
+}
+
+void
+scrcpy_icon_destroy(SDL_Surface *icon) {
+    SDL_FreeSurface(icon);
+}
+EOF
+
+  cat >/tmp/scrcpy-probe/main.c <<'EOF'
+#include "screen_otg.h"
+#include "options.h"
+
+#include <SDL2/SDL.h>
+
+int
+main(void) {
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        SDL_Log("SDL_Init failed: %s", SDL_GetError());
+        return 1;
+    }
+
+    struct sc_screen_otg screen;
+    struct sc_screen_otg_params params = {
+        .keyboard = NULL,
+        .mouse = NULL,
+        .window_title = "scrcpy SDL frontend smoke",
+        .always_on_top = false,
+        .window_x = SC_WINDOW_POSITION_UNDEFINED,
+        .window_y = SC_WINDOW_POSITION_UNDEFINED,
+        .window_width = 320,
+        .window_height = 240,
+        .window_borderless = false,
+    };
+
+    if (!sc_screen_otg_init(&screen, &params)) {
+        SDL_Quit();
+        return 1;
+    }
+
+    SDL_Event event;
+    SDL_zero(event);
+    event.type = SDL_WINDOWEVENT;
+    event.window.event = SDL_WINDOWEVENT_EXPOSED;
+    sc_screen_otg_handle_event(&screen, &event);
+    SDL_Delay(1000);
+
+    sc_screen_otg_destroy(&screen);
+    SDL_Quit();
+    return 0;
+}
+EOF
+
+  cc -std=c11 -Wall -Wextra -o /tmp/scrcpy-probe/scrcpy-screen-otg-smoke \
+    /tmp/scrcpy-probe/main.c \
+    /tmp/scrcpy-probe/screen_otg.c \
+    /tmp/scrcpy-probe/icon.c \
+    -I/tmp/scrcpy-probe \
+    $(pkg-config --cflags --libs sdl2)
+
+  assert_uses_original_sdl /tmp/scrcpy-probe/scrcpy-screen-otg-smoke
+
+  start_xvfb
+  run_window_smoke scrcpy 'scrcpy SDL frontend smoke' \
+    /tmp/scrcpy-probe/scrcpy-screen-otg-smoke
 }
 
 test_love() {
@@ -593,11 +899,12 @@ test_supertuxkart() {
   [[ -n "$supertuxkart_bin" ]] || die "failed to locate supertuxkart binary"
   assert_uses_original_sdl "$supertuxkart_bin"
 
-  "$supertuxkart_bin" --help >/tmp/supertuxkart.log 2>&1
-  if ! grep -E 'SuperTuxKart|supertuxkart' /tmp/supertuxkart.log >/dev/null 2>&1; then
-    cat /tmp/supertuxkart.log >&2
-    die "supertuxkart help output did not contain an expected identifier"
-  fi
+  start_xvfb
+  run_window_smoke supertuxkart 'SuperTuxKart' \
+    "$supertuxkart_bin" \
+      --windowed \
+      --screensize=800x600 \
+      --no-sound
 }
 
 test_tuxpaint() {
@@ -645,16 +952,14 @@ test_0ad() {
   [[ -n "$pyrogenesis_bin" ]] || die "failed to locate pyrogenesis binary"
   assert_uses_original_sdl "$pyrogenesis_bin"
 
-  if ! run_as_test_user "$pyrogenesis_bin" --version >/tmp/0ad.log 2>&1; then
-    if ! run_as_test_user "$pyrogenesis_bin" -version >/tmp/0ad.log 2>&1; then
-      run_as_test_user "$pyrogenesis_bin" -help >/tmp/0ad.log 2>&1 || true
-    fi
-  fi
-
-  if ! grep -Ei '0 A\.D\.|pyrogenesis|Usage' /tmp/0ad.log >/dev/null 2>&1; then
-    cat /tmp/0ad.log >&2
-    die "0ad probe output did not contain an expected identifier"
-  fi
+  start_xvfb
+  run_window_smoke 0ad '*' \
+    run_as_test_user \
+      "$pyrogenesis_bin" \
+      -quickstart \
+      -nosound \
+      -xres=1024 \
+      -yres=768
 }
 
 test_imgui() {
@@ -770,7 +1075,6 @@ run_case() {
 validate_dependents_inventory
 setup_test_user
 install_runtime_packages
-install_heavy_packages_without_assets
 build_original_sdl
 
 run_case qemu "QEMU system GUI modules" test_qemu
