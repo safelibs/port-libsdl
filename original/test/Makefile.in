@@ -13,11 +13,12 @@ datadir = @datadir@
 
 CC      = @CC@
 EXE	= @EXE@
+CPPFLAGS = @CPPFLAGS@
 CFLAGS  = @CFLAGS@ -g
 LIBS	= @LIBS@
 TESTEVDEV_LDFLAGS = -Wl,--wrap=open -Wl,--wrap=close -Wl,--wrap=read -Wl,--wrap=ioctl
 
-HAVE_PUBLIC_VULKAN_HEADER := $(shell printf '%s\n' '#include <vulkan/vulkan.h>' | $(CC) $(CFLAGS) -E -x c - >/dev/null 2>&1 && echo yes)
+HAVE_PUBLIC_VULKAN_HEADER := $(shell printf '%s\n' '#include <vulkan/vulkan.h>' | $(CC) $(CPPFLAGS) -E -x c - >/dev/null 2>&1 && echo yes)
 TESTVULKAN_TARGET =
 TESTVULKAN_CFLAGS =
 ifeq ($(HAVE_PUBLIC_VULKAN_HEADER),yes)
@@ -380,7 +381,7 @@ controllermap$(EXE): $(srcdir)/controllermap.c $(srcdir)/testutils.c
 
 ifeq ($(HAVE_PUBLIC_VULKAN_HEADER),yes)
 testvulkan$(EXE): $(srcdir)/testvulkan.c
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) $(TESTVULKAN_CFLAGS)
+	$(CC) -o $@ $^ $(CPPFLAGS) $(CFLAGS) $(LIBS) $(TESTVULKAN_CFLAGS)
 endif
 
 testlocale$(EXE): $(srcdir)/testlocale.c
