@@ -54,7 +54,9 @@ pub struct RunOriginalStandaloneArgs {
 pub fn compile_original_test_objects(args: CompileOriginalTestObjectsArgs) -> Result<()> {
     let generated_dir = absolutize(&args.repo_root, &args.generated_dir);
     let output_dir = absolutize(&args.repo_root, &args.output_dir);
-    let manifest = load_original_test_object_manifest(&generated_dir.join("original_test_object_manifest.json"))?;
+    let manifest = load_original_test_object_manifest(
+        &generated_dir.join("original_test_object_manifest.json"),
+    )?;
 
     if output_dir.exists() {
         fs::remove_dir_all(&output_dir)?;
@@ -63,7 +65,10 @@ pub fn compile_original_test_objects(args: CompileOriginalTestObjectsArgs) -> Re
 
     let include_temp = tempdir().context("create generated include tempdir")?;
     let generated_include_dir = include_temp.path();
-    fs::write(generated_include_dir.join("SDL_config.h"), generate_real_sdl_config())?;
+    fs::write(
+        generated_include_dir.join("SDL_config.h"),
+        generate_real_sdl_config(),
+    )?;
     fs::write(
         generated_include_dir.join("SDL_revision.h"),
         generate_sdl_revision_header(),
@@ -122,14 +127,20 @@ pub fn relink_original_test_objects(args: RelinkOriginalTestObjectsArgs) -> Resu
     let stage_libdir = library_path
         .parent()
         .ok_or_else(|| anyhow!("library path {} has no parent", library_path.display()))?;
-    let manifest = load_original_test_object_manifest(&generated_dir.join("original_test_object_manifest.json"))?;
+    let manifest = load_original_test_object_manifest(
+        &generated_dir.join("original_test_object_manifest.json"),
+    )?;
 
     if output_dir.exists() {
         fs::remove_dir_all(&output_dir)?;
     }
     fs::create_dir_all(&output_dir)?;
 
-    for target in manifest.targets.iter().filter(|target| target.ubuntu_24_04_enabled) {
+    for target in manifest
+        .targets
+        .iter()
+        .filter(|target| target.ubuntu_24_04_enabled)
+    {
         let output_path = output_dir.join(&target.output_name);
         let mut cmd = Command::new("cc");
         cmd.current_dir(&args.repo_root).arg("-o").arg(&output_path);
@@ -173,9 +184,14 @@ pub fn relink_original_test_objects(args: RelinkOriginalTestObjectsArgs) -> Resu
 pub fn run_relinked_original_tests(args: RunRelinkedOriginalTestsArgs) -> Result<()> {
     let generated_dir = absolutize(&args.repo_root, &args.generated_dir);
     let bin_dir = absolutize(&args.repo_root, &args.bin_dir);
-    let standalone = load_standalone_test_manifest(&generated_dir.join("standalone_test_manifest.json"))?;
+    let standalone =
+        load_standalone_test_manifest(&generated_dir.join("standalone_test_manifest.json"))?;
 
-    for target in standalone.targets.iter().filter(|target| target.ci_validation_mode == "auto_run") {
+    for target in standalone
+        .targets
+        .iter()
+        .filter(|target| target.ci_validation_mode == "auto_run")
+    {
         if let Some(filter) = &args.filter {
             if &target.target_name != filter {
                 continue;
@@ -201,8 +217,9 @@ pub fn build_original_standalone(args: BuildOriginalStandaloneArgs) -> Result<()
     let build_dir = absolutize(&args.repo_root, &args.build_dir);
     let standalone_manifest =
         load_standalone_test_manifest(&absolutize(&args.repo_root, &args.standalone_manifest))?;
-    let object_manifest =
-        load_original_test_object_manifest(&generated_dir.join("original_test_object_manifest.json"))?;
+    let object_manifest = load_original_test_object_manifest(
+        &generated_dir.join("original_test_object_manifest.json"),
+    )?;
     let port_map = load_original_test_port_map(&generated_dir.join("original_test_port_map.json"))?;
 
     let owned_targets = port_map
@@ -212,7 +229,10 @@ pub fn build_original_standalone(args: BuildOriginalStandaloneArgs) -> Result<()
         .map(|entry| entry.target_name.clone())
         .collect::<BTreeSet<_>>();
     if owned_targets.is_empty() {
-        bail!("phase {} owns no Linux-buildable standalone targets", args.phase);
+        bail!(
+            "phase {} owns no Linux-buildable standalone targets",
+            args.phase
+        );
     }
 
     let selected_targets = object_manifest
@@ -221,10 +241,9 @@ pub fn build_original_standalone(args: BuildOriginalStandaloneArgs) -> Result<()
         .filter(|target| {
             target.ubuntu_24_04_enabled
                 && owned_targets.contains(&target.target_name)
-                && standalone_manifest
-                    .targets
-                    .iter()
-                    .any(|standalone| standalone.target_name == target.target_name && standalone.linux_buildable)
+                && standalone_manifest.targets.iter().any(|standalone| {
+                    standalone.target_name == target.target_name && standalone.linux_buildable
+                })
         })
         .collect::<Vec<_>>();
     if selected_targets.is_empty() {
@@ -383,8 +402,7 @@ pub fn run_original_standalone(args: RunOriginalStandaloneArgs) -> Result<()> {
         }
 
         let mut cmd = Command::new(&executable);
-        cmd.current_dir(&build_dir)
-            .env("SDL_TESTS_QUICK", "1");
+        cmd.current_dir(&build_dir).env("SDL_TESTS_QUICK", "1");
         for (key, value) in &target.checker_runner_contract.environment {
             cmd.env(key, value);
         }
@@ -399,7 +417,11 @@ pub fn run_original_standalone(args: RunOriginalStandaloneArgs) -> Result<()> {
     Ok(())
 }
 
-fn resolve_token(value: &str, generated_include_dir: &Path, stage_libdir: Option<&Path>) -> Result<String> {
+fn resolve_token(
+    value: &str,
+    generated_include_dir: &Path,
+    stage_libdir: Option<&Path>,
+) -> Result<String> {
     match value {
         "$GENERATED_INCLUDE_DIR" => Ok(generated_include_dir.display().to_string()),
         "$STAGE_LIBDIR" => Ok(stage_libdir

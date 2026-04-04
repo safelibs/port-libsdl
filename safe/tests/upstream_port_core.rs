@@ -7,9 +7,9 @@ use std::sync::atomic::{AtomicU32, Ordering};
 
 use safe_sdl::abi::generated_types::{
     SDL_HintPriority_SDL_HINT_DEFAULT, SDL_HintPriority_SDL_HINT_OVERRIDE,
-    SDL_INIT_EVENTS, SDL_INIT_TIMER, SDL_INIT_VIDEO, SDL_LogCategory_SDL_LOG_CATEGORY_APPLICATION,
-    SDL_LogPriority, SDL_LogPriority_SDL_LOG_PRIORITY_DEBUG,
-    SDL_LogPriority_SDL_LOG_PRIORITY_INFO, SDL_LogPriority_SDL_LOG_PRIORITY_WARN,
+    SDL_LogCategory_SDL_LOG_CATEGORY_APPLICATION, SDL_LogPriority,
+    SDL_LogPriority_SDL_LOG_PRIORITY_DEBUG, SDL_LogPriority_SDL_LOG_PRIORITY_INFO,
+    SDL_LogPriority_SDL_LOG_PRIORITY_WARN, SDL_INIT_EVENTS, SDL_INIT_TIMER, SDL_INIT_VIDEO,
 };
 use safe_sdl::core::assert::{SDL_GetAssertionReport, SDL_ResetAssertionReport};
 use safe_sdl::core::cpuinfo::{
@@ -27,7 +27,7 @@ use safe_sdl::core::log::{
     SDL_LogGetOutputFunction, SDL_LogResetPriorities, SDL_LogSetOutputFunction,
 };
 use safe_sdl::core::stdlib::{
-    SDL_bsearch, SDL_getenv, SDL_iconv_string, SDL_qsort, SDL_setenv, SDL_strdup, SDL_strcmp,
+    SDL_bsearch, SDL_getenv, SDL_iconv_string, SDL_qsort, SDL_setenv, SDL_strcmp, SDL_strdup,
     SDL_strlcpy,
 };
 use safe_sdl::core::timer::{
@@ -99,17 +99,35 @@ fn main_subsystem_refcount_and_dependency_cascade() {
         SDL_Quit();
 
         assert_eq!(SDL_WasInit(SDL_INIT_TIMER), 0);
-        assert_eq!(SDL_InitSubSystem(SDL_INIT_TIMER), 0, "{}", testutils::current_error());
+        assert_eq!(
+            SDL_InitSubSystem(SDL_INIT_TIMER),
+            0,
+            "{}",
+            testutils::current_error()
+        );
         assert_ne!(SDL_WasInit(SDL_INIT_TIMER) & SDL_INIT_TIMER, 0);
-        assert_eq!(SDL_InitSubSystem(SDL_INIT_TIMER), 0, "{}", testutils::current_error());
+        assert_eq!(
+            SDL_InitSubSystem(SDL_INIT_TIMER),
+            0,
+            "{}",
+            testutils::current_error()
+        );
         SDL_QuitSubSystem(SDL_INIT_TIMER);
         assert_ne!(SDL_WasInit(SDL_INIT_TIMER) & SDL_INIT_TIMER, 0);
         SDL_QuitSubSystem(SDL_INIT_TIMER);
         assert_eq!(SDL_WasInit(SDL_INIT_TIMER) & SDL_INIT_TIMER, 0);
 
-        assert_eq!(SDL_InitSubSystem(SDL_INIT_VIDEO), 0, "{}", testutils::current_error());
+        assert_eq!(
+            SDL_InitSubSystem(SDL_INIT_VIDEO),
+            0,
+            "{}",
+            testutils::current_error()
+        );
         let active = SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
-        assert_eq!(active & (SDL_INIT_VIDEO | SDL_INIT_EVENTS), SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+        assert_eq!(
+            active & (SDL_INIT_VIDEO | SDL_INIT_EVENTS),
+            SDL_INIT_VIDEO | SDL_INIT_EVENTS
+        );
         SDL_QuitSubSystem(SDL_INIT_VIDEO);
         assert_eq!(SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_EVENTS), 0);
 
@@ -141,10 +159,16 @@ fn hints_roundtrip_reset_and_callback() {
 
     unsafe {
         SDL_ResetHint(hint_name.as_ptr());
-        assert_eq!(testutils::string_from_c(SDL_GetHint(hint_name.as_ptr())), "");
+        assert_eq!(
+            testutils::string_from_c(SDL_GetHint(hint_name.as_ptr())),
+            ""
+        );
 
         assert_ne!(SDL_SetHint(hint_name.as_ptr(), temp.as_ptr()), 0);
-        assert_eq!(testutils::string_from_c(SDL_GetHint(hint_name.as_ptr())), "temp");
+        assert_eq!(
+            testutils::string_from_c(SDL_GetHint(hint_name.as_ptr())),
+            "temp"
+        );
     }
 
     let _env = testutils::ScopedEnvVar::set("SDL_AUTOMATED_TEST_HINT_RS_CORE", "original");
@@ -316,7 +340,10 @@ fn stdlib_helpers_cover_copy_format_search_and_iconv() {
         assert_eq!(*found, 5);
 
         assert_eq!(SDL_setenv(env_name.as_ptr(), env_value.as_ptr(), 1), 0);
-        assert_eq!(testutils::string_from_c(SDL_getenv(env_name.as_ptr())), "expected");
+        assert_eq!(
+            testutils::string_from_c(SDL_getenv(env_name.as_ptr())),
+            "expected"
+        );
 
         let duplicated = SDL_strdup(foo.as_ptr());
         assert_eq!(testutils::string_from_c(duplicated), "foo");
@@ -329,9 +356,15 @@ fn stdlib_helpers_cover_copy_format_search_and_iconv() {
             utf8.len(),
         );
         assert!(!converted.is_null());
-        assert_eq!(std::ffi::CStr::from_ptr(converted).to_bytes(), utf8.as_slice());
+        assert_eq!(
+            std::ffi::CStr::from_ptr(converted).to_bytes(),
+            utf8.as_slice()
+        );
         safe_sdl::core::memory::SDL_free(converted.cast());
-        assert_eq!(SDL_strcmp(foo.as_ptr(), testutils::cstring("foo").as_ptr()), 0);
+        assert_eq!(
+            SDL_strcmp(foo.as_ptr(), testutils::cstring("foo").as_ptr()),
+            0
+        );
     }
 }
 

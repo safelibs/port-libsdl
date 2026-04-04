@@ -175,7 +175,9 @@ impl CommonArgs {
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
-                "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
                 "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
                 "--dependents" => {
                     dependents = PathBuf::from(require_value(&mut iter, "--dependents")?)
@@ -224,11 +226,19 @@ impl AbiCheckArgs {
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
-                "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
-                "--symbols" => symbols = Some(PathBuf::from(require_value(&mut iter, "--symbols")?)),
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
+                "--symbols" => {
+                    symbols = Some(PathBuf::from(require_value(&mut iter, "--symbols")?))
+                }
                 "--dynapi" => dynapi = Some(PathBuf::from(require_value(&mut iter, "--dynapi")?)),
-                "--exports" => exports = Some(PathBuf::from(require_value(&mut iter, "--exports")?)),
-                "--library" => library = Some(PathBuf::from(require_value(&mut iter, "--library")?)),
+                "--exports" => {
+                    exports = Some(PathBuf::from(require_value(&mut iter, "--exports")?))
+                }
+                "--library" => {
+                    library = Some(PathBuf::from(require_value(&mut iter, "--library")?))
+                }
                 "--require-soname" => {
                     require_soname = Some(require_value(&mut iter, "--require-soname")?.to_string())
                 }
@@ -265,16 +275,18 @@ impl VerifyTestPortMapArgs {
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
-                "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
                 "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
                 "--map" => map = Some(PathBuf::from(require_value(&mut iter, "--map")?)),
                 "--expect-source-files" => {
-                    expect_source_files = Some(require_value(&mut iter, "--expect-source-files")?.parse()?)
+                    expect_source_files =
+                        Some(require_value(&mut iter, "--expect-source-files")?.parse()?)
                 }
                 "--expect-executable-targets" => {
-                    expect_executable_targets = Some(
-                        require_value(&mut iter, "--expect-executable-targets")?.parse()?,
-                    )
+                    expect_executable_targets =
+                        Some(require_value(&mut iter, "--expect-executable-targets")?.parse()?)
                 }
                 other => bail!("unknown argument {other}"),
             }
@@ -304,7 +316,9 @@ impl VerifyTestPortCoverageArgs {
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
-                "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
                 "--map" => map = Some(PathBuf::from(require_value(&mut iter, "--map")?)),
                 "--phase" => phase = Some(require_value(&mut iter, "--phase")?.to_string()),
                 other => bail!("unknown argument {other}"),
@@ -336,13 +350,17 @@ impl StageInstallCliArgs {
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
-                "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
                 "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
                 "--mode" => mode = Some(require_value(&mut iter, "--mode")?.to_string()),
                 "--root" | "--destdir" => {
                     root = Some(PathBuf::from(require_value(&mut iter, arg)?))
                 }
-                "--library" => library = Some(PathBuf::from(require_value(&mut iter, "--library")?)),
+                "--library" => {
+                    library = Some(PathBuf::from(require_value(&mut iter, "--library")?))
+                }
                 other => bail!("unknown argument {other}"),
             }
         }
@@ -378,12 +396,18 @@ impl BuildOriginalStandaloneCliArgs {
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
-                "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
-                "--manifest" => manifest = Some(PathBuf::from(require_value(&mut iter, "--manifest")?)),
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
+                "--manifest" => {
+                    manifest = Some(PathBuf::from(require_value(&mut iter, "--manifest")?))
+                }
                 "--destdir" | "--root" => {
                     destdir = Some(PathBuf::from(require_value(&mut iter, arg)?))
                 }
-                "--build-dir" => build_dir = Some(PathBuf::from(require_value(&mut iter, "--build-dir")?)),
+                "--build-dir" => {
+                    build_dir = Some(PathBuf::from(require_value(&mut iter, "--build-dir")?))
+                }
                 "--phase" => phase = Some(require_value(&mut iter, "--phase")?.to_string()),
                 other => bail!("unknown argument {other}"),
             }
@@ -413,7 +437,9 @@ impl VerifyBootstrapStageCliArgs {
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
-                "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
                 "--require" => require.push(require_value(&mut iter, "--require")?.to_string()),
                 "--root" | "--destdir" => {
                     root = Some(PathBuf::from(require_value(&mut iter, arg)?))
@@ -442,8 +468,12 @@ impl CompileOriginalCliArgs {
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
-                "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
-                "--output-dir" => output_dir = Some(PathBuf::from(require_value(&mut iter, "--output-dir")?)),
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
+                "--output-dir" => {
+                    output_dir = Some(PathBuf::from(require_value(&mut iter, "--output-dir")?))
+                }
                 other => bail!("unknown argument {other}"),
             }
         }
@@ -471,10 +501,18 @@ impl RelinkOriginalCliArgs {
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
-                "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
-                "--objects-dir" => objects_dir = Some(PathBuf::from(require_value(&mut iter, "--objects-dir")?)),
-                "--output-dir" => output_dir = Some(PathBuf::from(require_value(&mut iter, "--output-dir")?)),
-                "--library" => library = Some(PathBuf::from(require_value(&mut iter, "--library")?)),
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
+                "--objects-dir" => {
+                    objects_dir = Some(PathBuf::from(require_value(&mut iter, "--objects-dir")?))
+                }
+                "--output-dir" => {
+                    output_dir = Some(PathBuf::from(require_value(&mut iter, "--output-dir")?))
+                }
+                "--library" => {
+                    library = Some(PathBuf::from(require_value(&mut iter, "--library")?))
+                }
                 other => bail!("unknown argument {other}"),
             }
         }
@@ -502,8 +540,12 @@ impl RunRelinkedCliArgs {
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
-                "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
-                "--bin-dir" => bin_dir = Some(PathBuf::from(require_value(&mut iter, "--bin-dir")?)),
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
+                "--bin-dir" => {
+                    bin_dir = Some(PathBuf::from(require_value(&mut iter, "--bin-dir")?))
+                }
                 "--target" => target = Some(require_value(&mut iter, "--target")?.to_string()),
                 other => bail!("unknown argument {other}"),
             }
@@ -537,9 +579,15 @@ impl RunOriginalStandaloneCliArgs {
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
-                "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
-                "--manifest" => manifest = Some(PathBuf::from(require_value(&mut iter, "--manifest")?)),
-                "--build-dir" => build_dir = Some(PathBuf::from(require_value(&mut iter, "--build-dir")?)),
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
+                "--manifest" => {
+                    manifest = Some(PathBuf::from(require_value(&mut iter, "--manifest")?))
+                }
+                "--build-dir" => {
+                    build_dir = Some(PathBuf::from(require_value(&mut iter, "--build-dir")?))
+                }
                 "--phase" => phase = Some(require_value(&mut iter, "--phase")?.to_string()),
                 "--validation-mode" => {
                     validation_mode = require_value(&mut iter, "--validation-mode")?.to_string()

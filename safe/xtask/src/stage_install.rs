@@ -28,7 +28,8 @@ pub fn stage_install(args: StageInstallArgs) -> Result<()> {
     let generated_dir = absolutize(&args.repo_root, &args.generated_dir);
     let original_dir = absolutize(&args.repo_root, &args.original_dir);
     let stage_root = absolutize(&args.repo_root, &args.stage_root);
-    let inventory = load_public_header_inventory(&generated_dir.join("public_header_inventory.json"))?;
+    let inventory =
+        load_public_header_inventory(&generated_dir.join("public_header_inventory.json"))?;
     let install_contract = load_install_contract(&generated_dir.join("install_contract.json"))?;
 
     if stage_root.exists() {
@@ -53,7 +54,8 @@ pub fn stage_install(args: StageInstallArgs) -> Result<()> {
 pub fn verify_bootstrap_stage(args: VerifyBootstrapStageArgs) -> Result<()> {
     let generated_dir = absolutize(&args.repo_root, &args.generated_dir);
     let stage_root = absolutize(&args.repo_root, &args.stage_root);
-    let inventory = load_public_header_inventory(&generated_dir.join("public_header_inventory.json"))?;
+    let inventory =
+        load_public_header_inventory(&generated_dir.join("public_header_inventory.json"))?;
     let install_contract = load_install_contract(&generated_dir.join("install_contract.json"))?;
 
     verify_headers(&stage_root, &inventory)?;
@@ -90,8 +92,7 @@ fn install_public_headers(
             "SDL_revision.h" => generate_sdl_revision_header().into_bytes(),
             _ => {
                 let source = repo_root.join(&header.source_path);
-                fs::read(&source)
-                    .with_context(|| format!("read {}", source.display()))?
+                fs::read(&source).with_context(|| format!("read {}", source.display()))?
             }
         };
         fs::write(&destination, contents)
@@ -286,7 +287,10 @@ fn install_helper_archives(repo_root: &Path, original_dir: &Path, stage_root: &P
     let include_dir = tempdir.path().join("include");
     fs::create_dir_all(&include_dir)?;
     fs::write(include_dir.join("SDL_config.h"), generate_real_sdl_config())?;
-    fs::write(include_dir.join("SDL_revision.h"), generate_sdl_revision_header())?;
+    fs::write(
+        include_dir.join("SDL_revision.h"),
+        generate_sdl_revision_header(),
+    )?;
 
     let object_dir = tempdir.path().join("objects");
     fs::create_dir_all(&object_dir)?;
@@ -334,16 +338,27 @@ fn install_helper_archives(repo_root: &Path, original_dir: &Path, stage_root: &P
     Ok(())
 }
 
-fn compile_c_object(repo_root: &Path, source: &Path, output: &Path, includes: &[String]) -> Result<()> {
+fn compile_c_object(
+    repo_root: &Path,
+    source: &Path,
+    output: &Path,
+    includes: &[String],
+) -> Result<()> {
     if let Some(parent) = output.parent() {
         fs::create_dir_all(parent)?;
     }
     let mut cmd = Command::new("cc");
-    cmd.current_dir(repo_root).arg("-c").arg(source).arg("-o").arg(output);
+    cmd.current_dir(repo_root)
+        .arg("-c")
+        .arg(source)
+        .arg("-o")
+        .arg(output);
     for include in includes {
         cmd.arg(include);
     }
-    let output_result = cmd.output().with_context(|| format!("compile {}", source.display()))?;
+    let output_result = cmd
+        .output()
+        .with_context(|| format!("compile {}", source.display()))?;
     if !output_result.status.success() {
         bail!(
             "compiling {} failed:\n{}",
@@ -360,7 +375,9 @@ fn archive_objects(archive: &Path, objects: &[PathBuf]) -> Result<()> {
     for object in objects {
         cmd.arg(object);
     }
-    let output = cmd.output().with_context(|| format!("archive {}", archive.display()))?;
+    let output = cmd
+        .output()
+        .with_context(|| format!("archive {}", archive.display()))?;
     if !output.status.success() {
         bail!(
             "archiving {} failed:\n{}",
@@ -371,7 +388,11 @@ fn archive_objects(archive: &Path, objects: &[PathBuf]) -> Result<()> {
     Ok(())
 }
 
-fn install_library_artifacts(repo_root: &Path, stage_root: &Path, library_path: Option<&Path>) -> Result<()> {
+fn install_library_artifacts(
+    repo_root: &Path,
+    stage_root: &Path,
+    library_path: Option<&Path>,
+) -> Result<()> {
     let (cdylib, staticlib) = match library_path {
         Some(path) => {
             let cdylib = absolutize(repo_root, path);

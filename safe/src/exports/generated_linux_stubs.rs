@@ -1487,12 +1487,14 @@ pub unsafe extern "C" fn SDL_GameControllerFromPlayerIndex() -> *mut ::std::ffi:
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetAppleSFSymbolsNameForAxis() -> *mut ::std::ffi::c_void {
+pub unsafe extern "C" fn SDL_GameControllerGetAppleSFSymbolsNameForAxis() -> *mut ::std::ffi::c_void
+{
     crate::exports::abort_unimplemented("SDL_GameControllerGetAppleSFSymbolsNameForAxis");
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetAppleSFSymbolsNameForButton() -> *mut ::std::ffi::c_void {
+pub unsafe extern "C" fn SDL_GameControllerGetAppleSFSymbolsNameForButton(
+) -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GameControllerGetAppleSFSymbolsNameForButton");
 }
 
@@ -3236,11 +3238,13 @@ pub unsafe extern "C" fn SDL_MaximizeWindow() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_MaximizeWindow");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_MemoryBarrierAcquireFunction() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_MemoryBarrierAcquireFunction");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_MemoryBarrierReleaseFunction() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_MemoryBarrierReleaseFunction");
@@ -5261,4 +5265,3 @@ pub unsafe extern "C" fn SDL_wcsncmp() -> *mut ::std::ffi::c_void {
 pub unsafe extern "C" fn SDL_wcsstr() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_wcsstr");
 }
-

@@ -1,102 +1,114 @@
 #define _GNU_SOURCE
 
-#include <dlfcn.h>
-#include <pthread.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-static pthread_once_t safe_sdl_system_once = PTHREAD_ONCE_INIT;
-static void *safe_sdl_system_handle_value = NULL;
+extern unsigned int SDL_LogGetPriority(int category);
+extern void SDL_LogGetOutputFunction(void (**callback)(void *, int, unsigned int, const char *), void **userdata);
 
-static void safe_sdl_load_failure(const char *message) {
-    fprintf(stderr, "safe-sdl phase-2 variadic forwarding error: %s\n", message);
-    abort();
-}
+static _Thread_local char *safe_sdl_error_buffer = NULL;
+static _Thread_local int safe_sdl_error_active = 0;
 
-static void safe_sdl_open_system_runtime(void) {
-    const char *override_path = getenv("SAFE_SDL_SYSTEM_LIBSDL2");
-    const char *fallbacks[] = {
-        "/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0",
-        "/lib/x86_64-linux-gnu/libSDL2-2.0.so.0",
-    };
-
-    if (override_path && override_path[0] != '\0') {
-        safe_sdl_system_handle_value = dlopen(override_path, RTLD_NOW | RTLD_LOCAL);
-        if (safe_sdl_system_handle_value != NULL) {
-            return;
-        }
+__attribute__((visibility("hidden")))
+void safe_sdl_store_error_message(const char *message)
+{
+    const char *source = message ? message : "";
+    size_t len = strlen(source) + 1;
+    char *buffer = (char *)realloc(safe_sdl_error_buffer, len);
+    if (buffer == NULL) {
+        return;
     }
+    memcpy(buffer, source, len);
+    safe_sdl_error_buffer = buffer;
+    safe_sdl_error_active = 1;
+}
 
-    for (size_t i = 0; i < (sizeof(fallbacks) / sizeof(fallbacks[0])); i++) {
-        safe_sdl_system_handle_value = dlopen(fallbacks[i], RTLD_NOW | RTLD_LOCAL);
-        if (safe_sdl_system_handle_value != NULL) {
-            return;
-        }
+__attribute__((visibility("hidden")))
+const char *safe_sdl_get_error_message(void)
+{
+    if (safe_sdl_error_active && safe_sdl_error_buffer != NULL) {
+        return safe_sdl_error_buffer;
     }
-
-    safe_sdl_load_failure(dlerror() ? dlerror() : "unable to open the system SDL runtime");
+    return "";
 }
 
-static void *safe_sdl_symbol(const char *name) {
-    pthread_once(&safe_sdl_system_once, safe_sdl_open_system_runtime);
-    void *symbol = dlsym(safe_sdl_system_handle_value, name);
-    if (symbol == NULL) {
-        safe_sdl_load_failure(name);
+__attribute__((visibility("hidden")))
+void safe_sdl_clear_error_message(void)
+{
+    safe_sdl_error_active = 0;
+    if (safe_sdl_error_buffer != NULL) {
+        safe_sdl_error_buffer[0] = '\0';
     }
-    return symbol;
 }
 
-void safe_sdl_set_error_message(const char *message) {
-    typedef int (*set_error_fn)(const char *fmt, ...);
-    set_error_fn real = (set_error_fn)safe_sdl_symbol("SDL_SetError");
-    real("%s", message ? message : "");
+__attribute__((visibility("hidden")))
+int safe_sdl_error_is_active(void)
+{
+    return safe_sdl_error_active;
 }
 
-int SDL_SetError(const char *fmt, ...) {
-    int len = 0;
-    char *buffer = NULL;
-    va_list ap;
+static int safe_sdl_format_message(char **buffer, const char *fmt, va_list ap)
+{
+    int len;
     va_list ap_copy;
 
     if (fmt == NULL) {
-        safe_sdl_set_error_message("");
+        *buffer = NULL;
+        return 0;
+    }
+
+    va_copy(ap_copy, ap);
+    len = vsnprintf(NULL, 0, fmt, ap_copy);
+    va_end(ap_copy);
+    if (len < 0) {
+        *buffer = NULL;
+        return len;
+    }
+
+    *buffer = (char *)malloc((size_t)len + 1);
+    if (*buffer == NULL) {
+        return -1;
+    }
+
+    vsnprintf(*buffer, (size_t)len + 1, fmt, ap);
+    return len;
+}
+
+int SDL_SetError(const char *fmt, ...)
+{
+    char *buffer = NULL;
+    va_list ap;
+
+    if (fmt == NULL) {
+        safe_sdl_store_error_message("");
         return -1;
     }
 
     va_start(ap, fmt);
-    va_copy(ap_copy, ap);
-    len = vsnprintf(NULL, 0, fmt, ap_copy);
-    va_end(ap_copy);
-
-    if (len < 0) {
+    if (safe_sdl_format_message(&buffer, fmt, ap) < 0) {
         va_end(ap);
-        safe_sdl_set_error_message("SDL_SetError formatting failed");
+        safe_sdl_store_error_message("SDL_SetError formatting failed");
         return -1;
     }
-
-    buffer = (char *)malloc((size_t)len + 1);
-    if (buffer == NULL) {
-        va_end(ap);
-        safe_sdl_set_error_message("out of memory");
-        return -1;
-    }
-
-    vsnprintf(buffer, (size_t)len + 1, fmt, ap);
     va_end(ap);
-    safe_sdl_set_error_message(buffer);
+
+    safe_sdl_store_error_message(buffer ? buffer : "");
+    if (SDL_LogGetPriority(1) <= 2 && buffer != NULL) {
+        SDL_LogDebug(1, "%s", buffer);
+    }
     free(buffer);
     return -1;
 }
 
-int SDL_vsnprintf(char *text, size_t maxlen, const char *fmt, va_list ap) {
-    typedef int (*vsnprintf_fn)(char *text, size_t maxlen, const char *fmt, va_list ap);
-    vsnprintf_fn real = (vsnprintf_fn)safe_sdl_symbol("SDL_vsnprintf");
-    return real(text, maxlen, fmt, ap);
+int SDL_vsnprintf(char *text, size_t maxlen, const char *fmt, va_list ap)
+{
+    return vsnprintf(text, maxlen, fmt, ap);
 }
 
-int SDL_snprintf(char *text, size_t maxlen, const char *fmt, ...) {
+int SDL_snprintf(char *text, size_t maxlen, const char *fmt, ...)
+{
     int result;
     va_list ap;
 
@@ -106,13 +118,13 @@ int SDL_snprintf(char *text, size_t maxlen, const char *fmt, ...) {
     return result;
 }
 
-int SDL_vasprintf(char **strp, const char *fmt, va_list ap) {
-    typedef int (*vasprintf_fn)(char **strp, const char *fmt, va_list ap);
-    vasprintf_fn real = (vasprintf_fn)safe_sdl_symbol("SDL_vasprintf");
-    return real(strp, fmt, ap);
+int SDL_vasprintf(char **strp, const char *fmt, va_list ap)
+{
+    return vasprintf(strp, fmt, ap);
 }
 
-int SDL_asprintf(char **strp, const char *fmt, ...) {
+int SDL_asprintf(char **strp, const char *fmt, ...)
+{
     int result;
     va_list ap;
 
@@ -122,13 +134,13 @@ int SDL_asprintf(char **strp, const char *fmt, ...) {
     return result;
 }
 
-int SDL_vsscanf(const char *text, const char *fmt, va_list ap) {
-    typedef int (*vsscanf_fn)(const char *text, const char *fmt, va_list ap);
-    vsscanf_fn real = (vsscanf_fn)safe_sdl_symbol("SDL_vsscanf");
-    return real(text, fmt, ap);
+int SDL_vsscanf(const char *text, const char *fmt, va_list ap)
+{
+    return vsscanf(text, fmt, ap);
 }
 
-int SDL_sscanf(const char *text, const char *fmt, ...) {
+int SDL_sscanf(const char *text, const char *fmt, ...)
+{
     int result;
     va_list ap;
 
@@ -138,62 +150,88 @@ int SDL_sscanf(const char *text, const char *fmt, ...) {
     return result;
 }
 
-void SDL_LogMessageV(int category, unsigned int priority, const char *fmt, va_list ap) {
-    typedef void (*log_message_v_fn)(int category, unsigned int priority, const char *fmt, va_list ap);
-    log_message_v_fn real = (log_message_v_fn)safe_sdl_symbol("SDL_LogMessageV");
-    real(category, priority, fmt, ap);
+void SDL_LogMessageV(int category, unsigned int priority, const char *fmt, va_list ap)
+{
+    void (*callback)(void *, int, unsigned int, const char *) = NULL;
+    void *userdata = NULL;
+    char *buffer = NULL;
+
+    if (fmt == NULL || priority == 0 || priority >= 7) {
+        return;
+    }
+    if (priority < SDL_LogGetPriority(category)) {
+        return;
+    }
+    if (safe_sdl_format_message(&buffer, fmt, ap) < 0) {
+        safe_sdl_store_error_message("SDL_LogMessageV formatting failed");
+        return;
+    }
+
+    SDL_LogGetOutputFunction(&callback, &userdata);
+    if (callback != NULL) {
+        callback(userdata, category, priority, buffer ? buffer : "");
+    }
+    free(buffer);
 }
 
-void SDL_LogMessage(int category, unsigned int priority, const char *fmt, ...) {
+void SDL_LogMessage(int category, unsigned int priority, const char *fmt, ...)
+{
     va_list ap;
     va_start(ap, fmt);
     SDL_LogMessageV(category, priority, fmt, ap);
     va_end(ap);
 }
 
-void SDL_Log(const char *fmt, ...) {
+void SDL_Log(const char *fmt, ...)
+{
     va_list ap;
     va_start(ap, fmt);
     SDL_LogMessageV(0, 3, fmt, ap);
     va_end(ap);
 }
 
-void SDL_LogVerbose(int category, const char *fmt, ...) {
+void SDL_LogVerbose(int category, const char *fmt, ...)
+{
     va_list ap;
     va_start(ap, fmt);
     SDL_LogMessageV(category, 1, fmt, ap);
     va_end(ap);
 }
 
-void SDL_LogDebug(int category, const char *fmt, ...) {
+void SDL_LogDebug(int category, const char *fmt, ...)
+{
     va_list ap;
     va_start(ap, fmt);
     SDL_LogMessageV(category, 2, fmt, ap);
     va_end(ap);
 }
 
-void SDL_LogInfo(int category, const char *fmt, ...) {
+void SDL_LogInfo(int category, const char *fmt, ...)
+{
     va_list ap;
     va_start(ap, fmt);
     SDL_LogMessageV(category, 3, fmt, ap);
     va_end(ap);
 }
 
-void SDL_LogWarn(int category, const char *fmt, ...) {
+void SDL_LogWarn(int category, const char *fmt, ...)
+{
     va_list ap;
     va_start(ap, fmt);
     SDL_LogMessageV(category, 4, fmt, ap);
     va_end(ap);
 }
 
-void SDL_LogError(int category, const char *fmt, ...) {
+void SDL_LogError(int category, const char *fmt, ...)
+{
     va_list ap;
     va_start(ap, fmt);
     SDL_LogMessageV(category, 5, fmt, ap);
     va_end(ap);
 }
 
-void SDL_LogCritical(int category, const char *fmt, ...) {
+void SDL_LogCritical(int category, const char *fmt, ...)
+{
     va_list ap;
     va_start(ap, fmt);
     SDL_LogMessageV(category, 6, fmt, ap);

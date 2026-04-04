@@ -9,8 +9,8 @@ use std::sync::atomic::{AtomicU32, Ordering};
 use safe_sdl::abi::generated_types::{
     SDL_Locale, SDL_PowerState_SDL_POWERSTATE_CHARGED, SDL_PowerState_SDL_POWERSTATE_CHARGING,
     SDL_PowerState_SDL_POWERSTATE_NO_BATTERY, SDL_PowerState_SDL_POWERSTATE_ON_BATTERY,
-    SDL_PowerState_SDL_POWERSTATE_UNKNOWN, SDL_SpinLock, SDL_INIT_TIMER, SDL_INIT_VIDEO,
-    SDL_MUTEX_TIMEDOUT, SDL_TLSID, SDL_atomic_t, SDL_version,
+    SDL_PowerState_SDL_POWERSTATE_UNKNOWN, SDL_SpinLock, SDL_atomic_t, SDL_version, SDL_INIT_TIMER,
+    SDL_INIT_VIDEO, SDL_MUTEX_TIMEDOUT, SDL_TLSID,
 };
 use safe_sdl::core::error::SDL_GetError;
 use safe_sdl::core::filesystem::{SDL_GetBasePath, SDL_GetPrefPath};
@@ -28,9 +28,7 @@ use safe_sdl::core::rwops::{
     SDL_RWFromConstMem, SDL_RWFromFile, SDL_RWFromMem, SDL_RWclose, SDL_RWread, SDL_RWseek,
     SDL_RWtell, SDL_RWwrite, SDL_ReadLE32, SDL_WriteLE32,
 };
-use safe_sdl::core::stdlib::{
-    SDL_bsearch, SDL_iconv_string, SDL_qsort,
-};
+use safe_sdl::core::stdlib::{SDL_bsearch, SDL_iconv_string, SDL_qsort};
 use safe_sdl::core::system::{
     SDL_AtomicAdd, SDL_AtomicCAS, SDL_AtomicGet, SDL_AtomicLock, SDL_AtomicSet, SDL_AtomicTryLock,
     SDL_AtomicUnlock,
@@ -163,7 +161,10 @@ fn rwops_memory_and_file_helpers_roundtrip() {
         let readonly = SDL_RWFromConstMem(buffer.as_ptr().cast(), buffer.len() as libc::c_int);
         assert!(!readonly.is_null());
         let mut out = [0u8; 4];
-        assert_eq!(SDL_RWread(readonly, out.as_mut_ptr().cast(), 1, out.len()), out.len());
+        assert_eq!(
+            SDL_RWread(readonly, out.as_mut_ptr().cast(), 1, out.len()),
+            out.len()
+        );
         assert_eq!(SDL_RWclose(readonly), 0);
         assert_eq!(out, [0x44, 0x33, 0x22, 0x11]);
     }
@@ -175,10 +176,16 @@ fn rwops_memory_and_file_helpers_roundtrip() {
         let rw = SDL_RWFromFile(file_path.as_ptr(), mode.as_ptr());
         assert!(!rw.is_null(), "{}", testutils::current_error());
         let bytes = b"SDL";
-        assert_eq!(SDL_RWwrite(rw, bytes.as_ptr().cast(), 1, bytes.len()), bytes.len());
+        assert_eq!(
+            SDL_RWwrite(rw, bytes.as_ptr().cast(), 1, bytes.len()),
+            bytes.len()
+        );
         assert_eq!(SDL_RWseek(rw, 0, libc::SEEK_SET), 0);
         let mut out = [0u8; 3];
-        assert_eq!(SDL_RWread(rw, out.as_mut_ptr().cast(), 1, out.len()), out.len());
+        assert_eq!(
+            SDL_RWread(rw, out.as_mut_ptr().cast(), 1, out.len()),
+            out.len()
+        );
         assert_eq!(out, *bytes);
         assert_eq!(SDL_RWclose(rw), 0);
     }
@@ -215,7 +222,12 @@ fn iconv_fixture_roundtrip_uses_shared_testutils() {
     let utf8 = testutils::cstring("UTF-8");
 
     unsafe {
-        let converted = SDL_iconv_string(utf8.as_ptr(), utf8.as_ptr(), fixture_c.as_ptr(), sample.len());
+        let converted = SDL_iconv_string(
+            utf8.as_ptr(),
+            utf8.as_ptr(),
+            fixture_c.as_ptr(),
+            sample.len(),
+        );
         assert!(!converted.is_null(), "{}", testutils::current_error());
         assert_eq!(CStr::from_ptr(converted).to_bytes(), sample.as_slice());
         SDL_free(converted.cast());
@@ -243,7 +255,12 @@ fn locale_list_is_terminated_and_freeable() {
     let _video = testutils::ScopedEnvVar::set("SDL_VIDEODRIVER", "dummy");
 
     unsafe {
-        assert_eq!(SDL_Init(SDL_INIT_VIDEO), 0, "{}", testutils::current_error());
+        assert_eq!(
+            SDL_Init(SDL_INIT_VIDEO),
+            0,
+            "{}",
+            testutils::current_error()
+        );
         let locales = SDL_GetPreferredLocales();
         if !locales.is_null() {
             let first: &SDL_Locale = &*locales;
@@ -267,16 +284,14 @@ fn platform_power_and_version_smoke() {
         let mut seconds = -2;
         let mut percent = -2;
         let state = SDL_GetPowerInfo(&mut seconds, &mut percent);
-        assert!(
-            [
-                SDL_PowerState_SDL_POWERSTATE_UNKNOWN,
-                SDL_PowerState_SDL_POWERSTATE_ON_BATTERY,
-                SDL_PowerState_SDL_POWERSTATE_NO_BATTERY,
-                SDL_PowerState_SDL_POWERSTATE_CHARGING,
-                SDL_PowerState_SDL_POWERSTATE_CHARGED,
-            ]
-            .contains(&state)
-        );
+        assert!([
+            SDL_PowerState_SDL_POWERSTATE_UNKNOWN,
+            SDL_PowerState_SDL_POWERSTATE_ON_BATTERY,
+            SDL_PowerState_SDL_POWERSTATE_NO_BATTERY,
+            SDL_PowerState_SDL_POWERSTATE_CHARGING,
+            SDL_PowerState_SDL_POWERSTATE_CHARGED,
+        ]
+        .contains(&state));
         assert!((-1..=100).contains(&percent));
         assert!(seconds >= -1);
 

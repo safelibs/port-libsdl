@@ -444,8 +444,8 @@ pub fn verify_captured_contracts(args: ContractArgs) -> Result<()> {
     let outputs = build_outputs(&inputs)?;
     let mut drift = Vec::new();
     for output in outputs {
-        let current = fs::read(&output.path)
-            .with_context(|| format!("reading {}", output.path.display()))?;
+        let current =
+            fs::read(&output.path).with_context(|| format!("reading {}", output.path.display()))?;
         if current != output.contents {
             drift.push(output.path);
         }
@@ -550,8 +550,8 @@ pub fn abi_check(
     let dynapi_manifest = load_dynapi_manifest_input(dynapi_manifest_path)?;
 
     let resolved_exports_source = resolve_exports_source_path(repo_root, exports_source_path);
-    let stubs_source = fs::read_to_string(&resolved_exports_source)
-        .context("read generated_linux_stubs.rs")?;
+    let stubs_source =
+        fs::read_to_string(&resolved_exports_source).context("read generated_linux_stubs.rs")?;
     let stub_symbols = extract_stub_symbol_names(&stubs_source)?;
     for symbol in &symbol_manifest.symbols {
         if !stub_symbols.contains(&symbol.name) {
@@ -559,8 +559,8 @@ pub fn abi_check(
         }
     }
 
-    let dynapi_source = fs::read_to_string(dynapi_source_path)
-        .context("read dynapi/generated.rs")?;
+    let dynapi_source =
+        fs::read_to_string(dynapi_source_path).context("read dynapi/generated.rs")?;
     let dynapi_slots = extract_dynapi_source_slots(&dynapi_source)?;
     if dynapi_slots.len() != dynapi_manifest.slots.len() {
         bail!(
@@ -589,14 +589,8 @@ pub fn abi_check(
             .map(|entry| entry.name.clone())
             .collect();
         if exported != expected {
-            let missing = expected
-                .difference(&exported)
-                .cloned()
-                .collect::<Vec<_>>();
-            let extra = exported
-                .difference(&expected)
-                .cloned()
-                .collect::<Vec<_>>();
+            let missing = expected.difference(&exported).cloned().collect::<Vec<_>>();
+            let extra = exported.difference(&expected).cloned().collect::<Vec<_>>();
             bail!(
                 "ELF export table mismatch for {}\nmissing: {:?}\nextra: {:?}",
                 rel(repo_root, library_path),
@@ -886,9 +880,12 @@ pub fn verify_test_port_coverage(repo_root: &Path, map_path: &Path, phase: &str)
     let uncovered_targets = phase_targets
         .iter()
         .filter_map(|target| {
-            let covered = phase_entries
-                .iter()
-                .any(|entry| entry.upstream_targets.iter().any(|name| name == &target.target_name));
+            let covered = phase_entries.iter().any(|entry| {
+                entry
+                    .upstream_targets
+                    .iter()
+                    .any(|name| name == &target.target_name)
+            });
             (!covered).then(|| target.target_name.clone())
         })
         .collect::<Vec<_>>();
@@ -910,7 +907,12 @@ impl Inputs {
         let cves_path = absolutize(&args.repo_root, &args.cves_path);
         let safe_root = generated_dir
             .parent()
-            .ok_or_else(|| anyhow!("generated directory {} has no parent", generated_dir.display()))?
+            .ok_or_else(|| {
+                anyhow!(
+                    "generated directory {} has no parent",
+                    generated_dir.display()
+                )
+            })?
             .to_path_buf();
         Ok(Self {
             repo_root: args.repo_root,
@@ -1000,7 +1002,10 @@ fn build_outputs(inputs: &Inputs) -> Result<Vec<GeneratedFile>> {
             inputs.generated_dir.join("install_contract.json"),
             &install_contract,
         )?,
-        json_output(inputs.generated_dir.join("cve_contract.json"), &cve_contract)?,
+        json_output(
+            inputs.generated_dir.join("cve_contract.json"),
+            &cve_contract,
+        )?,
         json_output(
             inputs.generated_dir.join("perf_workload_manifest.json"),
             &perf_workloads,
@@ -1014,7 +1019,9 @@ fn build_outputs(inputs: &Inputs) -> Result<Vec<GeneratedFile>> {
             contents: generated_types.into_bytes(),
         },
         GeneratedFile {
-            path: inputs.safe_root.join("src/exports/generated_linux_stubs.rs"),
+            path: inputs
+                .safe_root
+                .join("src/exports/generated_linux_stubs.rs"),
             contents: generated_stubs.into_bytes(),
         },
         GeneratedFile {
@@ -1036,11 +1043,20 @@ fn build_public_header_inventory(inputs: &Inputs) -> Result<PublicHeaderInventor
         let name = entry.file_name().to_string_lossy().into_owned();
         let (source_path, source_kind) = match name.as_str() {
             "SDL_config.h" => (
-                rel(&inputs.repo_root, &inputs.original_dir.join("debian/SDL_config.h")),
+                rel(
+                    &inputs.repo_root,
+                    &inputs.original_dir.join("debian/SDL_config.h"),
+                ),
                 "debian_wrapper".to_string(),
             ),
-            "SDL_revision.h" => ("generated://SDL_revision.h".to_string(), "generated".to_string()),
-            _ => (rel(&inputs.repo_root, &path), "upstream_public_header".to_string()),
+            "SDL_revision.h" => (
+                "generated://SDL_revision.h".to_string(),
+                "generated".to_string(),
+            ),
+            _ => (
+                rel(&inputs.repo_root, &path),
+                "upstream_public_header".to_string(),
+            ),
         };
         headers.push(HeaderInventoryEntry {
             header_name: name.clone(),
@@ -1202,7 +1218,14 @@ fn build_video_driver_family(inputs: &Inputs) -> Result<DriverFamilyContract> {
     let registry = parse_bootstrap_registry(
         &inputs.original_dir.join("src/video/SDL_video.c"),
         "VideoBootStrap *bootstrap[] = {",
-        &["SDL_VIDEO_DRIVER_X11", "SDL_VIDEO_DRIVER_WAYLAND", "SDL_VIDEO_DRIVER_KMSDRM", "SDL_VIDEO_DRIVER_OFFSCREEN", "SDL_VIDEO_DRIVER_DUMMY", "SDL_INPUT_LINUXEV"],
+        &[
+            "SDL_VIDEO_DRIVER_X11",
+            "SDL_VIDEO_DRIVER_WAYLAND",
+            "SDL_VIDEO_DRIVER_KMSDRM",
+            "SDL_VIDEO_DRIVER_OFFSCREEN",
+            "SDL_VIDEO_DRIVER_DUMMY",
+            "SDL_INPUT_LINUXEV",
+        ],
         BootstrapKind::Video,
         &inputs.original_dir,
     )?;
@@ -1216,7 +1239,8 @@ fn build_video_driver_family(inputs: &Inputs) -> Result<DriverFamilyContract> {
         .map(|entry| SingleBackendExpectation {
             driver_name: entry.driver_name.clone(),
             selected_without_hint: Some(entry.driver_name.clone()),
-            rationale: "video init walks the registry in order until a backend creates a device".to_string(),
+            rationale: "video init walks the registry in order until a backend creates a device"
+                .to_string(),
         })
         .collect();
     Ok(DriverFamilyContract {
@@ -1303,14 +1327,16 @@ fn build_target_plans(inputs: &Inputs) -> Result<Vec<TargetPlan>> {
                 build_predicates.push("LINUX".to_string());
                 build_predicates.push("linux/input.h available".to_string());
                 compile_definitions.push("HAVE_LINUX_INPUT_H".to_string());
-                link_options.extend([
-                    "-Wl,--wrap=open",
-                    "-Wl,--wrap=close",
-                    "-Wl,--wrap=read",
-                    "-Wl,--wrap=ioctl",
-                ]
-                .into_iter()
-                .map(str::to_string));
+                link_options.extend(
+                    [
+                        "-Wl,--wrap=open",
+                        "-Wl,--wrap=close",
+                        "-Wl,--wrap=read",
+                        "-Wl,--wrap=ioctl",
+                    ]
+                    .into_iter()
+                    .map(str::to_string),
+                );
             }
             "testvulkan" => {
                 build_predicates.push("public vulkan/vulkan.h available".to_string());
@@ -1399,7 +1425,10 @@ fn build_standalone_manifest(target_plans: &[TargetPlan]) -> StandaloneTestManif
     let mut targets = Vec::new();
     for plan in target_plans {
         let resources = if plan.needs_resources {
-            RESOURCE_FILES.iter().map(|entry| entry.to_string()).collect()
+            RESOURCE_FILES
+                .iter()
+                .map(|entry| entry.to_string())
+                .collect()
         } else {
             Vec::new()
         };
@@ -1421,7 +1450,8 @@ fn build_standalone_manifest(target_plans: &[TargetPlan]) -> StandaloneTestManif
             (
                 "not_buildable".to_string(),
                 "unavailable_on_ubuntu_24_04".to_string(),
-                "target is not Linux-buildable under the authoritative upstream conditions".to_string(),
+                "target is not Linux-buildable under the authoritative upstream conditions"
+                    .to_string(),
             )
         };
         let timeout_seconds = if ci_validation_mode == "auto_run" {
@@ -1519,7 +1549,12 @@ fn build_original_test_object_manifest(target_plans: &[TargetPlan]) -> OriginalT
             translation_units.push(TranslationUnit {
                 object_id: object_id.clone(),
                 source_path: source.clone(),
-                language: if source.ends_with(".m") { "objective-c" } else { "c" }.to_string(),
+                language: if source.ends_with(".m") {
+                    "objective-c"
+                } else {
+                    "c"
+                }
+                .to_string(),
                 target_membership: vec![plan.name.clone()],
                 upstream_build_systems: plan.upstream_build_systems.clone(),
                 ubuntu_24_04_enabled: true,
@@ -1546,7 +1581,10 @@ fn build_original_test_object_manifest(target_plans: &[TargetPlan]) -> OriginalT
             ubuntu_24_04_enabled: true,
             build_predicates: plan.build_predicates.clone(),
             resource_paths: if plan.needs_resources {
-                RESOURCE_FILES.iter().map(|entry| entry.to_string()).collect()
+                RESOURCE_FILES
+                    .iter()
+                    .map(|entry| entry.to_string())
+                    .collect()
             } else {
                 Vec::new()
             },
@@ -1669,13 +1707,12 @@ fn build_port_map(inputs: &Inputs, target_plans: &[TargetPlan]) -> Result<Origin
                         .map(|plan| plan.linux_runnable)
                         .unwrap_or(false)
                 });
-                let rust_target_kind = if buildable
-                    && AUTHORITATIVE_AUTO_RUN_TARGETS.contains(&primary.as_str())
-                {
-                    "smoke_test"
-                } else {
-                    "cfg_gated_test"
-                };
+                let rust_target_kind =
+                    if buildable && AUTHORITATIVE_AUTO_RUN_TARGETS.contains(&primary.as_str()) {
+                        "smoke_test"
+                    } else {
+                        "cfg_gated_test"
+                    };
                 (
                     "standalone executable source".to_string(),
                     buildable,
@@ -1725,17 +1762,15 @@ fn build_install_contract(
         .filter(|target| target.linux_buildable)
         .map(|target| format!("usr/libexec/installed-tests/SDL2/{}", target.target_name))
         .collect::<Vec<_>>();
-    tests_package_paths.extend(
-        RESOURCE_FILES
-            .iter()
-            .map(|resource| format!(
-                "usr/libexec/installed-tests/SDL2/{}",
-                Path::new(resource)
-                    .file_name()
-                    .unwrap_or_default()
-                    .to_string_lossy()
-            )),
-    );
+    tests_package_paths.extend(RESOURCE_FILES.iter().map(|resource| {
+        format!(
+            "usr/libexec/installed-tests/SDL2/{}",
+            Path::new(resource)
+                .file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+        )
+    }));
     tests_package_paths.extend(
         AUTHORITATIVE_AUTO_RUN_TARGETS
             .iter()
@@ -1934,7 +1969,10 @@ fn validate_outputs(
     port_map: &OriginalTestPortMap,
 ) -> Result<()> {
     if inventory.headers.len() != 91 {
-        bail!("expected 91 installed public headers, found {}", inventory.headers.len());
+        bail!(
+            "expected 91 installed public headers, found {}",
+            inventory.headers.len()
+        );
     }
     let phase_map_lookup: BTreeMap<_, _> = header_phase_map
         .entries
@@ -1974,12 +2012,19 @@ fn validate_outputs(
             actual_auto_run
         );
     }
-    for target in standalone_manifest.targets.iter().filter(|target| target.linux_buildable) {
+    for target in standalone_manifest
+        .targets
+        .iter()
+        .filter(|target| target.linux_buildable)
+    {
         if target.ci_validation_mode.is_empty()
             || target.ci_runner.is_empty()
             || target.automation_reason.is_empty()
         {
-            bail!("Linux-buildable target {} is missing CI metadata", target.target_name);
+            bail!(
+                "Linux-buildable target {} is missing CI metadata",
+                target.target_name
+            );
         }
         if target.ci_validation_mode == "auto_run"
             && !expected_auto_run.contains(&target.target_name)
@@ -2023,7 +2068,11 @@ fn validate_outputs(
     let testvulkan_units = original_test_object_manifest
         .translation_units
         .iter()
-        .filter(|unit| unit.target_membership.iter().any(|target| target == "testvulkan"))
+        .filter(|unit| {
+            unit.target_membership
+                .iter()
+                .any(|target| target == "testvulkan")
+        })
         .collect::<Vec<_>>();
     if testvulkan_units.is_empty() {
         bail!("missing testvulkan translation unit contract");
@@ -2054,19 +2103,23 @@ fn validate_outputs(
     if audio_names != ["pulseaudio", "alsa", "sndio", "pipewire", "disk", "dummy"] {
         bail!("unexpected Ubuntu audio driver order: {:?}", audio_names);
     }
-    if !driver_contract
-        .video
-        .registry_order
-        .iter()
-        .any(|entry| entry.driver_name == "evdev"
-            && entry.feature_predicates.iter().any(|predicate| predicate.contains("SDL_INPUT_LINUXEV")))
-    {
+    if !driver_contract.video.registry_order.iter().any(|entry| {
+        entry.driver_name == "evdev"
+            && entry
+                .feature_predicates
+                .iter()
+                .any(|predicate| predicate.contains("SDL_INPUT_LINUXEV"))
+    }) {
         bail!("driver contract must preserve the SDL_INPUT_LINUXEV-gated dummy evdev entry");
     }
     for driver in &driver_contract.audio.registry_order {
-        if matches!(driver.driver_name.as_str(), "disk" | "dummy") && driver.demand_only != Some(true)
+        if matches!(driver.driver_name.as_str(), "disk" | "dummy")
+            && driver.demand_only != Some(true)
         {
-            bail!("audio demand_only annotation missing for {}", driver.driver_name);
+            bail!(
+                "audio demand_only annotation missing for {}",
+                driver.driver_name
+            );
         }
     }
 
@@ -2091,14 +2144,20 @@ fn generate_bindings(inputs: &Inputs) -> Result<String> {
     let include_dir = temp.path().join("include");
     fs::create_dir_all(&include_dir)?;
     fs::write(include_dir.join("SDL_config.h"), generate_real_sdl_config())?;
-    fs::write(include_dir.join("SDL_revision.h"), generate_sdl_revision_header())?;
+    fs::write(
+        include_dir.join("SDL_revision.h"),
+        generate_sdl_revision_header(),
+    )?;
     let wrapper_path = temp.path().join("wrapper.h");
     fs::write(&wrapper_path, "#include \"SDL.h\"\n")?;
 
     let bindings = bindgen::Builder::default()
         .header(wrapper_path.to_string_lossy())
         .clang_arg(format!("-I{}", include_dir.display()))
-        .clang_arg(format!("-I{}", inputs.original_dir.join("include").display()))
+        .clang_arg(format!(
+            "-I{}",
+            inputs.original_dir.join("include").display()
+        ))
         .allowlist_file(format!(
             "{}/.*",
             regex::escape(&inputs.original_dir.join("include").display().to_string())
@@ -2190,12 +2249,15 @@ fn parse_bootstrap_registry(
             continue;
         }
         if let Some(captures) = entry_re.captures(trimmed) {
-            let enabled = guard_stack.iter().all(|guard| enabled_predicates.contains(&guard.as_str()));
+            let enabled = guard_stack
+                .iter()
+                .all(|guard| enabled_predicates.contains(&guard.as_str()));
             if !enabled {
                 continue;
             }
             let bootstrap_symbol = captures[1].to_string();
-            let bootstrap_source = find_bootstrap_definition_file(original_dir, &bootstrap_symbol, kind)?;
+            let bootstrap_source =
+                find_bootstrap_definition_file(original_dir, &bootstrap_symbol, kind)?;
             let definition = fs::read_to_string(&bootstrap_source)?;
             let entry = parse_driver_entry(
                 &definition,
@@ -2228,9 +2290,12 @@ fn parse_driver_entry(
         ),
     };
     let re = Regex::new(&pattern)?;
-    let captures = re
-        .captures(definition_contents)
-        .ok_or_else(|| anyhow!("could not parse bootstrap definition for {}", bootstrap_symbol))?;
+    let captures = re.captures(definition_contents).ok_or_else(|| {
+        anyhow!(
+            "could not parse bootstrap definition for {}",
+            bootstrap_symbol
+        )
+    })?;
     let driver_name = resolve_bootstrap_token(captures[1].trim(), definition_contents)?;
     let description = resolve_bootstrap_token(captures[2].trim(), definition_contents)?;
     let demand_only = match kind {
@@ -2247,7 +2312,11 @@ fn parse_driver_entry(
     })
 }
 
-fn find_bootstrap_definition_file(original_dir: &Path, bootstrap_symbol: &str, kind: BootstrapKind) -> Result<PathBuf> {
+fn find_bootstrap_definition_file(
+    original_dir: &Path,
+    bootstrap_symbol: &str,
+    kind: BootstrapKind,
+) -> Result<PathBuf> {
     let root = match kind {
         BootstrapKind::Video => original_dir.join("src/video"),
         BootstrapKind::Audio => original_dir.join("src/audio"),
@@ -2340,8 +2409,12 @@ fn parse_cmake_targets(
             variants
                 .iter()
                 .find(|(sources, _, _)| {
-                    sources.iter().any(|source| source.ends_with("testnativex11.c"))
-                        && !sources.iter().any(|source| source.ends_with("testnativecocoa.m"))
+                    sources
+                        .iter()
+                        .any(|source| source.ends_with("testnativex11.c"))
+                        && !sources
+                            .iter()
+                            .any(|source| source.ends_with("testnativecocoa.m"))
                 })
                 .cloned()
                 .or_else(|| variants.first().cloned())
@@ -2468,9 +2541,8 @@ fn extract_stub_symbol_names(source: &str) -> Result<BTreeSet<String>> {
 }
 
 fn extract_dynapi_source_slots(source: &str) -> Result<BTreeSet<(usize, &str, usize)>> {
-    let re = Regex::new(
-        r#"DynapiSlot \{ slot_index: (\d+), symbol: "([A-Za-z0-9_]+)", line: (\d+),"#,
-    )?;
+    let re =
+        Regex::new(r#"DynapiSlot \{ slot_index: (\d+), symbol: "([A-Za-z0-9_]+)", line: (\d+),"#)?;
     let mut slots = BTreeSet::new();
     for captures in re.captures_iter(source) {
         slots.insert((
@@ -2485,7 +2557,10 @@ fn extract_dynapi_source_slots(source: &str) -> Result<BTreeSet<(usize, &str, us
 fn json_output<T: Serialize>(path: PathBuf, value: &T) -> Result<GeneratedFile> {
     let mut bytes = serde_json::to_vec_pretty(value)?;
     bytes.push(b'\n');
-    Ok(GeneratedFile { path, contents: bytes })
+    Ok(GeneratedFile {
+        path,
+        contents: bytes,
+    })
 }
 
 fn read_json<T: for<'de> Deserialize<'de>>(path: &Path) -> Result<T> {

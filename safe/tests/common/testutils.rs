@@ -100,7 +100,12 @@ pub struct SubsystemGuard {
 impl SubsystemGuard {
     pub fn init(flags: Uint32) -> Self {
         let rc = unsafe { SDL_InitSubSystem(flags) };
-        assert_eq!(rc, 0, "SDL_InitSubSystem({flags:#x}) failed: {}", current_error());
+        assert_eq!(
+            rc,
+            0,
+            "SDL_InitSubSystem({flags:#x}) failed: {}",
+            current_error()
+        );
         Self { flags }
     }
 }
