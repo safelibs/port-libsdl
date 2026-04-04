@@ -17,6 +17,7 @@ CPPFLAGS = @CPPFLAGS@
 CFLAGS  = @CFLAGS@ -g
 LIBS	= @LIBS@
 TESTEVDEV_LDFLAGS = -Wl,--wrap=open -Wl,--wrap=close -Wl,--wrap=read -Wl,--wrap=ioctl
+TESTEVDEV_LIBS = @TESTEVDEV_LIBS@
 
 TESTVULKAN_TARGET =
 TESTVULKAN_CFLAGS =
@@ -218,7 +219,7 @@ testerror$(EXE): $(srcdir)/testerror.c
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 testevdev$(EXE): $(srcdir)/testevdev.c
-	$(CC) -o $@ $^ $(CFLAGS) $(TESTEVDEV_LDFLAGS) $(LIBS)
+	$(CC) -o $@ $^ $(CFLAGS) $(TESTEVDEV_LDFLAGS) $(TESTEVDEV_LIBS)
 
 testfile$(EXE): $(srcdir)/testfile.c
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)

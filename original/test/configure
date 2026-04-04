@@ -627,7 +627,10 @@ OPENGLES2_TARGETS
 OPENGLES1_TARGETS
 CPP
 XMKMF
+TESTEVDEV_LIBS
+SDL_STATIC_LIBS
 SDL2_CONFIG
+SDL2_CONFIG_BINARY
 SDL_LIBS
 SDL_CFLAGS
 PKG_CONFIG_LIBDIR
@@ -3720,6 +3723,7 @@ esac
 
 
 SDL_VERSION=2.0.18
+BASE_LIBS="$LIBS"
 
 
 
@@ -3967,6 +3971,60 @@ fi
   if test "x$sdl_pc" = xyes ; then
     no_sdl=""
     SDL2_CONFIG="$PKG_CONFIG sdl2"
+    # Extract the first word of "sdl2-config", so it can be a program name with args.
+set dummy sdl2-config; ac_word=$2
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+printf %s "checking for $ac_word... " >&6; }
+if test ${ac_cv_path_SDL2_CONFIG_BINARY+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  case $SDL2_CONFIG_BINARY in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_SDL2_CONFIG_BINARY="$SDL2_CONFIG_BINARY" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  case $as_dir in #(((
+    '') as_dir=./ ;;
+    */) ;;
+    *) as_dir=$as_dir/ ;;
+  esac
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
+    ac_cv_path_SDL2_CONFIG_BINARY="$as_dir$ac_word$ac_exec_ext"
+    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_path_SDL2_CONFIG_BINARY" && ac_cv_path_SDL2_CONFIG_BINARY="no"
+  ;;
+esac
+fi
+SDL2_CONFIG_BINARY=$ac_cv_path_SDL2_CONFIG_BINARY
+if test -n "$SDL2_CONFIG_BINARY"; then
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $SDL2_CONFIG_BINARY" >&5
+printf "%s\n" "$SDL2_CONFIG_BINARY" >&6; }
+else
+  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+fi
+
+
+    if test "$SDL2_CONFIG_BINARY" = "no" ; then
+      SDL_STATIC_LIBS=`$PKG_CONFIG --static --libs sdl2`
+    else
+      SDL_STATIC_LIBS=`$SDL2_CONFIG_BINARY --static-libs 2>/dev/null`
+      if test "x$SDL_STATIC_LIBS" = x ; then
+        SDL_STATIC_LIBS=`$PKG_CONFIG --static --libs sdl2`
+      fi
+    fi
   else
     as_save_PATH="$PATH"
     if test "x$prefix" != xNONE && test "$cross_compiling" != yes; then
@@ -4028,6 +4086,10 @@ printf %s "checking for SDL - version >= $min_sdl_version... " >&6; }
     else
       SDL_CFLAGS=`$SDL2_CONFIG $sdl_config_args --cflags`
       SDL_LIBS=`$SDL2_CONFIG $sdl_config_args --libs`
+      SDL_STATIC_LIBS=`$SDL2_CONFIG $sdl_config_args --static-libs 2>/dev/null`
+      if test "x$SDL_STATIC_LIBS" = x ; then
+        SDL_STATIC_LIBS="$SDL_LIBS"
+      fi
 
       sdl_major_version=`$SDL2_CONFIG $sdl_config_args --version | \
              sed 's/\([0-9]*\).\([0-9]*\).\([0-9]*\)/\1/'`
@@ -4170,12 +4232,16 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
      fi
      SDL_CFLAGS=""
      SDL_LIBS=""
+     SDL_STATIC_LIBS=""
      as_fn_error $? "*** SDL version $SDL_VERSION not found!" "$LINENO" 5
 
   fi
 
 
+
   rm -f conf.sdltest
+
+TESTEVDEV_LIBS="$BASE_LIBS -lSDL2_test $SDL_STATIC_LIBS"
 
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS -lSDL2_test $SDL_LIBS"

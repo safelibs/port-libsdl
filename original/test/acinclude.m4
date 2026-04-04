@@ -44,6 +44,15 @@ AC_ARG_ENABLE(sdltest, [  --disable-sdltest       Do not try to compile and run 
   if test "x$sdl_pc" = xyes ; then
     no_sdl=""
     SDL2_CONFIG="$PKG_CONFIG sdl2"
+    AC_PATH_PROG(SDL2_CONFIG_BINARY, sdl2-config, no, [$PATH])
+    if test "$SDL2_CONFIG_BINARY" = "no" ; then
+      SDL_STATIC_LIBS=`$PKG_CONFIG --static --libs sdl2`
+    else
+      SDL_STATIC_LIBS=`$SDL2_CONFIG_BINARY --static-libs 2>/dev/null`
+      if test "x$SDL_STATIC_LIBS" = x ; then
+        SDL_STATIC_LIBS=`$PKG_CONFIG --static --libs sdl2`
+      fi
+    fi
   else
     as_save_PATH="$PATH"
     if test "x$prefix" != xNONE && test "$cross_compiling" != yes; then
@@ -59,6 +68,10 @@ AC_ARG_ENABLE(sdltest, [  --disable-sdltest       Do not try to compile and run 
     else
       SDL_CFLAGS=`$SDL2_CONFIG $sdl_config_args --cflags`
       SDL_LIBS=`$SDL2_CONFIG $sdl_config_args --libs`
+      SDL_STATIC_LIBS=`$SDL2_CONFIG $sdl_config_args --static-libs 2>/dev/null`
+      if test "x$SDL_STATIC_LIBS" = x ; then
+        SDL_STATIC_LIBS="$SDL_LIBS"
+      fi
 
       sdl_major_version=`$SDL2_CONFIG $sdl_config_args --version | \
              sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
@@ -170,10 +183,12 @@ int main(int argc, char *argv[])
      fi
      SDL_CFLAGS=""
      SDL_LIBS=""
+     SDL_STATIC_LIBS=""
      ifelse([$3], , :, [$3])
   fi
   AC_SUBST(SDL_CFLAGS)
   AC_SUBST(SDL_LIBS)
+  AC_SUBST(SDL_STATIC_LIBS)
   rm -f conf.sdltest
 ])
 # pkg.m4 - Macros to locate and utilise pkg-config.            -*- Autoconf -*-

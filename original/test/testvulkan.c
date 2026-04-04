@@ -200,8 +200,10 @@ static void shutdownVulkan(SDL_bool doDestroySwapchain);
 static void handleVulkanWatchdogSignal(int sig)
 {
     static const char message[] = "Skipping Vulkan test after a startup/runtime stall\n";
+    ssize_t written;
     (void)sig;
-    write(STDERR_FILENO, message, sizeof(message) - 1);
+    written = write(STDERR_FILENO, message, sizeof(message) - 1);
+    (void)written;
     _exit(0);
 }
 
