@@ -24,6 +24,19 @@ static int _compareSizeOfType(size_t sizeoftype, size_t hardcodetype)
     return sizeoftype != hardcodetype;
 }
 
+/**
+ * @brief Check that a function returned a valid SDL_bool.
+ */
+static void _assertValidSDLBoolResult(const char *name, SDL_bool value)
+{
+    SDLTest_AssertPass("%s", name);
+    SDLTest_AssertCheck(
+        value == SDL_FALSE || value == SDL_TRUE,
+        "%s returned a valid SDL_bool, got %d",
+        name,
+        (int)value);
+}
+
 /* Test case functions */
 
 /**
@@ -127,12 +140,18 @@ int platform_testEndianessAndSwap(void *arg)
  * http://wiki.libsdl.org/SDL_GetCPUCacheLineSize
  * http://wiki.libsdl.org/SDL_GetRevision
  * http://wiki.libsdl.org/SDL_GetRevisionNumber
+ * http://wiki.libsdl.org/SDL_GetSystemRAM
+ * http://wiki.libsdl.org/SDL_SIMDGetAlignment
  */
 int platform_testGetFunctions(void *arg)
 {
     char *platform;
     char *revision;
     int ret;
+    int system_ram;
+    int system_ram_again;
+    size_t alignment;
+    size_t alignment_again;
     size_t len;
 
     platform = (char *)SDL_GetPlatform();
@@ -162,6 +181,33 @@ int platform_testGetFunctions(void *arg)
     SDLTest_AssertPass("SDL_GetRevision()");
     SDLTest_AssertCheck(revision != NULL, "SDL_GetRevision() != NULL");
 
+    system_ram = SDL_GetSystemRAM();
+    SDLTest_AssertPass("SDL_GetSystemRAM()");
+    SDLTest_AssertCheck(system_ram > 0,
+                        "SDL_GetSystemRAM(): expected RAM > 0, was: %i",
+                        system_ram);
+    system_ram_again = SDL_GetSystemRAM();
+    SDLTest_AssertPass("SDL_GetSystemRAM() [again]");
+    SDLTest_AssertCheck(system_ram_again == system_ram,
+                        "SDL_GetSystemRAM(): expected stable value %i, was: %i",
+                        system_ram,
+                        system_ram_again);
+
+    alignment = SDL_SIMDGetAlignment();
+    SDLTest_AssertPass("SDL_SIMDGetAlignment()");
+    SDLTest_AssertCheck(alignment >= sizeof(void *),
+                        "SDL_SIMDGetAlignment(): expected alignment >= sizeof(void *), was %u",
+                        (unsigned int)alignment);
+    SDLTest_AssertCheck(alignment > 0 && (alignment & (alignment - 1)) == 0,
+                        "SDL_SIMDGetAlignment(): expected power-of-two alignment, was %u",
+                        (unsigned int)alignment);
+    alignment_again = SDL_SIMDGetAlignment();
+    SDLTest_AssertPass("SDL_SIMDGetAlignment() [again]");
+    SDLTest_AssertCheck(alignment_again == alignment,
+                        "SDL_SIMDGetAlignment(): expected stable value %u, was %u",
+                        (unsigned int)alignment,
+                        (unsigned int)alignment_again);
+
     return TEST_COMPLETED;
 }
 
@@ -178,40 +224,113 @@ int platform_testGetFunctions(void *arg)
  * http://wiki.libsdl.org/SDL_HasSSE41
  * http://wiki.libsdl.org/SDL_HasSSE42
  * http://wiki.libsdl.org/SDL_HasAVX
+ * http://wiki.libsdl.org/SDL_HasAVX2
+ * http://wiki.libsdl.org/SDL_HasAVX512F
+ * http://wiki.libsdl.org/SDL_HasARMSIMD
+ * http://wiki.libsdl.org/SDL_HasNEON
+ * http://wiki.libsdl.org/SDL_HasLSX
+ * http://wiki.libsdl.org/SDL_HasLASX
  */
 int platform_testHasFunctions(void *arg)
 {
     /* TODO: independently determine and compare values as well */
 
-    SDL_HasRDTSC();
-    SDLTest_AssertPass("SDL_HasRDTSC()");
+    _assertValidSDLBoolResult("SDL_HasRDTSC()", SDL_HasRDTSC());
+    _assertValidSDLBoolResult("SDL_HasAltiVec()", SDL_HasAltiVec());
+    _assertValidSDLBoolResult("SDL_HasMMX()", SDL_HasMMX());
+    _assertValidSDLBoolResult("SDL_Has3DNow()", SDL_Has3DNow());
+    _assertValidSDLBoolResult("SDL_HasSSE()", SDL_HasSSE());
+    _assertValidSDLBoolResult("SDL_HasSSE2()", SDL_HasSSE2());
+    _assertValidSDLBoolResult("SDL_HasSSE3()", SDL_HasSSE3());
+    _assertValidSDLBoolResult("SDL_HasSSE41()", SDL_HasSSE41());
+    _assertValidSDLBoolResult("SDL_HasSSE42()", SDL_HasSSE42());
+    _assertValidSDLBoolResult("SDL_HasAVX()", SDL_HasAVX());
+    _assertValidSDLBoolResult("SDL_HasAVX2()", SDL_HasAVX2());
+    _assertValidSDLBoolResult("SDL_HasAVX512F()", SDL_HasAVX512F());
+    _assertValidSDLBoolResult("SDL_HasARMSIMD()", SDL_HasARMSIMD());
+    _assertValidSDLBoolResult("SDL_HasNEON()", SDL_HasNEON());
+    _assertValidSDLBoolResult("SDL_HasLSX()", SDL_HasLSX());
+    _assertValidSDLBoolResult("SDL_HasLASX()", SDL_HasLASX());
 
-    SDL_HasAltiVec();
-    SDLTest_AssertPass("SDL_HasAltiVec()");
+    return TEST_COMPLETED;
+}
 
-    SDL_HasMMX();
-    SDLTest_AssertPass("SDL_HasMMX()");
+/* !
+ * \brief Tests SDL SIMD allocation helpers
+ * \sa
+ * http://wiki.libsdl.org/SDL_SIMDAlloc
+ * http://wiki.libsdl.org/SDL_SIMDRealloc
+ * http://wiki.libsdl.org/SDL_SIMDFree
+ */
+int platform_testSIMDFunctions(void *arg)
+{
+    const size_t original_length = 257;
+    const size_t shrunk_length = 113;
+    size_t alignment;
+    Uint8 *memory;
+    Uint8 *reallocated_memory;
+    size_t i;
 
-    SDL_Has3DNow();
-    SDLTest_AssertPass("SDL_Has3DNow()");
+    alignment = SDL_SIMDGetAlignment();
 
-    SDL_HasSSE();
-    SDLTest_AssertPass("SDL_HasSSE()");
+    SDL_SIMDFree(NULL);
+    SDLTest_AssertPass("SDL_SIMDFree(NULL)");
 
-    SDL_HasSSE2();
-    SDLTest_AssertPass("SDL_HasSSE2()");
+    memory = (Uint8 *)SDL_SIMDAlloc(original_length);
+    SDLTest_AssertPass("SDL_SIMDAlloc(%u)", (unsigned int)original_length);
+    SDLTest_AssertCheck(memory != NULL, "SDL_SIMDAlloc(%u) returned non-NULL", (unsigned int)original_length);
+    if (memory == NULL) {
+        return TEST_ABORTED;
+    }
+    SDLTest_AssertCheck((((size_t)memory) % alignment) == 0,
+                        "SDL_SIMDAlloc(%u): expected %u-byte alignment, got %p",
+                        (unsigned int)original_length,
+                        (unsigned int)alignment,
+                        (void *)memory);
 
-    SDL_HasSSE3();
-    SDLTest_AssertPass("SDL_HasSSE3()");
+    for (i = 0; i < original_length; ++i) {
+        memory[i] = (Uint8)(i & 0xFF);
+    }
 
-    SDL_HasSSE41();
-    SDLTest_AssertPass("SDL_HasSSE41()");
+    reallocated_memory = (Uint8 *)SDL_SIMDRealloc(memory, shrunk_length);
+    SDLTest_AssertPass("SDL_SIMDRealloc(memory,%u)", (unsigned int)shrunk_length);
+    SDLTest_AssertCheck(reallocated_memory != NULL, "SDL_SIMDRealloc(...,%u) returned non-NULL", (unsigned int)shrunk_length);
+    if (reallocated_memory == NULL) {
+        SDL_SIMDFree(memory);
+        return TEST_ABORTED;
+    }
+    SDLTest_AssertCheck((((size_t)reallocated_memory) % alignment) == 0,
+                        "SDL_SIMDRealloc(...,%u): expected %u-byte alignment, got %p",
+                        (unsigned int)shrunk_length,
+                        (unsigned int)alignment,
+                        (void *)reallocated_memory);
 
-    SDL_HasSSE42();
-    SDLTest_AssertPass("SDL_HasSSE42()");
+    for (i = 0; i < shrunk_length; ++i) {
+        SDLTest_AssertCheck(reallocated_memory[i] == (Uint8)(i & 0xFF),
+                            "SDL_SIMDRealloc(...,%u): preserved byte %u, expected %u, got %u",
+                            (unsigned int)shrunk_length,
+                            (unsigned int)i,
+                            (unsigned int)(i & 0xFF),
+                            (unsigned int)reallocated_memory[i]);
+    }
 
-    SDL_HasAVX();
-    SDLTest_AssertPass("SDL_HasAVX()");
+    SDL_SIMDFree(reallocated_memory);
+    SDLTest_AssertPass("SDL_SIMDFree(reallocated_memory)");
+
+    reallocated_memory = (Uint8 *)SDL_SIMDRealloc(NULL, original_length);
+    SDLTest_AssertPass("SDL_SIMDRealloc(NULL,%u)", (unsigned int)original_length);
+    SDLTest_AssertCheck(reallocated_memory != NULL, "SDL_SIMDRealloc(NULL,%u) returned non-NULL", (unsigned int)original_length);
+    if (reallocated_memory == NULL) {
+        return TEST_ABORTED;
+    }
+    SDLTest_AssertCheck((((size_t)reallocated_memory) % alignment) == 0,
+                        "SDL_SIMDRealloc(NULL,%u): expected %u-byte alignment, got %p",
+                        (unsigned int)original_length,
+                        (unsigned int)alignment,
+                        (void *)reallocated_memory);
+
+    SDL_SIMDFree(reallocated_memory);
+    SDLTest_AssertPass("SDL_SIMDFree(reallocated_memory) [from realloc(NULL,...)]");
 
     return TEST_COMPLETED;
 }
@@ -585,6 +704,10 @@ static const SDLTest_TestCaseReference platformTest11 = {
     (SDLTest_TestCaseFp)platform_testGetPowerInfo, "platform_testGetPowerInfo", "Tests SDL_GetPowerInfo function", TEST_ENABLED
 };
 
+static const SDLTest_TestCaseReference platformTest12 = {
+    (SDLTest_TestCaseFp)platform_testSIMDFunctions, "platform_testSIMDFunctions", "Tests SDL SIMD allocation helpers", TEST_ENABLED
+};
+
 /* Sequence of Platform test cases */
 static const SDLTest_TestCaseReference *platformTests[] = {
     &platformTest1,
@@ -598,6 +721,7 @@ static const SDLTest_TestCaseReference *platformTests[] = {
     &platformTest9,
     &platformTest10,
     &platformTest11,
+    &platformTest12,
     NULL
 };
 
