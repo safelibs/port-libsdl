@@ -461,12 +461,27 @@ pub fn verify_captured_contracts(args: ContractArgs) -> Result<()> {
     Ok(())
 }
 
-pub fn verify_test_port_map(repo_root: &Path, map_path: &Path, original_dir: &Path) -> Result<()> {
+pub fn verify_test_port_map(
+    repo_root: &Path,
+    map_path: &Path,
+    original_dir: &Path,
+    expect_source_files: Option<usize>,
+    expect_executable_targets: Option<usize>,
+) -> Result<()> {
     let port_map: OriginalTestPortMap = read_json(map_path)?;
     let expected_sources = upstream_test_source_files(original_dir)?;
-    if port_map.entries.len() != 116 {
+    let expected_source_files = expect_source_files.unwrap_or(116);
+    if expected_sources.len() != expected_source_files {
         bail!(
-            "expected 116 upstream test/support source files, found {}",
+            "authoritative upstream source-file count mismatch: expected {}, found {}",
+            expected_source_files,
+            expected_sources.len()
+        );
+    }
+    if port_map.entries.len() != expected_source_files {
+        bail!(
+            "expected {} upstream test/support source files, found {}",
+            expected_source_files,
             port_map.entries.len()
         );
     }
@@ -491,6 +506,21 @@ pub fn verify_test_port_map(repo_root: &Path, map_path: &Path, original_dir: &Pa
         );
     }
     let expected_targets = all_test_targets(original_dir)?;
+    let expected_executable_targets = expect_executable_targets.unwrap_or(71);
+    if expected_targets.len() != expected_executable_targets {
+        bail!(
+            "authoritative upstream executable-target count mismatch: expected {}, found {}",
+            expected_executable_targets,
+            expected_targets.len()
+        );
+    }
+    if port_map.target_ownership.len() != expected_executable_targets {
+        bail!(
+            "expected {} executable target ownership entries, found {}",
+            expected_executable_targets,
+            port_map.target_ownership.len()
+        );
+    }
     let owned_targets: BTreeSet<_> = port_map
         .target_ownership
         .iter()
@@ -516,10 +546,11 @@ pub fn abi_check(
     library: Option<&Path>,
     require_soname: Option<&str>,
 ) -> Result<()> {
-    let symbol_manifest: LinuxSymbolManifest = read_json(symbols_manifest_path)?;
-    let dynapi_manifest: DynapiManifest = read_json(dynapi_manifest_path)?;
+    let symbol_manifest = load_linux_symbol_manifest_input(symbols_manifest_path)?;
+    let dynapi_manifest = load_dynapi_manifest_input(dynapi_manifest_path)?;
 
-    let stubs_source = fs::read_to_string(exports_source_path)
+    let resolved_exports_source = resolve_exports_source_path(repo_root, exports_source_path);
+    let stubs_source = fs::read_to_string(&resolved_exports_source)
         .context("read generated_linux_stubs.rs")?;
     let stub_symbols = extract_stub_symbol_names(&stubs_source)?;
     for symbol in &symbol_manifest.symbols {
@@ -587,6 +618,30 @@ pub fn abi_check(
     }
 
     Ok(())
+}
+
+fn load_linux_symbol_manifest_input(path: &Path) -> Result<LinuxSymbolManifest> {
+    if path.extension() == Some(OsStr::new("json")) {
+        read_json(path)
+    } else {
+        parse_linux_symbol_manifest(path)
+    }
+}
+
+fn load_dynapi_manifest_input(path: &Path) -> Result<DynapiManifest> {
+    if path.extension() == Some(OsStr::new("json")) {
+        read_json(path)
+    } else {
+        parse_dynapi_manifest(path)
+    }
+}
+
+fn resolve_exports_source_path(repo_root: &Path, exports_input_path: &Path) -> PathBuf {
+    if exports_input_path.extension() == Some(OsStr::new("rs")) {
+        exports_input_path.to_path_buf()
+    } else {
+        repo_root.join("safe/src/exports/generated_linux_stubs.rs")
+    }
 }
 
 pub fn generate_real_sdl_config() -> String {
@@ -987,7 +1042,11 @@ fn build_header_phase_map(inventory: &PublicHeaderInventory) -> HeaderPhaseMap {
 
 fn build_linux_symbol_manifest(inputs: &Inputs) -> Result<LinuxSymbolManifest> {
     let symbols_path = inputs.original_dir.join("debian/libsdl2-2.0-0.symbols");
-    let contents = fs::read_to_string(&symbols_path)?;
+    parse_linux_symbol_manifest(&symbols_path)
+}
+
+fn parse_linux_symbol_manifest(symbols_path: &Path) -> Result<LinuxSymbolManifest> {
+    let contents = fs::read_to_string(symbols_path)?;
     let mut lines = contents.lines();
     let header = lines.next().ok_or_else(|| anyhow!("empty symbols file"))?;
     let soname = header
@@ -1020,7 +1079,11 @@ fn build_linux_symbol_manifest(inputs: &Inputs) -> Result<LinuxSymbolManifest> {
 
 fn build_dynapi_manifest(inputs: &Inputs) -> Result<DynapiManifest> {
     let path = inputs.original_dir.join("src/dynapi/SDL_dynapi_procs.h");
-    let contents = fs::read_to_string(&path)?;
+    parse_dynapi_manifest(&path)
+}
+
+fn parse_dynapi_manifest(path: &Path) -> Result<DynapiManifest> {
+    let contents = fs::read_to_string(path)?;
     let proc_re = Regex::new(r#"SDL_DYNAPI_PROC\([^,]+,\s*([A-Za-z0-9_]+),"#)?;
     let mut guard_stack: Vec<String> = Vec::new();
     let mut slots = Vec::new();

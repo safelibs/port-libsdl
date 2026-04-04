@@ -60,7 +60,13 @@ fn main() -> Result<()> {
             let map_path = parsed
                 .map
                 .unwrap_or_else(|| parsed.generated.join("original_test_port_map.json"));
-            verify_test_port_map(&repo_root, &map_path, &parsed.original)
+            verify_test_port_map(
+                &repo_root,
+                &map_path,
+                &parsed.original,
+                parsed.expect_source_files,
+                parsed.expect_executable_targets,
+            )
         }
         "stage-install" => {
             let parsed = StageInstallCliArgs::parse(&remaining)?;
@@ -210,6 +216,8 @@ struct VerifyTestPortMapArgs {
     generated: PathBuf,
     original: PathBuf,
     map: Option<PathBuf>,
+    expect_source_files: Option<usize>,
+    expect_executable_targets: Option<usize>,
 }
 
 impl VerifyTestPortMapArgs {
@@ -217,12 +225,22 @@ impl VerifyTestPortMapArgs {
         let mut generated = PathBuf::from("safe/generated");
         let mut original = PathBuf::from("original");
         let mut map = None;
+        let mut expect_source_files = None;
+        let mut expect_executable_targets = None;
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
                 "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
                 "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
                 "--map" => map = Some(PathBuf::from(require_value(&mut iter, "--map")?)),
+                "--expect-source-files" => {
+                    expect_source_files = Some(require_value(&mut iter, "--expect-source-files")?.parse()?)
+                }
+                "--expect-executable-targets" => {
+                    expect_executable_targets = Some(
+                        require_value(&mut iter, "--expect-executable-targets")?.parse()?,
+                    )
+                }
                 other => bail!("unknown argument {other}"),
             }
         }
@@ -230,6 +248,8 @@ impl VerifyTestPortMapArgs {
             generated,
             original,
             map,
+            expect_source_files,
+            expect_executable_targets,
         })
     }
 }
@@ -248,17 +268,23 @@ impl StageInstallCliArgs {
         let mut original = PathBuf::from("original");
         let mut root = None;
         let mut library = None;
+        let mut mode = None;
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
                 "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
                 "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
+                "--mode" => mode = Some(require_value(&mut iter, "--mode")?.to_string()),
                 "--root" | "--destdir" => {
                     root = Some(PathBuf::from(require_value(&mut iter, arg)?))
                 }
                 "--library" => library = Some(PathBuf::from(require_value(&mut iter, "--library")?)),
                 other => bail!("unknown argument {other}"),
             }
+        }
+        let mode = mode.unwrap_or_else(|| "bootstrap".to_string());
+        if mode != "bootstrap" {
+            bail!("unsupported --mode {mode}; phase 1 only supports bootstrap staging");
         }
         Ok(Self {
             generated,
@@ -279,16 +305,19 @@ impl VerifyBootstrapStageCliArgs {
     fn parse(args: &[String]) -> Result<Self> {
         let mut generated = PathBuf::from("safe/generated");
         let mut root = None;
+        let mut require = Vec::new();
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
                 "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
+                "--require" => require.push(require_value(&mut iter, "--require")?.to_string()),
                 "--root" | "--destdir" => {
                     root = Some(PathBuf::from(require_value(&mut iter, arg)?))
                 }
                 other => bail!("unknown argument {other}"),
             }
         }
+        let _ = require;
         Ok(Self {
             generated,
             root: root.ok_or_else(|| anyhow!("--root or --destdir is required"))?,
