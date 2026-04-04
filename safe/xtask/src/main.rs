@@ -35,16 +35,32 @@ fn main() -> Result<()> {
         }
         "abi-check" => {
             let parsed = AbiCheckArgs::parse(&remaining)?;
+            let symbols_manifest = parsed
+                .symbols
+                .unwrap_or_else(|| parsed.generated.join("linux_symbol_manifest.json"));
+            let dynapi_manifest = parsed
+                .dynapi
+                .unwrap_or_else(|| parsed.generated.join("dynapi_manifest.json"));
+            let exports_source = parsed
+                .exports
+                .unwrap_or_else(|| PathBuf::from("safe/src/exports/generated_linux_stubs.rs"));
+            let dynapi_source = PathBuf::from("safe/src/dynapi/generated.rs");
             abi_check(
                 &repo_root,
-                &parsed.generated,
+                &symbols_manifest,
+                &dynapi_manifest,
+                &exports_source,
+                &dynapi_source,
                 parsed.library.as_deref(),
                 parsed.require_soname.as_deref(),
             )
         }
         "verify-test-port-map" => {
             let parsed = VerifyTestPortMapArgs::parse(&remaining)?;
-            verify_test_port_map(&repo_root, &parsed.generated, &parsed.original)
+            let map_path = parsed
+                .map
+                .unwrap_or_else(|| parsed.generated.join("original_test_port_map.json"));
+            verify_test_port_map(&repo_root, &map_path, &parsed.original)
         }
         "stage-install" => {
             let parsed = StageInstallCliArgs::parse(&remaining)?;
@@ -149,6 +165,9 @@ impl CommonArgs {
 #[derive(Debug)]
 struct AbiCheckArgs {
     generated: PathBuf,
+    symbols: Option<PathBuf>,
+    dynapi: Option<PathBuf>,
+    exports: Option<PathBuf>,
     library: Option<PathBuf>,
     require_soname: Option<String>,
 }
@@ -156,12 +175,18 @@ struct AbiCheckArgs {
 impl AbiCheckArgs {
     fn parse(args: &[String]) -> Result<Self> {
         let mut generated = PathBuf::from("safe/generated");
+        let mut symbols = None;
+        let mut dynapi = None;
+        let mut exports = None;
         let mut library = None;
         let mut require_soname = None;
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
                 "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
+                "--symbols" => symbols = Some(PathBuf::from(require_value(&mut iter, "--symbols")?)),
+                "--dynapi" => dynapi = Some(PathBuf::from(require_value(&mut iter, "--dynapi")?)),
+                "--exports" => exports = Some(PathBuf::from(require_value(&mut iter, "--exports")?)),
                 "--library" => library = Some(PathBuf::from(require_value(&mut iter, "--library")?)),
                 "--require-soname" => {
                     require_soname = Some(require_value(&mut iter, "--require-soname")?.to_string())
@@ -171,6 +196,9 @@ impl AbiCheckArgs {
         }
         Ok(Self {
             generated,
+            symbols,
+            dynapi,
+            exports,
             library,
             require_soname,
         })
@@ -181,21 +209,28 @@ impl AbiCheckArgs {
 struct VerifyTestPortMapArgs {
     generated: PathBuf,
     original: PathBuf,
+    map: Option<PathBuf>,
 }
 
 impl VerifyTestPortMapArgs {
     fn parse(args: &[String]) -> Result<Self> {
         let mut generated = PathBuf::from("safe/generated");
         let mut original = PathBuf::from("original");
+        let mut map = None;
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
                 "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
                 "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
+                "--map" => map = Some(PathBuf::from(require_value(&mut iter, "--map")?)),
                 other => bail!("unknown argument {other}"),
             }
         }
-        Ok(Self { generated, original })
+        Ok(Self {
+            generated,
+            original,
+            map,
+        })
     }
 }
 
@@ -218,7 +253,9 @@ impl StageInstallCliArgs {
             match arg.as_str() {
                 "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
                 "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
-                "--root" => root = Some(PathBuf::from(require_value(&mut iter, "--root")?)),
+                "--root" | "--destdir" => {
+                    root = Some(PathBuf::from(require_value(&mut iter, arg)?))
+                }
                 "--library" => library = Some(PathBuf::from(require_value(&mut iter, "--library")?)),
                 other => bail!("unknown argument {other}"),
             }
@@ -226,7 +263,7 @@ impl StageInstallCliArgs {
         Ok(Self {
             generated,
             original,
-            root: root.ok_or_else(|| anyhow!("--root is required"))?,
+            root: root.ok_or_else(|| anyhow!("--root or --destdir is required"))?,
             library,
         })
     }
@@ -246,13 +283,15 @@ impl VerifyBootstrapStageCliArgs {
         while let Some(arg) = iter.next() {
             match arg.as_str() {
                 "--generated" => generated = PathBuf::from(require_value(&mut iter, "--generated")?),
-                "--root" => root = Some(PathBuf::from(require_value(&mut iter, "--root")?)),
+                "--root" | "--destdir" => {
+                    root = Some(PathBuf::from(require_value(&mut iter, arg)?))
+                }
                 other => bail!("unknown argument {other}"),
             }
         }
         Ok(Self {
             generated,
-            root: root.ok_or_else(|| anyhow!("--root is required"))?,
+            root: root.ok_or_else(|| anyhow!("--root or --destdir is required"))?,
         })
     }
 }

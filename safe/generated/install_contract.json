@@ -100,6 +100,10 @@
     "usr/lib/x86_64-linux-gnu/cmake/SDL2/sdl2-config-version.cmake",
     "usr/lib/x86_64-linux-gnu/cmake/SDL2/SDL2Config.cmake",
     "usr/lib/x86_64-linux-gnu/cmake/SDL2/SDL2ConfigVersion.cmake",
+    "usr/lib/x86_64-linux-gnu/cmake/SDL2/SDL2Targets.cmake",
+    "usr/lib/x86_64-linux-gnu/cmake/SDL2/SDL2staticTargets.cmake",
+    "usr/lib/x86_64-linux-gnu/cmake/SDL2/SDL2mainTargets.cmake",
+    "usr/lib/x86_64-linux-gnu/cmake/SDL2/SDL2testTargets.cmake",
     "usr/lib/x86_64-linux-gnu/cmake/SDL2/sdlfind.cmake"
   ],
   "dev_paths": [

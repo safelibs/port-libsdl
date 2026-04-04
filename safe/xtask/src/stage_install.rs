@@ -177,9 +177,45 @@ fn install_cmake_surface(original_dir: &Path, stage_root: &Path) -> Result<()> {
     fs::write(cmake_dir.join("sdl2-config-version.cmake"), &lower_version)?;
     fs::write(
         cmake_dir.join("SDL2Config.cmake"),
-        "include(\"${CMAKE_CURRENT_LIST_DIR}/sdl2-config.cmake\")\n",
+        render_uppercase_cmake_config(),
     )?;
     fs::write(cmake_dir.join("SDL2ConfigVersion.cmake"), &lower_version)?;
+    fs::write(
+        cmake_dir.join("SDL2Targets.cmake"),
+        render_imported_target_export(
+            "SDL2::SDL2",
+            "SHARED",
+            "${CMAKE_CURRENT_LIST_DIR}/../../libSDL2.so",
+            &[],
+        ),
+    )?;
+    fs::write(
+        cmake_dir.join("SDL2staticTargets.cmake"),
+        render_imported_target_export(
+            "SDL2::SDL2-static",
+            "STATIC",
+            "${CMAKE_CURRENT_LIST_DIR}/../../libSDL2.a",
+            &["INTERFACE_LINK_LIBRARIES \"dl;m;pthread;rt\""],
+        ),
+    )?;
+    fs::write(
+        cmake_dir.join("SDL2mainTargets.cmake"),
+        render_imported_target_export(
+            "SDL2::SDL2main",
+            "STATIC",
+            "${CMAKE_CURRENT_LIST_DIR}/../../libSDL2main.a",
+            &["INTERFACE_LINK_LIBRARIES \"SDL2::SDL2\""],
+        ),
+    )?;
+    fs::write(
+        cmake_dir.join("SDL2testTargets.cmake"),
+        render_imported_target_export(
+            "SDL2::SDL2test",
+            "STATIC",
+            "${CMAKE_CURRENT_LIST_DIR}/../../libSDL2_test.a",
+            &["INTERFACE_LINK_LIBRARIES \"SDL2::SDL2\""],
+        ),
+    )?;
     fs::copy(
         original_dir.join("cmake/sdlfind.cmake"),
         cmake_dir.join("sdlfind.cmake"),
@@ -204,6 +240,45 @@ fn render_lowercase_cmake_config(original_dir: &Path) -> Result<String> {
 fn render_lowercase_cmake_version(original_dir: &Path) -> Result<String> {
     let template = fs::read_to_string(original_dir.join("sdl2-config-version.cmake.in"))?;
     Ok(template.replace("@SDL_VERSION@", SDL_VERSION))
+}
+
+fn render_uppercase_cmake_config() -> String {
+    [
+        "include(\"${CMAKE_CURRENT_LIST_DIR}/sdl2-config.cmake\")",
+        "foreach(_sdl2_targets_file SDL2Targets.cmake SDL2staticTargets.cmake SDL2mainTargets.cmake SDL2testTargets.cmake)",
+        "  if(EXISTS \"${CMAKE_CURRENT_LIST_DIR}/${_sdl2_targets_file}\")",
+        "    include(\"${CMAKE_CURRENT_LIST_DIR}/${_sdl2_targets_file}\")",
+        "  endif()",
+        "endforeach()",
+        "",
+    ]
+    .join("\n")
+}
+
+fn render_imported_target_export(
+    target_name: &str,
+    library_kind: &str,
+    imported_location: &str,
+    extra_properties: &[&str],
+) -> String {
+    let mut properties = vec![
+        format!("    IMPORTED_LOCATION \"{imported_location}\""),
+        format!(
+            "    INTERFACE_INCLUDE_DIRECTORIES \"${{CMAKE_CURRENT_LIST_DIR}}/../../../../include/SDL2\""
+        ),
+        "    IMPORTED_LINK_INTERFACE_LANGUAGES \"C\"".to_string(),
+    ];
+    if target_name == "SDL2::SDL2" {
+        properties.push(format!("    IMPORTED_SONAME \"{SDL_SONAME}\""));
+    }
+    for property in extra_properties {
+        properties.push(format!("    {property}"));
+    }
+
+    format!(
+        "if(NOT TARGET {target_name})\n  add_library({target_name} {library_kind} IMPORTED)\n  set_target_properties({target_name} PROPERTIES\n{}\n  )\nendif()\n",
+        properties.join("\n")
+    )
 }
 
 fn install_helper_archives(repo_root: &Path, original_dir: &Path, stage_root: &Path) -> Result<()> {

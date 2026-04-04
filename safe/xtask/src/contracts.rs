@@ -461,9 +461,8 @@ pub fn verify_captured_contracts(args: ContractArgs) -> Result<()> {
     Ok(())
 }
 
-pub fn verify_test_port_map(repo_root: &Path, generated_dir: &Path, original_dir: &Path) -> Result<()> {
-    let port_map: OriginalTestPortMap =
-        read_json(&generated_dir.join("original_test_port_map.json"))?;
+pub fn verify_test_port_map(repo_root: &Path, map_path: &Path, original_dir: &Path) -> Result<()> {
+    let port_map: OriginalTestPortMap = read_json(map_path)?;
     let expected_sources = upstream_test_source_files(original_dir)?;
     if port_map.entries.len() != 116 {
         bail!(
@@ -508,15 +507,19 @@ pub fn verify_test_port_map(repo_root: &Path, generated_dir: &Path, original_dir
     Ok(())
 }
 
-pub fn abi_check(repo_root: &Path, generated_dir: &Path, library: Option<&Path>, require_soname: Option<&str>) -> Result<()> {
-    let symbol_manifest: LinuxSymbolManifest =
-        read_json(&generated_dir.join("linux_symbol_manifest.json"))?;
-    let dynapi_manifest: DynapiManifest = read_json(&generated_dir.join("dynapi_manifest.json"))?;
-    let safe_root = generated_dir
-        .parent()
-        .ok_or_else(|| anyhow!("generated dir {} has no parent", generated_dir.display()))?;
+pub fn abi_check(
+    repo_root: &Path,
+    symbols_manifest_path: &Path,
+    dynapi_manifest_path: &Path,
+    exports_source_path: &Path,
+    dynapi_source_path: &Path,
+    library: Option<&Path>,
+    require_soname: Option<&str>,
+) -> Result<()> {
+    let symbol_manifest: LinuxSymbolManifest = read_json(symbols_manifest_path)?;
+    let dynapi_manifest: DynapiManifest = read_json(dynapi_manifest_path)?;
 
-    let stubs_source = fs::read_to_string(safe_root.join("src/exports/generated_linux_stubs.rs"))
+    let stubs_source = fs::read_to_string(exports_source_path)
         .context("read generated_linux_stubs.rs")?;
     let stub_symbols = extract_stub_symbol_names(&stubs_source)?;
     for symbol in &symbol_manifest.symbols {
@@ -525,7 +528,7 @@ pub fn abi_check(repo_root: &Path, generated_dir: &Path, library: Option<&Path>,
         }
     }
 
-    let dynapi_source = fs::read_to_string(safe_root.join("src/dynapi/generated.rs"))
+    let dynapi_source = fs::read_to_string(dynapi_source_path)
         .context("read dynapi/generated.rs")?;
     let dynapi_slots = extract_dynapi_source_slots(&dynapi_source)?;
     if dynapi_slots.len() != dynapi_manifest.slots.len() {
@@ -1638,6 +1641,10 @@ fn build_install_contract(
             format!("usr/lib/{UBUNTU_MULTIARCH}/cmake/SDL2/sdl2-config-version.cmake"),
             format!("usr/lib/{UBUNTU_MULTIARCH}/cmake/SDL2/SDL2Config.cmake"),
             format!("usr/lib/{UBUNTU_MULTIARCH}/cmake/SDL2/SDL2ConfigVersion.cmake"),
+            format!("usr/lib/{UBUNTU_MULTIARCH}/cmake/SDL2/SDL2Targets.cmake"),
+            format!("usr/lib/{UBUNTU_MULTIARCH}/cmake/SDL2/SDL2staticTargets.cmake"),
+            format!("usr/lib/{UBUNTU_MULTIARCH}/cmake/SDL2/SDL2mainTargets.cmake"),
+            format!("usr/lib/{UBUNTU_MULTIARCH}/cmake/SDL2/SDL2testTargets.cmake"),
             format!("usr/lib/{UBUNTU_MULTIARCH}/cmake/SDL2/sdlfind.cmake"),
         ],
         dev_paths: vec![
