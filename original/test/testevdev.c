@@ -401,6 +401,9 @@ run_test(void)
     SDL_GameController *controller = NULL;
     const char *device_name = NULL;
     const char *device_path = NULL;
+    int device_index = -1;
+    int num_joysticks;
+    int i;
     int result = 1;
     char guid_string[33];
     char mapping[512];
@@ -412,7 +415,6 @@ run_test(void)
         return fail_sdl("create_fake_device_paths");
     }
 
-    SDL_SetHint("SDL_JOYSTICK_DISABLE_UDEV", "1");
     SDL_SetHint(SDL_HINT_JOYSTICK_DEVICE, joystick_path);
 
     if (SDL_Init(SDL_INIT_GAMECONTROLLER) < 0) {
@@ -420,37 +422,52 @@ run_test(void)
         goto done;
     }
 
-    if (SDL_NumJoysticks() != 1) {
-        SDL_SetError("Expected 1 joystick, got %d", SDL_NumJoysticks());
+    num_joysticks = SDL_NumJoysticks();
+    if (num_joysticks < 1) {
+        SDL_SetError("Expected at least 1 joystick, got %d", num_joysticks);
         result = fail_sdl("SDL_NumJoysticks");
         goto done;
     }
 
-    device_name = SDL_JoystickNameForIndex(0);
-    if (!device_name || !*device_name) {
-        SDL_SetError("SDL_JoystickNameForIndex(0) returned no name");
-        result = fail_sdl("SDL_JoystickNameForIndex");
-        goto done;
+    for (i = 0; i < num_joysticks; ++i) {
+        device_path = SDL_JoystickPathForIndex(i);
+        if (device_path && SDL_strcmp(device_path, joystick_path) == 0) {
+            device_index = i;
+            break;
+        }
     }
-
-    device_path = SDL_JoystickPathForIndex(0);
-    if (!device_path || SDL_strcmp(device_path, joystick_path) != 0) {
-        SDL_SetError("SDL_JoystickPathForIndex(0) returned \"%s\", expected \"%s\"",
-                     device_path ? device_path : "(null)", joystick_path);
+    if (device_index < 0) {
+        SDL_SetError("Couldn't find synthetic joystick path \"%s\" among %d devices",
+                     joystick_path, num_joysticks);
         result = fail_sdl("SDL_JoystickPathForIndex");
         goto done;
     }
 
-    if (SDL_JoystickGetDeviceVendor(0) != TEST_USB_VENDOR_SONY ||
-        SDL_JoystickGetDeviceProduct(0) != TEST_USB_PRODUCT_DUALSHOCK4) {
+    device_name = SDL_JoystickNameForIndex(device_index);
+    if (!device_name || !*device_name) {
+        SDL_SetError("SDL_JoystickNameForIndex(%d) returned no name", device_index);
+        result = fail_sdl("SDL_JoystickNameForIndex");
+        goto done;
+    }
+
+    device_path = SDL_JoystickPathForIndex(device_index);
+    if (!device_path || SDL_strcmp(device_path, joystick_path) != 0) {
+        SDL_SetError("SDL_JoystickPathForIndex(%d) returned \"%s\", expected \"%s\"",
+                     device_index, device_path ? device_path : "(null)", joystick_path);
+        result = fail_sdl("SDL_JoystickPathForIndex");
+        goto done;
+    }
+
+    if (SDL_JoystickGetDeviceVendor(device_index) != TEST_USB_VENDOR_SONY ||
+        SDL_JoystickGetDeviceProduct(device_index) != TEST_USB_PRODUCT_DUALSHOCK4) {
         SDL_SetError("Unexpected vendor/product 0x%04x/0x%04x",
-                     SDL_JoystickGetDeviceVendor(0),
-                     SDL_JoystickGetDeviceProduct(0));
+                     SDL_JoystickGetDeviceVendor(device_index),
+                     SDL_JoystickGetDeviceProduct(device_index));
         result = fail_sdl("SDL_JoystickGetDeviceVendor/Product");
         goto done;
     }
 
-    SDL_JoystickGetGUIDString(SDL_JoystickGetDeviceGUID(0), guid_string, sizeof(guid_string));
+    SDL_JoystickGetGUIDString(SDL_JoystickGetDeviceGUID(device_index), guid_string, sizeof(guid_string));
     SDL_snprintf(mapping, sizeof(mapping),
                  "%s,%s,a:b0,b:b1,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b10,leftshoulder:b4,leftstick:b11,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b12,righttrigger:a5,rightx:a3,righty:a4,start:b9,x:b2,y:b3,",
                  guid_string, device_name);
@@ -459,13 +476,13 @@ run_test(void)
         goto done;
     }
 
-    if (!SDL_IsGameController(0)) {
-        SDL_SetError("SDL_IsGameController(0) returned false");
+    if (!SDL_IsGameController(device_index)) {
+        SDL_SetError("SDL_IsGameController(%d) returned false", device_index);
         result = fail_sdl("SDL_IsGameController");
         goto done;
     }
 
-    controller = SDL_GameControllerOpen(0);
+    controller = SDL_GameControllerOpen(device_index);
     if (!controller) {
         result = fail_sdl("SDL_GameControllerOpen");
         goto done;
@@ -505,7 +522,6 @@ done:
         SDL_Quit();
     }
     SDL_SetHint(SDL_HINT_JOYSTICK_DEVICE, "");
-    SDL_SetHint("SDL_JOYSTICK_DISABLE_UDEV", "0");
     destroy_fake_device_paths();
     return result;
 }
