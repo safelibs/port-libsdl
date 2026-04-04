@@ -1,0 +1,104 @@
+{
+  "generated_at_utc": "2026-04-04T07:44:42Z",
+  "source_file": "all_cves.json",
+  "repo_package_version": "2.30.0+dfsg-1ubuntu3.1",
+  "analysis_note": "This file identifies CVEs whose bug class may still matter during a Rust reimplementation of core SDL. It is not a claim that the unpacked 2.30.0 source is still vulnerable.",
+  "analysis_scope": {
+    "total_cves_reviewed": 27,
+    "direct_core_sdl_cves_reviewed": 19,
+    "related_sdl_image_cves_excluded": 7,
+    "debian_not_for_us_cves_excluded": 1
+  },
+  "selection_rules": [
+    "Only CVEs classified as direct-libsdl2 or direct-libsdl1.2 were considered for the final set.",
+    "Pure C memory-corruption findings such as buffer overflows, over-reads, use-after-free, and invalid-free issues were excluded because safe Rust should directly remove that exploit class.",
+    "Resource leaks were included because Rust does not automatically clean up external GPU or OS resources after partial initialization failures.",
+    "Arithmetic-overflow CVEs were included when the root problem is unchecked size or dimension math that can still cause denial of service, panics, or wrong allocation behavior in Rust even if safe Rust removes the downstream memory corruption.",
+    "related-sdl-image entries were excluded because this task is about reimplementing core SDL rather than SDL_image."
+  ],
+  "relevant_cves": [
+    {
+      "id": "CVE-2022-4743",
+      "classification": "direct-libsdl2",
+      "weaknesses": [
+        "CWE-401"
+      ],
+      "affected_versions": "2.0.4 through 2.25.x; NVD configuration fixes the range before 2.26.0.",
+      "summary": "A potential memory leak issue was discovered in SDL2 in GLES_CreateTexture() in SDL_render_gles.c, allowing denial of service.",
+      "included_because": "This is a resource-lifecycle bug, not a memory-corruption bug.",
+      "why_relevant_to_rust": "A Rust port can still leak GPU textures or other external resources on error and early-return paths. Safe Rust does not automatically release partially created driver objects unless ownership is modeled correctly.",
+      "rust_port_focus": [
+        "Use RAII for renderer and texture creation so partially initialized resources are always cleaned up.",
+        "Add failure-path tests for GLES texture creation and other backend allocation paths."
+      ],
+      "evidence_urls": [
+        "https://github.com/libsdl-org/SDL/commit/00b67f55727bc0944c3266e2b875440da132ce4b",
+        "https://github.com/libsdl-org/SDL/pull/6269",
+        "https://bugzilla.redhat.com/show_bug.cgi?id=2156290"
+      ]
+    },
+    {
+      "id": "CVE-2020-14409",
+      "classification": "direct-libsdl2",
+      "weaknesses": [
+        "CWE-190",
+        "CWE-787"
+      ],
+      "affected_versions": "NVD configuration lists 2.0.12 through 2.0.20 inclusive; the summary text says through 2.0.12.",
+      "summary": "SDL_BlitCopy in video/SDL_blit_copy.c had an integer overflow, with heap corruption as the C-language consequence, when processing crafted BMP input.",
+      "included_because": "The root issue is unchecked size arithmetic, even though the published exploit path ends in memory corruption.",
+      "why_relevant_to_rust": "A Rust port still has to reject width, pitch, and copy-size calculations that overflow. In safe Rust the likely outcome becomes panic, truncation, oversized allocation attempts, or wrong copy lengths rather than arbitrary heap writes, but it remains security-relevant parser and surface-validation logic.",
+      "rust_port_focus": [
+        "Centralize checked_mul and checked_add handling for surface sizes, pitches, and blit copy lengths.",
+        "Fuzz malformed BMP headers that force extreme dimensions or row sizes."
+      ],
+      "evidence_urls": [
+        "https://bugzilla.libsdl.org/show_bug.cgi?id=5200",
+        "https://hg.libsdl.org/SDL/rev/3f9b4e92c1d9"
+      ]
+    },
+    {
+      "id": "CVE-2019-13626",
+      "classification": "direct-libsdl2",
+      "weaknesses": [
+        "CWE-125"
+      ],
+      "affected_versions": "2.0.0 through 2.0.9.",
+      "summary": "Fill_IMA_ADPCM_block in audio/SDL_wave.c had a heap over-read caused by an integer overflow in IMA_ADPCM_decode().",
+      "included_because": "The summary identifies integer overflow as the root cause, so the bug class is parser arithmetic validation rather than purely memory corruption.",
+      "why_relevant_to_rust": "WAVE and ADPCM decoding still need checked arithmetic for block sizes, nibble counts, sample counts, and cursor advances. Safe Rust removes the classic over-read manifestation, but unchecked decoder math can still trigger panics, impossible buffer requests, or incorrect decode behavior.",
+      "rust_port_focus": [
+        "Use checked arithmetic for ADPCM block-size and sample-count derivation.",
+        "Reject malformed WAVE metadata before allocating or stepping decode state."
+      ],
+      "evidence_urls": [
+        "https://bugzilla.libsdl.org/show_bug.cgi?id=4522"
+      ]
+    },
+    {
+      "id": "CVE-2017-2888",
+      "classification": "direct-libsdl2",
+      "weaknesses": [
+        "CWE-190"
+      ],
+      "affected_versions": "2.0.5.",
+      "summary": "Creating a new RGB surface in SDL 2.0.5 could integer-overflow, under-allocate, and then lead to a later buffer overflow on crafted image input.",
+      "included_because": "The core defect is unchecked dimension and allocation math.",
+      "why_relevant_to_rust": "Surface creation still needs hard limits and checked area-times-bytes-per-pixel math. Safe Rust avoids the classic under-allocation to overflow chain, but wrapping arithmetic or unchecked casts can still accept impossible dimensions and produce denial of service or broken surface state.",
+      "rust_port_focus": [
+        "Provide one checked surface-size calculation path shared by all surface constructors.",
+        "Reject dimensions whose total byte size cannot fit in the chosen allocation and indexing model."
+      ],
+      "evidence_urls": [
+        "https://www.talosintelligence.com/vulnerability_reports/TALOS-2017-0395",
+        "https://hg.libsdl.org/SDL/rev/7e0f1498ddb5",
+        "https://hg.libsdl.org/SDL/rev/81a4950907a0"
+      ]
+    }
+  ],
+  "excluded_notes": [
+    "15 direct core SDL CVEs were excluded because the reported issue is pure C memory corruption or out-of-bounds access rather than a bug class expected to survive a safe Rust port. Examples: CVE-2021-33657, CVE-2020-14410, CVE-2019-7637.",
+    "CVE-2019-12217 and CVE-2019-12218 are non-memory-corruption findings, but they were excluded because they are classified as related-sdl-image rather than core SDL.",
+    "CVE-2019-14906 was excluded because Debian marked it NOT-FOR-US; it is about an incomplete Red Hat fix rather than a new SDL core defect."
+  ]
+}
