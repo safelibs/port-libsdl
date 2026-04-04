@@ -5,7 +5,15 @@
 
 SYSTEM = nt
 
-INCPATH = -I"$(%WATCOM)/h/nt" -I"$(%WATCOM)/h" -I"../src/video/khronos"
+INCPATH = -I"$(%WATCOM)/h/nt" -I"$(%WATCOM)/h"
+
+VULKAN_TEST =
+VULKAN_TEST_CFLAGS =
+!ifdef VULKAN_SDK
+INCPATH += -I"$(VULKAN_SDK)\Include"
+VULKAN_TEST = testvulkan.exe
+VULKAN_TEST_CFLAGS = -DSDL_PUBLIC_VULKAN_HEADER=\"vulkan/vulkan.h\"
+!endif
 
 CFLAGS = -bt=nt -d0 -q -bm -5s -fp5 -fpi87 -sg -oteanbmier -ei
 CFLAGS+= -wx -wcd=303

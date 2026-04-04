@@ -15,6 +15,7 @@ CC      = @CC@
 EXE	= @EXE@
 CFLAGS  = @CFLAGS@ -g
 LIBS	= @LIBS@
+TESTVULKAN_CFLAGS = -DSDL_PUBLIC_VULKAN_HEADER=\"vulkan/vulkan.h\"
 
 TARGETS = \
 	checkkeys$(EXE) \
@@ -370,7 +371,7 @@ controllermap$(EXE): $(srcdir)/controllermap.c $(srcdir)/testutils.c
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 testvulkan$(EXE): $(srcdir)/testvulkan.c
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) $(TESTVULKAN_CFLAGS)
 
 testlocale$(EXE): $(srcdir)/testlocale.c
 	$(CC) -o $@ $? $(CFLAGS) $(LIBS)

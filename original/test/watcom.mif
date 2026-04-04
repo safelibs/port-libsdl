@@ -21,7 +21,7 @@ TARGETS = testatomic.exe testdisplayinfo.exe testbounds.exe testdraw2.exe &
           checkkeysthreads.exe testmouse.exe testgles.exe testgles2.exe &
           controllermap.exe testhaptic.exe testqsort.exe testresample.exe &
           testaudioinfo.exe testaudiocapture.exe loopwave.exe loopwavequeue.exe &
-          testsurround.exe testyuv.exe testgl2.exe testvulkan.exe testnative.exe &
+          testsurround.exe testyuv.exe testgl2.exe $(VULKAN_TEST) testnative.exe &
           testautomation.exe testaudiohotplug.exe testcustomcursor.exe testmultiaudio.exe &
           testoffscreen.exe testurl.exe
 
@@ -79,7 +79,7 @@ all: testutils.lib $(TARGETS)
 # specials
 testvulkan.obj: testvulkan.c
   # new vulkan headers result in lots of W202 warnings
-  wcc386 $(CFLAGS) -wcd=202 -fo=$^@ $<
+  wcc386 $(CFLAGS) $(VULKAN_TEST_CFLAGS) -wcd=202 -fo=$^@ $<
 
 testautomation_stdlib.obj: testautomation_stdlib.c
   wcc386 $(CFLAGS) -wcd=201 -fo=$^@ $<
