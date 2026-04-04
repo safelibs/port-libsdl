@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-04T13:07:10Z",
+  "analysis_date": "2026-04-04",
+  "target_distribution": {
+    "name": "Ubuntu",
+    "version": "24.04.3 LTS",
+    "codename": "noble",
+    "architecture": "amd64"
+  },
+  "library": "SDL2",
+  "sdl_packages": {
+    "runtime": "libsdl2-2.0-0",
+    "development": "libsdl2-dev"
+  },
+  "metadata_source": "Local apt-cache binary and source metadata from the Ubuntu 24.04 repositories configured on this system.",
+  "selection_policy": "Representative direct dependents on libsdl2-2.0-0 and/or packages or source packages that directly use libsdl2-dev at build time. This list is intentionally diverse rather than exhaustive.",
+  "notes": [
+    "Runtime-functionality summaries are taken from package descriptions when those descriptions are explicit about SDL-backed behavior.",
+    "When package descriptions only describe the overall application, the SDL-specific runtime role is a conservative inference from the package's role plus its direct libsdl2-2.0-0 dependency.",
+    "Compile-time-only entries use runtime_functionality: null and explain why the packaged artifact itself has no standalone SDL-backed runtime behavior."
+  ],
+  "discovery_commands": [
+    "apt-cache policy libsdl2-2.0-0 libsdl2-dev",
+    "apt-cache rdepends libsdl2-2.0-0",
+    "apt-cache show <binary-package>",
+    "apt-cache showsrc <source-package>"
+  ],
+  "dependents": [
+    {
+      "name": "QEMU system GUI modules",
+      "binary_package": "qemu-system-gui",
+      "source_package": "qemu",
+      "category": "system emulator",
+      "dependency_paths": [
+        {
+          "kind": "runtime",
+          "binary_package": "qemu-system-gui",
+          "sdl_package": "libsdl2-2.0-0"
+        },
+        {
+          "kind": "compile-time",
+          "source_package": "qemu",
+          "sdl_package": "libsdl2-dev"
+        }
+      ],
+      "runtime_functionality": "Provides the SDL guest-display and audio modules used by QEMU full-system emulation.",
+      "evidence": [
+        "apt-cache show qemu-system-gui lists a direct Depends on libsdl2-2.0-0.",
+        "The qemu-system-gui package description says it provides graphical guest display modules, currently GTK and SDL, plus audio backend modules.",
+        "apt-cache showsrc qemu lists libsdl2-dev in Build-Depends-Arch."
+      ]
+    },
+    {
+      "name": "FFmpeg",
+      "binary_package": "ffmpeg",
+      "source_package": "ffmpeg",
+      "category": "multimedia toolkit",
+      "dependency_paths": [
+        {
+          "kind": "runtime",
+          "binary_package": "ffmpeg",
+          "sdl_package": "libsdl2-2.0-0"
+        },
+        {
+          "kind": "compile-time",
+          "source_package": "ffmpeg",
+          "sdl_package": "libsdl2-dev"
+        }
+      ],
+      "runtime_functionality": "The package's ffplay binary is a simple media player based on SDL and the FFmpeg libraries.",
+      "evidence": [
+        "apt-cache show ffmpeg lists a direct Depends on libsdl2-2.0-0.",
+        "The ffmpeg package description explicitly says the package contains ffplay, a simple media player based on SDL and the FFmpeg libraries.",
+        "apt-cache showsrc ffmpeg lists libsdl2-dev in Build-Depends."
+      ]
+    },
+    {
+      "name": "scrcpy",
+      "binary_package": "scrcpy",
+      "source_package": "scrcpy",
+      "category": "Android mirroring utility",
+      "dependency_paths": [
+        {
+          "kind": "runtime",
+          "binary_package": "scrcpy",
+          "sdl_package": "libsdl2-2.0-0"
+        },
+        {
+          "kind": "compile-time",
+          "source_package": "scrcpy",
+          "sdl_package": "libsdl2-dev"
+        }
+      ],
+      "runtime_functionality": "The host-side viewer/control frontend that displays the Android screen and forwards local input to the device depends on SDL.",
+      "evidence": [
+        "apt-cache show scrcpy lists a direct Depends on libsdl2-2.0-0 and describes the package as software to display and control an Android device.",
+        "apt-cache showsrc scrcpy lists libsdl2-dev in Build-Depends-Arch.",
+        "The SDL-specific runtime role is a conservative inference from scrcpy's host-side display/control function plus its direct SDL dependency."
+      ]
+    },
+    {
+      "name": "LOVE",
+      "binary_package": "love",
+      "source_package": "love",
+      "category": "game development framework",
+      "dependency_paths": [
+        {
+          "kind": "runtime",
+          "binary_package": "love",
+          "sdl_package": "libsdl2-2.0-0"
+        },
+        {
+          "kind": "compile-time",
+          "source_package": "love",
+          "sdl_package": "libsdl2-dev"
+        }
+      ],
+      "runtime_functionality": "Provides the host window, event loop, input, and audio layers that Lua games run on in LOVE.",
+      "evidence": [
+        "apt-cache show love lists a direct Depends on libsdl2-2.0-0 and describes the package as a 2D game development framework based on Lua and OpenGL.",
+        "apt-cache showsrc love lists libsdl2-dev in Build-Depends.",
+        "The SDL-specific runtime role is a conservative inference from the framework's cross-platform game-runtime role plus its direct SDL dependency."
+      ]
+    },
+    {
+      "name": "pygame",
+      "binary_package": "python3-pygame",
+      "source_package": "pygame",
+      "category": "Python binding",
+      "dependency_paths": [
+        {
+          "kind": "runtime",
+          "binary_package": "python3-pygame",
+          "sdl_package": "libsdl2-2.0-0"
+        },
+        {
+          "kind": "compile-time",
+          "source_package": "pygame",
+          "sdl_package": "libsdl2-dev"
+        }
+      ],
+      "runtime_functionality": "Exposes SDL-backed Python modules for video display, sound playback, timers, mouse and joystick input, CD control, and TrueType font rendering.",
+      "evidence": [
+        "apt-cache show python3-pygame lists a direct Depends on libsdl2-2.0-0.",
+        "The python3-pygame package description explicitly says pygame provides modules to access the video display, play sounds, track time, read the mouse and joystick, control the CD player, render TrueType fonts, and more, mainly using SDL.",
+        "apt-cache showsrc pygame lists libsdl2-dev in Build-Depends."
+      ]
+    },
+    {
+      "name": "ScummVM",
+      "binary_package": "scummvm",
+      "source_package": "scummvm",
+      "category": "adventure-game engine",
+      "dependency_paths": [
+        {
+          "kind": "runtime",
+          "binary_package": "scummvm",
+          "sdl_package": "libsdl2-2.0-0"
+        }
+      ],
+      "runtime_functionality": "Provides the cross-platform window, input, and audio backends used to run graphical adventure games.",
+      "evidence": [
+        "apt-cache show scummvm lists a direct Depends on libsdl2-2.0-0 and describes the package as an engine for several graphical adventure games.",
+        "apt-cache showsrc scummvm allows building against libsdl2-dev as an alternative Build-Depends entry.",
+        "The SDL-specific runtime role is a conservative inference from ScummVM's engine role plus its direct SDL dependency in the shipped noble binary."
+      ]
+    },
+    {
+      "name": "SuperTuxKart",
+      "binary_package": "supertuxkart",
+      "source_package": "supertuxkart",
+      "category": "racing game",
+      "dependency_paths": [
+        {
+          "kind": "runtime",
+          "binary_package": "supertuxkart",
+          "sdl_package": "libsdl2-2.0-0"
+        },
+        {
+          "kind": "compile-time",
+          "source_package": "supertuxkart",
+          "sdl_package": "libsdl2-dev"
+        }
+      ],
+      "runtime_functionality": "Provides the game's cross-platform window, controller/keyboard input, and event loop during local and online races.",
+      "evidence": [
+        "apt-cache show supertuxkart lists a direct Depends on libsdl2-2.0-0 and describes the package as a 3D arcade racer with multiple play modes.",
+        "apt-cache showsrc supertuxkart lists libsdl2-dev in Build-Depends.",
+        "The SDL-specific runtime role is a conservative inference from the game's interactive frontend role plus its direct SDL dependency."
+      ]
+    },
+    {
+      "name": "Tux Paint",
+      "binary_package": "tuxpaint",
+      "source_package": "tuxpaint",
+      "category": "children's graphics application",
+      "dependency_paths": [
+        {
+          "kind": "runtime",
+          "binary_package": "tuxpaint",
+          "sdl_package": "libsdl2-2.0-0"
+        },
+        {
+          "kind": "compile-time",
+          "source_package": "tuxpaint",
+          "sdl_package": "libsdl2-dev"
+        }
+      ],
+      "runtime_functionality": "Provides the interactive painting window, drawing/input loop, and associated font, image, and sound-effects stack used by Tux Paint.",
+      "evidence": [
+        "apt-cache show tuxpaint lists a direct Depends on libsdl2-2.0-0 and describes the package as a paint program for young children.",
+        "The tuxpaint package version in Ubuntu 24.04 is 0.9.28-sdl2-1build2, reflecting the SDL2-based packaging.",
+        "apt-cache showsrc tuxpaint lists libsdl2-dev together with SDL image, mixer, gfx, and TTF add-ons in Build-Depends."
+      ]
+    },
+    {
+      "name": "OpenTTD",
+      "binary_package": "openttd",
+      "source_package": "openttd",
+      "category": "transport simulation game",
+      "dependency_paths": [
+        {
+          "kind": "runtime",
+          "binary_package": "openttd",
+          "sdl_package": "libsdl2-2.0-0"
+        },
+        {
+          "kind": "compile-time",
+          "source_package": "openttd",
+          "sdl_package": "libsdl2-dev"
+        }
+      ],
+      "runtime_functionality": "Provides the game's interactive window, input handling, and display loop for the Transport Tycoon Deluxe reimplementation.",
+      "evidence": [
+        "apt-cache show openttd lists a direct Depends on libsdl2-2.0-0 and describes the package as a reimplementation of Transport Tycoon Deluxe with enhancements.",
+        "apt-cache showsrc openttd lists libsdl2-dev in Build-Depends.",
+        "The SDL-specific runtime role is a conservative inference from the game's frontend role plus its direct SDL dependency."
+      ]
+    },
+    {
+      "name": "0 A.D.",
+      "binary_package": "0ad",
+      "source_package": "0ad",
+      "category": "real-time strategy game",
+      "dependency_paths": [
+        {
+          "kind": "runtime",
+          "binary_package": "0ad",
+          "sdl_package": "libsdl2-2.0-0"
+        },
+        {
+          "kind": "compile-time",
+          "source_package": "0ad",
+          "sdl_package": "libsdl2-dev"
+        }
+      ],
+      "runtime_functionality": "Provides the game client's cross-platform window, input, and audio subsystems during play.",
+      "evidence": [
+        "apt-cache show 0ad lists a direct Depends on libsdl2-2.0-0 and describes the package as a real-time strategy game of ancient warfare.",
+        "apt-cache showsrc 0ad lists libsdl2-dev in Build-Depends.",
+        "The SDL-specific runtime role is a conservative inference from the game's interactive frontend role plus its direct SDL dependency."
+      ]
+    },
+    {
+      "name": "Dear ImGui development package",
+      "binary_package": "libimgui-dev",
+      "source_package": "imgui",
+      "category": "GUI toolkit development package",
+      "dependency_paths": [
+        {
+          "kind": "compile-time",
+          "source_package": "imgui",
+          "sdl_package": "libsdl2-dev"
+        }
+      ],
+      "runtime_functionality": null,
+      "notes": "Ubuntu ships the Dear ImGui development package here; SDL use matters when building applications with the SDL backend, not when installing libimgui-dev itself.",
+      "evidence": [
+        "apt-cache show libimgui-dev shows no direct runtime dependency on libsdl2-2.0-0 or libsdl2-dev; it only Depends on libstb-dev.",
+        "apt-cache showsrc imgui lists libsdl2-dev in Build-Depends."
+      ]
+    },
+    {
+      "name": "libtcod development package",
+      "binary_package": "libtcod-dev",
+      "source_package": "libtcod",
+      "category": "roguelike library development package",
+      "dependency_paths": [
+        {
+          "kind": "compile-time",
+          "binary_package": "libtcod-dev",
+          "sdl_package": "libsdl2-dev"
+        },
+        {
+          "kind": "compile-time",
+          "source_package": "libtcod",
+          "sdl_package": "libsdl2-dev"
+        }
+      ],
+      "runtime_functionality": null,
+      "notes": "The -dev package exists to let developers build roguelike software against libtcod's SDL-backed implementation; the development package itself does not provide standalone runtime behavior.",
+      "evidence": [
+        "apt-cache show libtcod-dev lists a direct Depends on libsdl2-dev and describes the package as development files for the libtcod roguelike library.",
+        "apt-cache showsrc libtcod lists libsdl2-dev in Build-Depends."
+      ]
+    }
+  ]
+}
