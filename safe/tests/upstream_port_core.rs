@@ -4,6 +4,7 @@
 mod testutils;
 
 use std::ffi::c_void;
+use std::mem::MaybeUninit;
 use std::path::Path;
 use std::ptr;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -13,8 +14,8 @@ use safe_sdl::abi::generated_types::{
     SDL_LogCategory_SDL_LOG_CATEGORY_APPLICATION, SDL_LogPriority,
     SDL_LogPriority_SDL_LOG_PRIORITY_DEBUG, SDL_LogPriority_SDL_LOG_PRIORITY_INFO,
     SDL_LogPriority_SDL_LOG_PRIORITY_WARN, SDL_PackedLayout_SDL_PACKEDLAYOUT_1010102,
-    SDL_PackedOrder_SDL_PACKEDORDER_ABGR, SDL_PixelType_SDL_PIXELTYPE_PACKED32, SDL_INIT_AUDIO,
-    SDL_INIT_EVENTS, SDL_INIT_TIMER, SDL_INIT_VIDEO,
+    SDL_PackedOrder_SDL_PACKEDORDER_ABGR, SDL_PixelType_SDL_PIXELTYPE_PACKED32, SDL_version,
+    SDL_INIT_AUDIO, SDL_INIT_EVENTS, SDL_INIT_TIMER, SDL_INIT_VIDEO,
 };
 use safe_sdl::audio::device::SDL_AudioQuit;
 use safe_sdl::core::assert::{SDL_GetAssertionReport, SDL_ResetAssertionReport};
@@ -40,7 +41,7 @@ use safe_sdl::core::timer::{
     SDL_AddTimer, SDL_Delay, SDL_GetPerformanceCounter, SDL_GetPerformanceFrequency, SDL_GetTicks,
     SDL_RemoveTimer,
 };
-use safe_sdl::main_archive::SDL_GetRevision;
+use safe_sdl::main_archive::{SDL_GetRevision, SDL_GetVersion};
 use safe_sdl::video::pixels::{SDL_AllocFormat, SDL_GetPixelFormatName};
 
 unsafe extern "C" {
@@ -419,6 +420,37 @@ fn platform_getters_are_sane() {
 
         SDL_ResetAssertionReport();
         assert!(SDL_GetAssertionReport().is_null());
+    }
+}
+
+#[test]
+fn get_version_caches_legacy_hint_on_first_call() {
+    let _serial = testutils::serial_lock();
+    let hint_name = testutils::cstring("SDL_LEGACY_VERSION");
+    let legacy_value = testutils::cstring("1");
+
+    unsafe {
+        SDL_ResetHint(hint_name.as_ptr());
+
+        let mut first = MaybeUninit::<SDL_version>::zeroed();
+        SDL_GetVersion(first.as_mut_ptr());
+        let first = first.assume_init();
+
+        assert_eq!((first.major, first.minor, first.patch), (2, 30, 0));
+
+        SDL_SetHint(hint_name.as_ptr(), legacy_value.as_ptr());
+
+        let mut second = MaybeUninit::<SDL_version>::zeroed();
+        SDL_GetVersion(second.as_mut_ptr());
+        let second = second.assume_init();
+
+        assert_eq!(
+            (second.major, second.minor, second.patch),
+            (first.major, first.minor, first.patch),
+            "SDL_GetVersion should cache SDL_LEGACY_VERSION on first use"
+        );
+
+        SDL_ResetHint(hint_name.as_ptr());
     }
 }
 
