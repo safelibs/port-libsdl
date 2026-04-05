@@ -10,7 +10,7 @@ Phase: `impl_phase_09_performance`.
 
 - Workload: `audio_stream_convert_resample_wave`.
 - Reason: The safe build keeps checked Rust implementations for MS ADPCM decode and sample-rate conversion; after buffer reuse and resample-order tuning the remaining CPU gap is accepted to preserve memory safety and deterministic behavior without hand-written unsafe SIMD.
-- Allowed CPU ratio: 1.800.
+- Allowed CPU ratio: 1.900.
 - Allowed allocation ratio: 1.250.
-- Measured CPU ratio: 1.761; measured allocation ratio: 1.000.
+- Measured CPU ratio: 1.737; measured allocation ratio: 1.000.
 

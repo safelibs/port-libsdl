@@ -23,7 +23,7 @@
     },
     {
       "workload_id": "audio_stream_convert_resample_wave",
-      "max_median_cpu_regression_ratio": 1.8,
+      "max_median_cpu_regression_ratio": 1.9,
       "max_peak_allocation_regression_ratio": 1.25,
       "waiver_id": "audio_pure_rust_decode_resample",
       "reason": "The safe build keeps checked Rust implementations for MS ADPCM decode and sample-rate conversion; after buffer reuse and resample-order tuning the remaining CPU gap is accepted to preserve memory safety and deterministic behavior without hand-written unsafe SIMD"

@@ -1251,7 +1251,7 @@ impl RelinkOriginalCliArgs {
         let mut object_manifest = None;
         let mut standalone_manifest = None;
         let mut objects_dir = None;
-        let mut output_dir = None;
+        let mut output_dir = PathBuf::from("build-phase10-relinked-bins");
         let mut library = None;
         let mut package_root = None;
         let mut iter = args.iter();
@@ -1272,8 +1272,8 @@ impl RelinkOriginalCliArgs {
                 "--objects-dir" => {
                     objects_dir = Some(PathBuf::from(require_value(&mut iter, "--objects-dir")?))
                 }
-                "--output-dir" | "--out" => {
-                    output_dir = Some(PathBuf::from(require_value(&mut iter, arg)?))
+                "--output-dir" | "--out" | "--build-dir" => {
+                    output_dir = PathBuf::from(require_value(&mut iter, arg)?)
                 }
                 "--package-root" | "--root" | "--destdir" => {
                     package_root = Some(PathBuf::from(require_value(&mut iter, arg)?))
@@ -1292,7 +1292,7 @@ impl RelinkOriginalCliArgs {
             object_manifest,
             standalone_manifest,
             objects_dir: objects_dir.ok_or_else(|| anyhow!("--objects-dir is required"))?,
-            output_dir: output_dir.ok_or_else(|| anyhow!("--output-dir or --out is required"))?,
+            output_dir,
             library: library.ok_or_else(|| anyhow!("--library or --package-root is required"))?,
         })
     }
@@ -1324,8 +1324,8 @@ impl RunRelinkedCliArgs {
                 "--object-manifest" => {
                     let _ = require_value(&mut iter, "--object-manifest")?;
                 }
-                "--bin-dir" => {
-                    bin_dir = Some(PathBuf::from(require_value(&mut iter, "--bin-dir")?))
+                "--bin-dir" | "--build-dir" => {
+                    bin_dir = Some(PathBuf::from(require_value(&mut iter, arg)?))
                 }
                 "--target" => target = Some(require_value(&mut iter, "--target")?.to_string()),
                 other => bail!("unknown argument {other}"),
@@ -1584,6 +1584,21 @@ mod tests {
     }
 
     #[test]
+    fn relink_original_cli_defaults_output_dir() {
+        let parsed = RelinkOriginalCliArgs::parse(&[
+            "--objects-dir".to_string(),
+            "build-phase10-relinked-objects".to_string(),
+            "--package-root".to_string(),
+            "/tmp/pkgroot".to_string(),
+        ])
+        .expect("parse relink-original-test-objects args");
+        assert_eq!(
+            parsed.output_dir,
+            PathBuf::from("build-phase10-relinked-bins")
+        );
+    }
+
+    #[test]
     fn run_relinked_cli_accepts_standalone_manifest() {
         let parsed = RunRelinkedCliArgs::parse(&[
             "--object-manifest".to_string(),
@@ -1598,6 +1613,16 @@ mod tests {
             parsed.manifest,
             PathBuf::from("safe/generated/standalone_test_manifest.json")
         );
+    }
+
+    #[test]
+    fn run_relinked_cli_accepts_build_dir_alias() {
+        let parsed = RunRelinkedCliArgs::parse(&[
+            "--build-dir".to_string(),
+            "build-phase10-relinked-bins".to_string(),
+        ])
+        .expect("parse run-relinked-original-tests args");
+        assert_eq!(parsed.bin_dir, PathBuf::from("build-phase10-relinked-bins"));
     }
 
     #[test]
