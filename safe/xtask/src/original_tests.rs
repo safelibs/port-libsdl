@@ -10,7 +10,8 @@ use tempfile::tempdir;
 
 use crate::contracts::{
     generate_real_sdl_config, generate_sdl_revision_header, load_original_test_object_manifest,
-    load_original_test_port_map, load_standalone_test_manifest, UBUNTU_MULTIARCH,
+    load_original_test_port_map, load_standalone_test_manifest, PortCompletionState,
+    UBUNTU_MULTIARCH,
 };
 
 pub struct CompileOriginalTestObjectsArgs {
@@ -420,6 +421,41 @@ pub fn run_original_standalone(args: RunOriginalStandaloneArgs) -> Result<()> {
 }
 
 pub fn run_gesture_replay(repo_root: PathBuf) -> Result<()> {
+    let generated_dir = repo_root.join("safe/generated");
+    let port_map = load_original_test_port_map(&generated_dir.join("original_test_port_map.json"))?;
+    let standalone =
+        load_standalone_test_manifest(&generated_dir.join("standalone_test_manifest.json"))?;
+
+    let gesture_entry = port_map
+        .entries
+        .iter()
+        .find(|entry| entry.original_path == "original/test/testgesture.c")
+        .ok_or_else(|| anyhow!("missing testgesture entry in original_test_port_map.json"))?;
+    if gesture_entry.completion_state != PortCompletionState::Complete {
+        bail!(
+            "testgesture port map entry must be complete, found {:?}",
+            gesture_entry.completion_state
+        );
+    }
+    if gesture_entry.rust_target_path != "safe/tests/original_apps_video.rs" {
+        bail!(
+            "testgesture port map entry points at unexpected Rust target {}",
+            gesture_entry.rust_target_path
+        );
+    }
+
+    let gesture_target = standalone
+        .targets
+        .iter()
+        .find(|target| target.target_name == "testgesture")
+        .ok_or_else(|| anyhow!("missing testgesture target in standalone_test_manifest.json"))?;
+    if gesture_target.ci_validation_mode != "build_only" {
+        bail!(
+            "testgesture standalone manifest must remain build_only, found {}",
+            gesture_target.ci_validation_mode
+        );
+    }
+
     run_safe_test_binary(
         &repo_root,
         "original_apps_video",

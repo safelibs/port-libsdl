@@ -22,9 +22,23 @@ pub const SDL_SYSWM_RISCOS: SDL_SYSWM_TYPE = 14;
 
 #[repr(C)]
 #[derive(Clone, Copy)]
+pub struct SDL_SysWMinfo_Windows {
+    pub window: *mut libc::c_void,
+    pub hdc: *mut libc::c_void,
+    pub hinstance: *mut libc::c_void,
+}
+
+#[repr(C)]
+#[derive(Clone, Copy)]
 pub struct SDL_SysWMinfo_X11 {
     pub display: *mut libc::c_void,
     pub window: libc::c_ulong,
+}
+
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct SDL_SysWMinfo_Cocoa {
+    pub window: *mut libc::c_void,
 }
 
 #[repr(C)]
@@ -42,6 +56,13 @@ pub struct SDL_SysWMinfo_Wayland {
 
 #[repr(C)]
 #[derive(Clone, Copy)]
+pub struct SDL_SysWMinfo_OS2 {
+    pub hwnd: *mut libc::c_void,
+    pub hwndFrame: *mut libc::c_void,
+}
+
+#[repr(C)]
+#[derive(Clone, Copy)]
 pub struct SDL_SysWMinfo_KMSDRM {
     pub dev_index: libc::c_int,
     pub drm_fd: libc::c_int,
@@ -50,8 +71,11 @@ pub struct SDL_SysWMinfo_KMSDRM {
 
 #[repr(C)]
 pub union SDL_SysWMinfoUnion {
+    pub win: SDL_SysWMinfo_Windows,
     pub x11: SDL_SysWMinfo_X11,
+    pub cocoa: SDL_SysWMinfo_Cocoa,
     pub wl: SDL_SysWMinfo_Wayland,
+    pub os2: SDL_SysWMinfo_OS2,
     pub kmsdrm: SDL_SysWMinfo_KMSDRM,
     pub dummy: [Uint8; 64],
 }

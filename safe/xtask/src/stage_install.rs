@@ -9,8 +9,8 @@ use tempfile::tempdir;
 
 use crate::contracts::{
     generate_real_sdl_config, generate_sdl_revision_header, load_driver_contract,
-    load_install_contract, load_public_header_inventory, rel, PublicHeaderInventory,
-    SDL_RUNTIME_REALNAME, SDL_SONAME, SDL_VERSION, UBUNTU_MULTIARCH,
+    load_install_contract, load_public_header_inventory, rel, DriverFamilyContract,
+    PublicHeaderInventory, SDL_RUNTIME_REALNAME, SDL_SONAME, SDL_VERSION, UBUNTU_MULTIARCH,
 };
 
 pub struct StageInstallArgs {
@@ -94,6 +94,8 @@ pub fn verify_driver_contract(args: VerifyDriverContractArgs) -> Result<()> {
     let contract_path = absolutize(&args.repo_root, &args.contract_path);
     let stage_root = absolutize(&args.repo_root, &args.stage_root);
     let driver_contract = load_driver_contract(&contract_path)?;
+    validate_video_contract(&driver_contract.video)?;
+
     let expected = driver_contract
         .video
         .registry_order
@@ -111,17 +113,19 @@ pub fn verify_driver_contract(args: VerifyDriverContractArgs) -> Result<()> {
         );
     }
 
+    let dummy_expected = contract_selected_without_hint(&driver_contract.video, "dummy")?;
     let dummy = run_driver_probe(&probe, &["init-nohint"], &[("SDL_VIDEODRIVER", "dummy")])?;
-    if dummy != ["dummy".to_string()] {
+    if dummy != [dummy_expected] {
         bail!("explicit dummy driver probe failed: {:?}", dummy);
     }
 
+    let offscreen_expected = contract_selected_without_hint(&driver_contract.video, "offscreen")?;
     let offscreen = run_driver_probe(
         &probe,
         &["init-nohint"],
         &[("SDL_VIDEODRIVER", "offscreen")],
     )?;
-    if offscreen != ["offscreen".to_string()] {
+    if offscreen != [offscreen_expected] {
         bail!("explicit offscreen driver probe failed: {:?}", offscreen);
     }
 
@@ -132,11 +136,12 @@ pub fn verify_driver_contract(args: VerifyDriverContractArgs) -> Result<()> {
     };
 
     if let Some((_guard, display)) = x_display {
+        let x11_expected = contract_selected_without_hint(&driver_contract.video, "x11")?;
         let env = [("DISPLAY", display.as_str())];
         let no_hint = run_driver_probe(&probe, &["init-nohint"], &env)?;
-        if no_hint != ["x11".to_string()] {
+        if no_hint != [x11_expected.clone()] {
             bail!(
-                "no-hint video probe did not select x11 under X11/Xvfb: {:?}",
+                "no-hint video probe did not match contract under X11/Xvfb: {:?}",
                 no_hint
             );
         }
@@ -146,15 +151,110 @@ pub fn verify_driver_contract(args: VerifyDriverContractArgs) -> Result<()> {
             &["init-nohint"],
             &[("DISPLAY", display.as_str()), ("SDL_VIDEODRIVER", "x11")],
         )?;
-        if explicit_x11 != ["x11".to_string()] {
+        if explicit_x11 != [x11_expected] {
             bail!(
-                "explicit x11 driver probe failed under X11/Xvfb: {:?}",
+                "explicit x11 driver probe did not match contract under X11/Xvfb: {:?}",
                 explicit_x11
             );
         }
     }
 
     Ok(())
+}
+
+fn validate_video_contract(contract: &DriverFamilyContract) -> Result<()> {
+    let derived_no_hint = contract
+        .registry_order
+        .iter()
+        .filter(|entry| entry.demand_only != Some(true))
+        .map(|entry| entry.driver_name.clone())
+        .collect::<Vec<_>>();
+    if contract.no_hint_probe_order != derived_no_hint {
+        bail!(
+            "video driver contract no_hint_probe_order mismatch\nexpected: {:?}\nactual: {:?}",
+            derived_no_hint,
+            contract.no_hint_probe_order
+        );
+    }
+
+    if contract.single_backend_expectations.len() != contract.registry_order.len() {
+        bail!(
+            "video driver contract single_backend_expectations count mismatch: expected {}, got {}",
+            contract.registry_order.len(),
+            contract.single_backend_expectations.len()
+        );
+    }
+
+    for entry in &contract.registry_order {
+        let expectation = contract
+            .single_backend_expectations
+            .iter()
+            .find(|expectation| expectation.driver_name == entry.driver_name)
+            .ok_or_else(|| {
+                anyhow!(
+                    "video driver contract missing single_backend_expectations entry for {}",
+                    entry.driver_name
+                )
+            })?;
+        let expected_selected = if entry.demand_only == Some(true) {
+            None
+        } else {
+            Some(entry.driver_name.clone())
+        };
+        if expectation.selected_without_hint != expected_selected {
+            bail!(
+                "video driver contract selected_without_hint mismatch for {}\nexpected: {:?}\nactual: {:?}",
+                entry.driver_name,
+                expected_selected,
+                expectation.selected_without_hint
+            );
+        }
+        if expectation.rationale.trim().is_empty() {
+            bail!(
+                "video driver contract rationale missing for {}",
+                entry.driver_name
+            );
+        }
+    }
+
+    let evdev = contract
+        .registry_order
+        .iter()
+        .find(|entry| entry.driver_name == "evdev")
+        .ok_or_else(|| anyhow!("video driver contract missing evdev entry"))?;
+    if !evdev
+        .feature_predicates
+        .iter()
+        .any(|predicate| predicate.contains("SDL_INPUT_LINUXEV"))
+    {
+        bail!("video driver contract evdev entry must preserve SDL_INPUT_LINUXEV gating");
+    }
+    if !contract
+        .no_hint_probe_order
+        .iter()
+        .any(|driver| driver == "evdev")
+    {
+        bail!("video driver contract no_hint_probe_order missing evdev");
+    }
+    if contract_selected_without_hint(contract, "evdev")? != "evdev" {
+        bail!("video driver contract selected_without_hint mismatch for evdev");
+    }
+
+    Ok(())
+}
+
+fn contract_selected_without_hint(
+    contract: &DriverFamilyContract,
+    driver_name: &str,
+) -> Result<String> {
+    contract
+        .single_backend_expectations
+        .iter()
+        .find(|expectation| expectation.driver_name == driver_name)
+        .ok_or_else(|| anyhow!("missing single_backend_expectations entry for {driver_name}"))?
+        .selected_without_hint
+        .clone()
+        .ok_or_else(|| anyhow!("selected_without_hint missing for {driver_name}"))
 }
 
 fn install_public_headers(

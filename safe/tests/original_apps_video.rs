@@ -1,3 +1,5 @@
+#![allow(unexpected_cfgs)]
+
 #[path = "common/testutils.rs"]
 mod testutils;
 
@@ -424,18 +426,100 @@ fn testshape_port_exercises_shaped_window_api_when_supported() {
 
 #[cfg(target_os = "windows")]
 mod testnativew32_port {
+    use super::*;
+    use safe_sdl::video::syswm::{SDL_GetWindowWMInfo, SDL_SysWMinfo, SDL_SYSWM_WINDOWS};
+
     #[test]
-    fn testnativew32_cfg_module_exists() {}
+    fn testnativew32_port_validates_windows_syswm_dispatch() {
+        let _serial = testutils::serial_lock();
+        let _subsystem = testutils::SubsystemGuard::init(SDL_INIT_VIDEO);
+
+        unsafe {
+            let window = create_hidden_window();
+            assert!(!window.is_null(), "{}", testutils::current_error());
+
+            let mut info = MaybeUninit::<SDL_SysWMinfo>::zeroed();
+            (*info.as_mut_ptr()).version.major = 2;
+            (*info.as_mut_ptr()).version.minor = 0;
+            (*info.as_mut_ptr()).version.patch = 0;
+            assert_ne!(
+                SDL_GetWindowWMInfo(window, info.as_mut_ptr()),
+                0,
+                "{}",
+                testutils::current_error()
+            );
+            let info = info.assume_init();
+            assert_eq!(info.subsystem, SDL_SYSWM_WINDOWS);
+            assert!(!info.info.win.window.is_null());
+
+            SDL_DestroyWindow(window);
+        }
+    }
 }
 
 #[cfg(target_os = "macos")]
 mod testnativecocoa_port {
+    use super::*;
+    use safe_sdl::video::syswm::{SDL_GetWindowWMInfo, SDL_SysWMinfo, SDL_SYSWM_COCOA};
+
     #[test]
-    fn testnativecocoa_cfg_module_exists() {}
+    fn testnativecocoa_port_validates_cocoa_syswm_dispatch() {
+        let _serial = testutils::serial_lock();
+        let _subsystem = testutils::SubsystemGuard::init(SDL_INIT_VIDEO);
+
+        unsafe {
+            let window = create_hidden_window();
+            assert!(!window.is_null(), "{}", testutils::current_error());
+
+            let mut info = MaybeUninit::<SDL_SysWMinfo>::zeroed();
+            (*info.as_mut_ptr()).version.major = 2;
+            (*info.as_mut_ptr()).version.minor = 0;
+            (*info.as_mut_ptr()).version.patch = 0;
+            assert_ne!(
+                SDL_GetWindowWMInfo(window, info.as_mut_ptr()),
+                0,
+                "{}",
+                testutils::current_error()
+            );
+            let info = info.assume_init();
+            assert_eq!(info.subsystem, SDL_SYSWM_COCOA);
+            assert!(!info.info.cocoa.window.is_null());
+
+            SDL_DestroyWindow(window);
+        }
+    }
 }
 
-#[cfg(any())]
+#[allow(unexpected_cfgs)]
+#[cfg(target_os = "os2")]
 mod testnativeos2_port {
+    use super::*;
+    use safe_sdl::video::syswm::{SDL_GetWindowWMInfo, SDL_SysWMinfo, SDL_SYSWM_OS2};
+
     #[test]
-    fn testnativeos2_cfg_module_exists() {}
+    fn testnativeos2_port_validates_os2_syswm_dispatch() {
+        let _serial = testutils::serial_lock();
+        let _subsystem = testutils::SubsystemGuard::init(SDL_INIT_VIDEO);
+
+        unsafe {
+            let window = create_hidden_window();
+            assert!(!window.is_null(), "{}", testutils::current_error());
+
+            let mut info = MaybeUninit::<SDL_SysWMinfo>::zeroed();
+            (*info.as_mut_ptr()).version.major = 2;
+            (*info.as_mut_ptr()).version.minor = 0;
+            (*info.as_mut_ptr()).version.patch = 0;
+            assert_ne!(
+                SDL_GetWindowWMInfo(window, info.as_mut_ptr()),
+                0,
+                "{}",
+                testutils::current_error()
+            );
+            let info = info.assume_init();
+            assert_eq!(info.subsystem, SDL_SYSWM_OS2);
+            assert!(!info.info.os2.hwnd.is_null());
+
+            SDL_DestroyWindow(window);
+        }
+    }
 }
