@@ -165,7 +165,10 @@ fn main() -> Result<()> {
             run_fixture_backed_original_tests(RunFixtureBackedOriginalTestsArgs {
                 repo_root,
                 generated_dir: parsed.generated,
+                standalone_manifest: parsed.manifest,
+                build_dir: parsed.build_dir,
                 phase: parsed.phase,
+                skip_if_empty: parsed.skip_if_empty,
             })
         }
         "run-gesture-replay" => run_gesture_replay(repo_root),
@@ -693,24 +696,41 @@ impl RunOriginalStandaloneCliArgs {
 #[derive(Debug)]
 struct RunFixtureBackedOriginalTestsCliArgs {
     generated: PathBuf,
+    manifest: PathBuf,
+    build_dir: PathBuf,
     phase: String,
+    skip_if_empty: bool,
 }
 
 impl RunFixtureBackedOriginalTestsCliArgs {
     fn parse(args: &[String]) -> Result<Self> {
         let mut generated = PathBuf::from("safe/generated");
+        let mut manifest = PathBuf::from("safe/generated/standalone_test_manifest.json");
+        let mut build_dir = PathBuf::from("build-phase7-standalone");
         let mut phase = "impl_phase_07_input_devices".to_string();
+        let mut skip_if_empty = false;
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
                 "--generated" => {
                     generated = PathBuf::from(require_value(&mut iter, "--generated")?)
                 }
+                "--manifest" => manifest = PathBuf::from(require_value(&mut iter, "--manifest")?),
+                "--build-dir" => {
+                    build_dir = PathBuf::from(require_value(&mut iter, "--build-dir")?)
+                }
                 "--phase" => phase = require_value(&mut iter, "--phase")?.to_string(),
+                "--skip-if-empty" => skip_if_empty = true,
                 other => bail!("unknown argument {other}"),
             }
         }
-        Ok(Self { generated, phase })
+        Ok(Self {
+            generated,
+            manifest,
+            build_dir,
+            phase,
+            skip_if_empty,
+        })
     }
 }
 

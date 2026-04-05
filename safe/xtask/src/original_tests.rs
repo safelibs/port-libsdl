@@ -57,7 +57,10 @@ pub struct RunOriginalStandaloneArgs {
 pub struct RunFixtureBackedOriginalTestsArgs {
     pub repo_root: PathBuf,
     pub generated_dir: PathBuf,
+    pub standalone_manifest: PathBuf,
+    pub build_dir: PathBuf,
     pub phase: String,
+    pub skip_if_empty: bool,
 }
 
 pub fn compile_original_test_objects(args: CompileOriginalTestObjectsArgs) -> Result<()> {
@@ -437,55 +440,84 @@ pub fn run_evdev_fixture_tests(repo_root: PathBuf) -> Result<()> {
 
 pub fn run_fixture_backed_original_tests(args: RunFixtureBackedOriginalTestsArgs) -> Result<()> {
     let generated_dir = absolutize(&args.repo_root, &args.generated_dir);
+    let build_dir = absolutize(&args.repo_root, &args.build_dir);
+    let standalone_manifest =
+        load_standalone_test_manifest(&absolutize(&args.repo_root, &args.standalone_manifest))?;
     let port_map = load_original_test_port_map(&generated_dir.join("original_test_port_map.json"))?;
+    let owned_targets = port_map
+        .target_ownership
+        .iter()
+        .filter(|entry| entry.owning_phase == args.phase && entry.linux_buildable)
+        .map(|entry| entry.target_name.clone())
+        .collect::<BTreeSet<_>>();
+    let selected_targets = standalone_manifest
+        .targets
+        .iter()
+        .filter(|target| {
+            owned_targets.contains(&target.target_name)
+                && matches!(
+                    target.ci_validation_mode.as_str(),
+                    "build_only" | "fixture_run"
+                )
+        })
+        .collect::<Vec<_>>();
 
-    let required_paths = [
-        "original/test/testgamecontroller.c",
-        "original/test/testhaptic.c",
-        "original/test/testhotplug.c",
-        "original/test/testjoystick.c",
-        "original/test/testrumble.c",
-        "original/test/testsensor.c",
-    ];
-    for required_path in required_paths {
-        let entry = port_map
-            .entries
-            .iter()
-            .find(|entry| entry.original_path == required_path)
-            .ok_or_else(|| {
-                anyhow!("missing {required_path} entry in original_test_port_map.json")
-            })?;
-        if entry.owning_phase != args.phase {
-            bail!(
-                "{required_path} is owned by {}, expected {}",
-                entry.owning_phase,
-                args.phase
-            );
+    if selected_targets.is_empty() {
+        if args.skip_if_empty {
+            return Ok(());
         }
-        if entry.completion_state != PortCompletionState::Complete {
+        bail!(
+            "phase {} has no fixture-backed standalone targets",
+            args.phase
+        );
+    }
+
+    for target in &selected_targets {
+        let executable = build_dir.join(&target.target_name);
+        if !executable.exists() {
             bail!(
-                "{required_path} must be marked complete, found {:?}",
-                entry.completion_state
-            );
-        }
-        if entry.rust_target_path != "safe/tests/original_apps_input.rs" {
-            bail!(
-                "{required_path} points at unexpected Rust target {}",
-                entry.rust_target_path
+                "fixture-backed standalone target {} is missing built binary {}",
+                target.target_name,
+                executable.display()
             );
         }
     }
 
-    run_safe_test_binary(
-        &args.repo_root,
-        "original_apps_input",
-        "virtual_joystick_hotplug_rumble_and_player_index_cover_joystick_hotplug_and_rumble_ports",
-    )?;
-    run_safe_test_binary(
-        &args.repo_root,
-        "original_apps_input",
-        "haptic_sensor_and_hidapi_ports_report_unavailable_without_hardware",
-    )
+    let mut rust_targets = BTreeSet::new();
+    for target in &selected_targets {
+        let matching_entries = port_map
+            .entries
+            .iter()
+            .filter(|entry| {
+                entry.source_kind == "standalone executable source"
+                    && entry.owning_phase == args.phase
+                    && entry.completion_state == PortCompletionState::Complete
+                    && entry
+                        .upstream_targets
+                        .iter()
+                        .any(|upstream| upstream == &target.target_name)
+            })
+            .collect::<Vec<_>>();
+        if matching_entries.is_empty() {
+            bail!(
+                "fixture-backed standalone target {} has no complete phase-owned port entries",
+                target.target_name
+            );
+        }
+        for entry in matching_entries {
+            rust_targets.insert(entry.rust_target_path.clone());
+        }
+    }
+
+    for rust_target in rust_targets {
+        let test_name = Path::new(&rust_target)
+            .file_stem()
+            .and_then(|stem| stem.to_str())
+            .ok_or_else(|| anyhow!("unable to derive test target name from {}", rust_target))?;
+        run_safe_test_target(&args.repo_root, test_name)?;
+    }
+
+    Ok(())
 }
 
 pub fn run_gesture_replay(repo_root: PathBuf) -> Result<()> {
