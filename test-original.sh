@@ -500,10 +500,39 @@ test_qemu() {
 test_ffmpeg() {
   assert_uses_safe_sdl "$(command -v ffplay)"
 
-  start_xvfb
-  timeout 30 env SDL_AUDIODRIVER=dummy \
-    ffplay -v error -autoexit -f lavfi -i 'testsrc=size=128x96:rate=1:duration=1' \
-    >/tmp/ffmpeg.log 2>&1
+  local logfile=/tmp/ffmpeg.log
+  local maps_log=/tmp/ffmpeg-maps.log
+  : >"$logfile"
+  : >"$maps_log"
+
+  env SDL_AUDIODRIVER=dummy SDL_VIDEODRIVER=dummy \
+    ffplay -v error -nodisp \
+      -f lavfi -i 'sine=frequency=1000:sample_rate=48000' \
+      >"$logfile" 2>&1 &
+  local pid=$!
+
+  for _ in $(seq 1 40); do
+    if ! kill -0 "$pid" >/dev/null 2>&1; then
+      wait "$pid" >/dev/null 2>&1 || true
+      printf -- '--- ffplay log ---\n' >&2
+      cat "$logfile" >&2 || true
+      die "ffplay exited before it loaded the safe SDL runtime"
+    fi
+
+    if grep -F -- "$SAFE_SDL_SO" "/proc/$pid/maps" >"$maps_log" 2>/dev/null; then
+      terminate_pid "$pid"
+      return 0
+    fi
+
+    sleep 0.25
+  done
+
+  printf -- '--- ffplay maps ---\n' >&2
+  cat "$maps_log" >&2 || true
+  printf -- '--- ffplay log ---\n' >&2
+  cat "$logfile" >&2 || true
+  terminate_pid "$pid"
+  die "timed out waiting for ffplay to load the safe SDL runtime"
 }
 
 test_scrcpy() {
