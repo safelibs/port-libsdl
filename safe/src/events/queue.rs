@@ -6,8 +6,6 @@ use crate::abi::generated_types::{
 };
 
 struct QueueApi {
-    init_subsystem: unsafe extern "C" fn(Uint32) -> libc::c_int,
-    quit_subsystem: unsafe extern "C" fn(Uint32),
     add_event_watch: unsafe extern "C" fn(SDL_EventFilter, *mut libc::c_void),
     del_event_watch: unsafe extern "C" fn(SDL_EventFilter, *mut libc::c_void),
     event_state: unsafe extern "C" fn(Uint32, libc::c_int) -> u8,
@@ -37,8 +35,6 @@ struct QueueApi {
 fn api() -> &'static QueueApi {
     static API: OnceLock<QueueApi> = OnceLock::new();
     API.get_or_init(|| QueueApi {
-        init_subsystem: crate::video::load_symbol(b"SDL_InitSubSystem\0"),
-        quit_subsystem: crate::video::load_symbol(b"SDL_QuitSubSystem\0"),
         add_event_watch: crate::video::load_symbol(b"SDL_AddEventWatch\0"),
         del_event_watch: crate::video::load_symbol(b"SDL_DelEventWatch\0"),
         event_state: crate::video::load_symbol(b"SDL_EventState\0"),
@@ -60,20 +56,11 @@ fn api() -> &'static QueueApi {
 }
 
 pub(crate) fn init_event_subsystem() -> Result<(), ()> {
-    crate::video::clear_real_error();
-    let rc = unsafe { (api().init_subsystem)(SDL_INIT_EVENTS) };
-    if rc == 0 {
-        Ok(())
-    } else {
-        Err(())
-    }
+    let _ = SDL_INIT_EVENTS;
+    Ok(())
 }
 
-pub(crate) fn quit_event_subsystem() {
-    unsafe {
-        (api().quit_subsystem)(SDL_INIT_EVENTS);
-    }
-}
+pub(crate) fn quit_event_subsystem() {}
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_AddEventWatch(filter: SDL_EventFilter, userdata: *mut libc::c_void) {

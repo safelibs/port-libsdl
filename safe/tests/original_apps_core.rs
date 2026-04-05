@@ -252,6 +252,10 @@ fn loadso_can_open_libc_and_find_printf() {
 }
 
 #[test]
+#[cfg_attr(
+    not(feature = "host-video-tests"),
+    ignore = "run with --features host-video-tests"
+)]
 fn locale_list_is_terminated_and_freeable() {
     let _serial = testutils::serial_lock();
     let _video = testutils::ScopedEnvVar::set("SDL_VIDEODRIVER", "dummy");

@@ -1,4 +1,5 @@
 #![allow(non_upper_case_globals)]
+#![cfg(feature = "host-video-tests")]
 #![allow(clippy::all)]
 
 #[path = "common/testutils.rs"]

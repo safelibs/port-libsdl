@@ -14,6 +14,9 @@ name = "safe_sdl"
 crate-type = ["cdylib", "staticlib", "rlib"]
 doctest = false
 
+[features]
+host-video-tests = []
+
 [dependencies]
 libc = "0.2"
 

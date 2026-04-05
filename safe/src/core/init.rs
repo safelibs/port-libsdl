@@ -111,9 +111,7 @@ fn init_locked(state: &mut InitState, flags: Uint32) -> Result<(), ()> {
 
     if flags & SDL_INIT_AUDIO != 0 {
         if should_init(state, SDL_INIT_AUDIO) {
-            init_or_incr(state, SDL_INIT_EVENTS)?;
             if crate::audio::device::init_audio_subsystem().is_err() {
-                quit_locked(state, SDL_INIT_EVENTS);
                 return Err(());
             }
         }
@@ -193,7 +191,6 @@ fn quit_locked(state: &mut InitState, flags: Uint32) {
     if flags & SDL_INIT_AUDIO != 0 {
         if should_quit(state, SDL_INIT_AUDIO) {
             crate::audio::device::quit_audio_subsystem();
-            quit_locked(state, SDL_INIT_EVENTS);
         }
         decr_refcount(state, SDL_INIT_AUDIO);
     }

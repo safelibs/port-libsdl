@@ -11,8 +11,10 @@ use safe_sdl::abi::generated_types::{
     SDL_HintPriority_SDL_HINT_DEFAULT, SDL_HintPriority_SDL_HINT_OVERRIDE,
     SDL_LogCategory_SDL_LOG_CATEGORY_APPLICATION, SDL_LogPriority,
     SDL_LogPriority_SDL_LOG_PRIORITY_DEBUG, SDL_LogPriority_SDL_LOG_PRIORITY_INFO,
-    SDL_LogPriority_SDL_LOG_PRIORITY_WARN, SDL_INIT_EVENTS, SDL_INIT_TIMER, SDL_INIT_VIDEO,
+    SDL_LogPriority_SDL_LOG_PRIORITY_WARN, SDL_INIT_AUDIO, SDL_INIT_EVENTS, SDL_INIT_TIMER,
+    SDL_INIT_VIDEO,
 };
+use safe_sdl::audio::device::SDL_AudioQuit;
 use safe_sdl::core::assert::{SDL_GetAssertionReport, SDL_ResetAssertionReport};
 use safe_sdl::core::cpuinfo::{
     SDL_GetCPUCacheLineSize, SDL_GetCPUCount, SDL_GetSystemRAM, SDL_HasAVX, SDL_HasSSE,
@@ -93,6 +95,10 @@ unsafe extern "C" fn fire_once(_interval: u32, userdata: *mut c_void) -> u32 {
 }
 
 #[test]
+#[cfg_attr(
+    not(feature = "host-video-tests"),
+    ignore = "run with --features host-video-tests"
+)]
 fn main_subsystem_refcount_and_dependency_cascade() {
     let _serial = testutils::serial_lock();
     let _video = testutils::ScopedEnvVar::set("SDL_VIDEODRIVER", "dummy");
@@ -134,6 +140,32 @@ fn main_subsystem_refcount_and_dependency_cascade() {
         assert_eq!(SDL_WasInit(SDL_INIT_VIDEO | SDL_INIT_EVENTS), 0);
 
         SDL_Quit();
+    }
+}
+
+#[test]
+fn audio_init_does_not_implicitly_initialize_events() {
+    let _serial = testutils::serial_lock();
+    let _audio = testutils::ScopedEnvVar::set("SDL_AUDIODRIVER", "dummy");
+
+    unsafe {
+        SDL_AudioQuit();
+        SDL_QuitSubSystem(SDL_INIT_AUDIO | SDL_INIT_EVENTS);
+
+        assert_eq!(SDL_WasInit(SDL_INIT_AUDIO | SDL_INIT_EVENTS), 0);
+        assert_eq!(
+            SDL_InitSubSystem(SDL_INIT_AUDIO),
+            0,
+            "{}",
+            testutils::current_error()
+        );
+
+        let active = SDL_WasInit(SDL_INIT_AUDIO | SDL_INIT_EVENTS);
+        assert_eq!(active & SDL_INIT_AUDIO, SDL_INIT_AUDIO);
+        assert_eq!(active & SDL_INIT_EVENTS, 0);
+
+        SDL_QuitSubSystem(SDL_INIT_AUDIO);
+        assert_eq!(SDL_WasInit(SDL_INIT_AUDIO | SDL_INIT_EVENTS), 0);
     }
 }
 

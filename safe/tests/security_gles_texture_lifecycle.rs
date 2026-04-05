@@ -1,3 +1,4 @@
+#![cfg(feature = "host-video-tests")]
 #![allow(non_upper_case_globals)]
 #![allow(clippy::all)]
 

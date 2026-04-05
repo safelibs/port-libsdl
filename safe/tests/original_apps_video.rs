@@ -1,4 +1,5 @@
 #![allow(unexpected_cfgs)]
+#![cfg(feature = "host-video-tests")]
 #![allow(clippy::all)]
 
 #[path = "common/testutils.rs"]

@@ -174,8 +174,10 @@ pub unsafe extern "C" fn SDL_SetHintWithPriority(
         );
     }
 
-    crate::video::clear_real_error();
-    let _ = real_set_hint_with_priority_fn()(name.as_ptr(), value, priority);
+    if crate::video::real_sdl_is_loaded() {
+        crate::video::clear_real_error();
+        let _ = real_set_hint_with_priority_fn()(name.as_ptr(), value, priority);
+    }
 
     crate::abi::generated_types::SDL_bool_SDL_TRUE
 }
@@ -221,8 +223,10 @@ pub unsafe extern "C" fn SDL_ResetHint(name: *const libc::c_char) -> SDL_bool {
         );
     }
 
-    crate::video::clear_real_error();
-    let _ = real_reset_hint_fn()(name.as_ptr());
+    if crate::video::real_sdl_is_loaded() {
+        crate::video::clear_real_error();
+        let _ = real_reset_hint_fn()(name.as_ptr());
+    }
 
     bool_to_sdl(found)
 }
@@ -258,8 +262,10 @@ pub unsafe extern "C" fn SDL_ResetHints() {
         }
     }
 
-    crate::video::clear_real_error();
-    real_reset_hints_fn()();
+    if crate::video::real_sdl_is_loaded() {
+        crate::video::clear_real_error();
+        real_reset_hints_fn()();
+    }
 }
 
 #[no_mangle]
@@ -362,6 +368,8 @@ pub unsafe extern "C" fn SDL_DelHintCallback(
 #[no_mangle]
 pub unsafe extern "C" fn SDL_ClearHints() {
     lock_hints().clear();
-    crate::video::clear_real_error();
-    real_clear_hints_fn()();
+    if crate::video::real_sdl_is_loaded() {
+        crate::video::clear_real_error();
+        real_clear_hints_fn()();
+    }
 }

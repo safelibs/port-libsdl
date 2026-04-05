@@ -60,8 +60,23 @@ fn open_real_sdl() -> *mut libc::c_void {
 }
 
 pub(crate) fn real_sdl_handle() -> *mut libc::c_void {
+    *real_sdl_handle_slot().get_or_init(|| open_real_sdl() as usize) as *mut libc::c_void
+}
+
+fn loaded_real_sdl_handle() -> Option<*mut libc::c_void> {
+    real_sdl_handle_slot()
+        .get()
+        .copied()
+        .map(|handle| handle as *mut libc::c_void)
+}
+
+pub(crate) fn real_sdl_is_loaded() -> bool {
+    loaded_real_sdl_handle().is_some()
+}
+
+fn real_sdl_handle_slot() -> &'static OnceLock<usize> {
     static HANDLE: OnceLock<usize> = OnceLock::new();
-    *HANDLE.get_or_init(|| open_real_sdl() as usize) as *mut libc::c_void
+    &HANDLE
 }
 
 pub(crate) fn load_symbol<T>(name: &[u8]) -> T {
@@ -88,11 +103,17 @@ fn real_clear_error_fn() -> ClearErrorFn {
 }
 
 pub(crate) fn clear_real_error() {
-    unsafe {
-        real_clear_error_fn()();
+    if loaded_real_sdl_handle().is_some() {
+        unsafe {
+            real_clear_error_fn()();
+        }
     }
 }
 
 pub(crate) fn real_error_ptr() -> *const libc::c_char {
-    unsafe { real_get_error()() }
+    if loaded_real_sdl_handle().is_some() {
+        unsafe { real_get_error()() }
+    } else {
+        std::ptr::null()
+    }
 }
