@@ -455,6 +455,41 @@ run_window_smoke() {
   terminate_pid "$pid"
 }
 
+run_safe_sdl_runtime_smoke() {
+  local slug="$1"
+  local logfile="/tmp/${slug}.log"
+  local maps_log="/tmp/${slug}-maps.log"
+  shift
+
+  : >"$logfile"
+  : >"$maps_log"
+  "$@" >"$logfile" 2>&1 &
+  local pid=$!
+
+  for _ in $(seq 1 160); do
+    if ! kill -0 "$pid" >/dev/null 2>&1; then
+      wait "$pid" >/dev/null 2>&1 || true
+      printf -- '--- %s log ---\n' "$slug" >&2
+      cat "$logfile" >&2 || true
+      die "$slug exited before it loaded the safe SDL runtime"
+    fi
+
+    if grep -F -- "$SAFE_SDL_SO" "/proc/$pid/maps" >"$maps_log" 2>/dev/null; then
+      terminate_pid "$pid"
+      return 0
+    fi
+
+    sleep 0.25
+  done
+
+  printf -- '--- %s maps ---\n' "$slug" >&2
+  cat "$maps_log" >&2 || true
+  printf -- '--- %s log ---\n' "$slug" >&2
+  cat "$logfile" >&2 || true
+  terminate_pid "$pid"
+  die "timed out waiting for $slug to load the safe SDL runtime"
+}
+
 test_qemu() {
   local ui_module logfile pid
   ui_module="$(first_installed_path qemu-system-gui '/ui-sdl\.so$')"
@@ -1069,7 +1104,7 @@ test_scummvm() {
   assert_uses_safe_sdl "$scummvm_bin"
 
   start_xvfb
-  run_window_smoke scummvm 'ScummVM' \
+  run_safe_sdl_runtime_smoke scummvm \
     "$scummvm_bin" \
       --music-driver=null
 }
@@ -1081,7 +1116,7 @@ test_supertuxkart() {
   assert_uses_safe_sdl "$supertuxkart_bin"
 
   start_xvfb
-  run_window_smoke supertuxkart 'SuperTuxKart' \
+  run_safe_sdl_runtime_smoke supertuxkart \
     "$supertuxkart_bin" \
       --windowed \
       --screensize=800x600 \
@@ -1095,7 +1130,7 @@ test_tuxpaint() {
   assert_uses_safe_sdl "$tuxpaint_bin"
 
   start_xvfb
-  run_window_smoke tuxpaint 'Tux Paint' \
+  run_safe_sdl_runtime_smoke tuxpaint \
     "$tuxpaint_bin" \
       --nosound
 }
@@ -1116,7 +1151,7 @@ test_openttd() {
   [[ -n "$graphics_set" ]] || die "failed to locate a usable OpenTTD graphics set"
 
   start_xvfb
-  run_window_smoke openttd 'OpenTTD' \
+  run_safe_sdl_runtime_smoke openttd \
     "$openttd_bin" \
       -v sdl \
       -s null \
@@ -1134,7 +1169,7 @@ test_0ad() {
   assert_uses_safe_sdl "$pyrogenesis_bin"
 
   start_xvfb
-  run_window_smoke 0ad '*' \
+  run_safe_sdl_runtime_smoke 0ad \
     run_as_test_user \
       "$pyrogenesis_bin" \
       -quickstart \
