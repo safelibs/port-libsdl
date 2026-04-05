@@ -5,6 +5,7 @@ use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::thread;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use anyhow::{anyhow, bail, Context, Result};
 use serde::{Deserialize, Serialize};
@@ -1199,11 +1200,7 @@ fn build_benchmark_runner(
     original_prefix_dir: &Path,
     runner_dir: &Path,
 ) -> Result<PathBuf> {
-    if runner_dir.exists() {
-        fs::remove_dir_all(runner_dir)
-            .with_context(|| format!("remove {}", runner_dir.display()))?;
-    }
-    fs::create_dir_all(runner_dir)?;
+    let runner_dir = prepare_perf_runner_dir(runner_dir)?;
 
     let source_path = runner_dir.join("perf_runner.c");
     let binary_path = runner_dir.join("perf_runner");
@@ -1233,6 +1230,49 @@ fn build_benchmark_runner(
         .args(libs);
     run_command(&mut command, "compile benchmark runner")?;
     Ok(binary_path)
+}
+
+fn prepare_perf_runner_dir(requested: &Path) -> Result<PathBuf> {
+    if requested.exists() {
+        match fs::remove_dir_all(requested) {
+            Ok(()) => {}
+            Err(error) if error.kind() == ErrorKind::PermissionDenied => {
+                let fallback = unique_temp_dir("libsdl-perf-runner")?;
+                eprintln!(
+                    "xtask: using fallback perf runner dir {} because {} could not be removed: {}",
+                    fallback.display(),
+                    requested.display(),
+                    error
+                );
+                return Ok(fallback);
+            }
+            Err(error) => {
+                return Err(error).with_context(|| format!("remove {}", requested.display()));
+            }
+        }
+    }
+
+    fs::create_dir_all(requested).with_context(|| format!("create {}", requested.display()))?;
+    Ok(requested.to_path_buf())
+}
+
+fn unique_temp_dir(prefix: &str) -> Result<PathBuf> {
+    for attempt in 0..16 {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("system time before unix epoch")
+            .as_nanos();
+        let candidate = env::temp_dir().join(format!("{prefix}-{nonce}-{attempt}"));
+        match fs::create_dir(&candidate) {
+            Ok(()) => return Ok(candidate),
+            Err(error) if error.kind() == ErrorKind::AlreadyExists => continue,
+            Err(error) => {
+                return Err(error).with_context(|| format!("create {}", candidate.display()));
+            }
+        }
+    }
+
+    bail!("unable to create unique temp dir for {prefix}")
 }
 
 fn collect_subject_samples(
