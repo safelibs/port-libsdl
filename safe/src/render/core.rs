@@ -1,9 +1,12 @@
-use std::sync::OnceLock;
+use std::collections::HashMap;
+use std::ptr;
+use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
     SDL_BlendMode, SDL_Color, SDL_FPoint, SDL_FRect, SDL_Point, SDL_Rect, SDL_Renderer,
-    SDL_RendererFlip, SDL_RendererInfo, SDL_ScaleMode, SDL_Surface, SDL_Texture,
-    SDL_Window, SDL_Vertex, SDL_bool, Uint32, Uint8,
+    SDL_RendererFlip, SDL_RendererInfo, SDL_ScaleMode,
+    SDL_ScaleMode_SDL_ScaleModeLinear, SDL_Surface, SDL_Texture, SDL_Window, SDL_Vertex,
+    SDL_bool, Uint32, Uint8,
 };
 
 macro_rules! real_sdl_api {
@@ -103,6 +106,117 @@ real_sdl_api! {
     fn render_set_vsync = "SDL_RenderSetVSync": unsafe extern "C" fn(*mut SDL_Renderer, libc::c_int) -> libc::c_int;
 }
 
+struct ManagedTexture {
+    raw: *mut SDL_Texture,
+    renderer: *mut SDL_Renderer,
+    _shadow: crate::render::gles::ShadowTexture,
+}
+
+#[derive(Default)]
+struct ManagedTextureRegistry {
+    by_handle: HashMap<usize, usize>,
+    by_raw: HashMap<usize, usize>,
+}
+
+fn managed_texture_registry() -> &'static Mutex<ManagedTextureRegistry> {
+    static REGISTRY: OnceLock<Mutex<ManagedTextureRegistry>> = OnceLock::new();
+    REGISTRY.get_or_init(|| Mutex::new(ManagedTextureRegistry::default()))
+}
+
+fn managed_texture_ptr(address: usize) -> *mut ManagedTexture {
+    address as *mut ManagedTexture
+}
+
+unsafe fn unwrap_texture(texture: *mut SDL_Texture) -> *mut SDL_Texture {
+    if texture.is_null() {
+        return ptr::null_mut();
+    }
+
+    let registry = managed_texture_registry()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    registry
+        .by_handle
+        .get(&(texture as usize))
+        .map(|managed| (*managed_texture_ptr(*managed)).raw)
+        .unwrap_or(texture)
+}
+
+unsafe fn wrap_texture(raw: *mut SDL_Texture) -> *mut SDL_Texture {
+    if raw.is_null() {
+        return ptr::null_mut();
+    }
+
+    let registry = managed_texture_registry()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    registry
+        .by_raw
+        .get(&(raw as usize))
+        .map(|managed| managed_texture_ptr(*managed).cast())
+        .unwrap_or(raw)
+}
+
+unsafe fn register_texture(
+    raw: *mut SDL_Texture,
+    renderer: *mut SDL_Renderer,
+    shadow: crate::render::gles::ShadowTexture,
+) -> *mut SDL_Texture {
+    let managed = Box::new(ManagedTexture {
+        raw,
+        renderer,
+        _shadow: shadow,
+    });
+    let managed = Box::into_raw(managed);
+    let handle = managed as usize;
+    let mut registry = managed_texture_registry()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    registry.by_handle.insert(handle, handle);
+    registry.by_raw.insert(raw as usize, handle);
+    managed.cast()
+}
+
+unsafe fn take_texture(texture: *mut SDL_Texture) -> Option<Box<ManagedTexture>> {
+    if texture.is_null() {
+        return None;
+    }
+
+    let managed = {
+        let mut registry = managed_texture_registry()
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        registry.by_handle.remove(&(texture as usize))
+    }?;
+
+    let raw = (*managed_texture_ptr(managed)).raw as usize;
+    let mut registry = managed_texture_registry()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    registry.by_raw.remove(&raw);
+    drop(registry);
+    Some(Box::from_raw(managed as *mut ManagedTexture))
+}
+
+unsafe fn clear_renderer_textures(renderer: *mut SDL_Renderer) {
+    let handles: Vec<usize> = {
+        let registry = managed_texture_registry()
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        registry
+            .by_handle
+            .iter()
+            .filter_map(|(handle, managed)| {
+                ((*managed_texture_ptr(*managed)).renderer == renderer).then_some(*handle)
+            })
+            .collect()
+    };
+
+    for handle in handles {
+        let _ = take_texture(handle as *mut SDL_Texture);
+    }
+}
+
 macro_rules! forward_ret {
     ($(fn $name:ident($($arg:ident: $ty:ty),* $(,)?) -> $ret:ty = $field:ident;)+) => {
         $(
@@ -127,6 +241,42 @@ macro_rules! forward_void {
     };
 }
 
+macro_rules! forward_texture_first_ret {
+    ($(fn $name:ident($texture:ident: *mut SDL_Texture $(, $arg:ident: $ty:ty)*) -> $ret:ty = $field:ident;)+) => {
+        $(
+            #[no_mangle]
+            pub unsafe extern "C" fn $name($texture: *mut SDL_Texture, $($arg: $ty),*) -> $ret {
+                crate::video::clear_real_error();
+                (api().$field)(unwrap_texture($texture) $(, $arg)*)
+            }
+        )+
+    };
+}
+
+macro_rules! forward_texture_first_void {
+    ($(fn $name:ident($texture:ident: *mut SDL_Texture $(, $arg:ident: $ty:ty)*) = $field:ident;)+) => {
+        $(
+            #[no_mangle]
+            pub unsafe extern "C" fn $name($texture: *mut SDL_Texture, $($arg: $ty),*) {
+                crate::video::clear_real_error();
+                (api().$field)(unwrap_texture($texture) $(, $arg)*);
+            }
+        )+
+    };
+}
+
+macro_rules! forward_texture_second_ret {
+    ($(fn $name:ident($renderer:ident: $rty:ty, $texture:ident: *mut SDL_Texture $(, $arg:ident: $ty:ty)*) -> $ret:ty = $field:ident;)+) => {
+        $(
+            #[no_mangle]
+            pub unsafe extern "C" fn $name($renderer: $rty, $texture: *mut SDL_Texture, $($arg: $ty),*) -> $ret {
+                crate::video::clear_real_error();
+                (api().$field)($renderer, unwrap_texture($texture) $(, $arg)*)
+            }
+        )+
+    };
+}
+
 forward_ret! {
     fn SDL_GetNumRenderDrivers() -> libc::c_int = get_num_render_drivers;
     fn SDL_GetRenderDriverInfo(index: libc::c_int, info: *mut SDL_RendererInfo) -> libc::c_int = get_render_driver_info;
@@ -135,27 +285,8 @@ forward_ret! {
     fn SDL_RenderGetWindow(renderer: *mut SDL_Renderer) -> *mut SDL_Window = render_get_window;
     fn SDL_GetRendererInfo(renderer: *mut SDL_Renderer, info: *mut SDL_RendererInfo) -> libc::c_int = get_renderer_info;
     fn SDL_GetRendererOutputSize(renderer: *mut SDL_Renderer, w: *mut libc::c_int, h: *mut libc::c_int) -> libc::c_int = get_renderer_output_size;
-    fn SDL_CreateTexture(renderer: *mut SDL_Renderer, format: Uint32, access: libc::c_int, w: libc::c_int, h: libc::c_int) -> *mut SDL_Texture = create_texture;
     fn SDL_CreateTextureFromSurface(renderer: *mut SDL_Renderer, surface: *mut SDL_Surface) -> *mut SDL_Texture = create_texture_from_surface;
-    fn SDL_QueryTexture(texture: *mut SDL_Texture, format: *mut Uint32, access: *mut libc::c_int, w: *mut libc::c_int, h: *mut libc::c_int) -> libc::c_int = query_texture;
-    fn SDL_SetTextureColorMod(texture: *mut SDL_Texture, r: Uint8, g: Uint8, b: Uint8) -> libc::c_int = set_texture_color_mod;
-    fn SDL_GetTextureColorMod(texture: *mut SDL_Texture, r: *mut Uint8, g: *mut Uint8, b: *mut Uint8) -> libc::c_int = get_texture_color_mod;
-    fn SDL_SetTextureAlphaMod(texture: *mut SDL_Texture, alpha: Uint8) -> libc::c_int = set_texture_alpha_mod;
-    fn SDL_GetTextureAlphaMod(texture: *mut SDL_Texture, alpha: *mut Uint8) -> libc::c_int = get_texture_alpha_mod;
-    fn SDL_SetTextureBlendMode(texture: *mut SDL_Texture, blendMode: SDL_BlendMode) -> libc::c_int = set_texture_blend_mode;
-    fn SDL_GetTextureBlendMode(texture: *mut SDL_Texture, blendMode: *mut SDL_BlendMode) -> libc::c_int = get_texture_blend_mode;
-    fn SDL_SetTextureScaleMode(texture: *mut SDL_Texture, scaleMode: SDL_ScaleMode) -> libc::c_int = set_texture_scale_mode;
-    fn SDL_GetTextureScaleMode(texture: *mut SDL_Texture, scaleMode: *mut SDL_ScaleMode) -> libc::c_int = get_texture_scale_mode;
-    fn SDL_SetTextureUserData(texture: *mut SDL_Texture, userdata: *mut libc::c_void) -> libc::c_int = set_texture_user_data;
-    fn SDL_GetTextureUserData(texture: *mut SDL_Texture) -> *mut libc::c_void = get_texture_user_data;
-    fn SDL_UpdateTexture(texture: *mut SDL_Texture, rect: *const SDL_Rect, pixels: *const libc::c_void, pitch: libc::c_int) -> libc::c_int = update_texture;
-    fn SDL_UpdateYUVTexture(texture: *mut SDL_Texture, rect: *const SDL_Rect, Yplane: *const Uint8, Ypitch: libc::c_int, Uplane: *const Uint8, Upitch: libc::c_int, Vplane: *const Uint8, Vpitch: libc::c_int) -> libc::c_int = update_yuv_texture;
-    fn SDL_UpdateNVTexture(texture: *mut SDL_Texture, rect: *const SDL_Rect, Yplane: *const Uint8, Ypitch: libc::c_int, UVplane: *const Uint8, UVpitch: libc::c_int) -> libc::c_int = update_nv_texture;
-    fn SDL_LockTexture(texture: *mut SDL_Texture, rect: *const SDL_Rect, pixels: *mut *mut libc::c_void, pitch: *mut libc::c_int) -> libc::c_int = lock_texture;
-    fn SDL_LockTextureToSurface(texture: *mut SDL_Texture, rect: *const SDL_Rect, surface: *mut *mut SDL_Surface) -> libc::c_int = lock_texture_to_surface;
     fn SDL_RenderTargetSupported(renderer: *mut SDL_Renderer) -> SDL_bool = render_target_supported;
-    fn SDL_SetRenderTarget(renderer: *mut SDL_Renderer, texture: *mut SDL_Texture) -> libc::c_int = set_render_target;
-    fn SDL_GetRenderTarget(renderer: *mut SDL_Renderer) -> *mut SDL_Texture = get_render_target;
     fn SDL_RenderSetLogicalSize(renderer: *mut SDL_Renderer, w: libc::c_int, h: libc::c_int) -> libc::c_int = render_set_logical_size;
     fn SDL_RenderSetIntegerScale(renderer: *mut SDL_Renderer, enable: SDL_bool) -> libc::c_int = render_set_integer_scale;
     fn SDL_RenderGetIntegerScale(renderer: *mut SDL_Renderer) -> SDL_bool = render_get_integer_scale;
@@ -178,8 +309,6 @@ forward_ret! {
     fn SDL_RenderDrawRects(renderer: *mut SDL_Renderer, rects: *const SDL_Rect, count: libc::c_int) -> libc::c_int = render_draw_rects;
     fn SDL_RenderFillRect(renderer: *mut SDL_Renderer, rect: *const SDL_Rect) -> libc::c_int = render_fill_rect;
     fn SDL_RenderFillRects(renderer: *mut SDL_Renderer, rects: *const SDL_Rect, count: libc::c_int) -> libc::c_int = render_fill_rects;
-    fn SDL_RenderCopy(renderer: *mut SDL_Renderer, texture: *mut SDL_Texture, srcrect: *const SDL_Rect, dstrect: *const SDL_Rect) -> libc::c_int = render_copy;
-    fn SDL_RenderCopyEx(renderer: *mut SDL_Renderer, texture: *mut SDL_Texture, srcrect: *const SDL_Rect, dstrect: *const SDL_Rect, angle: f64, center: *const SDL_Point, flip: SDL_RendererFlip) -> libc::c_int = render_copy_ex;
     fn SDL_RenderDrawPointF(renderer: *mut SDL_Renderer, x: f32, y: f32) -> libc::c_int = render_draw_point_f;
     fn SDL_RenderDrawPointsF(renderer: *mut SDL_Renderer, points: *const SDL_FPoint, count: libc::c_int) -> libc::c_int = render_draw_points_f;
     fn SDL_RenderDrawLineF(renderer: *mut SDL_Renderer, x1: f32, y1: f32, x2: f32, y2: f32) -> libc::c_int = render_draw_line_f;
@@ -188,17 +317,115 @@ forward_ret! {
     fn SDL_RenderDrawRectsF(renderer: *mut SDL_Renderer, rects: *const SDL_FRect, count: libc::c_int) -> libc::c_int = render_draw_rects_f;
     fn SDL_RenderFillRectF(renderer: *mut SDL_Renderer, rect: *const SDL_FRect) -> libc::c_int = render_fill_rect_f;
     fn SDL_RenderFillRectsF(renderer: *mut SDL_Renderer, rects: *const SDL_FRect, count: libc::c_int) -> libc::c_int = render_fill_rects_f;
+    fn SDL_RenderReadPixels(renderer: *mut SDL_Renderer, rect: *const SDL_Rect, format: Uint32, pixels: *mut libc::c_void, pitch: libc::c_int) -> libc::c_int = render_read_pixels;
+    fn SDL_RenderFlush(renderer: *mut SDL_Renderer) -> libc::c_int = render_flush;
+    fn SDL_RenderGetMetalLayer(renderer: *mut SDL_Renderer) -> *mut libc::c_void = render_get_metal_layer;
+    fn SDL_RenderGetMetalCommandEncoder(renderer: *mut SDL_Renderer) -> *mut libc::c_void = render_get_metal_command_encoder;
+    fn SDL_RenderSetVSync(renderer: *mut SDL_Renderer, vsync: libc::c_int) -> libc::c_int = render_set_vsync;
+}
+
+forward_texture_first_ret! {
+    fn SDL_QueryTexture(texture: *mut SDL_Texture, format: *mut Uint32, access: *mut libc::c_int, w: *mut libc::c_int, h: *mut libc::c_int) -> libc::c_int = query_texture;
+    fn SDL_SetTextureColorMod(texture: *mut SDL_Texture, r: Uint8, g: Uint8, b: Uint8) -> libc::c_int = set_texture_color_mod;
+    fn SDL_GetTextureColorMod(texture: *mut SDL_Texture, r: *mut Uint8, g: *mut Uint8, b: *mut Uint8) -> libc::c_int = get_texture_color_mod;
+    fn SDL_SetTextureAlphaMod(texture: *mut SDL_Texture, alpha: Uint8) -> libc::c_int = set_texture_alpha_mod;
+    fn SDL_GetTextureAlphaMod(texture: *mut SDL_Texture, alpha: *mut Uint8) -> libc::c_int = get_texture_alpha_mod;
+    fn SDL_SetTextureBlendMode(texture: *mut SDL_Texture, blendMode: SDL_BlendMode) -> libc::c_int = set_texture_blend_mode;
+    fn SDL_GetTextureBlendMode(texture: *mut SDL_Texture, blendMode: *mut SDL_BlendMode) -> libc::c_int = get_texture_blend_mode;
+    fn SDL_SetTextureScaleMode(texture: *mut SDL_Texture, scaleMode: SDL_ScaleMode) -> libc::c_int = set_texture_scale_mode;
+    fn SDL_GetTextureScaleMode(texture: *mut SDL_Texture, scaleMode: *mut SDL_ScaleMode) -> libc::c_int = get_texture_scale_mode;
+    fn SDL_SetTextureUserData(texture: *mut SDL_Texture, userdata: *mut libc::c_void) -> libc::c_int = set_texture_user_data;
+    fn SDL_GetTextureUserData(texture: *mut SDL_Texture) -> *mut libc::c_void = get_texture_user_data;
+    fn SDL_UpdateTexture(texture: *mut SDL_Texture, rect: *const SDL_Rect, pixels: *const libc::c_void, pitch: libc::c_int) -> libc::c_int = update_texture;
+    fn SDL_UpdateYUVTexture(texture: *mut SDL_Texture, rect: *const SDL_Rect, Yplane: *const Uint8, Ypitch: libc::c_int, Uplane: *const Uint8, Upitch: libc::c_int, Vplane: *const Uint8, Vpitch: libc::c_int) -> libc::c_int = update_yuv_texture;
+    fn SDL_UpdateNVTexture(texture: *mut SDL_Texture, rect: *const SDL_Rect, Yplane: *const Uint8, Ypitch: libc::c_int, UVplane: *const Uint8, UVpitch: libc::c_int) -> libc::c_int = update_nv_texture;
+    fn SDL_LockTexture(texture: *mut SDL_Texture, rect: *const SDL_Rect, pixels: *mut *mut libc::c_void, pitch: *mut libc::c_int) -> libc::c_int = lock_texture;
+    fn SDL_LockTextureToSurface(texture: *mut SDL_Texture, rect: *const SDL_Rect, surface: *mut *mut SDL_Surface) -> libc::c_int = lock_texture_to_surface;
+    fn SDL_GL_BindTexture(texture: *mut SDL_Texture, texw: *mut f32, texh: *mut f32) -> libc::c_int = gl_bind_texture;
+    fn SDL_GL_UnbindTexture(texture: *mut SDL_Texture) -> libc::c_int = gl_unbind_texture;
+}
+
+forward_texture_first_void! {
+    fn SDL_UnlockTexture(texture: *mut SDL_Texture) = unlock_texture;
+}
+
+forward_texture_second_ret! {
+    fn SDL_SetRenderTarget(renderer: *mut SDL_Renderer, texture: *mut SDL_Texture) -> libc::c_int = set_render_target;
+    fn SDL_RenderCopy(renderer: *mut SDL_Renderer, texture: *mut SDL_Texture, srcrect: *const SDL_Rect, dstrect: *const SDL_Rect) -> libc::c_int = render_copy;
+    fn SDL_RenderCopyEx(renderer: *mut SDL_Renderer, texture: *mut SDL_Texture, srcrect: *const SDL_Rect, dstrect: *const SDL_Rect, angle: f64, center: *const SDL_Point, flip: SDL_RendererFlip) -> libc::c_int = render_copy_ex;
     fn SDL_RenderCopyF(renderer: *mut SDL_Renderer, texture: *mut SDL_Texture, srcrect: *const SDL_Rect, dstrect: *const SDL_FRect) -> libc::c_int = render_copy_f;
     fn SDL_RenderCopyExF(renderer: *mut SDL_Renderer, texture: *mut SDL_Texture, srcrect: *const SDL_Rect, dstrect: *const SDL_FRect, angle: f64, center: *const SDL_FPoint, flip: SDL_RendererFlip) -> libc::c_int = render_copy_ex_f;
     fn SDL_RenderGeometry(renderer: *mut SDL_Renderer, texture: *mut SDL_Texture, vertices: *const SDL_Vertex, num_vertices: libc::c_int, indices: *const libc::c_int, num_indices: libc::c_int) -> libc::c_int = render_geometry;
     fn SDL_RenderGeometryRaw(renderer: *mut SDL_Renderer, texture: *mut SDL_Texture, xy: *const f32, xy_stride: libc::c_int, color: *const SDL_Color, color_stride: libc::c_int, uv: *const f32, uv_stride: libc::c_int, num_vertices: libc::c_int, indices: *const libc::c_void, num_indices: libc::c_int, size_indices: libc::c_int) -> libc::c_int = render_geometry_raw;
-    fn SDL_RenderReadPixels(renderer: *mut SDL_Renderer, rect: *const SDL_Rect, format: Uint32, pixels: *mut libc::c_void, pitch: libc::c_int) -> libc::c_int = render_read_pixels;
-    fn SDL_RenderFlush(renderer: *mut SDL_Renderer) -> libc::c_int = render_flush;
-    fn SDL_GL_BindTexture(texture: *mut SDL_Texture, texw: *mut f32, texh: *mut f32) -> libc::c_int = gl_bind_texture;
-    fn SDL_GL_UnbindTexture(texture: *mut SDL_Texture) -> libc::c_int = gl_unbind_texture;
-    fn SDL_RenderGetMetalLayer(renderer: *mut SDL_Renderer) -> *mut libc::c_void = render_get_metal_layer;
-    fn SDL_RenderGetMetalCommandEncoder(renderer: *mut SDL_Renderer) -> *mut libc::c_void = render_get_metal_command_encoder;
-    fn SDL_RenderSetVSync(renderer: *mut SDL_Renderer, vsync: libc::c_int) -> libc::c_int = render_set_vsync;
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn SDL_CreateTexture(
+    renderer: *mut SDL_Renderer,
+    format: Uint32,
+    access: libc::c_int,
+    w: libc::c_int,
+    h: libc::c_int,
+) -> *mut SDL_Texture {
+    crate::video::clear_real_error();
+
+    let use_gles_path = crate::render::gles::renderer_uses_gles_texture_path(renderer);
+    let shadow = if use_gles_path {
+        let _ = (api().render_flush)(renderer);
+        let window = (api().render_get_window)(renderer);
+        match crate::render::gles::prepare_texture_shadow(
+            renderer,
+            window,
+            format,
+            access,
+            SDL_ScaleMode_SDL_ScaleModeLinear,
+            w,
+            h,
+        ) {
+            Ok(shadow) => shadow,
+            Err(message) => {
+                crate::core::error::set_error_message(&message);
+                return ptr::null_mut();
+            }
+        }
+    } else {
+        None
+    };
+
+    let texture = (api().create_texture)(renderer, format, access, w, h);
+    if texture.is_null() {
+        return ptr::null_mut();
+    }
+
+    if let Some(shadow) = shadow {
+        register_texture(texture, renderer, shadow)
+    } else {
+        texture
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn SDL_GetRenderTarget(renderer: *mut SDL_Renderer) -> *mut SDL_Texture {
+    crate::video::clear_real_error();
+    wrap_texture((api().get_render_target)(renderer))
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn SDL_DestroyTexture(texture: *mut SDL_Texture) {
+    crate::video::clear_real_error();
+    if let Some(managed) = take_texture(texture) {
+        (api().destroy_texture)(managed.raw);
+        drop(managed);
+    } else {
+        (api().destroy_texture)(texture);
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn SDL_DestroyRenderer(renderer: *mut SDL_Renderer) {
+    crate::video::clear_real_error();
+    clear_renderer_textures(renderer);
+    (api().destroy_renderer)(renderer);
 }
 
 forward_void! {
@@ -207,7 +434,4 @@ forward_void! {
     fn SDL_RenderGetClipRect(renderer: *mut SDL_Renderer, rect: *mut SDL_Rect) = render_get_clip_rect;
     fn SDL_RenderGetScale(renderer: *mut SDL_Renderer, scaleX: *mut f32, scaleY: *mut f32) = render_get_scale;
     fn SDL_RenderPresent(renderer: *mut SDL_Renderer) = render_present;
-    fn SDL_DestroyTexture(texture: *mut SDL_Texture) = destroy_texture;
-    fn SDL_DestroyRenderer(renderer: *mut SDL_Renderer) = destroy_renderer;
-    fn SDL_UnlockTexture(texture: *mut SDL_Texture) = unlock_texture;
 }
