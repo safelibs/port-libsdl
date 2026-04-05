@@ -13,9 +13,10 @@ use contracts::{
 };
 use original_tests::{
     build_original_standalone, compile_original_test_objects, relink_original_test_objects,
-    run_gesture_replay, run_original_standalone, run_relinked_original_tests, run_xvfb,
-    run_xvfb_window_smoke, BuildOriginalStandaloneArgs, CompileOriginalTestObjectsArgs,
-    RelinkOriginalTestObjectsArgs, RunOriginalStandaloneArgs, RunRelinkedOriginalTestsArgs,
+    run_evdev_fixture_tests, run_fixture_backed_original_tests, run_gesture_replay,
+    run_original_standalone, run_relinked_original_tests, run_xvfb, run_xvfb_window_smoke,
+    BuildOriginalStandaloneArgs, CompileOriginalTestObjectsArgs, RelinkOriginalTestObjectsArgs,
+    RunFixtureBackedOriginalTestsArgs, RunOriginalStandaloneArgs, RunRelinkedOriginalTestsArgs,
 };
 use stage_install::{
     stage_install, verify_bootstrap_stage, verify_driver_contract, StageInstallArgs,
@@ -158,6 +159,15 @@ fn main() -> Result<()> {
                 skip_if_empty: parsed.skip_if_empty,
             })
         }
+        "run-evdev-fixture-tests" => run_evdev_fixture_tests(repo_root),
+        "run-fixture-backed-original-tests" => {
+            let parsed = RunFixtureBackedOriginalTestsCliArgs::parse(&remaining)?;
+            run_fixture_backed_original_tests(RunFixtureBackedOriginalTestsArgs {
+                repo_root,
+                generated_dir: parsed.generated,
+                phase: parsed.phase,
+            })
+        }
         "run-gesture-replay" => run_gesture_replay(repo_root),
         "run-xvfb" => {
             let parsed = RunXvfbCliArgs::parse(&remaining)?;
@@ -170,7 +180,7 @@ fn main() -> Result<()> {
 
 fn usage<T>() -> Result<T> {
     bail!(
-        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|verify-bootstrap-stage|verify-driver-contract|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone|run-gesture-replay|run-xvfb|run-xvfb-window-smoke> ..."
+        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|verify-bootstrap-stage|verify-driver-contract|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone|run-evdev-fixture-tests|run-fixture-backed-original-tests|run-gesture-replay|run-xvfb|run-xvfb-window-smoke> ..."
     )
 }
 
@@ -677,6 +687,30 @@ impl RunOriginalStandaloneCliArgs {
             validation_mode,
             skip_if_empty,
         })
+    }
+}
+
+#[derive(Debug)]
+struct RunFixtureBackedOriginalTestsCliArgs {
+    generated: PathBuf,
+    phase: String,
+}
+
+impl RunFixtureBackedOriginalTestsCliArgs {
+    fn parse(args: &[String]) -> Result<Self> {
+        let mut generated = PathBuf::from("safe/generated");
+        let mut phase = "impl_phase_07_input_devices".to_string();
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            match arg.as_str() {
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
+                "--phase" => phase = require_value(&mut iter, "--phase")?.to_string(),
+                other => bail!("unknown argument {other}"),
+            }
+        }
+        Ok(Self { generated, phase })
     }
 }
 

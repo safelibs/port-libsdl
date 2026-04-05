@@ -54,6 +54,12 @@ pub struct RunOriginalStandaloneArgs {
     pub skip_if_empty: bool,
 }
 
+pub struct RunFixtureBackedOriginalTestsArgs {
+    pub repo_root: PathBuf,
+    pub generated_dir: PathBuf,
+    pub phase: String,
+}
+
 pub fn compile_original_test_objects(args: CompileOriginalTestObjectsArgs) -> Result<()> {
     let generated_dir = absolutize(&args.repo_root, &args.generated_dir);
     let output_dir = absolutize(&args.repo_root, &args.output_dir);
@@ -420,6 +426,68 @@ pub fn run_original_standalone(args: RunOriginalStandaloneArgs) -> Result<()> {
     Ok(())
 }
 
+pub fn run_evdev_fixture_tests(repo_root: PathBuf) -> Result<()> {
+    run_safe_test_target(&repo_root, "evdev_fixtures")?;
+    run_safe_test_binary(
+        &repo_root,
+        "original_apps_input",
+        "controllermap_gamecontroller_and_testevdev_ports_cover_mapping_and_fixture_behavior",
+    )
+}
+
+pub fn run_fixture_backed_original_tests(args: RunFixtureBackedOriginalTestsArgs) -> Result<()> {
+    let generated_dir = absolutize(&args.repo_root, &args.generated_dir);
+    let port_map = load_original_test_port_map(&generated_dir.join("original_test_port_map.json"))?;
+
+    let required_paths = [
+        "original/test/testgamecontroller.c",
+        "original/test/testhaptic.c",
+        "original/test/testhotplug.c",
+        "original/test/testjoystick.c",
+        "original/test/testrumble.c",
+        "original/test/testsensor.c",
+    ];
+    for required_path in required_paths {
+        let entry = port_map
+            .entries
+            .iter()
+            .find(|entry| entry.original_path == required_path)
+            .ok_or_else(|| {
+                anyhow!("missing {required_path} entry in original_test_port_map.json")
+            })?;
+        if entry.owning_phase != args.phase {
+            bail!(
+                "{required_path} is owned by {}, expected {}",
+                entry.owning_phase,
+                args.phase
+            );
+        }
+        if entry.completion_state != PortCompletionState::Complete {
+            bail!(
+                "{required_path} must be marked complete, found {:?}",
+                entry.completion_state
+            );
+        }
+        if entry.rust_target_path != "safe/tests/original_apps_input.rs" {
+            bail!(
+                "{required_path} points at unexpected Rust target {}",
+                entry.rust_target_path
+            );
+        }
+    }
+
+    run_safe_test_binary(
+        &args.repo_root,
+        "original_apps_input",
+        "virtual_joystick_hotplug_rumble_and_player_index_cover_joystick_hotplug_and_rumble_ports",
+    )?;
+    run_safe_test_binary(
+        &args.repo_root,
+        "original_apps_input",
+        "haptic_sensor_and_hidapi_ports_report_unavailable_without_hardware",
+    )
+}
+
 pub fn run_gesture_replay(repo_root: PathBuf) -> Result<()> {
     let generated_dir = repo_root.join("safe/generated");
     let port_map = load_original_test_port_map(&generated_dir.join("original_test_port_map.json"))?;
@@ -562,6 +630,22 @@ fn run_safe_test_binary(repo_root: &Path, test_name: &str, filter: &str) -> Resu
         .with_context(|| format!("run cargo test {test_name}::{filter}"))?;
     if !status.success() {
         bail!("cargo test {test_name} {filter} failed");
+    }
+    Ok(())
+}
+
+fn run_safe_test_target(repo_root: &Path, test_name: &str) -> Result<()> {
+    let status = Command::new("cargo")
+        .current_dir(repo_root)
+        .arg("test")
+        .arg("--manifest-path")
+        .arg("safe/Cargo.toml")
+        .arg("--test")
+        .arg(test_name)
+        .status()
+        .with_context(|| format!("run cargo test {test_name}"))?;
+    if !status.success() {
+        bail!("cargo test {test_name} failed");
     }
     Ok(())
 }
