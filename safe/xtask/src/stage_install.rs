@@ -1027,7 +1027,10 @@ fn run_driver_probe(
         .collect())
 }
 
-fn packaged_probe_real_sdl_path(repo_root: &Path, stage_root: &Path) -> Result<Option<PathBuf>> {
+pub(crate) fn packaged_probe_real_sdl_path(
+    repo_root: &Path,
+    stage_root: &Path,
+) -> Result<Option<PathBuf>> {
     if stage_root != Path::new("/") {
         return Ok(None);
     }
