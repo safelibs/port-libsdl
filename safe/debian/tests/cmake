@@ -5,6 +5,31 @@
 
 set -eux
 
+srcdir="$(pwd)"
+
+require_safe_sdl_real_runtime() {
+    if [ -n "${SAFE_SDL_REAL_SDL_PATH:-}" ] && [ -e "${SAFE_SDL_REAL_SDL_PATH}" ]; then
+        return 0
+    fi
+
+    for candidate in \
+        /tmp/libsdl-original-ref/lib/libSDL2-2.0.so.0 \
+        /tmp/libsdl-original-ref/lib/libSDL2-2.0.so.0.0.0 \
+        "$srcdir/../build-phase10-original-prefix/lib/libSDL2-2.0.so.0" \
+        "$srcdir/../build-phase10-original-prefix/lib/libSDL2-2.0.so.0.0.0" \
+        "$srcdir/../build-phase9-original-prefix/lib/libSDL2-2.0.so.0" \
+        "$srcdir/../build-phase9-original-prefix/lib/libSDL2-2.0.so.0.0.0"
+    do
+        if [ -e "$candidate" ]; then
+            export SAFE_SDL_REAL_SDL_PATH="$candidate"
+            return 0
+        fi
+    done
+
+    echo "Error: unable to locate preserved original SDL runtime for packaged safe SDL tests" >&2
+    exit 1
+}
+
 WORKDIR="$(mktemp -d)"
 cleanup () {
     rm -fr "$WORKDIR"
@@ -21,7 +46,7 @@ else
     CCFILE=
 fi
 
-srcdir="$(pwd)"
+require_safe_sdl_real_runtime
 
 mkdir "$WORKDIR/targets"
 (
