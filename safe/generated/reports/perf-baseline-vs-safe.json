@@ -1,0 +1,586 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_09_performance",
+  "methodology": {
+    "samples_per_workload": 5,
+    "cpu_metric": "per-process user+system CPU time from getrusage(RUSAGE_SELF) delta",
+    "allocation_metric": "per-process peak RSS in KiB from getrusage(RUSAGE_SELF).ru_maxrss",
+    "environment": {
+      "SDL_AUDIODRIVER": "dummy",
+      "SDL_RENDER_DRIVER": "software",
+      "SDL_VIDEODRIVER": "dummy"
+    }
+  },
+  "artifacts": {
+    "original_reference_prefix": "/home/yans/code/safelibs/ported/libsdl/build-phase9-original-prefix",
+    "safe_stage_root": "/home/yans/code/safelibs/ported/libsdl/build-phase9-safe-stage",
+    "benchmark_runner": "/home/yans/code/safelibs/ported/libsdl/build-phase9-perf/perf_runner",
+    "original_real_sdl_path": "/home/yans/code/safelibs/ported/libsdl/build-phase9-original-prefix/lib/libSDL2-2.0.so.0"
+  },
+  "workloads": [
+    {
+      "workload_id": "surface_create_fill_convert_blit",
+      "subsystem": "video_surface",
+      "description": "Exercise repeated surface creation, fill, pixel conversion, and scaled blit paths against the upstream sample bitmaps.",
+      "resource_paths": [
+        "original/test/sample.bmp",
+        "original/test/axis.bmp",
+        "original/test/button.bmp"
+      ],
+      "original": {
+        "median_cpu_time_us": 42003,
+        "median_wall_time_us": 42060,
+        "peak_rss_kib": 8896,
+        "samples": [
+          {
+            "workload_id": "surface_create_fill_convert_blit",
+            "loops": 240,
+            "cpu_time_us": 41554,
+            "wall_time_us": 41563,
+            "max_rss_kib": 8896,
+            "checksum": 304822504
+          },
+          {
+            "workload_id": "surface_create_fill_convert_blit",
+            "loops": 240,
+            "cpu_time_us": 41603,
+            "wall_time_us": 41638,
+            "max_rss_kib": 8896,
+            "checksum": 304822504
+          },
+          {
+            "workload_id": "surface_create_fill_convert_blit",
+            "loops": 240,
+            "cpu_time_us": 43016,
+            "wall_time_us": 43022,
+            "max_rss_kib": 8896,
+            "checksum": 304822504
+          },
+          {
+            "workload_id": "surface_create_fill_convert_blit",
+            "loops": 240,
+            "cpu_time_us": 42003,
+            "wall_time_us": 42060,
+            "max_rss_kib": 8896,
+            "checksum": 304822504
+          },
+          {
+            "workload_id": "surface_create_fill_convert_blit",
+            "loops": 240,
+            "cpu_time_us": 43062,
+            "wall_time_us": 43280,
+            "max_rss_kib": 8896,
+            "checksum": 304822504
+          }
+        ]
+      },
+      "safe": {
+        "median_cpu_time_us": 41741,
+        "median_wall_time_us": 41747,
+        "peak_rss_kib": 8896,
+        "samples": [
+          {
+            "workload_id": "surface_create_fill_convert_blit",
+            "loops": 240,
+            "cpu_time_us": 41774,
+            "wall_time_us": 41785,
+            "max_rss_kib": 8896,
+            "checksum": 304822504
+          },
+          {
+            "workload_id": "surface_create_fill_convert_blit",
+            "loops": 240,
+            "cpu_time_us": 41532,
+            "wall_time_us": 41541,
+            "max_rss_kib": 8896,
+            "checksum": 304822504
+          },
+          {
+            "workload_id": "surface_create_fill_convert_blit",
+            "loops": 240,
+            "cpu_time_us": 41713,
+            "wall_time_us": 41718,
+            "max_rss_kib": 8896,
+            "checksum": 304822504
+          },
+          {
+            "workload_id": "surface_create_fill_convert_blit",
+            "loops": 240,
+            "cpu_time_us": 41780,
+            "wall_time_us": 41785,
+            "max_rss_kib": 8896,
+            "checksum": 304822504
+          },
+          {
+            "workload_id": "surface_create_fill_convert_blit",
+            "loops": 240,
+            "cpu_time_us": 41741,
+            "wall_time_us": 41747,
+            "max_rss_kib": 8896,
+            "checksum": 304822504
+          }
+        ]
+      },
+      "regression": {
+        "median_cpu_ratio": 0.9937623503083113,
+        "median_wall_ratio": 0.9925582501188778,
+        "peak_allocation_ratio": 1.0
+      },
+      "thresholds": {
+        "max_median_cpu_regression_ratio": 1.2,
+        "max_peak_allocation_regression_ratio": 1.25,
+        "waiver_id": null
+      },
+      "status": "pass"
+    },
+    {
+      "workload_id": "renderer_queue_copy_texture_upload",
+      "subsystem": "render",
+      "description": "Drive software renderer copy pressure with repeated texture upload/update and many queued render-copy commands.",
+      "resource_paths": [
+        "original/test/sample.bmp",
+        "original/test/testgles2_sdf_img_normal.bmp"
+      ],
+      "original": {
+        "median_cpu_time_us": 89367,
+        "median_wall_time_us": 89372,
+        "peak_rss_kib": 8896,
+        "samples": [
+          {
+            "workload_id": "renderer_queue_copy_texture_upload",
+            "loops": 120,
+            "cpu_time_us": 89109,
+            "wall_time_us": 89274,
+            "max_rss_kib": 8896,
+            "checksum": 238145348
+          },
+          {
+            "workload_id": "renderer_queue_copy_texture_upload",
+            "loops": 120,
+            "cpu_time_us": 90287,
+            "wall_time_us": 90294,
+            "max_rss_kib": 8896,
+            "checksum": 238145348
+          },
+          {
+            "workload_id": "renderer_queue_copy_texture_upload",
+            "loops": 120,
+            "cpu_time_us": 89367,
+            "wall_time_us": 89372,
+            "max_rss_kib": 8896,
+            "checksum": 238145348
+          },
+          {
+            "workload_id": "renderer_queue_copy_texture_upload",
+            "loops": 120,
+            "cpu_time_us": 90892,
+            "wall_time_us": 91034,
+            "max_rss_kib": 8896,
+            "checksum": 238145348
+          },
+          {
+            "workload_id": "renderer_queue_copy_texture_upload",
+            "loops": 120,
+            "cpu_time_us": 88693,
+            "wall_time_us": 88698,
+            "max_rss_kib": 8896,
+            "checksum": 238145348
+          }
+        ]
+      },
+      "safe": {
+        "median_cpu_time_us": 90130,
+        "median_wall_time_us": 90228,
+        "peak_rss_kib": 8896,
+        "samples": [
+          {
+            "workload_id": "renderer_queue_copy_texture_upload",
+            "loops": 120,
+            "cpu_time_us": 88656,
+            "wall_time_us": 88662,
+            "max_rss_kib": 8896,
+            "checksum": 238145348
+          },
+          {
+            "workload_id": "renderer_queue_copy_texture_upload",
+            "loops": 120,
+            "cpu_time_us": 91180,
+            "wall_time_us": 91186,
+            "max_rss_kib": 8896,
+            "checksum": 238145348
+          },
+          {
+            "workload_id": "renderer_queue_copy_texture_upload",
+            "loops": 120,
+            "cpu_time_us": 89764,
+            "wall_time_us": 89884,
+            "max_rss_kib": 8896,
+            "checksum": 238145348
+          },
+          {
+            "workload_id": "renderer_queue_copy_texture_upload",
+            "loops": 120,
+            "cpu_time_us": 90998,
+            "wall_time_us": 91138,
+            "max_rss_kib": 8896,
+            "checksum": 238145348
+          },
+          {
+            "workload_id": "renderer_queue_copy_texture_upload",
+            "loops": 120,
+            "cpu_time_us": 90130,
+            "wall_time_us": 90228,
+            "max_rss_kib": 8896,
+            "checksum": 238145348
+          }
+        ]
+      },
+      "regression": {
+        "median_cpu_ratio": 1.0085378271621517,
+        "median_wall_ratio": 1.0095779438750392,
+        "peak_allocation_ratio": 1.0
+      },
+      "thresholds": {
+        "max_median_cpu_regression_ratio": 1.2,
+        "max_peak_allocation_regression_ratio": 1.25,
+        "waiver_id": null
+      },
+      "status": "pass"
+    },
+    {
+      "workload_id": "audio_stream_convert_resample_wave",
+      "subsystem": "audio",
+      "description": "Stress SDL_LoadWAV_RW plus SDL_AudioStream format conversion and resampling using the checked-in upstream sample wave.",
+      "resource_paths": [
+        "original/test/sample.wav"
+      ],
+      "original": {
+        "median_cpu_time_us": 100190,
+        "median_wall_time_us": 100204,
+        "peak_rss_kib": 8896,
+        "samples": [
+          {
+            "workload_id": "audio_stream_convert_resample_wave",
+            "loops": 48,
+            "cpu_time_us": 97223,
+            "wall_time_us": 97229,
+            "max_rss_kib": 8896,
+            "checksum": 48196900
+          },
+          {
+            "workload_id": "audio_stream_convert_resample_wave",
+            "loops": 48,
+            "cpu_time_us": 97270,
+            "wall_time_us": 97276,
+            "max_rss_kib": 8896,
+            "checksum": 48196900
+          },
+          {
+            "workload_id": "audio_stream_convert_resample_wave",
+            "loops": 48,
+            "cpu_time_us": 100190,
+            "wall_time_us": 100204,
+            "max_rss_kib": 8896,
+            "checksum": 48196900
+          },
+          {
+            "workload_id": "audio_stream_convert_resample_wave",
+            "loops": 48,
+            "cpu_time_us": 100706,
+            "wall_time_us": 100717,
+            "max_rss_kib": 8896,
+            "checksum": 48196900
+          },
+          {
+            "workload_id": "audio_stream_convert_resample_wave",
+            "loops": 48,
+            "cpu_time_us": 103882,
+            "wall_time_us": 103896,
+            "max_rss_kib": 8896,
+            "checksum": 48196900
+          }
+        ]
+      },
+      "safe": {
+        "median_cpu_time_us": 172253,
+        "median_wall_time_us": 172257,
+        "peak_rss_kib": 8896,
+        "samples": [
+          {
+            "workload_id": "audio_stream_convert_resample_wave",
+            "loops": 48,
+            "cpu_time_us": 170491,
+            "wall_time_us": 170509,
+            "max_rss_kib": 8896,
+            "checksum": 48186600
+          },
+          {
+            "workload_id": "audio_stream_convert_resample_wave",
+            "loops": 48,
+            "cpu_time_us": 172550,
+            "wall_time_us": 172557,
+            "max_rss_kib": 8896,
+            "checksum": 48186600
+          },
+          {
+            "workload_id": "audio_stream_convert_resample_wave",
+            "loops": 48,
+            "cpu_time_us": 170217,
+            "wall_time_us": 170443,
+            "max_rss_kib": 8896,
+            "checksum": 48186600
+          },
+          {
+            "workload_id": "audio_stream_convert_resample_wave",
+            "loops": 48,
+            "cpu_time_us": 172253,
+            "wall_time_us": 172257,
+            "max_rss_kib": 8896,
+            "checksum": 48186600
+          },
+          {
+            "workload_id": "audio_stream_convert_resample_wave",
+            "loops": 48,
+            "cpu_time_us": 172261,
+            "wall_time_us": 172268,
+            "max_rss_kib": 8896,
+            "checksum": 48186600
+          }
+        ]
+      },
+      "regression": {
+        "median_cpu_ratio": 1.7192633995408724,
+        "median_wall_ratio": 1.719063111253044,
+        "peak_allocation_ratio": 1.0
+      },
+      "thresholds": {
+        "max_median_cpu_regression_ratio": 1.8,
+        "max_peak_allocation_regression_ratio": 1.25,
+        "waiver_id": "audio_pure_rust_decode_resample"
+      },
+      "status": "pass_with_waiver"
+    },
+    {
+      "workload_id": "event_queue_throughput",
+      "subsystem": "events",
+      "description": "Measure custom-event enqueue and dequeue throughput with fixed-size batches under the SDL events subsystem.",
+      "resource_paths": [],
+      "original": {
+        "median_cpu_time_us": 10808,
+        "median_wall_time_us": 10810,
+        "peak_rss_kib": 8896,
+        "samples": [
+          {
+            "workload_id": "event_queue_throughput",
+            "loops": 320,
+            "cpu_time_us": 10843,
+            "wall_time_us": 10843,
+            "max_rss_kib": 8896,
+            "checksum": 53821136896
+          },
+          {
+            "workload_id": "event_queue_throughput",
+            "loops": 320,
+            "cpu_time_us": 10309,
+            "wall_time_us": 10339,
+            "max_rss_kib": 8896,
+            "checksum": 53821136896
+          },
+          {
+            "workload_id": "event_queue_throughput",
+            "loops": 320,
+            "cpu_time_us": 10305,
+            "wall_time_us": 10305,
+            "max_rss_kib": 8896,
+            "checksum": 53821136896
+          },
+          {
+            "workload_id": "event_queue_throughput",
+            "loops": 320,
+            "cpu_time_us": 10808,
+            "wall_time_us": 10810,
+            "max_rss_kib": 8896,
+            "checksum": 53821136896
+          },
+          {
+            "workload_id": "event_queue_throughput",
+            "loops": 320,
+            "cpu_time_us": 10902,
+            "wall_time_us": 10905,
+            "max_rss_kib": 8896,
+            "checksum": 53821136896
+          }
+        ]
+      },
+      "safe": {
+        "median_cpu_time_us": 11523,
+        "median_wall_time_us": 11523,
+        "peak_rss_kib": 8896,
+        "samples": [
+          {
+            "workload_id": "event_queue_throughput",
+            "loops": 320,
+            "cpu_time_us": 11541,
+            "wall_time_us": 11548,
+            "max_rss_kib": 8896,
+            "checksum": 53821136896
+          },
+          {
+            "workload_id": "event_queue_throughput",
+            "loops": 320,
+            "cpu_time_us": 11454,
+            "wall_time_us": 11455,
+            "max_rss_kib": 8896,
+            "checksum": 53821136896
+          },
+          {
+            "workload_id": "event_queue_throughput",
+            "loops": 320,
+            "cpu_time_us": 11523,
+            "wall_time_us": 11523,
+            "max_rss_kib": 8896,
+            "checksum": 53821136896
+          },
+          {
+            "workload_id": "event_queue_throughput",
+            "loops": 320,
+            "cpu_time_us": 11746,
+            "wall_time_us": 11747,
+            "max_rss_kib": 8896,
+            "checksum": 53821136896
+          },
+          {
+            "workload_id": "event_queue_throughput",
+            "loops": 320,
+            "cpu_time_us": 11350,
+            "wall_time_us": 11351,
+            "max_rss_kib": 8896,
+            "checksum": 53821136896
+          }
+        ]
+      },
+      "regression": {
+        "median_cpu_ratio": 1.0661547002220577,
+        "median_wall_ratio": 1.0659574468085107,
+        "peak_allocation_ratio": 1.0
+      },
+      "thresholds": {
+        "max_median_cpu_regression_ratio": 1.2,
+        "max_peak_allocation_regression_ratio": 1.25,
+        "waiver_id": null
+      },
+      "status": "pass"
+    },
+    {
+      "workload_id": "controller_mapping_guid",
+      "subsystem": "input",
+      "description": "Cover controller mapping lookup and GUID string formatting over a pre-seeded Linux mapping set.",
+      "resource_paths": [],
+      "original": {
+        "median_cpu_time_us": 68147,
+        "median_wall_time_us": 68267,
+        "peak_rss_kib": 8896,
+        "samples": [
+          {
+            "workload_id": "controller_mapping_guid",
+            "loops": 256,
+            "cpu_time_us": 72330,
+            "wall_time_us": 72366,
+            "max_rss_kib": 8896,
+            "checksum": 54912000
+          },
+          {
+            "workload_id": "controller_mapping_guid",
+            "loops": 256,
+            "cpu_time_us": 67180,
+            "wall_time_us": 67187,
+            "max_rss_kib": 8896,
+            "checksum": 54912000
+          },
+          {
+            "workload_id": "controller_mapping_guid",
+            "loops": 256,
+            "cpu_time_us": 68147,
+            "wall_time_us": 68267,
+            "max_rss_kib": 8896,
+            "checksum": 54912000
+          },
+          {
+            "workload_id": "controller_mapping_guid",
+            "loops": 256,
+            "cpu_time_us": 69710,
+            "wall_time_us": 69716,
+            "max_rss_kib": 8896,
+            "checksum": 54912000
+          },
+          {
+            "workload_id": "controller_mapping_guid",
+            "loops": 256,
+            "cpu_time_us": 66518,
+            "wall_time_us": 66526,
+            "max_rss_kib": 8896,
+            "checksum": 54912000
+          }
+        ]
+      },
+      "safe": {
+        "median_cpu_time_us": 13351,
+        "median_wall_time_us": 13351,
+        "peak_rss_kib": 8896,
+        "samples": [
+          {
+            "workload_id": "controller_mapping_guid",
+            "loops": 256,
+            "cpu_time_us": 13326,
+            "wall_time_us": 13327,
+            "max_rss_kib": 8896,
+            "checksum": 54912000
+          },
+          {
+            "workload_id": "controller_mapping_guid",
+            "loops": 256,
+            "cpu_time_us": 13418,
+            "wall_time_us": 13418,
+            "max_rss_kib": 8896,
+            "checksum": 54912000
+          },
+          {
+            "workload_id": "controller_mapping_guid",
+            "loops": 256,
+            "cpu_time_us": 13351,
+            "wall_time_us": 13351,
+            "max_rss_kib": 8896,
+            "checksum": 54912000
+          },
+          {
+            "workload_id": "controller_mapping_guid",
+            "loops": 256,
+            "cpu_time_us": 13532,
+            "wall_time_us": 13533,
+            "max_rss_kib": 8896,
+            "checksum": 54912000
+          },
+          {
+            "workload_id": "controller_mapping_guid",
+            "loops": 256,
+            "cpu_time_us": 13343,
+            "wall_time_us": 13343,
+            "max_rss_kib": 8896,
+            "checksum": 54912000
+          }
+        ]
+      },
+      "regression": {
+        "median_cpu_ratio": 0.1959147137805039,
+        "median_wall_ratio": 0.1955703341292279,
+        "peak_allocation_ratio": 1.0
+      },
+      "thresholds": {
+        "max_median_cpu_regression_ratio": 1.2,
+        "max_peak_allocation_regression_ratio": 1.25,
+        "waiver_id": null
+      },
+      "status": "pass"
+    }
+  ]
+}

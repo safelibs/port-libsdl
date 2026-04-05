@@ -3,8 +3,7 @@ use std::sync::OnceLock;
 
 const RESAMPLER_ZERO_CROSSINGS: usize = 5;
 const RESAMPLER_BITS_PER_SAMPLE: usize = 16;
-const RESAMPLER_SAMPLES_PER_ZERO_CROSSING: usize =
-    1 << ((RESAMPLER_BITS_PER_SAMPLE / 2) + 1);
+const RESAMPLER_SAMPLES_PER_ZERO_CROSSING: usize = 1 << ((RESAMPLER_BITS_PER_SAMPLE / 2) + 1);
 const RESAMPLER_FILTER_SIZE: usize =
     (RESAMPLER_SAMPLES_PER_ZERO_CROSSING * RESAMPLER_ZERO_CROSSINGS) + 1;
 
@@ -72,43 +71,47 @@ fn output_frames(input_frames: usize, src_rate: i32, dst_rate: i32) -> usize {
         .unwrap_or(usize::MAX)
 }
 
-fn resampler_padding(src_rate: i32, dst_rate: i32) -> usize {
-    if src_rate == dst_rate {
-        0
-    } else if src_rate > dst_rate {
-        usize::try_from(
-            ((RESAMPLER_SAMPLES_PER_ZERO_CROSSING as i64 * src_rate as i64) + dst_rate as i64 - 1)
-                / dst_rate as i64,
-        )
-        .unwrap_or(0)
+fn input_sample(
+    input: &[f32],
+    channels: usize,
+    input_frames: usize,
+    frame: isize,
+    channel: usize,
+) -> f32 {
+    if frame < 0 || frame as usize >= input_frames {
+        0.0
     } else {
-        RESAMPLER_SAMPLES_PER_ZERO_CROSSING
+        input[frame as usize * channels + channel]
     }
 }
 
-pub(crate) fn resample_interleaved_f32(
+pub(crate) fn resample_interleaved_f32_into(
     input: &[f32],
     channels: usize,
     src_rate: i32,
     dst_rate: i32,
-) -> Vec<f32> {
+    output: &mut Vec<f32>,
+) {
     if channels == 0 || src_rate <= 0 || dst_rate <= 0 {
-        return Vec::new();
+        output.clear();
+        return;
     }
     if src_rate == dst_rate {
-        return input.to_vec();
+        output.clear();
+        output.extend_from_slice(input);
+        return;
     }
 
     let input_frames = input.len() / channels;
     let output_frames = output_frames(input_frames, src_rate, dst_rate);
     if input_frames == 0 || output_frames == 0 {
-        return Vec::new();
+        output.clear();
+        return;
     }
 
-    let padding_frames = resampler_padding(src_rate, dst_rate);
-    let padding = vec![0.0f32; padding_frames.saturating_mul(channels)];
     let tables = filter_table();
-    let mut output = vec![0.0f32; output_frames * channels];
+    output.clear();
+    output.resize(output_frames * channels, 0.0);
 
     for out_frame in 0..output_frames {
         let src_index = (out_frame as i64 * src_rate as i64 / dst_rate as i64) as isize;
@@ -117,9 +120,9 @@ pub(crate) fn resample_interleaved_f32(
         let filter_index_left =
             src_fraction * RESAMPLER_SAMPLES_PER_ZERO_CROSSING / dst_rate as usize;
         let interpolation_right = 1.0 - interpolation_left;
-        let filter_index_right =
-            (dst_rate as usize - src_fraction) * RESAMPLER_SAMPLES_PER_ZERO_CROSSING
-                / dst_rate as usize;
+        let filter_index_right = (dst_rate as usize - src_fraction)
+            * RESAMPLER_SAMPLES_PER_ZERO_CROSSING
+            / dst_rate as usize;
 
         for channel in 0..channels {
             let mut out_sample = 0.0f32;
@@ -129,12 +132,13 @@ pub(crate) fn resample_interleaved_f32(
                 < RESAMPLER_FILTER_SIZE
             {
                 let filter_slot = filter_index_left + tap * RESAMPLER_SAMPLES_PER_ZERO_CROSSING;
-                let src_frame = src_index - tap as isize;
-                let input_sample = if src_frame < 0 {
-                    padding[(padding_frames as isize + src_frame) as usize * channels + channel]
-                } else {
-                    input[src_frame as usize * channels + channel]
-                };
+                let input_sample = input_sample(
+                    input,
+                    channels,
+                    input_frames,
+                    src_index - tap as isize,
+                    channel,
+                );
                 let weight = tables.filter[filter_slot]
                     + interpolation_left * tables.difference[filter_slot];
                 out_sample += input_sample * weight;
@@ -146,12 +150,13 @@ pub(crate) fn resample_interleaved_f32(
                 < RESAMPLER_FILTER_SIZE
             {
                 let filter_slot = filter_index_right + tap * RESAMPLER_SAMPLES_PER_ZERO_CROSSING;
-                let src_frame = src_index + 1 + tap as isize;
-                let input_sample = if src_frame >= input_frames as isize {
-                    padding[(src_frame as usize - input_frames) * channels + channel]
-                } else {
-                    input[src_frame as usize * channels + channel]
-                };
+                let input_sample = input_sample(
+                    input,
+                    channels,
+                    input_frames,
+                    src_index + 1 + tap as isize,
+                    channel,
+                );
                 let weight = tables.filter[filter_slot]
                     + interpolation_right * tables.difference[filter_slot];
                 out_sample += input_sample * weight;
@@ -161,6 +166,4 @@ pub(crate) fn resample_interleaved_f32(
             output[out_frame * channels + channel] = out_sample;
         }
     }
-
-    output
 }

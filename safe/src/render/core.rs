@@ -4,9 +4,8 @@ use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
     SDL_BlendMode, SDL_Color, SDL_FPoint, SDL_FRect, SDL_Point, SDL_Rect, SDL_Renderer,
-    SDL_RendererFlip, SDL_RendererInfo, SDL_ScaleMode,
-    SDL_ScaleMode_SDL_ScaleModeLinear, SDL_Surface, SDL_Texture, SDL_Window, SDL_Vertex,
-    SDL_bool, Uint32, Uint8,
+    SDL_RendererFlip, SDL_RendererInfo, SDL_ScaleMode, SDL_ScaleMode_SDL_ScaleModeLinear,
+    SDL_Surface, SDL_Texture, SDL_Vertex, SDL_Window, SDL_bool, Uint32, Uint8,
 };
 
 macro_rules! real_sdl_api {
@@ -114,9 +113,10 @@ struct ManagedTexture {
 
 #[derive(Default)]
 struct ManagedTextureRegistry {
-    by_handle: HashMap<usize, usize>,
     by_raw: HashMap<usize, usize>,
 }
+
+const MANAGED_TEXTURE_TAG: usize = 1;
 
 fn managed_texture_registry() -> &'static Mutex<ManagedTextureRegistry> {
     static REGISTRY: OnceLock<Mutex<ManagedTextureRegistry>> = OnceLock::new();
@@ -124,22 +124,22 @@ fn managed_texture_registry() -> &'static Mutex<ManagedTextureRegistry> {
 }
 
 fn managed_texture_ptr(address: usize) -> *mut ManagedTexture {
-    address as *mut ManagedTexture
+    (address & !MANAGED_TEXTURE_TAG) as *mut ManagedTexture
+}
+
+fn managed_texture_handle(managed: *mut ManagedTexture) -> *mut SDL_Texture {
+    ((managed as usize) | MANAGED_TEXTURE_TAG) as *mut SDL_Texture
 }
 
 unsafe fn unwrap_texture(texture: *mut SDL_Texture) -> *mut SDL_Texture {
     if texture.is_null() {
         return ptr::null_mut();
     }
-
-    let registry = managed_texture_registry()
-        .lock()
-        .unwrap_or_else(|poisoned| poisoned.into_inner());
-    registry
-        .by_handle
-        .get(&(texture as usize))
-        .map(|managed| (*managed_texture_ptr(*managed)).raw)
-        .unwrap_or(texture)
+    if (texture as usize & MANAGED_TEXTURE_TAG) == 0 {
+        texture
+    } else {
+        (*managed_texture_ptr(texture as usize)).raw
+    }
 }
 
 unsafe fn wrap_texture(raw: *mut SDL_Texture) -> *mut SDL_Texture {
@@ -153,7 +153,7 @@ unsafe fn wrap_texture(raw: *mut SDL_Texture) -> *mut SDL_Texture {
     registry
         .by_raw
         .get(&(raw as usize))
-        .map(|managed| managed_texture_ptr(*managed).cast())
+        .map(|managed| *managed as *mut SDL_Texture)
         .unwrap_or(raw)
 }
 
@@ -168,34 +168,27 @@ unsafe fn register_texture(
         _shadow: shadow,
     });
     let managed = Box::into_raw(managed);
-    let handle = managed as usize;
+    let handle = managed_texture_handle(managed);
     let mut registry = managed_texture_registry()
         .lock()
         .unwrap_or_else(|poisoned| poisoned.into_inner());
-    registry.by_handle.insert(handle, handle);
-    registry.by_raw.insert(raw as usize, handle);
-    managed.cast()
+    registry.by_raw.insert(raw as usize, handle as usize);
+    handle
 }
 
 unsafe fn take_texture(texture: *mut SDL_Texture) -> Option<Box<ManagedTexture>> {
-    if texture.is_null() {
+    if texture.is_null() || (texture as usize & MANAGED_TEXTURE_TAG) == 0 {
         return None;
     }
 
-    let managed = {
-        let mut registry = managed_texture_registry()
-            .lock()
-            .unwrap_or_else(|poisoned| poisoned.into_inner());
-        registry.by_handle.remove(&(texture as usize))
-    }?;
-
-    let raw = (*managed_texture_ptr(managed)).raw as usize;
     let mut registry = managed_texture_registry()
         .lock()
         .unwrap_or_else(|poisoned| poisoned.into_inner());
-    registry.by_raw.remove(&raw);
+    registry
+        .by_raw
+        .remove(&((*managed_texture_ptr(texture as usize)).raw as usize));
     drop(registry);
-    Some(Box::from_raw(managed as *mut ManagedTexture))
+    Some(Box::from_raw(managed_texture_ptr(texture as usize)))
 }
 
 unsafe fn clear_renderer_textures(renderer: *mut SDL_Renderer) {
@@ -204,10 +197,10 @@ unsafe fn clear_renderer_textures(renderer: *mut SDL_Renderer) {
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
         registry
-            .by_handle
+            .by_raw
             .iter()
-            .filter_map(|(handle, managed)| {
-                ((*managed_texture_ptr(*managed)).renderer == renderer).then_some(*handle)
+            .filter_map(|(_, handle)| {
+                ((*managed_texture_ptr(*handle)).renderer == renderer).then_some(*handle)
             })
             .collect()
     };

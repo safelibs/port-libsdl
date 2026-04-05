@@ -533,6 +533,8 @@ pub unsafe extern "C" fn SDL_GameControllerAddMapping(mappingString: *const c_ch
         *existing = mapping;
         0
     } else {
+        let index = state.mappings.len();
+        state.mapping_indices.insert(mapping.guid.data, index);
         state.mappings.push(mapping);
         1
     }

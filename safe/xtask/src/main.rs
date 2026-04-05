@@ -1,5 +1,6 @@
 mod contracts;
 mod original_tests;
+mod perf;
 mod stage_install;
 
 use std::env;
@@ -20,6 +21,12 @@ use original_tests::{
     BuildOriginalStandaloneArgs, CompileOriginalTestObjectsArgs, RelinkOriginalTestObjectsArgs,
     RunFixtureBackedOriginalTestsArgs, RunOriginalAutotoolsCheckArgs, RunOriginalCtestArgs,
     RunOriginalStandaloneArgs, RunRelinkedOriginalTestsArgs,
+};
+use perf::{
+    build_original_reference, perf_assert, perf_capture, BuildOriginalReferenceArgs,
+    PerfAssertArgs, PerfCaptureArgs, DEFAULT_ORIGINAL_BUILD_DIR, DEFAULT_ORIGINAL_PREFIX,
+    DEFAULT_PERF_MANIFEST, DEFAULT_PERF_REPORT, DEFAULT_PERF_RUNNER_DIR, DEFAULT_PERF_THRESHOLDS,
+    DEFAULT_PERF_WAIVERS, DEFAULT_SAFE_STAGE_ROOT,
 };
 use stage_install::{
     stage_install, verify_bootstrap_stage, verify_driver_contract, StageInstallArgs,
@@ -142,6 +149,39 @@ fn main() -> Result<()> {
                 build_dir: parsed.build_dir,
             })
         }
+        "build-original-reference" => {
+            let parsed = BuildOriginalReferenceCliArgs::parse(&remaining)?;
+            build_original_reference(BuildOriginalReferenceArgs {
+                repo_root,
+                original_dir: parsed.original,
+                build_dir: parsed.build_dir,
+                prefix_dir: parsed.prefix,
+            })
+        }
+        "perf-capture" => {
+            let parsed = PerfCaptureCliArgs::parse(&remaining)?;
+            perf_capture(PerfCaptureArgs {
+                repo_root,
+                generated_dir: parsed.generated,
+                original_dir: parsed.original,
+                original_prefix_dir: parsed.original_prefix,
+                safe_stage_root: parsed.safe_stage,
+                runner_dir: parsed.runner_dir,
+                workload_manifest: parsed.manifest,
+                thresholds_path: parsed.thresholds,
+                report_path: parsed.report,
+                waivers_path: parsed.waivers,
+            })
+        }
+        "perf-assert" => {
+            let parsed = PerfAssertCliArgs::parse(&remaining)?;
+            perf_assert(PerfAssertArgs {
+                repo_root,
+                thresholds_path: parsed.thresholds,
+                report_path: parsed.report,
+                waivers_path: parsed.waivers,
+            })
+        }
         "verify-bootstrap-stage" => {
             let parsed = VerifyBootstrapStageCliArgs::parse(&remaining)?;
             verify_bootstrap_stage(VerifyBootstrapStageArgs {
@@ -233,7 +273,7 @@ fn main() -> Result<()> {
 
 fn usage<T>() -> Result<T> {
     bail!(
-        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|build-original-cmake-suite|run-original-ctest|build-original-autotools-suite|run-original-autotools-check|verify-bootstrap-stage|verify-driver-contract|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone|run-evdev-fixture-tests|run-fixture-backed-original-tests|run-gesture-replay|run-xvfb|run-xvfb-window-smoke> ..."
+        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|build-original-cmake-suite|run-original-ctest|build-original-autotools-suite|run-original-autotools-check|build-original-reference|perf-capture|perf-assert|verify-bootstrap-stage|verify-driver-contract|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone|run-evdev-fixture-tests|run-fixture-backed-original-tests|run-gesture-replay|run-xvfb|run-xvfb-window-smoke> ..."
     )
 }
 
@@ -492,6 +532,133 @@ struct OriginalSuiteCliArgs {
     original: PathBuf,
     root: PathBuf,
     build_dir: PathBuf,
+}
+
+#[derive(Debug)]
+struct BuildOriginalReferenceCliArgs {
+    original: PathBuf,
+    build_dir: PathBuf,
+    prefix: PathBuf,
+}
+
+impl BuildOriginalReferenceCliArgs {
+    fn parse(args: &[String]) -> Result<Self> {
+        let mut original = PathBuf::from("original");
+        let mut build_dir = PathBuf::from(DEFAULT_ORIGINAL_BUILD_DIR);
+        let mut prefix = PathBuf::from(DEFAULT_ORIGINAL_PREFIX);
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            match arg.as_str() {
+                "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
+                "--build-dir" => {
+                    build_dir = PathBuf::from(require_value(&mut iter, "--build-dir")?)
+                }
+                "--prefix" | "--root" | "--destdir" => {
+                    prefix = PathBuf::from(require_value(&mut iter, arg)?)
+                }
+                other => bail!("unknown argument {other}"),
+            }
+        }
+        Ok(Self {
+            original,
+            build_dir,
+            prefix,
+        })
+    }
+}
+
+#[derive(Debug)]
+struct PerfCaptureCliArgs {
+    generated: PathBuf,
+    original: PathBuf,
+    original_prefix: PathBuf,
+    safe_stage: PathBuf,
+    runner_dir: PathBuf,
+    manifest: PathBuf,
+    thresholds: PathBuf,
+    report: PathBuf,
+    waivers: PathBuf,
+}
+
+impl PerfCaptureCliArgs {
+    fn parse(args: &[String]) -> Result<Self> {
+        let mut generated = PathBuf::from("safe/generated");
+        let mut original = PathBuf::from("original");
+        let mut original_prefix = PathBuf::from(DEFAULT_ORIGINAL_PREFIX);
+        let mut safe_stage = PathBuf::from(DEFAULT_SAFE_STAGE_ROOT);
+        let mut runner_dir = PathBuf::from(DEFAULT_PERF_RUNNER_DIR);
+        let mut manifest = PathBuf::from(DEFAULT_PERF_MANIFEST);
+        let mut thresholds = PathBuf::from(DEFAULT_PERF_THRESHOLDS);
+        let mut report = PathBuf::from(DEFAULT_PERF_REPORT);
+        let mut waivers = PathBuf::from(DEFAULT_PERF_WAIVERS);
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            match arg.as_str() {
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
+                "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
+                "--original-prefix" | "--prefix" => {
+                    original_prefix = PathBuf::from(require_value(&mut iter, arg)?)
+                }
+                "--safe-stage" | "--safe-root" | "--stage-root" => {
+                    safe_stage = PathBuf::from(require_value(&mut iter, arg)?)
+                }
+                "--runner-dir" => {
+                    runner_dir = PathBuf::from(require_value(&mut iter, "--runner-dir")?)
+                }
+                "--manifest" => manifest = PathBuf::from(require_value(&mut iter, "--manifest")?),
+                "--thresholds" => {
+                    thresholds = PathBuf::from(require_value(&mut iter, "--thresholds")?)
+                }
+                "--report" => report = PathBuf::from(require_value(&mut iter, "--report")?),
+                "--waivers" => waivers = PathBuf::from(require_value(&mut iter, "--waivers")?),
+                other => bail!("unknown argument {other}"),
+            }
+        }
+        Ok(Self {
+            generated,
+            original,
+            original_prefix,
+            safe_stage,
+            runner_dir,
+            manifest,
+            thresholds,
+            report,
+            waivers,
+        })
+    }
+}
+
+#[derive(Debug)]
+struct PerfAssertCliArgs {
+    thresholds: PathBuf,
+    report: PathBuf,
+    waivers: PathBuf,
+}
+
+impl PerfAssertCliArgs {
+    fn parse(args: &[String]) -> Result<Self> {
+        let mut thresholds = PathBuf::from(DEFAULT_PERF_THRESHOLDS);
+        let mut report = PathBuf::from(DEFAULT_PERF_REPORT);
+        let mut waivers = PathBuf::from(DEFAULT_PERF_WAIVERS);
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            match arg.as_str() {
+                "--thresholds" => {
+                    thresholds = PathBuf::from(require_value(&mut iter, "--thresholds")?)
+                }
+                "--report" => report = PathBuf::from(require_value(&mut iter, "--report")?),
+                "--waivers" => waivers = PathBuf::from(require_value(&mut iter, "--waivers")?),
+                other => bail!("unknown argument {other}"),
+            }
+        }
+        Ok(Self {
+            thresholds,
+            report,
+            waivers,
+        })
+    }
 }
 
 impl OriginalSuiteCliArgs {

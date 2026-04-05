@@ -1,3 +1,5 @@
+use std::ffi::CString;
+use std::os::unix::ffi::OsStrExt;
 use std::sync::OnceLock;
 
 pub mod blit;
@@ -23,16 +25,32 @@ pub mod linux {
     pub mod x11;
 }
 
-fn open_real_sdl() -> *mut libc::c_void {
-    const CANDIDATES: [&[u8]; 3] = [
-        b"/lib/x86_64-linux-gnu/libSDL2-2.0.so.0\0",
-        b"/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0\0",
-        b"libSDL2-2.0.so.0\0",
-    ];
+const DEFAULT_REAL_SDL_CANDIDATES: [&[u8]; 3] = [
+    b"/lib/x86_64-linux-gnu/libSDL2-2.0.so.0\0",
+    b"/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0\0",
+    b"libSDL2-2.0.so.0\0",
+];
 
-    for candidate in CANDIDATES {
-        let handle =
-            unsafe { libc::dlopen(candidate.as_ptr().cast(), libc::RTLD_LOCAL | libc::RTLD_NOW) };
+pub(crate) fn real_sdl_dlopen_candidates() -> Vec<CString> {
+    let mut candidates = Vec::with_capacity(DEFAULT_REAL_SDL_CANDIDATES.len() + 1);
+    if let Some(path) = std::env::var_os("SAFE_SDL_REAL_SDL_PATH") {
+        if !path.is_empty() {
+            if let Ok(path) = CString::new(path.as_os_str().as_bytes()) {
+                candidates.push(path);
+            }
+        }
+    }
+    candidates.extend(
+        DEFAULT_REAL_SDL_CANDIDATES
+            .iter()
+            .map(|candidate| CString::from_vec_with_nul((*candidate).to_vec()).unwrap()),
+    );
+    candidates
+}
+
+fn open_real_sdl() -> *mut libc::c_void {
+    for candidate in real_sdl_dlopen_candidates() {
+        let handle = unsafe { libc::dlopen(candidate.as_ptr(), libc::RTLD_LOCAL | libc::RTLD_NOW) };
         if !handle.is_null() {
             return handle;
         }

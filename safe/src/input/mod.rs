@@ -156,6 +156,7 @@ pub(crate) struct InputState {
     next_instance_id: SDL_JoystickID,
     devices: Vec<DeviceEntry>,
     mappings: Vec<MappingEntry>,
+    mapping_indices: HashMap<[u8; 16], usize>,
     joystick_event_state: c_int,
     controller_event_state: c_int,
     joystick_initialized: bool,
@@ -173,6 +174,9 @@ fn input_state() -> &'static Mutex<InputState> {
     STATE.get_or_init(|| {
         Mutex::new(InputState {
             next_instance_id: 0,
+            devices: Vec::with_capacity(16),
+            mappings: Vec::with_capacity(64),
+            mapping_indices: HashMap::with_capacity(64),
             joystick_event_state: SDL_ENABLE as c_int,
             controller_event_state: SDL_ENABLE as c_int,
             ..InputState::default()
@@ -721,19 +725,17 @@ pub(crate) fn mapping_for_guid<'a>(
     guid: &SDL_JoystickGUID,
 ) -> Option<&'a MappingEntry> {
     state
-        .mappings
-        .iter()
-        .find(|mapping| mapping.guid.data == guid.data)
+        .mapping_indices
+        .get(&guid.data)
+        .and_then(|index| state.mappings.get(*index))
 }
 
 pub(crate) fn mapping_for_guid_mut<'a>(
     state: &'a mut InputState,
     guid: &SDL_JoystickGUID,
 ) -> Option<&'a mut MappingEntry> {
-    state
-        .mappings
-        .iter_mut()
-        .find(|mapping| mapping.guid.data == guid.data)
+    let index = *state.mapping_indices.get(&guid.data)?;
+    state.mappings.get_mut(index)
 }
 
 pub(crate) fn invalid_or_null<T>(ptr: *const T, name: &str) -> bool {

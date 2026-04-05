@@ -1,6 +1,7 @@
+use std::collections::HashMap;
 use std::ffi::CStr;
 use std::ptr;
-use std::sync::OnceLock;
+use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
     SDL_BlendMode, SDL_Color, SDL_Palette, SDL_PixelFormat, SDL_RWops, SDL_Rect, SDL_Surface,
@@ -101,15 +102,8 @@ real_sdl_api! {
 }
 
 fn open_real_sdl() -> *mut libc::c_void {
-    const CANDIDATES: [&[u8]; 3] = [
-        b"/lib/x86_64-linux-gnu/libSDL2-2.0.so.0\0",
-        b"/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0\0",
-        b"libSDL2-2.0.so.0\0",
-    ];
-
-    for candidate in CANDIDATES {
-        let handle =
-            unsafe { libc::dlopen(candidate.as_ptr().cast(), libc::RTLD_LOCAL | libc::RTLD_NOW) };
+    for candidate in crate::video::real_sdl_dlopen_candidates() {
+        let handle = unsafe { libc::dlopen(candidate.as_ptr(), libc::RTLD_LOCAL | libc::RTLD_NOW) };
         if !handle.is_null() {
             return handle;
         }
@@ -179,21 +173,39 @@ pub(crate) unsafe fn descriptor_from_format_ptr(
 }
 
 pub(crate) fn format_descriptor(format: Uint32) -> Option<FormatDescriptor> {
+    static CACHE: OnceLock<Mutex<HashMap<Uint32, Option<FormatDescriptor>>>> = OnceLock::new();
+    let cache = CACHE.get_or_init(|| Mutex::new(HashMap::new()));
+    if let Some(cached) = cache
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .get(&format)
+        .copied()
+    {
+        return cached;
+    }
+
     clear_real_error();
     let raw = unsafe { (real_sdl().alloc_format)(format) };
-    if raw.is_null() {
-        return None;
-    }
-    let descriptor = unsafe {
-        FormatDescriptor {
-            bits_per_pixel: (*raw).BitsPerPixel,
-            bytes_per_pixel: (*raw).BytesPerPixel,
+    let descriptor = if raw.is_null() {
+        None
+    } else {
+        let descriptor = unsafe {
+            FormatDescriptor {
+                bits_per_pixel: (*raw).BitsPerPixel,
+                bytes_per_pixel: (*raw).BytesPerPixel,
+            }
+        };
+        unsafe {
+            (real_sdl().free_format)(raw);
         }
+        Some(descriptor)
     };
-    unsafe {
-        (real_sdl().free_format)(raw);
-    }
-    Some(descriptor)
+
+    cache
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .insert(format, descriptor);
+    descriptor
 }
 
 pub(crate) unsafe fn validate_surface_storage(

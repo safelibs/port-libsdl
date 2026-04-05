@@ -32,6 +32,14 @@ fn cvt_specs() -> &'static Mutex<HashMap<usize, CvtSpec>> {
     SPECS.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
+#[derive(Default)]
+pub(crate) struct AudioConvertScratch {
+    decoded: Vec<f32>,
+    channel_converted: Vec<f32>,
+    resampled: Vec<f32>,
+    pub(crate) encoded: Vec<u8>,
+}
+
 fn decode_sample(format: SDL_AudioFormat, bytes: &[u8]) -> f32 {
     match format {
         AUDIO_U8_FMT => (bytes[0] as f32 - 128.0) / 128.0,
@@ -101,32 +109,42 @@ fn encode_sample(format: SDL_AudioFormat, sample: f32, bytes: &mut [u8]) {
     }
 }
 
-fn decode_interleaved_to_f32(
+fn decode_interleaved_to_f32_into(
     input: &[u8],
     format: SDL_AudioFormat,
     channels: u8,
-) -> Result<Vec<f32>, &'static str> {
+    output: &mut Vec<f32>,
+) -> Result<(), &'static str> {
     let sample_size = bytes_per_sample(format).ok_or("Unsupported audio format")?;
     let frame_size = frame_size(format, channels).ok_or("Unsupported audio format")?;
     if frame_size == 0 || input.len() % frame_size != 0 {
         return Err("Audio buffer has an incomplete frame");
     }
 
-    let mut output = Vec::with_capacity(input.len() / sample_size);
+    output.clear();
+    output.reserve(input.len() / sample_size);
     for chunk in input.chunks_exact(sample_size) {
         let sample = decode_sample(format, chunk);
         output.push(if sample.is_finite() { sample } else { 0.0 });
     }
-    Ok(output)
+    Ok(())
 }
 
-fn convert_channels(input: &[f32], src_channels: usize, dst_channels: usize) -> Vec<f32> {
+fn convert_channels_into(
+    input: &[f32],
+    src_channels: usize,
+    dst_channels: usize,
+    output: &mut Vec<f32>,
+) {
     if src_channels == dst_channels {
-        return input.to_vec();
+        output.clear();
+        output.extend_from_slice(input);
+        return;
     }
 
     let frames = input.len() / src_channels;
-    let mut output = vec![0.0f32; frames * dst_channels];
+    output.clear();
+    output.resize(frames * dst_channels, 0.0);
     for frame in 0..frames {
         let src = &input[frame * src_channels..(frame + 1) * src_channels];
         let dst = &mut output[frame * dst_channels..(frame + 1) * dst_channels];
@@ -149,19 +167,105 @@ fn convert_channels(input: &[f32], src_channels: usize, dst_channels: usize) -> 
             }
         }
     }
-    output
 }
 
-fn encode_interleaved_from_f32(
+fn encode_interleaved_from_f32_to_buffer(
     input: &[f32],
     format: SDL_AudioFormat,
-) -> Result<Vec<u8>, &'static str> {
+    output: &mut Vec<u8>,
+) -> Result<(), &'static str> {
     let sample_size = bytes_per_sample(format).ok_or("Unsupported audio format")?;
-    let mut output = vec![0u8; input.len() * sample_size];
+    output.clear();
+    output.resize(input.len() * sample_size, 0);
     for (sample, chunk) in input.iter().zip(output.chunks_exact_mut(sample_size)) {
         encode_sample(format, *sample, chunk);
     }
-    Ok(output)
+    Ok(())
+}
+
+pub(crate) fn convert_audio_buffer_into(
+    input: &[u8],
+    src_format: SDL_AudioFormat,
+    src_channels: u8,
+    src_rate: i32,
+    dst_format: SDL_AudioFormat,
+    dst_channels: u8,
+    dst_rate: i32,
+) -> Result<AudioConvertScratch, &'static str> {
+    let mut scratch = AudioConvertScratch::default();
+    convert_audio_buffer_reuse(
+        input,
+        src_format,
+        src_channels,
+        src_rate,
+        dst_format,
+        dst_channels,
+        dst_rate,
+        &mut scratch,
+    )?;
+    Ok(scratch)
+}
+
+pub(crate) fn convert_audio_buffer_reuse(
+    input: &[u8],
+    src_format: SDL_AudioFormat,
+    src_channels: u8,
+    src_rate: i32,
+    dst_format: SDL_AudioFormat,
+    dst_channels: u8,
+    dst_rate: i32,
+    scratch: &mut AudioConvertScratch,
+) -> Result<(), &'static str> {
+    if src_format == dst_format && src_channels == dst_channels && src_rate == dst_rate {
+        scratch.encoded.clear();
+        scratch.encoded.extend_from_slice(input);
+        return Ok(());
+    }
+
+    decode_interleaved_to_f32_into(input, src_format, src_channels, &mut scratch.decoded)?;
+
+    let mut converted = &scratch.decoded[..];
+    if src_rate != dst_rate && dst_channels > src_channels {
+        crate::audio::resample::resample_interleaved_f32_into(
+            &scratch.decoded,
+            src_channels as usize,
+            src_rate,
+            dst_rate,
+            &mut scratch.resampled,
+        );
+        converted = &scratch.resampled;
+        if src_channels != dst_channels {
+            convert_channels_into(
+                converted,
+                src_channels as usize,
+                dst_channels as usize,
+                &mut scratch.channel_converted,
+            );
+            converted = &scratch.channel_converted;
+        }
+    } else {
+        if src_channels != dst_channels {
+            convert_channels_into(
+                &scratch.decoded,
+                src_channels as usize,
+                dst_channels as usize,
+                &mut scratch.channel_converted,
+            );
+            converted = &scratch.channel_converted;
+        }
+        if src_rate != dst_rate {
+            crate::audio::resample::resample_interleaved_f32_into(
+                converted,
+                dst_channels as usize,
+                src_rate,
+                dst_rate,
+                &mut scratch.resampled,
+            );
+            converted = &scratch.resampled;
+        }
+    }
+
+    encode_interleaved_from_f32_to_buffer(converted, dst_format, &mut scratch.encoded)
 }
 
 pub(crate) fn convert_audio_buffer(
@@ -173,16 +277,16 @@ pub(crate) fn convert_audio_buffer(
     dst_channels: u8,
     dst_rate: i32,
 ) -> Result<Vec<u8>, &'static str> {
-    let decoded = decode_interleaved_to_f32(input, src_format, src_channels)?;
-    let channel_converted =
-        convert_channels(&decoded, src_channels as usize, dst_channels as usize);
-    let resampled = crate::audio::resample::resample_interleaved_f32(
-        &channel_converted,
-        dst_channels as usize,
+    Ok(convert_audio_buffer_into(
+        input,
+        src_format,
+        src_channels,
         src_rate,
+        dst_format,
+        dst_channels,
         dst_rate,
-    );
-    encode_interleaved_from_f32(&resampled, dst_format)
+    )?
+    .encoded)
 }
 
 fn len_ratio(

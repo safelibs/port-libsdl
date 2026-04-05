@@ -14,6 +14,7 @@ const DATA: &[u8; 4] = b"data";
 const FACT: &[u8; 4] = b"fact";
 
 const WAVE_FORMAT_PCM: u16 = 0x0001;
+const WAVE_FORMAT_MS_ADPCM: u16 = 0x0002;
 const WAVE_FORMAT_IEEE_FLOAT: u16 = 0x0003;
 const WAVE_FORMAT_IMA_ADPCM: u16 = 0x0011;
 const WAVE_FORMAT_EXTENSIBLE: u16 = 0xFFFE;
@@ -22,7 +23,7 @@ const AUDIO_S16LSB_FMT: crate::abi::generated_types::SDL_AudioFormat = AUDIO_S16
 const AUDIO_S32LSB_FMT: crate::abi::generated_types::SDL_AudioFormat = AUDIO_S32LSB as _;
 const AUDIO_F32LSB_FMT: crate::abi::generated_types::SDL_AudioFormat = AUDIO_F32LSB as _;
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 struct WaveFormat {
     format_tag: u16,
     channels: u16,
@@ -30,6 +31,7 @@ struct WaveFormat {
     block_align: u16,
     bits_per_sample: u16,
     samples_per_block: u16,
+    coefficients: Vec<(i16, i16)>,
 }
 
 fn le_u16(bytes: &[u8], offset: usize) -> Result<u16, &'static str> {
@@ -48,6 +50,11 @@ fn le_u32(bytes: &[u8], offset: usize) -> Result<u32, &'static str> {
         .ok_or("Truncated WAVE header")
 }
 
+fn le_i16(bytes: &[u8], offset: usize) -> Result<i16, &'static str> {
+    let value = le_u16(bytes, offset)?;
+    Ok(i16::from_le_bytes(value.to_le_bytes()))
+}
+
 fn checked_mul(lhs: usize, rhs: usize, message: &'static str) -> Result<usize, &'static str> {
     lhs.checked_mul(rhs).ok_or(message)
 }
@@ -57,6 +64,16 @@ fn checked_add(lhs: usize, rhs: usize, message: &'static str) -> Result<usize, &
 }
 
 fn parse_format(fmt: &[u8]) -> Result<WaveFormat, &'static str> {
+    const PRESET_COEFFICIENTS: [(i16, i16); 7] = [
+        (256, 0),
+        (512, -256),
+        (0, 0),
+        (192, 64),
+        (240, 0),
+        (460, -208),
+        (392, -232),
+    ];
+
     if fmt.len() < 16 {
         return Err("Invalid WAVE fmt chunk length");
     }
@@ -72,6 +89,7 @@ fn parse_format(fmt: &[u8]) -> Result<WaveFormat, &'static str> {
         0
     };
     let mut samples_per_block = if fmt.len() >= 20 { le_u16(fmt, 18)? } else { 0 };
+    let mut coefficients = Vec::new();
 
     if channels == 0 || channels > 8 {
         return Err("Invalid number of channels in WAVE file");
@@ -93,6 +111,35 @@ fn parse_format(fmt: &[u8]) -> Result<WaveFormat, &'static str> {
         }
     }
 
+    if format_tag == WAVE_FORMAT_MS_ADPCM {
+        if extension_size < 4 || fmt.len() < 22 {
+            return Err("Invalid MS ADPCM format header");
+        }
+        let coefficient_count = (le_u16(fmt, 20)? as usize).min(256);
+        let coefficient_bytes = checked_mul(
+            coefficient_count,
+            4,
+            "MS ADPCM coefficient table is too large",
+        )?;
+        if extension_size < 4 + coefficient_bytes || fmt.len() < 22 + coefficient_bytes {
+            return Err("Invalid MS ADPCM format header");
+        }
+        if coefficient_count < PRESET_COEFFICIENTS.len() {
+            return Err("Missing required MS ADPCM coefficients");
+        }
+        coefficients.reserve(coefficient_count);
+        for index in 0..coefficient_count {
+            let offset = 22 + index * 4;
+            let pair = (le_i16(fmt, offset)?, le_i16(fmt, offset + 2)?);
+            if let Some(expected) = PRESET_COEFFICIENTS.get(index) {
+                if &pair != expected {
+                    return Err("Invalid MS ADPCM coefficient table");
+                }
+            }
+            coefficients.push(pair);
+        }
+    }
+
     Ok(WaveFormat {
         format_tag,
         channels,
@@ -100,15 +147,17 @@ fn parse_format(fmt: &[u8]) -> Result<WaveFormat, &'static str> {
         block_align,
         bits_per_sample,
         samples_per_block,
+        coefficients,
     })
 }
 
-fn spec_for_format(format: WaveFormat) -> Result<SDL_AudioSpec, &'static str> {
+fn spec_for_format(format: &WaveFormat) -> Result<SDL_AudioSpec, &'static str> {
     let audio_format = match (format.format_tag, format.bits_per_sample) {
         (WAVE_FORMAT_PCM, 8) => AUDIO_U8_FMT,
         (WAVE_FORMAT_PCM, 16) => AUDIO_S16LSB_FMT,
         (WAVE_FORMAT_PCM, 32) => AUDIO_S32LSB_FMT,
         (WAVE_FORMAT_IEEE_FLOAT, 32) => AUDIO_F32LSB_FMT,
+        (WAVE_FORMAT_MS_ADPCM, _) => AUDIO_S16LSB_FMT,
         (WAVE_FORMAT_IMA_ADPCM, _) => AUDIO_S16LSB_FMT,
         _ => return Err("Unsupported WAVE encoding"),
     };
@@ -128,7 +177,7 @@ fn spec_for_format(format: WaveFormat) -> Result<SDL_AudioSpec, &'static str> {
     Ok(spec)
 }
 
-fn copy_pcm_payload(format: WaveFormat, data: &[u8]) -> Result<Vec<u8>, &'static str> {
+fn copy_pcm_payload(format: &WaveFormat, data: &[u8]) -> Result<Vec<u8>, &'static str> {
     let frame_size = match (format.format_tag, format.bits_per_sample) {
         (WAVE_FORMAT_PCM, 8) => format.channels as usize,
         (WAVE_FORMAT_PCM, 16) => {
@@ -146,6 +195,168 @@ fn copy_pcm_payload(format: WaveFormat, data: &[u8]) -> Result<Vec<u8>, &'static
     }
 
     Ok(data.to_vec())
+}
+
+#[derive(Clone, Copy)]
+struct MsAdpcmState {
+    delta: u16,
+    coeff1: i16,
+    coeff2: i16,
+    sample1: i16,
+    sample2: i16,
+}
+
+fn decode_ms_adpcm(
+    format: &WaveFormat,
+    data: &[u8],
+    fact_samples: Option<u32>,
+) -> Result<Vec<u8>, &'static str> {
+    const ADAPTATION_TABLE: [u16; 16] = [
+        230, 230, 230, 230, 307, 409, 512, 614, 768, 614, 512, 409, 307, 230, 230, 230,
+    ];
+
+    let channels = format.channels as usize;
+    if channels == 0 || channels > 2 {
+        return Err("Unsupported number of MS ADPCM channels");
+    }
+    if format.bits_per_sample != 4 {
+        return Err("Invalid MS ADPCM bits per sample");
+    }
+
+    let block_header_size = checked_mul(channels, 7, "MS ADPCM block size overflow")?;
+    let block_align = format.block_align as usize;
+    if block_align < block_header_size {
+        return Err("Invalid MS ADPCM block size");
+    }
+    if data.is_empty() {
+        return Ok(Vec::new());
+    }
+    if data.len() % block_align != 0 {
+        return Err("Truncated MS ADPCM block");
+    }
+
+    let block_data_bits = checked_mul(
+        block_align - block_header_size,
+        8,
+        "MS ADPCM block size overflow",
+    )?;
+    let block_frame_bits = checked_mul(channels, 4, "MS ADPCM sample-count overflow")?;
+    let block_data_samples = block_data_bits / block_frame_bits;
+    let samples_per_block = if format.samples_per_block == 0 {
+        block_data_samples + 2
+    } else {
+        format.samples_per_block as usize
+    };
+    if samples_per_block <= 1 || block_data_samples < samples_per_block.saturating_sub(2) {
+        return Err("Invalid MS ADPCM samples per block");
+    }
+
+    let block_count = data.len() / block_align;
+    let mut total_frames = checked_mul(
+        block_count,
+        samples_per_block,
+        "MS ADPCM sample-count overflow",
+    )?;
+    if let Some(fact_samples) = fact_samples {
+        let fact_samples = fact_samples as usize;
+        if fact_samples <= total_frames {
+            total_frames = fact_samples;
+        }
+    }
+
+    let total_samples = checked_mul(total_frames, channels, "MS ADPCM sample-count overflow")?;
+    let output_bytes = checked_mul(total_samples, 2, "MS ADPCM output size overflow")?;
+    if output_bytes > u32::MAX as usize {
+        return Err("WAVE file too large");
+    }
+
+    let mut decoded = Vec::<i16>::with_capacity(total_samples);
+    for block_index in 0..block_count {
+        if decoded.len() / channels >= total_frames {
+            break;
+        }
+
+        let block = &data[block_index * block_align..(block_index + 1) * block_align];
+        let mut states = [MsAdpcmState {
+            delta: 16,
+            coeff1: 0,
+            coeff2: 0,
+            sample1: 0,
+            sample2: 0,
+        }; 2];
+
+        for channel in 0..channels {
+            let predictor = block[channel] as usize;
+            let (coeff1, coeff2) = format
+                .coefficients
+                .get(predictor)
+                .copied()
+                .ok_or("Invalid MS ADPCM coefficient index")?;
+            let delta_offset = channels + channel * 2;
+            let sample1_offset = channels * 3 + channel * 2;
+            let sample2_offset = channels * 5 + channel * 2;
+            states[channel] = MsAdpcmState {
+                delta: u16::from_le_bytes([block[delta_offset], block[delta_offset + 1]]),
+                coeff1,
+                coeff2,
+                sample1: i16::from_le_bytes([block[sample1_offset], block[sample1_offset + 1]]),
+                sample2: i16::from_le_bytes([block[sample2_offset], block[sample2_offset + 1]]),
+            };
+        }
+
+        if decoded.len() / channels < total_frames {
+            for state in states.iter().take(channels) {
+                decoded.push(state.sample2);
+            }
+        }
+        if decoded.len() / channels < total_frames {
+            for state in states.iter().take(channels) {
+                decoded.push(state.sample1);
+            }
+        }
+
+        let mut block_frames_left = total_frames.saturating_sub(decoded.len() / channels);
+        block_frames_left = block_frames_left.min(samples_per_block.saturating_sub(2));
+        let mut position = block_header_size;
+        let mut nibble_byte = 0u8;
+        let mut high_nibble = true;
+
+        while block_frames_left > 0 {
+            for state in states.iter_mut().take(channels) {
+                let nibble = if high_nibble {
+                    nibble_byte = *block.get(position).ok_or("Truncated MS ADPCM block")?;
+                    position += 1;
+                    high_nibble = false;
+                    nibble_byte >> 4
+                } else {
+                    high_nibble = true;
+                    nibble_byte & 0x0f
+                };
+
+                let predicted = ((state.sample1 as i32 * state.coeff1 as i32)
+                    + (state.sample2 as i32 * state.coeff2 as i32))
+                    / 256;
+                let error_delta = nibble as i32 - if nibble >= 0x08 { 0x10 } else { 0 };
+                let sample = (predicted + state.delta as i32 * error_delta)
+                    .clamp(i16::MIN as i32, i16::MAX as i32) as i16;
+                let delta = ((state.delta as u32 * ADAPTATION_TABLE[nibble as usize] as u32) / 256)
+                    .clamp(16, u16::MAX as u32) as u16;
+
+                state.delta = delta;
+                state.sample2 = state.sample1;
+                state.sample1 = sample;
+                decoded.push(sample);
+            }
+            block_frames_left -= 1;
+        }
+    }
+
+    decoded.truncate(total_samples);
+    let mut output = Vec::with_capacity(output_bytes);
+    for sample in decoded {
+        output.extend_from_slice(&sample.to_le_bytes());
+    }
+    Ok(output)
 }
 
 fn ima_step(index: &mut i8, last_sample: i16, nibble: u8) -> i16 {
@@ -182,7 +393,7 @@ fn ima_step(index: &mut i8, last_sample: i16, nibble: u8) -> i16 {
 }
 
 fn decode_ima_adpcm(
-    format: WaveFormat,
+    format: &WaveFormat,
     data: &[u8],
     fact_samples: Option<u32>,
 ) -> Result<Vec<u8>, &'static str> {
@@ -225,10 +436,9 @@ fn decode_ima_adpcm(
     )?;
     if let Some(fact_samples) = fact_samples {
         let fact_samples = fact_samples as usize;
-        if fact_samples > total_frames {
-            return Err("Invalid WAVE fact chunk sample count");
+        if fact_samples <= total_frames {
+            total_frames = fact_samples;
         }
-        total_frames = fact_samples;
     }
 
     let total_samples = checked_mul(total_frames, channels, "IMA ADPCM sample-count overflow")?;
@@ -339,11 +549,12 @@ fn parse_wave(bytes: &[u8]) -> Result<(SDL_AudioSpec, Vec<u8>), &'static str> {
     let fmt_chunk = fmt_chunk.ok_or("Missing fmt chunk in WAVE file")?;
     let data_chunk = data_chunk.ok_or("Missing data chunk in WAVE file")?;
     let format = parse_format(fmt_chunk)?;
-    let spec = spec_for_format(format)?;
+    let spec = spec_for_format(&format)?;
 
     let audio = match format.format_tag {
-        WAVE_FORMAT_PCM | WAVE_FORMAT_IEEE_FLOAT => copy_pcm_payload(format, data_chunk)?,
-        WAVE_FORMAT_IMA_ADPCM => decode_ima_adpcm(format, data_chunk, fact_samples)?,
+        WAVE_FORMAT_PCM | WAVE_FORMAT_IEEE_FLOAT => copy_pcm_payload(&format, data_chunk)?,
+        WAVE_FORMAT_MS_ADPCM => decode_ms_adpcm(&format, data_chunk, fact_samples)?,
+        WAVE_FORMAT_IMA_ADPCM => decode_ima_adpcm(&format, data_chunk, fact_samples)?,
         _ => return Err("Unsupported WAVE encoding"),
     };
 

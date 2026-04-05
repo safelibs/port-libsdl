@@ -8,6 +8,8 @@ use safe_sdl::abi::generated_types::{SDL_AudioSpec, AUDIO_S16LSB};
 use safe_sdl::audio::wave::{SDL_FreeWAV, SDL_LoadWAV_RW};
 use safe_sdl::core::rwops::SDL_RWFromConstMem;
 
+const SDL_SAMPLE_WAV: &[u8] = include_bytes!("../../original/test/sample.wav");
+
 fn chunk(id: &[u8; 4], payload: &[u8]) -> Vec<u8> {
     let mut bytes = Vec::with_capacity(8 + payload.len() + (payload.len() & 1));
     bytes.extend_from_slice(id);
@@ -136,8 +138,30 @@ fn wave_ima_adpcm_decoder_rejects_impossible_sample_counts_before_allocation() {
         );
         assert!(!testutils::current_error().is_empty());
 
-        let (result, _, _) = load_wave(&invalid_fact);
-        assert!(result.is_null());
-        assert!(!testutils::current_error().is_empty());
+        let (result, audio, len) = load_wave(&invalid_fact);
+        assert!(
+            !result.is_null(),
+            "oversized fact chunks must not trigger a decompression-sized allocation"
+        );
+        assert_eq!(len, 18);
+        SDL_FreeWAV(audio);
+    }
+}
+
+#[test]
+fn wave_ms_adpcm_decoder_accepts_checked_in_sample_asset() {
+    let _serial = testutils::serial_lock();
+
+    unsafe {
+        let (result, audio, len) = load_wave(SDL_SAMPLE_WAV);
+        assert!(!result.is_null(), "{}", testutils::current_error());
+
+        let spec = *result;
+        assert_eq!(spec.format, AUDIO_S16LSB as _);
+        assert_eq!(spec.channels, 1);
+        assert_eq!(spec.freq, 22_050);
+        assert!(len > 0);
+
+        SDL_FreeWAV(audio);
     }
 }

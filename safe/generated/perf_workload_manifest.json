@@ -1,9 +1,9 @@
 {
-  "schema_version": 1,
-  "phase_id": "impl_phase_01_contract_bootstrap",
+  "schema_version": 2,
+  "phase_id": "impl_phase_09_performance",
   "workloads": [
     {
-      "workload_id": "surface_blit_fill_convert",
+      "workload_id": "surface_create_fill_convert_blit",
       "subsystem": "video_surface",
       "driver_sources": [
         "original/test/testsprite2.c",
@@ -16,26 +16,28 @@
         "original/test/axis.bmp",
         "original/test/button.bmp"
       ],
-      "description": "Exercise surface load, blit, fill, and pixel conversion paths with authoritative upstream sample images."
+      "warmup_loops": 8,
+      "timed_loops": 240,
+      "description": "Exercise repeated surface creation, fill, pixel conversion, and scaled blit paths against the upstream sample bitmaps."
     },
     {
-      "workload_id": "renderer_queue_texture_upload",
+      "workload_id": "renderer_queue_copy_texture_upload",
       "subsystem": "render",
       "driver_sources": [
         "original/test/testrendercopyex.c",
         "original/test/testrendertarget.c",
-        "original/test/teststreaming.c",
-        "original/test/testgles2_sdf.c"
+        "original/test/teststreaming.c"
       ],
       "resource_paths": [
-        "original/test/moose.dat",
-        "original/test/testgles2_sdf_img_normal.bmp",
-        "original/test/testgles2_sdf_img_sdf.bmp"
+        "original/test/sample.bmp",
+        "original/test/testgles2_sdf_img_normal.bmp"
       ],
-      "description": "Measure renderer command queue pressure and texture upload using upstream render smoke assets."
+      "warmup_loops": 4,
+      "timed_loops": 120,
+      "description": "Drive software renderer copy pressure with repeated texture upload/update and many queued render-copy commands."
     },
     {
-      "workload_id": "audio_convert_resample_wave_decode",
+      "workload_id": "audio_stream_convert_resample_wave",
       "subsystem": "audio",
       "driver_sources": [
         "original/test/loopwave.c",
@@ -46,24 +48,32 @@
       "resource_paths": [
         "original/test/sample.wav"
       ],
-      "description": "Stress the authoritative WAVE decode, conversion, and resample scenarios from the upstream tests."
+      "warmup_loops": 2,
+      "timed_loops": 48,
+      "description": "Stress SDL_LoadWAV_RW plus SDL_AudioStream format conversion and resampling using the checked-in upstream sample wave."
     },
     {
-      "workload_id": "event_queue_and_controller_maps",
-      "subsystem": "events_and_input",
+      "workload_id": "event_queue_throughput",
+      "subsystem": "events",
       "driver_sources": [
-        "original/test/testautomation_events.c",
+        "original/test/testautomation_events.c"
+      ],
+      "resource_paths": [],
+      "warmup_loops": 16,
+      "timed_loops": 320,
+      "description": "Measure custom-event enqueue and dequeue throughput with fixed-size batches under the SDL events subsystem."
+    },
+    {
+      "workload_id": "controller_mapping_guid",
+      "subsystem": "input",
+      "driver_sources": [
         "original/test/testgamecontroller.c",
         "original/test/controllermap.c"
       ],
-      "resource_paths": [
-        "original/test/axis.bmp",
-        "original/test/button.bmp",
-        "original/test/controllermap.bmp",
-        "original/test/controllermap_back.bmp",
-        "original/test/utf8.txt"
-      ],
-      "description": "Cover event queue churn and controller map lookups using the existing upstream controller resources."
+      "resource_paths": [],
+      "warmup_loops": 4,
+      "timed_loops": 256,
+      "description": "Cover controller mapping lookup and GUID string formatting over a pre-seeded Linux mapping set."
     }
   ]
 }
