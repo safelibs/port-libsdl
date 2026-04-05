@@ -86,6 +86,7 @@ pub unsafe extern "C" fn SDL_GetErrorMsg(
 #[no_mangle]
 pub unsafe extern "C" fn SDL_ClearError() {
     safe_sdl_clear_error_message();
+    crate::video::clear_real_error();
 }
 
 #[no_mangle]

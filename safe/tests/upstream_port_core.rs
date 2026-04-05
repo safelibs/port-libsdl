@@ -4,6 +4,7 @@
 mod testutils;
 
 use std::ffi::c_void;
+use std::path::Path;
 use std::ptr;
 use std::sync::atomic::{AtomicU32, Ordering};
 
@@ -11,8 +12,9 @@ use safe_sdl::abi::generated_types::{
     SDL_HintPriority_SDL_HINT_DEFAULT, SDL_HintPriority_SDL_HINT_OVERRIDE,
     SDL_LogCategory_SDL_LOG_CATEGORY_APPLICATION, SDL_LogPriority,
     SDL_LogPriority_SDL_LOG_PRIORITY_DEBUG, SDL_LogPriority_SDL_LOG_PRIORITY_INFO,
-    SDL_LogPriority_SDL_LOG_PRIORITY_WARN, SDL_INIT_AUDIO, SDL_INIT_EVENTS, SDL_INIT_TIMER,
-    SDL_INIT_VIDEO,
+    SDL_LogPriority_SDL_LOG_PRIORITY_WARN, SDL_PackedLayout_SDL_PACKEDLAYOUT_1010102,
+    SDL_PackedOrder_SDL_PACKEDORDER_ABGR, SDL_PixelType_SDL_PIXELTYPE_PACKED32, SDL_INIT_AUDIO,
+    SDL_INIT_EVENTS, SDL_INIT_TIMER, SDL_INIT_VIDEO,
 };
 use safe_sdl::audio::device::SDL_AudioQuit;
 use safe_sdl::core::assert::{SDL_GetAssertionReport, SDL_ResetAssertionReport};
@@ -20,7 +22,7 @@ use safe_sdl::core::cpuinfo::{
     SDL_GetCPUCacheLineSize, SDL_GetCPUCount, SDL_GetSystemRAM, SDL_HasAVX, SDL_HasSSE,
     SDL_SIMDGetAlignment,
 };
-use safe_sdl::core::error::SDL_GetError;
+use safe_sdl::core::error::{SDL_ClearError, SDL_GetError};
 use safe_sdl::core::hints::{
     SDL_AddHintCallback, SDL_DelHintCallback, SDL_GetHint, SDL_ResetHint, SDL_SetHint,
     SDL_SetHintWithPriority,
@@ -39,6 +41,7 @@ use safe_sdl::core::timer::{
     SDL_RemoveTimer,
 };
 use safe_sdl::main_archive::SDL_GetRevision;
+use safe_sdl::video::pixels::{SDL_AllocFormat, SDL_GetPixelFormatName};
 
 unsafe extern "C" {
     fn SDL_LogMessage(
@@ -92,6 +95,42 @@ unsafe extern "C" fn fire_once(_interval: u32, userdata: *mut c_void) -> u32 {
     let flag = &*(userdata as *const AtomicU32);
     flag.store(1, Ordering::SeqCst);
     0
+}
+
+fn invalid_pixel_format() -> u32 {
+    (1u32 << 28)
+        | (SDL_PixelType_SDL_PIXELTYPE_PACKED32 << 24)
+        | (SDL_PackedOrder_SDL_PACKEDORDER_ABGR << 20)
+        | ((SDL_PackedLayout_SDL_PACKEDLAYOUT_1010102 + 1) << 16)
+        | (32 << 8)
+        | 4
+}
+
+fn require_real_sdl_runtime() -> testutils::ScopedEnvVar {
+    if let Ok(path) = std::env::var("SAFE_SDL_REAL_SDL_PATH") {
+        if Path::new(&path).exists() {
+            return testutils::ScopedEnvVar::set("SAFE_SDL_REAL_SDL_PATH", &path);
+        }
+    }
+
+    for candidate in [
+        "/tmp/libsdl-original-ref/lib/libSDL2-2.0.so.0",
+        "/tmp/libsdl-original-ref/lib/libSDL2-2.0.so.0.0.0",
+        "/tmp/libsdl-phase10-original-prefix/lib/libSDL2-2.0.so.0",
+        "/tmp/libsdl-phase10-original-prefix/lib/libSDL2-2.0.so.0.0.0",
+        "/tmp/libsdl-original-prefix/lib/libSDL2-2.0.so.0",
+        "/tmp/libsdl-original-prefix/lib/libSDL2-2.0.so.0.0.0",
+        "/home/yans/code/safelibs/ported/libsdl/build-phase10-original-prefix/lib/libSDL2-2.0.so.0",
+        "/home/yans/code/safelibs/ported/libsdl/build-phase10-original-prefix/lib/libSDL2-2.0.so.0.0.0",
+        "/home/yans/code/safelibs/ported/libsdl/build-phase9-original-prefix/lib/libSDL2-2.0.so.0",
+        "/home/yans/code/safelibs/ported/libsdl/build-phase9-original-prefix/lib/libSDL2-2.0.so.0.0.0",
+    ] {
+        if Path::new(candidate).exists() {
+            return testutils::ScopedEnvVar::set("SAFE_SDL_REAL_SDL_PATH", candidate);
+        }
+    }
+
+    panic!("unable to locate preserved original SDL runtime for host-forwarded test");
 }
 
 #[test]
@@ -180,6 +219,48 @@ fn main_set_error_accepts_large_strings() {
     unsafe {
         assert_eq!(SDL_SetError(c_message.as_ptr()), -1);
         assert_eq!(testutils::string_from_c(SDL_GetError()), message);
+    }
+}
+
+#[test]
+fn clear_error_clears_forwarded_host_error_state() {
+    let _serial = testutils::serial_lock();
+    let _real = require_real_sdl_runtime();
+
+    unsafe {
+        assert!(
+            SDL_AllocFormat(invalid_pixel_format()).is_null(),
+            "invalid format should fail"
+        );
+        assert!(
+            !testutils::current_error().is_empty(),
+            "invalid host call should set SDL error"
+        );
+
+        SDL_ClearError();
+        assert_eq!(testutils::current_error(), "");
+    }
+}
+
+#[test]
+fn get_pixel_format_name_invalid_format_leaves_error_empty() {
+    let _serial = testutils::serial_lock();
+    let _real = require_real_sdl_runtime();
+
+    unsafe {
+        assert!(
+            SDL_AllocFormat(invalid_pixel_format()).is_null(),
+            "invalid format should fail"
+        );
+        SDL_ClearError();
+
+        let name = testutils::string_from_c(SDL_GetPixelFormatName(invalid_pixel_format()));
+        assert!(!name.is_empty());
+        assert!(
+            name.contains("UNKNOWN"),
+            "unexpected pixel format name: {name}"
+        );
+        assert_eq!(testutils::current_error(), "");
     }
 }
 

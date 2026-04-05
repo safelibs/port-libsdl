@@ -64,6 +64,7 @@ pub unsafe extern "C" fn SDL_FreePalette(palette: *mut SDL_Palette) {
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetPixelFormatName(format: Uint32) -> *const libc::c_char {
+    clear_real_error();
     (real_sdl().get_pixel_format_name)(format)
 }
 

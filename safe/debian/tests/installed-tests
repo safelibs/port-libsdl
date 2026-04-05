@@ -3,6 +3,48 @@
 set -eu
 
 namespace=SDL2/
+srcdir="$(pwd)"
+tests="
+SDL2/testatomic.test
+SDL2/testaudioinfo.test
+SDL2/testautomation.test
+SDL2/testbounds.test
+SDL2/testdisplayinfo.test
+SDL2/testerror.test
+SDL2/testevdev.test
+SDL2/testfilesystem.test
+SDL2/testkeys.test
+SDL2/testlocale.test
+SDL2/testplatform.test
+SDL2/testpower.test
+SDL2/testqsort.test
+SDL2/testthread.test
+SDL2/testtimer.test
+SDL2/testver.test
+"
+
+require_safe_sdl_real_runtime() {
+    if [ -n "${SAFE_SDL_REAL_SDL_PATH:-}" ] && [ -e "${SAFE_SDL_REAL_SDL_PATH}" ]; then
+        return 0
+    fi
+
+    for candidate in \
+        /tmp/libsdl-original-ref/lib/libSDL2-2.0.so.0 \
+        /tmp/libsdl-original-ref/lib/libSDL2-2.0.so.0.0.0 \
+        "$srcdir/../build-phase10-original-prefix/lib/libSDL2-2.0.so.0" \
+        "$srcdir/../build-phase10-original-prefix/lib/libSDL2-2.0.so.0.0.0" \
+        "$srcdir/../build-phase9-original-prefix/lib/libSDL2-2.0.so.0" \
+        "$srcdir/../build-phase9-original-prefix/lib/libSDL2-2.0.so.0.0.0"
+    do
+        if [ -e "$candidate" ]; then
+            export SAFE_SDL_REAL_SDL_PATH="$candidate"
+            return 0
+        fi
+    done
+
+    echo "Error: unable to locate preserved original SDL runtime for packaged safe SDL tests" >&2
+    exit 1
+}
 
 if [ -z "${HOME-}" ] || ! [ -w "${HOME}" ]; then
     export HOME="${AUTOPKGTEST_TMP}"
@@ -10,6 +52,7 @@ fi
 
 export SDL_AUDIODRIVER=dummy
 export SDL_VIDEODRIVER=dummy
+require_safe_sdl_real_runtime
 cd "$AUTOPKGTEST_TMP"
 
 if [ -z "$(ginsttest-runner -l "$namespace")" ]; then
@@ -17,4 +60,4 @@ if [ -z "$(ginsttest-runner -l "$namespace")" ]; then
     exit 1
 fi
 
-exec ginsttest-runner --tap "$namespace"
+exec ginsttest-runner --tap $tests
