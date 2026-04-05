@@ -88,7 +88,7 @@ pub struct BuildOriginalAutotoolsSuiteArgs {
 
 pub struct RunOriginalAutotoolsCheckArgs {
     pub repo_root: PathBuf,
-    pub stage_root: PathBuf,
+    pub stage_root: Option<PathBuf>,
     pub build_dir: PathBuf,
 }
 
@@ -706,12 +706,13 @@ pub fn build_original_autotools_suite(args: BuildOriginalAutotoolsSuiteArgs) -> 
         .current_dir(&build_dir)
         .arg(format!("-j{}", parallelism()));
     apply_stage_suite_env(&mut make_cmd, &stage_root)?;
-    run_command(&mut make_cmd, "build original autotools suite")
+    run_command(&mut make_cmd, "build original autotools suite")?;
+    record_autotools_stage_root(&build_dir, &stage_root)
 }
 
 pub fn run_original_autotools_check(args: RunOriginalAutotoolsCheckArgs) -> Result<()> {
-    let stage_root = absolutize(&args.repo_root, &args.stage_root);
     let build_dir = absolutize(&args.repo_root, &args.build_dir);
+    let stage_root = resolve_autotools_stage_root(&args.repo_root, &build_dir, args.stage_root)?;
     let mut make_cmd = Command::new("make");
     make_cmd.current_dir(&build_dir).arg("check");
     apply_stage_suite_env(&mut make_cmd, &stage_root)?;
@@ -795,6 +796,44 @@ fn test_names_to_ctest_regex(targets: &[String]) -> Result<Option<String>> {
         bail!("CTest test list contains an empty target name");
     }
     Ok(Some(format!("^({})$", targets.join("|"))))
+}
+
+fn record_autotools_stage_root(build_dir: &Path, stage_root: &Path) -> Result<()> {
+    fs::write(
+        autotools_stage_root_path(build_dir),
+        format!("{}\n", stage_root.display()),
+    )
+    .with_context(|| format!("write autotools stage root for {}", build_dir.display()))
+}
+
+fn resolve_autotools_stage_root(
+    repo_root: &Path,
+    build_dir: &Path,
+    explicit_stage_root: Option<PathBuf>,
+) -> Result<PathBuf> {
+    if let Some(stage_root) = explicit_stage_root {
+        return Ok(absolutize(repo_root, &stage_root));
+    }
+
+    let stage_root_path = autotools_stage_root_path(build_dir);
+    let contents = fs::read_to_string(&stage_root_path).with_context(|| {
+        format!(
+            "read autotools stage root metadata {}; rerun build-original-autotools-suite with --root or pass --root explicitly",
+            stage_root_path.display()
+        )
+    })?;
+    let stage_root = contents.trim();
+    if stage_root.is_empty() {
+        bail!(
+            "autotools stage root metadata {} is empty",
+            stage_root_path.display()
+        );
+    }
+    Ok(PathBuf::from(stage_root))
+}
+
+fn autotools_stage_root_path(build_dir: &Path) -> PathBuf {
+    build_dir.join(".xtask-stage-root")
 }
 
 fn apply_stage_suite_env(cmd: &mut Command, stage_root: &Path) -> Result<()> {
@@ -938,4 +977,44 @@ fn spawn_xvfb() -> Result<(XvfbGuard, String)> {
     }
 
     bail!("unable to start Xvfb")
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::PathBuf;
+
+    use super::{record_autotools_stage_root, resolve_autotools_stage_root};
+    use tempfile::tempdir;
+
+    #[test]
+    fn run_original_autotools_check_uses_recorded_stage_root() {
+        let repo_root = tempdir().expect("repo root tempdir");
+        let build_dir = repo_root.path().join("build");
+        std::fs::create_dir_all(&build_dir).expect("create build dir");
+        let stage_root = repo_root.path().join("stage");
+        record_autotools_stage_root(&build_dir, &stage_root).expect("record stage root");
+
+        let resolved =
+            resolve_autotools_stage_root(repo_root.path(), &build_dir, None).expect("resolve");
+
+        assert_eq!(resolved, stage_root);
+    }
+
+    #[test]
+    fn explicit_autotools_stage_root_overrides_metadata() {
+        let repo_root = tempdir().expect("repo root tempdir");
+        let build_dir = repo_root.path().join("build");
+        std::fs::create_dir_all(&build_dir).expect("create build dir");
+        record_autotools_stage_root(&build_dir, &repo_root.path().join("stale"))
+            .expect("record stale stage root");
+
+        let resolved = resolve_autotools_stage_root(
+            repo_root.path(),
+            &build_dir,
+            Some(PathBuf::from("/tmp/libsdl-safe-root")),
+        )
+        .expect("resolve explicit stage root");
+
+        assert_eq!(resolved, PathBuf::from("/tmp/libsdl-safe-root"));
+    }
 }

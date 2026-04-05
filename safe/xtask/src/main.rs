@@ -134,8 +134,10 @@ fn main() -> Result<()> {
             })
         }
         "run-original-autotools-check" => {
-            let parsed =
-                OriginalSuiteCliArgs::parse(&remaining, "build-phase8-upstream-autotools")?;
+            let parsed = RunOriginalAutotoolsCheckCliArgs::parse(
+                &remaining,
+                "build-phase8-upstream-autotools",
+            )?;
             run_original_autotools_check(RunOriginalAutotoolsCheckArgs {
                 repo_root,
                 stage_root: parsed.root,
@@ -521,6 +523,32 @@ impl OriginalSuiteCliArgs {
 }
 
 #[derive(Debug)]
+struct RunOriginalAutotoolsCheckCliArgs {
+    root: Option<PathBuf>,
+    build_dir: PathBuf,
+}
+
+impl RunOriginalAutotoolsCheckCliArgs {
+    fn parse(args: &[String], default_build_dir: &str) -> Result<Self> {
+        let mut root = None;
+        let mut build_dir = PathBuf::from(default_build_dir);
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            match arg.as_str() {
+                "--root" | "--stage-root" | "--destdir" => {
+                    root = Some(PathBuf::from(require_value(&mut iter, arg)?))
+                }
+                "--build-dir" => {
+                    build_dir = PathBuf::from(require_value(&mut iter, "--build-dir")?)
+                }
+                other => bail!("unknown argument {other}"),
+            }
+        }
+        Ok(Self { root, build_dir })
+    }
+}
+
+#[derive(Debug)]
 struct OriginalCtestCliArgs {
     build_dir: PathBuf,
     filter: Option<String>,
@@ -883,7 +911,12 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::{OriginalCtestCliArgs, VerifyTestPortCoverageArgs, PHASE_08_ID};
+    use std::path::PathBuf;
+
+    use super::{
+        OriginalCtestCliArgs, RunOriginalAutotoolsCheckCliArgs, VerifyTestPortCoverageArgs,
+        PHASE_08_ID,
+    };
 
     #[test]
     fn verify_test_port_coverage_defaults_phase_08() {
@@ -907,6 +940,23 @@ mod tests {
         assert_eq!(
             parsed.test_list.as_deref(),
             Some("safe/generated/noninteractive_test_list.json")
+        );
+    }
+
+    #[test]
+    fn run_original_autotools_check_does_not_default_stage_root() {
+        let parsed = RunOriginalAutotoolsCheckCliArgs::parse(
+            &[
+                "--build-dir".to_string(),
+                "/tmp/libsdl-safe-autotools".to_string(),
+            ],
+            "ignored",
+        )
+        .expect("parse run-original-autotools-check args");
+        assert_eq!(parsed.root, None);
+        assert_eq!(
+            parsed.build_dir,
+            PathBuf::from("/tmp/libsdl-safe-autotools")
         );
     }
 }
