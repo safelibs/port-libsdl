@@ -160,8 +160,8 @@
       "header_name": "SDL_egl.h",
       "install_relpath": "usr/include/SDL2/SDL_egl.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_05_render_graphics",
+      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
     },
     {
       "header_name": "SDL_endian.h",
@@ -293,8 +293,8 @@
       "header_name": "SDL_metal.h",
       "install_relpath": "usr/include/SDL2/SDL_metal.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_05_render_graphics",
+      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
     },
     {
       "header_name": "SDL_misc.h",
@@ -328,57 +328,57 @@
       "header_name": "SDL_opengl.h",
       "install_relpath": "usr/include/SDL2/SDL_opengl.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_05_render_graphics",
+      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
     },
     {
       "header_name": "SDL_opengl_glext.h",
       "install_relpath": "usr/include/SDL2/SDL_opengl_glext.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_05_render_graphics",
+      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
     },
     {
       "header_name": "SDL_opengles.h",
       "install_relpath": "usr/include/SDL2/SDL_opengles.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_05_render_graphics",
+      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
     },
     {
       "header_name": "SDL_opengles2.h",
       "install_relpath": "usr/include/SDL2/SDL_opengles2.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_05_render_graphics",
+      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
     },
     {
       "header_name": "SDL_opengles2_gl2.h",
       "install_relpath": "usr/include/SDL2/SDL_opengles2_gl2.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_05_render_graphics",
+      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
     },
     {
       "header_name": "SDL_opengles2_gl2ext.h",
       "install_relpath": "usr/include/SDL2/SDL_opengles2_gl2ext.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_05_render_graphics",
+      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
     },
     {
       "header_name": "SDL_opengles2_gl2platform.h",
       "install_relpath": "usr/include/SDL2/SDL_opengles2_gl2platform.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_05_render_graphics",
+      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
     },
     {
       "header_name": "SDL_opengles2_khrplatform.h",
       "install_relpath": "usr/include/SDL2/SDL_opengles2_khrplatform.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_05_render_graphics",
+      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
     },
     {
       "header_name": "SDL_pixels.h",
@@ -419,8 +419,8 @@
       "header_name": "SDL_render.h",
       "install_relpath": "usr/include/SDL2/SDL_render.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_05_render_graphics",
+      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
     },
     {
       "header_name": "SDL_revision.h",
@@ -622,8 +622,8 @@
       "header_name": "SDL_vulkan.h",
       "install_relpath": "usr/include/SDL2/SDL_vulkan.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_05_render_graphics",
+      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
     },
     {
       "header_name": "begin_code.h",

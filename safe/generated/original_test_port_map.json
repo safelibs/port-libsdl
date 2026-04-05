@@ -503,13 +503,14 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_05_render_graphics",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_render.rs",
+      "rust_target_path": "safe/tests/upstream_port_render.rs",
       "upstream_targets": [
         "testautomation"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/upstream_port_render.rs"
     },
     {
       "original_path": "original/test/testautomation_rwops.c",
@@ -664,26 +665,28 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testdraw2.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testdraw2"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testdrawchessboard.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testdrawchessboard.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testdrawchessboard"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testdropfile.c",
@@ -782,13 +785,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testgeometry.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testgeometry"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testgesture.c",
@@ -809,52 +813,56 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testgl2.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testgl2"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testgles.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testgles.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testgles"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testgles2.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testgles2.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testgles2"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testgles2_sdf.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testgles2_sdf.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testgles2_sdf"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testhaptic.c",
@@ -1113,26 +1121,28 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testoffscreen.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testoffscreen"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testoverlay2.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testoverlay2.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testoverlay2"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testplatform.c",
@@ -1192,26 +1202,28 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testrendercopyex.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testrendercopyex"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testrendertarget.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testrendertarget.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testrendertarget"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testresample.c",
@@ -1244,13 +1256,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testscale.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testscale"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testsem.c",
@@ -1283,13 +1296,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testshader.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testshader"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testshape.c",
@@ -1310,39 +1324,42 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testsprite2.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testsprite2"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testspriteminimal.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testspriteminimal.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testspriteminimal"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/teststreaming.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/teststreaming.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "teststreaming"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testsurround.c",
@@ -1445,26 +1462,28 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testviewport.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testviewport"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testvulkan.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testvulkan.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testvulkan"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testwm2.c",
@@ -1485,27 +1504,29 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testyuv.rs",
+      "owning_phase": "impl_phase_05_render_graphics",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_render.rs",
       "upstream_targets": [
         "testyuv"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_render.rs"
     },
     {
       "original_path": "original/test/testyuv_cvt.c",
       "source_kind": "helper source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": false,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_05_render_graphics",
       "rust_target_kind": "support_module",
-      "rust_target_path": "safe/tests/support/testyuv_cvt.rs",
+      "rust_target_path": "safe/tests/common/testyuv_cvt.rs",
       "upstream_targets": [
         "testoverlay2",
         "testyuv"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported helper lives in safe/tests/common/testyuv_cvt.rs"
     },
     {
       "original_path": "original/test/torturethread.c",
@@ -1608,14 +1629,16 @@
     {
       "target_name": "testdraw2",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testdrawchessboard",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testdropfile",
@@ -1663,8 +1686,9 @@
     {
       "target_name": "testgeometry",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testgesture",
@@ -1676,26 +1700,30 @@
     {
       "target_name": "testgl2",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testgles",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testgles2",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testgles2_sdf",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testhaptic",
@@ -1797,14 +1825,16 @@
     {
       "target_name": "testoffscreen",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testoverlay2",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testplatform",
@@ -1834,14 +1864,16 @@
     {
       "target_name": "testrendercopyex",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testrendertarget",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testresample",
@@ -1858,8 +1890,9 @@
     {
       "target_name": "testscale",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testsem",
@@ -1876,8 +1909,9 @@
     {
       "target_name": "testshader",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testshape",
@@ -1889,20 +1923,23 @@
     {
       "target_name": "testsprite2",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testspriteminimal",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "teststreaming",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testsurround",
@@ -1937,14 +1974,16 @@
     {
       "target_name": "testviewport",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testvulkan",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "testwm2",
@@ -1956,8 +1995,9 @@
     {
       "target_name": "testyuv",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_05_render_graphics",
+      "completion_state": "complete",
+      "completion_note": "staged build is validated in phase 5; runtime stays manifest-driven"
     },
     {
       "target_name": "torturethread",

@@ -2,11 +2,15 @@
 
 use std::ffi::{CStr, CString};
 use std::path::PathBuf;
+use std::process::{Child, Command, Stdio};
 use std::sync::{Mutex, MutexGuard, OnceLock};
+use std::thread;
+use std::time::Duration;
 
 use safe_sdl::abi::generated_types::Uint32;
 use safe_sdl::core::error::SDL_GetError;
 use safe_sdl::core::init::{SDL_InitSubSystem, SDL_QuitSubSystem};
+use safe_sdl::video::display::{SDL_VideoInit, SDL_VideoQuit};
 
 static TEST_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
 
@@ -91,6 +95,81 @@ impl Drop for ScopedEnvVar {
             std::env::remove_var(&self.key);
         }
     }
+}
+
+pub struct VideoDriverGuard;
+
+impl VideoDriverGuard {
+    pub fn init(driver_name: &str) -> Result<Self, String> {
+        let driver_name = cstring(driver_name);
+        let rc = unsafe { SDL_VideoInit(driver_name.as_ptr()) };
+        if rc == 0 {
+            Ok(Self)
+        } else {
+            Err(current_error())
+        }
+    }
+}
+
+impl Drop for VideoDriverGuard {
+    fn drop(&mut self) {
+        unsafe { SDL_VideoQuit() };
+    }
+}
+
+pub struct XvfbGuard {
+    child: Child,
+}
+
+impl Drop for XvfbGuard {
+    fn drop(&mut self) {
+        let _ = self.child.kill();
+        let _ = self.child.wait();
+    }
+}
+
+pub struct X11DisplayGuard {
+    _xvfb: Option<XvfbGuard>,
+    _display: ScopedEnvVar,
+    _driver: ScopedEnvVar,
+}
+
+fn spawn_xvfb() -> Option<(XvfbGuard, String)> {
+    for display in 91..100 {
+        let display_name = format!(":{display}");
+        let child = Command::new("Xvfb")
+            .arg(&display_name)
+            .arg("-screen")
+            .arg("0")
+            .arg("1024x768x24")
+            .arg("-nolisten")
+            .arg("tcp")
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn();
+        let Ok(child) = child else {
+            return None;
+        };
+        thread::sleep(Duration::from_millis(500));
+        return Some((XvfbGuard { child }, display_name));
+    }
+    None
+}
+
+pub fn acquire_x11_display() -> Option<X11DisplayGuard> {
+    let existing_display = std::env::var("DISPLAY").ok();
+    let xvfb = if existing_display.is_some() {
+        None
+    } else {
+        spawn_xvfb()
+    };
+    let display_name = existing_display.or_else(|| xvfb.as_ref().map(|(_, name)| name.clone()))?;
+    Some(X11DisplayGuard {
+        _xvfb: xvfb.map(|(guard, _)| guard),
+        _display: ScopedEnvVar::set("DISPLAY", &display_name),
+        _driver: ScopedEnvVar::set("SDL_VIDEODRIVER", "x11"),
+    })
 }
 
 pub struct SubsystemGuard {

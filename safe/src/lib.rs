@@ -15,6 +15,7 @@ pub mod security {
 pub mod dynapi {
     pub mod generated;
 }
+pub mod render;
 pub mod video;
 
 pub mod main_archive;

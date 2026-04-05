@@ -12,6 +12,7 @@ description = "Bootstrap SDL2 ABI contract capture and stub surface"
 [lib]
 name = "safe_sdl"
 crate-type = ["cdylib", "staticlib", "rlib"]
+doctest = false
 
 [dependencies]
 libc = "0.2"

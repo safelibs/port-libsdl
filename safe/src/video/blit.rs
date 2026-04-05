@@ -1,8 +1,30 @@
-use crate::abi::generated_types::{SDL_Rect, SDL_Surface, Uint32};
+use std::sync::OnceLock;
+
+use crate::abi::generated_types::{SDL_Rect, SDL_Surface, SDL_YUV_CONVERSION_MODE, Uint32};
 use crate::security::checked_math::{self, MathError};
 use crate::video::surface::{
     apply_math_error, format_descriptor, real_sdl, sync_error_from_real, validate_surface_storage,
 };
+
+type SetYuvConversionModeFn = unsafe extern "C" fn(SDL_YUV_CONVERSION_MODE);
+type GetYuvConversionModeFn = unsafe extern "C" fn() -> SDL_YUV_CONVERSION_MODE;
+type GetYuvConversionModeForResolutionFn =
+    unsafe extern "C" fn(libc::c_int, libc::c_int) -> SDL_YUV_CONVERSION_MODE;
+
+fn set_yuv_conversion_mode_fn() -> SetYuvConversionModeFn {
+    static FN: OnceLock<SetYuvConversionModeFn> = OnceLock::new();
+    *FN.get_or_init(|| crate::video::load_symbol(b"SDL_SetYUVConversionMode\0"))
+}
+
+fn get_yuv_conversion_mode_fn() -> GetYuvConversionModeFn {
+    static FN: OnceLock<GetYuvConversionModeFn> = OnceLock::new();
+    *FN.get_or_init(|| crate::video::load_symbol(b"SDL_GetYUVConversionMode\0"))
+}
+
+fn get_yuv_conversion_mode_for_resolution_fn() -> GetYuvConversionModeForResolutionFn {
+    static FN: OnceLock<GetYuvConversionModeForResolutionFn> = OnceLock::new();
+    *FN.get_or_init(|| crate::video::load_symbol(b"SDL_GetYUVConversionModeForResolution\0"))
+}
 
 unsafe fn validate_blit_surface(surface: *mut SDL_Surface) -> Result<(), MathError> {
     let _ = validate_surface_storage(surface)?;
@@ -57,6 +79,27 @@ pub unsafe extern "C" fn SDL_ConvertPixels(
         let _ = sync_error_from_real("Couldn't convert pixels");
     }
     result
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn SDL_SetYUVConversionMode(mode: SDL_YUV_CONVERSION_MODE) {
+    crate::video::clear_real_error();
+    set_yuv_conversion_mode_fn()(mode);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn SDL_GetYUVConversionMode() -> SDL_YUV_CONVERSION_MODE {
+    crate::video::clear_real_error();
+    get_yuv_conversion_mode_fn()()
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn SDL_GetYUVConversionModeForResolution(
+    width: libc::c_int,
+    height: libc::c_int,
+) -> SDL_YUV_CONVERSION_MODE {
+    crate::video::clear_real_error();
+    get_yuv_conversion_mode_for_resolution_fn()(width, height)
 }
 
 #[no_mangle]

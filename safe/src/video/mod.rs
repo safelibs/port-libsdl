@@ -5,6 +5,7 @@ pub mod bmp;
 pub mod clipboard;
 pub mod display;
 pub mod dummy;
+pub mod egl;
 pub mod messagebox;
 pub mod offscreen;
 pub mod pixels;
@@ -12,6 +13,7 @@ pub mod rect;
 pub mod shape;
 pub mod surface;
 pub mod syswm;
+pub mod vulkan;
 pub mod window;
 
 pub mod linux {

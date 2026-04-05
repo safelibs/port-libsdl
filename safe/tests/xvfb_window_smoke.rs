@@ -2,9 +2,6 @@
 mod testutils;
 
 use std::mem::MaybeUninit;
-use std::process::{Child, Command, Stdio};
-use std::thread;
-use std::time::Duration;
 
 use safe_sdl::abi::generated_types::{SDL_WindowFlags_SDL_WINDOW_HIDDEN, SDL_INIT_VIDEO};
 use safe_sdl::video::clipboard::{SDL_GetClipboardText, SDL_SetClipboardText};
@@ -14,56 +11,12 @@ use safe_sdl::video::window::{
     SDL_CreateWindow, SDL_DestroyWindow, SDL_GetWindowSurface, SDL_UpdateWindowSurface,
 };
 
-struct XvfbGuard {
-    child: Child,
-}
-
-impl Drop for XvfbGuard {
-    fn drop(&mut self) {
-        let _ = self.child.kill();
-        let _ = self.child.wait();
-    }
-}
-
-fn spawn_xvfb() -> Option<(XvfbGuard, String)> {
-    for display in 91..100 {
-        let display_name = format!(":{display}");
-        let child = Command::new("Xvfb")
-            .arg(&display_name)
-            .arg("-screen")
-            .arg("0")
-            .arg("1024x768x24")
-            .arg("-nolisten")
-            .arg("tcp")
-            .stdin(Stdio::null())
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .spawn();
-        let Ok(child) = child else {
-            return None;
-        };
-        thread::sleep(Duration::from_millis(500));
-        return Some((XvfbGuard { child }, display_name));
-    }
-    None
-}
-
 #[test]
 fn xvfb_backed_x11_window_smoke_replaces_manual_window_demos() {
     let _serial = testutils::serial_lock();
-    let existing_display = std::env::var("DISPLAY").ok();
-    let xvfb = if existing_display.is_some() {
-        None
-    } else {
-        spawn_xvfb()
-    };
-    let display_name = existing_display.or_else(|| xvfb.as_ref().map(|(_, name)| name.clone()));
-    let Some(display_name) = display_name else {
+    let Some(_display) = testutils::acquire_x11_display() else {
         return;
     };
-    let _xvfb = xvfb;
-    let _display = testutils::ScopedEnvVar::set("DISPLAY", &display_name);
-    let _driver = testutils::ScopedEnvVar::set("SDL_VIDEODRIVER", "x11");
     let _subsystem = testutils::SubsystemGuard::init(SDL_INIT_VIDEO);
 
     unsafe {
