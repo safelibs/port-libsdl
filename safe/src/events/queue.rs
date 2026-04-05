@@ -1,4 +1,4 @@
-use std::sync::OnceLock;
+use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
     SDL_Event, SDL_EventFilter, SDL_EventType_SDL_QUIT, SDL_bool, SDL_eventaction,
@@ -26,6 +26,8 @@ struct QueueApi {
     poll_event: unsafe extern "C" fn(*mut SDL_Event) -> libc::c_int,
     pump_events: unsafe extern "C" fn(),
     push_event: unsafe extern "C" fn(*mut SDL_Event) -> libc::c_int,
+    init_subsystem: unsafe extern "C" fn(Uint32) -> libc::c_int,
+    quit_subsystem: unsafe extern "C" fn(Uint32),
     register_events: unsafe extern "C" fn(libc::c_int) -> Uint32,
     set_event_filter: unsafe extern "C" fn(SDL_EventFilter, *mut libc::c_void),
     wait_event: unsafe extern "C" fn(*mut SDL_Event) -> libc::c_int,
@@ -48,6 +50,8 @@ fn api() -> &'static QueueApi {
         poll_event: crate::video::load_symbol(b"SDL_PollEvent\0"),
         pump_events: crate::video::load_symbol(b"SDL_PumpEvents\0"),
         push_event: crate::video::load_symbol(b"SDL_PushEvent\0"),
+        init_subsystem: crate::video::load_symbol(b"SDL_InitSubSystem\0"),
+        quit_subsystem: crate::video::load_symbol(b"SDL_QuitSubSystem\0"),
         register_events: crate::video::load_symbol(b"SDL_RegisterEvents\0"),
         set_event_filter: crate::video::load_symbol(b"SDL_SetEventFilter\0"),
         wait_event: crate::video::load_symbol(b"SDL_WaitEvent\0"),
@@ -60,40 +64,80 @@ pub(crate) fn init_event_subsystem() -> Result<(), ()> {
     Ok(())
 }
 
-pub(crate) fn quit_event_subsystem() {}
+pub(crate) fn quit_event_subsystem() {
+    let mut active = lock_host_event_state();
+    if *active {
+        crate::video::clear_real_error();
+        unsafe {
+            (api().quit_subsystem)(SDL_INIT_EVENTS);
+        }
+        *active = false;
+    }
+}
+
+fn host_event_state() -> &'static Mutex<bool> {
+    static STATE: OnceLock<Mutex<bool>> = OnceLock::new();
+    STATE.get_or_init(|| Mutex::new(false))
+}
+
+fn lock_host_event_state() -> std::sync::MutexGuard<'static, bool> {
+    match host_event_state().lock() {
+        Ok(guard) => guard,
+        Err(poisoned) => poisoned.into_inner(),
+    }
+}
+
+fn ensure_real_event_subsystem() {
+    let mut active = lock_host_event_state();
+    if *active {
+        return;
+    }
+
+    crate::video::clear_real_error();
+    let rc = unsafe { (api().init_subsystem)(SDL_INIT_EVENTS) };
+    if rc == 0 {
+        *active = true;
+    }
+}
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_AddEventWatch(filter: SDL_EventFilter, userdata: *mut libc::c_void) {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().add_event_watch)(filter, userdata);
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_DelEventWatch(filter: SDL_EventFilter, userdata: *mut libc::c_void) {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().del_event_watch)(filter, userdata);
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_EventState(type_: Uint32, state: libc::c_int) -> u8 {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().event_state)(type_, state)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_FilterEvents(filter: SDL_EventFilter, userdata: *mut libc::c_void) {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().filter_events)(filter, userdata);
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_FlushEvent(type_: Uint32) {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().flush_event)(type_);
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_FlushEvents(minType: Uint32, maxType: Uint32) {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().flush_events)(minType, maxType);
 }
@@ -103,18 +147,21 @@ pub unsafe extern "C" fn SDL_GetEventFilter(
     filter: *mut SDL_EventFilter,
     userdata: *mut *mut libc::c_void,
 ) -> SDL_bool {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().get_event_filter)(filter, userdata)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_HasEvent(type_: Uint32) -> SDL_bool {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().has_event)(type_)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_HasEvents(minType: Uint32, maxType: Uint32) -> SDL_bool {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().has_events)(minType, maxType)
 }
@@ -127,42 +174,49 @@ pub unsafe extern "C" fn SDL_PeepEvents(
     minType: Uint32,
     maxType: Uint32,
 ) -> libc::c_int {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().peep_events)(events, numevents, action, minType, maxType)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_PollEvent(event: *mut SDL_Event) -> libc::c_int {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().poll_event)(event)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_PumpEvents() {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().pump_events)();
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_PushEvent(event: *mut SDL_Event) -> libc::c_int {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().push_event)(event)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_RegisterEvents(numevents: libc::c_int) -> Uint32 {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().register_events)(numevents)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetEventFilter(filter: SDL_EventFilter, userdata: *mut libc::c_void) {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().set_event_filter)(filter, userdata);
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_WaitEvent(event: *mut SDL_Event) -> libc::c_int {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().wait_event)(event)
 }
@@ -172,11 +226,13 @@ pub unsafe extern "C" fn SDL_WaitEventTimeout(
     event: *mut SDL_Event,
     timeout: libc::c_int,
 ) -> libc::c_int {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().wait_event_timeout)(event, timeout)
 }
 
 pub unsafe extern "C" fn SDL_QuitRequested() -> SDL_bool {
+    ensure_real_event_subsystem();
     crate::video::clear_real_error();
     (api().pump_events)();
     ((api().peep_events)(
