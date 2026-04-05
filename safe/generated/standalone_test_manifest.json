@@ -124,7 +124,7 @@
       "ci_validation_mode": "build_only",
       "ci_runner": "build_only",
       "timeout_seconds": 0,
-      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "automation_reason": "phase-7 input target remains build_only; deterministic runtime coverage is provided by safe/tests/original_apps_input.rs",
       "checker_runner_contract": {
         "runner": "build_only",
         "working_directory": "$TARGET_BINARY_DIR",
@@ -860,7 +860,7 @@
       "ci_validation_mode": "build_only",
       "ci_runner": "build_only",
       "timeout_seconds": 0,
-      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "automation_reason": "phase-7 input target remains build_only; deterministic runtime coverage is provided by safe/tests/original_apps_input.rs",
       "checker_runner_contract": {
         "runner": "build_only",
         "working_directory": "$TARGET_BINARY_DIR",
@@ -1121,7 +1121,7 @@
       "ci_validation_mode": "build_only",
       "ci_runner": "build_only",
       "timeout_seconds": 0,
-      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "automation_reason": "phase-7 input target remains build_only; deterministic runtime coverage is provided by safe/tests/original_apps_input.rs",
       "checker_runner_contract": {
         "runner": "build_only",
         "working_directory": "$TARGET_BINARY_DIR",
@@ -1185,7 +1185,7 @@
       "ci_validation_mode": "build_only",
       "ci_runner": "build_only",
       "timeout_seconds": 0,
-      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "automation_reason": "phase-7 input target remains build_only; deterministic runtime coverage is provided by safe/tests/original_apps_input.rs",
       "checker_runner_contract": {
         "runner": "build_only",
         "working_directory": "$TARGET_BINARY_DIR",
@@ -1341,7 +1341,7 @@
       "ci_validation_mode": "build_only",
       "ci_runner": "build_only",
       "timeout_seconds": 0,
-      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "automation_reason": "phase-7 input target remains build_only; deterministic runtime coverage is provided by safe/tests/original_apps_input.rs",
       "checker_runner_contract": {
         "runner": "build_only",
         "working_directory": "$TARGET_BINARY_DIR",
@@ -2023,7 +2023,7 @@
       "ci_validation_mode": "build_only",
       "ci_runner": "build_only",
       "timeout_seconds": 0,
-      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "automation_reason": "phase-7 input target remains build_only; deterministic runtime coverage is provided by safe/tests/original_apps_input.rs",
       "checker_runner_contract": {
         "runner": "build_only",
         "working_directory": "$TARGET_BINARY_DIR",
@@ -2133,7 +2133,7 @@
       "ci_validation_mode": "build_only",
       "ci_runner": "build_only",
       "timeout_seconds": 0,
-      "automation_reason": "Linux-buildable target is not auto-run upstream and has no deterministic phase-1 fixture contract",
+      "automation_reason": "phase-7 input target remains build_only; deterministic runtime coverage is provided by safe/tests/original_apps_input.rs",
       "checker_runner_contract": {
         "runner": "build_only",
         "working_directory": "$TARGET_BINARY_DIR",

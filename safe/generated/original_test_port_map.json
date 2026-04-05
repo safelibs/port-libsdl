@@ -231,7 +231,7 @@
       "ubuntu_runnable": true,
       "owning_phase": "impl_phase_07_input_devices",
       "completion_state": "complete",
-      "completion_note": "ported into safe/tests/original_apps_input.rs",
+      "completion_note": "build-only original C target; deterministic runtime coverage lives in safe/tests/original_apps_input.rs",
       "rust_target_kind": "cfg_gated_test",
       "rust_target_path": "safe/tests/original_apps_input.rs",
       "upstream_targets": [
@@ -808,7 +808,7 @@
       "ubuntu_runnable": true,
       "owning_phase": "impl_phase_07_input_devices",
       "completion_state": "complete",
-      "completion_note": "ported into safe/tests/original_apps_input.rs",
+      "completion_note": "build-only original C target; deterministic runtime coverage lives in safe/tests/original_apps_input.rs",
       "rust_target_kind": "cfg_gated_test",
       "rust_target_path": "safe/tests/original_apps_input.rs",
       "upstream_targets": [
@@ -906,7 +906,7 @@
       "ubuntu_runnable": true,
       "owning_phase": "impl_phase_07_input_devices",
       "completion_state": "complete",
-      "completion_note": "build-only original C target; runtime semantics covered in safe/tests/original_apps_input.rs",
+      "completion_note": "build-only original C target; deterministic runtime coverage lives in safe/tests/original_apps_input.rs",
       "rust_target_kind": "cfg_gated_test",
       "rust_target_path": "safe/tests/original_apps_input.rs",
       "upstream_targets": [
@@ -934,7 +934,7 @@
       "ubuntu_runnable": true,
       "owning_phase": "impl_phase_07_input_devices",
       "completion_state": "complete",
-      "completion_note": "build-only original C target; runtime semantics covered in safe/tests/original_apps_input.rs",
+      "completion_note": "build-only original C target; deterministic runtime coverage lives in safe/tests/original_apps_input.rs",
       "rust_target_kind": "cfg_gated_test",
       "rust_target_path": "safe/tests/original_apps_input.rs",
       "upstream_targets": [
@@ -989,7 +989,7 @@
       "ubuntu_runnable": true,
       "owning_phase": "impl_phase_07_input_devices",
       "completion_state": "complete",
-      "completion_note": "ported into safe/tests/original_apps_input.rs",
+      "completion_note": "build-only original C target; deterministic runtime coverage lives in safe/tests/original_apps_input.rs",
       "rust_target_kind": "cfg_gated_test",
       "rust_target_path": "safe/tests/original_apps_input.rs",
       "upstream_targets": [
@@ -1286,7 +1286,7 @@
       "ubuntu_runnable": true,
       "owning_phase": "impl_phase_07_input_devices",
       "completion_state": "complete",
-      "completion_note": "ported into safe/tests/original_apps_input.rs",
+      "completion_note": "build-only original C target; deterministic runtime coverage lives in safe/tests/original_apps_input.rs",
       "rust_target_kind": "cfg_gated_test",
       "rust_target_path": "safe/tests/original_apps_input.rs",
       "upstream_targets": [
@@ -1327,7 +1327,7 @@
       "ubuntu_runnable": true,
       "owning_phase": "impl_phase_07_input_devices",
       "completion_state": "complete",
-      "completion_note": "ported into safe/tests/original_apps_input.rs",
+      "completion_note": "build-only original C target; deterministic runtime coverage lives in safe/tests/original_apps_input.rs",
       "rust_target_kind": "cfg_gated_test",
       "rust_target_path": "safe/tests/original_apps_input.rs",
       "upstream_targets": [
