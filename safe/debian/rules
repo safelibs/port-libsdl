@@ -6,6 +6,20 @@ export RUSTFLAGS = -C link-arg=-Wl,-z,relro -C link-arg=-Wl,-z,now
 
 REPO_ROOT := $(CURDIR)/..
 XTASK := cargo run --manifest-path $(REPO_ROOT)/safe/Cargo.toml -p xtask --
+STALE_CLEAN_PATHS := debian/.debhelper debian/tmp debian/libsdl2-2.0-0 debian/libsdl2-dev debian/libsdl2-tests
+
+.PHONY: clean
+
+clean:
+	@set -eu; \
+	for path in $(STALE_CLEAN_PATHS); do \
+		if [ -e "$$path" ] && [ ! -w "$$path" ]; then \
+			stale_path="$$path.stale.$$$$"; \
+			echo "debian/rules: moving stale packaging state $$path to $$stale_path"; \
+			mv "$$path" "$$stale_path"; \
+		fi; \
+	done
+	dh clean --buildsystem=none
 
 %:
 	dh $@ --buildsystem=none

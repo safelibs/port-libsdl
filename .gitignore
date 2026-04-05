@@ -4,6 +4,11 @@
 /libsdl2*.buildinfo
 /libsdl2*.changes
 /safe/debian/.debhelper/
+/safe/debian/.debhelper.stale.*/
+/safe/debian/tmp.stale.*/
+/safe/debian/libsdl2-2.0-0.stale.*/
+/safe/debian/libsdl2-dev.stale.*/
+/safe/debian/libsdl2-tests.stale.*/
 /safe/debian/debhelper-build-stamp
 /safe/debian/files
 /safe/debian/*.debhelper.log
