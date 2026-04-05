@@ -1,7 +1,7 @@
 use std::sync::OnceLock;
 
 use crate::abi::generated_types::{self as sdl, SDL_Rect, SDL_Renderer, Uint32};
-use crate::testsupport::{FONT_CHARACTER_SIZE, FONT_LINE_HEIGHT, SDLTest_TextWindow};
+use crate::testsupport::{SDLTest_TextWindow, FONT_CHARACTER_SIZE, FONT_LINE_HEIGHT};
 
 const FONT_SOURCE: &str = include_str!("../../../original/src/test/SDL_test_font.c");
 
@@ -196,7 +196,10 @@ pub unsafe extern "C" fn SDLTest_TextWindowAddTextWithLength(
         if existing > 0 {
             let line = *textwin.lines.add(current);
             let mut new_len = existing;
-            while new_len > 1 && (std::slice::from_raw_parts(line.cast::<u8>(), existing)[new_len - 1] & 0xc0) == 0x80 {
+            while new_len > 1
+                && (std::slice::from_raw_parts(line.cast::<u8>(), existing)[new_len - 1] & 0xc0)
+                    == 0x80
+            {
                 new_len -= 1;
             }
             new_len -= 1;
@@ -208,11 +211,7 @@ pub unsafe extern "C" fn SDLTest_TextWindowAddTextWithLength(
         }
         return;
     }
-    let line = sdl::SDL_realloc(
-        current_line.cast(),
-        existing + len + 1,
-    )
-    .cast::<libc::c_char>();
+    let line = sdl::SDL_realloc(current_line.cast(), existing + len + 1).cast::<libc::c_char>();
     if line.is_null() {
         return;
     }

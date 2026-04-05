@@ -1,7 +1,9 @@
 use std::collections::BTreeMap;
 use std::sync::{Mutex, OnceLock};
 
-use crate::abi::generated_types::{self as sdl, SDL_calloc_func, SDL_free_func, SDL_malloc_func, SDL_realloc_func};
+use crate::abi::generated_types::{
+    self as sdl, SDL_calloc_func, SDL_free_func, SDL_malloc_func, SDL_realloc_func,
+};
 
 #[derive(Clone, Copy)]
 struct OriginalMemoryFns {
@@ -36,7 +38,9 @@ fn lock_state() -> std::sync::MutexGuard<'static, TrackerState> {
 }
 
 unsafe extern "C" fn tracked_malloc(size: usize) -> *mut libc::c_void {
-    let originals = lock_state().originals.expect("track allocations not initialized");
+    let originals = lock_state()
+        .originals
+        .expect("track allocations not initialized");
     let ptr = originals.malloc_func.expect("SDL_malloc callback")(size);
     if !ptr.is_null() {
         lock_state().allocations.insert(ptr as usize, size);
@@ -45,7 +49,9 @@ unsafe extern "C" fn tracked_malloc(size: usize) -> *mut libc::c_void {
 }
 
 unsafe extern "C" fn tracked_calloc(nmemb: usize, size: usize) -> *mut libc::c_void {
-    let originals = lock_state().originals.expect("track allocations not initialized");
+    let originals = lock_state()
+        .originals
+        .expect("track allocations not initialized");
     let ptr = originals.calloc_func.expect("SDL_calloc callback")(nmemb, size);
     if !ptr.is_null() {
         lock_state()
@@ -56,7 +62,9 @@ unsafe extern "C" fn tracked_calloc(nmemb: usize, size: usize) -> *mut libc::c_v
 }
 
 unsafe extern "C" fn tracked_realloc(ptr: *mut libc::c_void, size: usize) -> *mut libc::c_void {
-    let originals = lock_state().originals.expect("track allocations not initialized");
+    let originals = lock_state()
+        .originals
+        .expect("track allocations not initialized");
     let new_ptr = originals.realloc_func.expect("SDL_realloc callback")(ptr, size);
     let mut state = lock_state();
     if !ptr.is_null() {
@@ -72,7 +80,9 @@ unsafe extern "C" fn tracked_free(ptr: *mut libc::c_void) {
     if ptr.is_null() {
         return;
     }
-    let originals = lock_state().originals.expect("track allocations not initialized");
+    let originals = lock_state()
+        .originals
+        .expect("track allocations not initialized");
     let mut state = lock_state();
     if state.previous_allocations == 0 {
         debug_assert!(state.allocations.contains_key(&(ptr as usize)));

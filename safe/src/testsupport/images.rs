@@ -14,10 +14,13 @@ struct ParsedImage {
 }
 
 const BLIT_SOURCE: &str = include_str!("../../../original/src/test/SDL_test_imageBlit.c");
-const BLIT_BLEND_SOURCE: &str = include_str!("../../../original/src/test/SDL_test_imageBlitBlend.c");
+const BLIT_BLEND_SOURCE: &str =
+    include_str!("../../../original/src/test/SDL_test_imageBlitBlend.c");
 const FACE_SOURCE: &str = include_str!("../../../original/src/test/SDL_test_imageFace.c");
-const PRIMITIVES_SOURCE: &str = include_str!("../../../original/src/test/SDL_test_imagePrimitives.c");
-const PRIMITIVES_BLEND_SOURCE: &str = include_str!("../../../original/src/test/SDL_test_imagePrimitivesBlend.c");
+const PRIMITIVES_SOURCE: &str =
+    include_str!("../../../original/src/test/SDL_test_imagePrimitives.c");
+const PRIMITIVES_BLEND_SOURCE: &str =
+    include_str!("../../../original/src/test/SDL_test_imagePrimitivesBlend.c");
 
 fn decode_c_string_literal(input: &str) -> Vec<u8> {
     let mut bytes = Vec::new();
@@ -133,7 +136,10 @@ fn images() -> &'static BTreeMap<&'static str, ParsedImage> {
     static IMAGES: OnceLock<BTreeMap<&'static str, ParsedImage>> = OnceLock::new();
     IMAGES.get_or_init(|| {
         BTreeMap::from([
-            ("SDLTest_imageBlit", parse_image(BLIT_SOURCE, "SDLTest_imageBlit")),
+            (
+                "SDLTest_imageBlit",
+                parse_image(BLIT_SOURCE, "SDLTest_imageBlit"),
+            ),
             (
                 "SDLTest_imageBlitColor",
                 parse_image(BLIT_SOURCE, "SDLTest_imageBlitColor"),
@@ -162,7 +168,10 @@ fn images() -> &'static BTreeMap<&'static str, ParsedImage> {
                 "SDLTest_imageBlitBlendAll",
                 parse_image(BLIT_BLEND_SOURCE, "SDLTest_imageBlitBlendAll"),
             ),
-            ("SDLTest_imageFace", parse_image(FACE_SOURCE, "SDLTest_imageFace")),
+            (
+                "SDLTest_imageFace",
+                parse_image(FACE_SOURCE, "SDLTest_imageFace"),
+            ),
             (
                 "SDLTest_imagePrimitives",
                 parse_image(PRIMITIVES_SOURCE, "SDLTest_imagePrimitives"),
@@ -199,17 +208,26 @@ unsafe fn create_surface(symbol: &'static str, format: u32) -> *mut SDL_Surface 
 
 #[no_mangle]
 pub unsafe extern "C" fn SDLTest_ImageBlit() -> *mut SDL_Surface {
-    create_surface("SDLTest_imageBlit", SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB24)
+    create_surface(
+        "SDLTest_imageBlit",
+        SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB24,
+    )
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDLTest_ImageBlitColor() -> *mut SDL_Surface {
-    create_surface("SDLTest_imageBlitColor", SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB24)
+    create_surface(
+        "SDLTest_imageBlitColor",
+        SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB24,
+    )
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDLTest_ImageBlitAlpha() -> *mut SDL_Surface {
-    create_surface("SDLTest_imageBlitAlpha", SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB24)
+    create_surface(
+        "SDLTest_imageBlitAlpha",
+        SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB24,
+    )
 }
 
 #[no_mangle]
@@ -254,7 +272,10 @@ pub unsafe extern "C" fn SDLTest_ImageBlitBlendAll() -> *mut SDL_Surface {
 
 #[no_mangle]
 pub unsafe extern "C" fn SDLTest_ImageFace() -> *mut SDL_Surface {
-    create_surface("SDLTest_imageFace", SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGBA32)
+    create_surface(
+        "SDLTest_imageFace",
+        SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGBA32,
+    )
 }
 
 #[no_mangle]

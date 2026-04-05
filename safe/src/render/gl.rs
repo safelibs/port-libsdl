@@ -59,9 +59,7 @@ pub unsafe extern "C" fn SDL_GL_LoadLibrary(path: *const libc::c_char) -> libc::
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GL_GetProcAddress(
-    proc_: *const libc::c_char,
-) -> *mut libc::c_void {
+pub unsafe extern "C" fn SDL_GL_GetProcAddress(proc_: *const libc::c_char) -> *mut libc::c_void {
     crate::video::clear_real_error();
     (api().gl_get_proc_address)(proc_)
 }
@@ -85,10 +83,7 @@ pub unsafe extern "C" fn SDL_GL_ResetAttributes() {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GL_SetAttribute(
-    attr: SDL_GLattr,
-    value: libc::c_int,
-) -> libc::c_int {
+pub unsafe extern "C" fn SDL_GL_SetAttribute(attr: SDL_GLattr, value: libc::c_int) -> libc::c_int {
     crate::video::clear_real_error();
     (api().gl_set_attribute)(attr, value)
 }

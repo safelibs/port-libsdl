@@ -2,12 +2,14 @@ use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::ptr;
 
-use crate::abi::generated_types::{self as sdl, SDL_bool, SDL_bool_SDL_FALSE, SDL_bool_SDL_TRUE, Uint64};
+use crate::abi::generated_types::{
+    self as sdl, SDL_bool, SDL_bool_SDL_FALSE, SDL_bool_SDL_TRUE, Uint64,
+};
 use crate::testsupport::{
     maybe_uninit_zeroed, optional_c_string, SDLTest_Md5Context, SDLTest_RandomContext,
-    SDLTest_TestCaseReference, SDLTest_TestSuiteReference, TEST_ABORTED,
-    TEST_RESULT_FAILED, TEST_RESULT_NO_ASSERT, TEST_RESULT_PASSED, TEST_RESULT_SETUP_FAILURE,
-    TEST_RESULT_SKIPPED, TEST_SKIPPED, TEST_STARTED,
+    SDLTest_TestCaseReference, SDLTest_TestSuiteReference, TEST_ABORTED, TEST_RESULT_FAILED,
+    TEST_RESULT_NO_ASSERT, TEST_RESULT_PASSED, TEST_RESULT_SETUP_FAILURE, TEST_RESULT_SKIPPED,
+    TEST_SKIPPED, TEST_STARTED,
 };
 
 const INVALID_NAME_FORMAT: &str = "(Invalid)";
@@ -55,7 +57,8 @@ unsafe fn run_test(
         return TEST_RESULT_SETUP_FAILURE;
     }
     if (*test_case).enabled == 0 && force_test_run == SDL_bool_SDL_FALSE {
-        let name = optional_c_string((*test_case).name).unwrap_or_else(|| INVALID_NAME_FORMAT.to_string());
+        let name =
+            optional_c_string((*test_case).name).unwrap_or_else(|| INVALID_NAME_FORMAT.to_string());
         let message = CString::new(format!(">>> Test '{}': Skipped (Disabled)\n", name)).unwrap();
         crate::testsupport::log::SDLTest_LogFromBuffer(message.as_ptr());
         return TEST_RESULT_SKIPPED;
@@ -67,14 +70,19 @@ unsafe fn run_test(
     if let Some(setup) = (*test_suite).testSetUp {
         setup(ptr::null_mut());
         if crate::testsupport::assert::SDLTest_AssertSummaryToTestResult() == TEST_RESULT_FAILED {
-            let suite_name = optional_c_string((*test_suite).name).unwrap_or_else(|| INVALID_NAME_FORMAT.to_string());
-            let message = CString::new(format!(">>> Suite Setup '{}': Failed\n", suite_name)).unwrap();
+            let suite_name = optional_c_string((*test_suite).name)
+                .unwrap_or_else(|| INVALID_NAME_FORMAT.to_string());
+            let message =
+                CString::new(format!(">>> Suite Setup '{}': Failed\n", suite_name)).unwrap();
             crate::testsupport::log::SDLTest_LogErrorFromBuffer(message.as_ptr());
             return TEST_RESULT_SETUP_FAILURE;
         }
     }
 
-    let test_case_result = (*test_case).testCase.map(|f| f(ptr::null_mut())).unwrap_or(TEST_ABORTED);
+    let test_case_result = (*test_case)
+        .testCase
+        .map(|f| f(ptr::null_mut()))
+        .unwrap_or(TEST_ABORTED);
     let test_result = if test_case_result == TEST_SKIPPED {
         TEST_RESULT_SKIPPED
     } else if test_case_result == TEST_STARTED || test_case_result == TEST_ABORTED {
@@ -93,11 +101,14 @@ unsafe fn run_test(
         crate::testsupport::log::SDLTest_LogFromBuffer(message.as_ptr());
     }
     if test_case_result == TEST_SKIPPED {
-        let name = optional_c_string((*test_case).name).unwrap_or_else(|| INVALID_NAME_FORMAT.to_string());
-        let message = CString::new(format!(">>> Test '{}': Skipped (Programmatically)\n", name)).unwrap();
+        let name =
+            optional_c_string((*test_case).name).unwrap_or_else(|| INVALID_NAME_FORMAT.to_string());
+        let message =
+            CString::new(format!(">>> Test '{}': Skipped (Programmatically)\n", name)).unwrap();
         crate::testsupport::log::SDLTest_LogFromBuffer(message.as_ptr());
     } else if test_case_result == TEST_STARTED {
-        let name = optional_c_string((*test_case).name).unwrap_or_else(|| INVALID_NAME_FORMAT.to_string());
+        let name =
+            optional_c_string((*test_case).name).unwrap_or_else(|| INVALID_NAME_FORMAT.to_string());
         let message = CString::new(format!(
             ">>> Test '{}': Failed (test started, but did not return TEST_COMPLETED)\n",
             name
@@ -105,7 +116,8 @@ unsafe fn run_test(
         .unwrap();
         crate::testsupport::log::SDLTest_LogErrorFromBuffer(message.as_ptr());
     } else if test_case_result == TEST_ABORTED {
-        let name = optional_c_string((*test_case).name).unwrap_or_else(|| INVALID_NAME_FORMAT.to_string());
+        let name =
+            optional_c_string((*test_case).name).unwrap_or_else(|| INVALID_NAME_FORMAT.to_string());
         let message = CString::new(format!(">>> Test '{}': Failed (Aborted)\n", name)).unwrap();
         crate::testsupport::log::SDLTest_LogErrorFromBuffer(message.as_ptr());
     } else {
@@ -191,10 +203,10 @@ pub unsafe extern "C" fn SDLTest_RunSuites(
     if total_number_of_tests == 0 {
         let message = CString::new("No tests to run?").unwrap();
         crate::testsupport::log::SDLTest_LogErrorFromBuffer(message.as_ptr());
-            if !generated_seed.is_null() && run_seed == generated_seed {
-                sdl::SDL_free(generated_seed.cast());
-            }
-            return -1;
+        if !generated_seed.is_null() && run_seed == generated_seed {
+            sdl::SDL_free(generated_seed.cast());
+        }
+        return -1;
     }
 
     let mut suite_filter_name = None::<String>;
@@ -290,8 +302,8 @@ pub unsafe extern "C" fn SDLTest_RunSuites(
         let mut case_index = 0usize;
         while !(*(*suite).testCases.add(case_index)).is_null() {
             let test_case = *(*suite).testCases.add(case_index);
-            let current_test_name =
-                optional_c_string((*test_case).name).unwrap_or_else(|| INVALID_NAME_FORMAT.to_string());
+            let current_test_name = optional_c_string((*test_case).name)
+                .unwrap_or_else(|| INVALID_NAME_FORMAT.to_string());
             case_index += 1;
             if let Some(ref test_filter) = test_filter_name {
                 if optional_c_string((*test_case).name)
@@ -311,7 +323,8 @@ pub unsafe extern "C" fn SDLTest_RunSuites(
             let mut force_test_run = SDL_bool_SDL_FALSE;
             if test_filter_name.is_some() && (*test_case).enabled == 0 {
                 force_test_run = SDL_bool_SDL_TRUE;
-                let message = CString::new("Force run of disabled test since test filter was set").unwrap();
+                let message =
+                    CString::new("Force run of disabled test since test filter was set").unwrap();
                 crate::testsupport::log::SDLTest_LogFromBuffer(message.as_ptr());
             }
 
@@ -324,7 +337,8 @@ pub unsafe extern "C" fn SDLTest_RunSuites(
             crate::testsupport::log::SDLTest_LogFromBuffer(message.as_ptr());
             if let Some(description) = optional_c_string((*test_case).description) {
                 if !description.is_empty() {
-                    let message = CString::new(format!("Test Description: '{}'", description)).unwrap();
+                    let message =
+                        CString::new(format!("Test Description: '{}'", description)).unwrap();
                     crate::testsupport::log::SDLTest_LogFromBuffer(message.as_ptr());
                 }
             }
@@ -338,7 +352,11 @@ pub unsafe extern "C" fn SDLTest_RunSuites(
                     let test_name = CStr::from_ptr((*test_case).name);
                     generate_exec_key(run_seed_cstr, suite_name, test_name, iteration)
                 };
-                let message = CString::new(format!("Test Iteration {}: execKey {}", iteration, exec_key)).unwrap();
+                let message = CString::new(format!(
+                    "Test Iteration {}: execKey {}",
+                    iteration, exec_key
+                ))
+                .unwrap();
                 crate::testsupport::log::SDLTest_LogFromBuffer(message.as_ptr());
                 test_result = run_test(suite, test_case, exec_key, force_test_run);
                 match test_result {
@@ -369,30 +387,32 @@ pub unsafe extern "C" fn SDLTest_RunSuites(
             };
             crate::testsupport::log::SDLTest_LogFromBuffer(message.as_ptr());
             if testIterations > 1 {
-                let message =
-                    CString::new(format!("Average Test runtime: {:.5} sec", runtime / testIterations as f32))
-                        .unwrap();
+                let message = CString::new(format!(
+                    "Average Test runtime: {:.5} sec",
+                    runtime / testIterations as f32
+                ))
+                .unwrap();
                 crate::testsupport::log::SDLTest_LogFromBuffer(message.as_ptr());
             }
 
             match test_result {
                 TEST_RESULT_PASSED => {
                     let message =
-                        CString::new(format!(">>> Test '{}': Passed\n", current_test_name)).unwrap();
+                        CString::new(format!(">>> Test '{}': Passed\n", current_test_name))
+                            .unwrap();
                     crate::testsupport::log::SDLTest_LogFromBuffer(message.as_ptr());
                 }
                 TEST_RESULT_FAILED => {
                     let message =
-                        CString::new(format!(">>> Test '{}': Failed\n", current_test_name)).unwrap();
+                        CString::new(format!(">>> Test '{}': Failed\n", current_test_name))
+                            .unwrap();
                     crate::testsupport::log::SDLTest_LogErrorFromBuffer(message.as_ptr());
                     failed_tests.push(current_test_name.clone());
                 }
                 TEST_RESULT_NO_ASSERT => {
-                    let message = CString::new(format!(
-                        ">>> Test '{}': No Asserts\n",
-                        current_test_name
-                    ))
-                    .unwrap();
+                    let message =
+                        CString::new(format!(">>> Test '{}': No Asserts\n", current_test_name))
+                            .unwrap();
                     crate::testsupport::log::SDLTest_LogErrorFromBuffer(message.as_ptr());
                 }
                 _ => {}
@@ -410,7 +430,8 @@ pub unsafe extern "C" fn SDLTest_RunSuites(
             ))
             .unwrap();
             crate::testsupport::log::SDLTest_LogFromBuffer(message.as_ptr());
-            let message = CString::new(format!(">>> Suite '{}': Passed\n", current_suite_name)).unwrap();
+            let message =
+                CString::new(format!(">>> Suite '{}': Passed\n", current_suite_name)).unwrap();
             crate::testsupport::log::SDLTest_LogFromBuffer(message.as_ptr());
         } else {
             let message = CString::new(format!(
@@ -419,7 +440,8 @@ pub unsafe extern "C" fn SDLTest_RunSuites(
             ))
             .unwrap();
             crate::testsupport::log::SDLTest_LogErrorFromBuffer(message.as_ptr());
-            let message = CString::new(format!(">>> Suite '{}': Failed\n", current_suite_name)).unwrap();
+            let message =
+                CString::new(format!(">>> Suite '{}': Failed\n", current_suite_name)).unwrap();
             crate::testsupport::log::SDLTest_LogErrorFromBuffer(message.as_ptr());
         }
     }

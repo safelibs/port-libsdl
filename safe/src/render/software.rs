@@ -3,7 +3,7 @@
 use std::ffi::CStr;
 
 use crate::abi::generated_types::{
-    SDL_Renderer, SDL_RendererInfo, SDL_RendererFlags_SDL_RENDERER_SOFTWARE, SDL_Surface,
+    SDL_Renderer, SDL_RendererFlags_SDL_RENDERER_SOFTWARE, SDL_RendererInfo, SDL_Surface,
 };
 
 type CreateSoftwareRendererFn = unsafe extern "C" fn(*mut SDL_Surface) -> *mut SDL_Renderer;

@@ -1,6 +1,10 @@
 use std::ffi::CStr;
 
-const DEFAULT_EGL_PATHS: [&[u8]; 3] = [b"libEGL.so.1\0", b"libEGL.so\0", b"/usr/lib/x86_64-linux-gnu/libEGL.so.1\0"];
+const DEFAULT_EGL_PATHS: [&[u8]; 3] = [
+    b"libEGL.so.1\0",
+    b"libEGL.so\0",
+    b"/usr/lib/x86_64-linux-gnu/libEGL.so.1\0",
+];
 
 pub struct EglLibrary {
     handle: *mut libc::c_void,

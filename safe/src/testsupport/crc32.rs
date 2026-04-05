@@ -12,7 +12,11 @@ pub unsafe extern "C" fn SDLTest_Crc32Init(crcContext: *mut SDLTest_Crc32Context
     for i in 0..256usize {
         let mut c = i as u32;
         for _ in 0..8 {
-            c = if c & 1 != 0 { (c >> 1) ^ CRC32_POLY } else { c >> 1 };
+            c = if c & 1 != 0 {
+                (c >> 1) ^ CRC32_POLY
+            } else {
+                c >> 1
+            };
         }
         (*crcContext).crc32_table[i] = c;
     }
@@ -50,7 +54,8 @@ pub unsafe extern "C" fn SDLTest_Crc32CalcBuffer(
     let mut crc = *crc32;
     let mut ptr = inBuf;
     while inLen > 0 {
-        crc = ((crc >> 8) & 0x00ff_ffff) ^ (*crcContext).crc32_table[((crc ^ (*ptr as u32)) & 0xff) as usize];
+        crc = ((crc >> 8) & 0x00ff_ffff)
+            ^ (*crcContext).crc32_table[((crc ^ (*ptr as u32)) & 0xff) as usize];
         ptr = ptr.add(1);
         inLen -= 1;
     }

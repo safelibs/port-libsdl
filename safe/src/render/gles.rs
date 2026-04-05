@@ -1,9 +1,8 @@
 use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
-    SDL_GLContext, SDL_PixelFormatEnum_SDL_PIXELFORMAT_BGRX32,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_BGRA32,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_EXTERNAL_OES,
+    SDL_GLContext, SDL_PixelFormatEnum_SDL_PIXELFORMAT_BGRA32,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_BGRX32, SDL_PixelFormatEnum_SDL_PIXELFORMAT_EXTERNAL_OES,
     SDL_PixelFormatEnum_SDL_PIXELFORMAT_IYUV, SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV12,
     SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV21, SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGBA32,
     SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGBX32, SDL_PixelFormatEnum_SDL_PIXELFORMAT_YV12,
@@ -52,7 +51,9 @@ fn tracker() -> &'static Mutex<TrackerState> {
 }
 
 fn reset_tracker_steps() {
-    let mut state = tracker().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let mut state = tracker()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     state.current_step = 0;
 }
 
@@ -65,7 +66,9 @@ fn failure_injection_enabled() -> bool {
 }
 
 fn inject_failure_if_requested(label: &str) -> Result<(), String> {
-    let mut state = tracker().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let mut state = tracker()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     state.current_step += 1;
     if state.fail_after == Some(state.current_step) {
         return Err(format!(
@@ -77,28 +80,38 @@ fn inject_failure_if_requested(label: &str) -> Result<(), String> {
 }
 
 fn note_texture_created() {
-    let mut state = tracker().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let mut state = tracker()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     state.counters.created_textures += 1;
 }
 
 fn note_texture_destroyed() {
-    let mut state = tracker().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let mut state = tracker()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     state.counters.destroyed_textures += 1;
 }
 
 fn note_pixel_buffer_allocated() {
-    let mut state = tracker().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let mut state = tracker()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     state.counters.allocated_pixel_buffers += 1;
 }
 
 fn note_pixel_buffer_freed() {
-    let mut state = tracker().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let mut state = tracker()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     state.counters.freed_pixel_buffers += 1;
 }
 
 #[doc(hidden)]
 pub fn reset_texture_lifecycle_counters() {
-    let mut state = tracker().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let mut state = tracker()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     state.current_step = 0;
     state.fail_after = None;
     state.counters = TextureLifecycleCounters::default();
@@ -114,7 +127,9 @@ pub fn texture_lifecycle_counters() -> TextureLifecycleCounters {
 
 #[doc(hidden)]
 pub fn set_texture_creation_failure_step_for_test(step: Option<usize>) {
-    let mut state = tracker().lock().unwrap_or_else(|poisoned| poisoned.into_inner());
+    let mut state = tracker()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
     state.fail_after = step;
     state.current_step = 0;
 }
@@ -486,10 +501,12 @@ fn texture_kind(format: Uint32) -> Option<GlesTextureKind> {
         | SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGBA32
         | SDL_PixelFormatEnum_SDL_PIXELFORMAT_BGRX32
         | SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGBX32 => Some(GlesTextureKind::Rgba),
-        SDL_PixelFormatEnum_SDL_PIXELFORMAT_IYUV
-        | SDL_PixelFormatEnum_SDL_PIXELFORMAT_YV12 => Some(GlesTextureKind::YuvPlanar),
-        SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV12
-        | SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV21 => Some(GlesTextureKind::Nv12),
+        SDL_PixelFormatEnum_SDL_PIXELFORMAT_IYUV | SDL_PixelFormatEnum_SDL_PIXELFORMAT_YV12 => {
+            Some(GlesTextureKind::YuvPlanar)
+        }
+        SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV12 | SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV21 => {
+            Some(GlesTextureKind::Nv12)
+        }
         SDL_PixelFormatEnum_SDL_PIXELFORMAT_EXTERNAL_OES => Some(GlesTextureKind::ExternalOes),
         _ => None,
     }
@@ -525,10 +542,8 @@ pub(crate) unsafe fn renderer_uses_gles_texture_path(renderer: *mut SDL_Renderer
         return false;
     };
     let name = name.to_ascii_lowercase();
-    matches!(
-        name.as_str(),
-        "opengles" | "opengles2" | "gles" | "gles2"
-    ) || name.contains("opengl es")
+    matches!(name.as_str(), "opengles" | "opengles2" | "gles" | "gles2")
+        || name.contains("opengl es")
 }
 
 pub(crate) unsafe fn prepare_texture_shadow(
@@ -549,7 +564,9 @@ pub(crate) unsafe fn prepare_texture_shadow(
 
     match ShadowTexture::create(window, format, access, scale_mode, w, h) {
         Ok(shadow) => Ok(Some(shadow)),
-        Err(err) if !failure_injection_enabled() && err.contains("SDL_GL_GetProcAddress") => Ok(None),
+        Err(err) if !failure_injection_enabled() && err.contains("SDL_GL_GetProcAddress") => {
+            Ok(None)
+        }
         Err(err) => Err(err),
     }
 }

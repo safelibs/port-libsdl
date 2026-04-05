@@ -4,8 +4,8 @@ use std::os::raw::c_char;
 use std::ptr;
 
 use crate::abi::generated_types::{
-    self as sdl, SDL_LogCategory_SDL_LOG_CATEGORY_TEST,
-    SDL_LogPriority_SDL_LOG_PRIORITY_ERROR, SDL_LogPriority_SDL_LOG_PRIORITY_INFO, SDL_LogPriority,
+    self as sdl, SDL_LogCategory_SDL_LOG_CATEGORY_TEST, SDL_LogPriority,
+    SDL_LogPriority_SDL_LOG_PRIORITY_ERROR, SDL_LogPriority_SDL_LOG_PRIORITY_INFO,
 };
 
 unsafe fn timestamp_string() -> String {

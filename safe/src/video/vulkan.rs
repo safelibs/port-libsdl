@@ -9,8 +9,7 @@ struct VulkanApi {
     get_instance_extensions:
         unsafe extern "C" fn(*mut SDL_Window, *mut u32, *mut *const libc::c_char) -> SDL_bool,
     create_surface: unsafe extern "C" fn(*mut SDL_Window, usize, *mut u64) -> SDL_bool,
-    get_drawable_size:
-        unsafe extern "C" fn(*mut SDL_Window, *mut libc::c_int, *mut libc::c_int),
+    get_drawable_size: unsafe extern "C" fn(*mut SDL_Window, *mut libc::c_int, *mut libc::c_int),
 }
 
 fn api() -> &'static VulkanApi {
@@ -21,9 +20,7 @@ fn api() -> &'static VulkanApi {
             b"SDL_Vulkan_GetVkGetInstanceProcAddr\0",
         ),
         unload_library: crate::video::load_symbol(b"SDL_Vulkan_UnloadLibrary\0"),
-        get_instance_extensions: crate::video::load_symbol(
-            b"SDL_Vulkan_GetInstanceExtensions\0",
-        ),
+        get_instance_extensions: crate::video::load_symbol(b"SDL_Vulkan_GetInstanceExtensions\0"),
         create_surface: crate::video::load_symbol(b"SDL_Vulkan_CreateSurface\0"),
         get_drawable_size: crate::video::load_symbol(b"SDL_Vulkan_GetDrawableSize\0"),
     })

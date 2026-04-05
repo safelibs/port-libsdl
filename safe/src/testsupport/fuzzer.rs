@@ -2,7 +2,9 @@ use std::mem;
 use std::sync::atomic::{AtomicI32, Ordering};
 use std::sync::{Mutex, OnceLock};
 
-use crate::abi::generated_types::{SDL_bool, SDL_bool_SDL_TRUE, Sint16, Sint32, Sint64, Sint8, Uint16, Uint32, Uint64, Uint8};
+use crate::abi::generated_types::{
+    SDL_bool, SDL_bool_SDL_TRUE, Sint16, Sint32, Sint64, Sint8, Uint16, Uint32, Uint64, Uint8,
+};
 use crate::testsupport::{alloc_c_string, SDLTest_RandomContext};
 
 fn rnd_context() -> &'static Mutex<SDLTest_RandomContext> {
@@ -107,7 +109,12 @@ pub unsafe extern "C" fn SDLTest_RandomIntegerInRange(min: Sint32, max: Sint32) 
     ((number % ((max64 + 1) - min64)) + min64) as Sint32
 }
 
-unsafe fn unsigned_boundary(max_value: Uint64, boundary1: Uint64, boundary2: Uint64, valid: SDL_bool) -> Uint64 {
+unsafe fn unsigned_boundary(
+    max_value: Uint64,
+    boundary1: Uint64,
+    boundary2: Uint64,
+    valid: SDL_bool,
+) -> Uint64 {
     let (b1, b2) = if boundary1 > boundary2 {
         (boundary2, boundary1)
     } else {
@@ -149,7 +156,13 @@ unsafe fn unsigned_boundary(max_value: Uint64, boundary1: Uint64, boundary2: Uin
     choices[(SDLTest_RandomUint8() as usize) % count]
 }
 
-unsafe fn signed_boundary(min_value: Sint64, max_value: Sint64, boundary1: Sint64, boundary2: Sint64, valid: SDL_bool) -> Sint64 {
+unsafe fn signed_boundary(
+    min_value: Sint64,
+    max_value: Sint64,
+    boundary1: Sint64,
+    boundary2: Sint64,
+    valid: SDL_bool,
+) -> Sint64 {
     let (b1, b2) = if boundary1 > boundary2 {
         (boundary2, boundary1)
     } else {
@@ -192,42 +205,107 @@ unsafe fn signed_boundary(min_value: Sint64, max_value: Sint64, boundary1: Sint6
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDLTest_RandomUint8BoundaryValue(boundary1: Uint8, boundary2: Uint8, validDomain: SDL_bool) -> Uint8 {
-    unsigned_boundary(u8::MAX as Uint64, boundary1 as Uint64, boundary2 as Uint64, validDomain) as Uint8
+pub unsafe extern "C" fn SDLTest_RandomUint8BoundaryValue(
+    boundary1: Uint8,
+    boundary2: Uint8,
+    validDomain: SDL_bool,
+) -> Uint8 {
+    unsigned_boundary(
+        u8::MAX as Uint64,
+        boundary1 as Uint64,
+        boundary2 as Uint64,
+        validDomain,
+    ) as Uint8
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDLTest_RandomUint16BoundaryValue(boundary1: Uint16, boundary2: Uint16, validDomain: SDL_bool) -> Uint16 {
-    unsigned_boundary(u16::MAX as Uint64, boundary1 as Uint64, boundary2 as Uint64, validDomain) as Uint16
+pub unsafe extern "C" fn SDLTest_RandomUint16BoundaryValue(
+    boundary1: Uint16,
+    boundary2: Uint16,
+    validDomain: SDL_bool,
+) -> Uint16 {
+    unsigned_boundary(
+        u16::MAX as Uint64,
+        boundary1 as Uint64,
+        boundary2 as Uint64,
+        validDomain,
+    ) as Uint16
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDLTest_RandomUint32BoundaryValue(boundary1: Uint32, boundary2: Uint32, validDomain: SDL_bool) -> Uint32 {
-    unsigned_boundary(u32::MAX as Uint64, boundary1 as Uint64, boundary2 as Uint64, validDomain) as Uint32
+pub unsafe extern "C" fn SDLTest_RandomUint32BoundaryValue(
+    boundary1: Uint32,
+    boundary2: Uint32,
+    validDomain: SDL_bool,
+) -> Uint32 {
+    unsigned_boundary(
+        u32::MAX as Uint64,
+        boundary1 as Uint64,
+        boundary2 as Uint64,
+        validDomain,
+    ) as Uint32
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDLTest_RandomUint64BoundaryValue(boundary1: Uint64, boundary2: Uint64, validDomain: SDL_bool) -> Uint64 {
+pub unsafe extern "C" fn SDLTest_RandomUint64BoundaryValue(
+    boundary1: Uint64,
+    boundary2: Uint64,
+    validDomain: SDL_bool,
+) -> Uint64 {
     unsigned_boundary(u64::MAX, boundary1, boundary2, validDomain)
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDLTest_RandomSint8BoundaryValue(boundary1: Sint8, boundary2: Sint8, validDomain: SDL_bool) -> Sint8 {
-    signed_boundary(i8::MIN as Sint64, i8::MAX as Sint64, boundary1 as Sint64, boundary2 as Sint64, validDomain) as Sint8
+pub unsafe extern "C" fn SDLTest_RandomSint8BoundaryValue(
+    boundary1: Sint8,
+    boundary2: Sint8,
+    validDomain: SDL_bool,
+) -> Sint8 {
+    signed_boundary(
+        i8::MIN as Sint64,
+        i8::MAX as Sint64,
+        boundary1 as Sint64,
+        boundary2 as Sint64,
+        validDomain,
+    ) as Sint8
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDLTest_RandomSint16BoundaryValue(boundary1: Sint16, boundary2: Sint16, validDomain: SDL_bool) -> Sint16 {
-    signed_boundary(i16::MIN as Sint64, i16::MAX as Sint64, boundary1 as Sint64, boundary2 as Sint64, validDomain) as Sint16
+pub unsafe extern "C" fn SDLTest_RandomSint16BoundaryValue(
+    boundary1: Sint16,
+    boundary2: Sint16,
+    validDomain: SDL_bool,
+) -> Sint16 {
+    signed_boundary(
+        i16::MIN as Sint64,
+        i16::MAX as Sint64,
+        boundary1 as Sint64,
+        boundary2 as Sint64,
+        validDomain,
+    ) as Sint16
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDLTest_RandomSint32BoundaryValue(boundary1: Sint32, boundary2: Sint32, validDomain: SDL_bool) -> Sint32 {
-    signed_boundary(i32::MIN as Sint64, i32::MAX as Sint64, boundary1 as Sint64, boundary2 as Sint64, validDomain) as Sint32
+pub unsafe extern "C" fn SDLTest_RandomSint32BoundaryValue(
+    boundary1: Sint32,
+    boundary2: Sint32,
+    validDomain: SDL_bool,
+) -> Sint32 {
+    signed_boundary(
+        i32::MIN as Sint64,
+        i32::MAX as Sint64,
+        boundary1 as Sint64,
+        boundary2 as Sint64,
+        validDomain,
+    ) as Sint32
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDLTest_RandomSint64BoundaryValue(boundary1: Sint64, boundary2: Sint64, validDomain: SDL_bool) -> Sint64 {
+pub unsafe extern "C" fn SDLTest_RandomSint64BoundaryValue(
+    boundary1: Sint64,
+    boundary2: Sint64,
+    validDomain: SDL_bool,
+) -> Sint64 {
     signed_boundary(i64::MIN, i64::MAX, boundary1, boundary2, validDomain)
 }
 
@@ -270,7 +348,9 @@ pub unsafe extern "C" fn SDLTest_RandomAsciiString() -> *mut libc::c_char {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDLTest_RandomAsciiStringWithMaximumLength(maxLength: libc::c_int) -> *mut libc::c_char {
+pub unsafe extern "C" fn SDLTest_RandomAsciiStringWithMaximumLength(
+    maxLength: libc::c_int,
+) -> *mut libc::c_char {
     if maxLength < 1 {
         crate::testsupport::invalid_param_error("maxLength");
         return std::ptr::null_mut();

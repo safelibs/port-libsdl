@@ -1,6 +1,6 @@
 use std::sync::OnceLock;
 
-use crate::abi::generated_types::{SDL_Rect, SDL_Surface, SDL_YUV_CONVERSION_MODE, Uint32};
+use crate::abi::generated_types::{SDL_Rect, SDL_Surface, Uint32, SDL_YUV_CONVERSION_MODE};
 use crate::security::checked_math::{self, MathError};
 use crate::video::surface::{
     apply_math_error, format_descriptor, real_sdl, sync_error_from_real, validate_surface_storage,

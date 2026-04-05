@@ -3,36 +3,33 @@ use std::os::raw::{c_char, c_int};
 use std::ptr;
 
 use crate::abi::generated_types::{
-    self as sdl, SDL_AudioSpec,
-    SDL_EventType_SDL_DROPFILE, SDL_EventType_SDL_DROPTEXT, SDL_EventType_SDL_KEYDOWN,
-    SDL_EventType_SDL_QUIT, SDL_EventType_SDL_WINDOWEVENT,
+    self as sdl, SDL_AudioSpec, SDL_Event, SDL_EventType_SDL_DROPFILE, SDL_EventType_SDL_DROPTEXT,
+    SDL_EventType_SDL_KEYDOWN, SDL_EventType_SDL_QUIT, SDL_EventType_SDL_WINDOWEVENT,
     SDL_GLattr_SDL_GL_ACCELERATED_VISUAL, SDL_GLattr_SDL_GL_ALPHA_SIZE,
-    SDL_GLattr_SDL_GL_BLUE_SIZE, SDL_GLattr_SDL_GL_BUFFER_SIZE,
-    SDL_GLattr_SDL_GL_CONTEXT_FLAGS, SDL_GLattr_SDL_GL_CONTEXT_MAJOR_VERSION,
-    SDL_GLattr_SDL_GL_CONTEXT_MINOR_VERSION, SDL_GLattr_SDL_GL_CONTEXT_PROFILE_MASK,
-    SDL_GLattr_SDL_GL_DEPTH_SIZE, SDL_GLattr_SDL_GL_DOUBLEBUFFER,
-    SDL_GLattr_SDL_GL_GREEN_SIZE, SDL_GLattr_SDL_GL_MULTISAMPLEBUFFERS,
-    SDL_GLattr_SDL_GL_MULTISAMPLESAMPLES, SDL_GLattr_SDL_GL_RED_SIZE,
-    SDL_GLattr_SDL_GL_STENCIL_SIZE, SDL_HINT_AUDIODRIVER, SDL_HINT_VIDEODRIVER,
-    SDL_INIT_AUDIO, SDL_INIT_VIDEO, SDL_KeyCode_SDLK_ESCAPE, SDL_KeyCode_SDLK_q,
-    SDL_LogCategory_SDL_LOG_CATEGORY_AUDIO, SDL_LogCategory_SDL_LOG_CATEGORY_ERROR,
-    SDL_LogCategory_SDL_LOG_CATEGORY_INPUT, SDL_LogCategory_SDL_LOG_CATEGORY_RENDER,
-    SDL_LogCategory_SDL_LOG_CATEGORY_SYSTEM, SDL_LogCategory_SDL_LOG_CATEGORY_VIDEO,
-    SDL_LogPriority_SDL_LOG_PRIORITY_VERBOSE, SDL_RendererInfo,
-    SDL_WindowEventID_SDL_WINDOWEVENT_CLOSE, SDL_WindowFlags_SDL_WINDOW_ALLOW_HIGHDPI,
-    SDL_WindowFlags_SDL_WINDOW_BORDERLESS, SDL_WindowFlags_SDL_WINDOW_FULLSCREEN,
-    SDL_WindowFlags_SDL_WINDOW_FULLSCREEN_DESKTOP, SDL_WindowFlags_SDL_WINDOW_HIDDEN,
-    SDL_WindowFlags_SDL_WINDOW_INPUT_FOCUS, SDL_WindowFlags_SDL_WINDOW_INPUT_GRABBED,
-    SDL_WindowFlags_SDL_WINDOW_KEYBOARD_GRABBED, SDL_WindowFlags_SDL_WINDOW_MAXIMIZED,
-    SDL_WindowFlags_SDL_WINDOW_METAL, SDL_WindowFlags_SDL_WINDOW_MINIMIZED,
-    SDL_WindowFlags_SDL_WINDOW_MOUSE_FOCUS, SDL_WindowFlags_SDL_WINDOW_OPENGL,
-    SDL_WindowFlags_SDL_WINDOW_RESIZABLE, SDL_WindowFlags_SDL_WINDOW_VULKAN,
-    SDL_bool, SDL_bool_SDL_FALSE, SDL_bool_SDL_TRUE, SDL_Event,
+    SDL_GLattr_SDL_GL_BLUE_SIZE, SDL_GLattr_SDL_GL_BUFFER_SIZE, SDL_GLattr_SDL_GL_CONTEXT_FLAGS,
+    SDL_GLattr_SDL_GL_CONTEXT_MAJOR_VERSION, SDL_GLattr_SDL_GL_CONTEXT_MINOR_VERSION,
+    SDL_GLattr_SDL_GL_CONTEXT_PROFILE_MASK, SDL_GLattr_SDL_GL_DEPTH_SIZE,
+    SDL_GLattr_SDL_GL_DOUBLEBUFFER, SDL_GLattr_SDL_GL_GREEN_SIZE,
+    SDL_GLattr_SDL_GL_MULTISAMPLEBUFFERS, SDL_GLattr_SDL_GL_MULTISAMPLESAMPLES,
+    SDL_GLattr_SDL_GL_RED_SIZE, SDL_GLattr_SDL_GL_STENCIL_SIZE, SDL_KeyCode_SDLK_ESCAPE,
+    SDL_KeyCode_SDLK_q, SDL_LogCategory_SDL_LOG_CATEGORY_AUDIO,
+    SDL_LogCategory_SDL_LOG_CATEGORY_ERROR, SDL_LogCategory_SDL_LOG_CATEGORY_INPUT,
+    SDL_LogCategory_SDL_LOG_CATEGORY_RENDER, SDL_LogCategory_SDL_LOG_CATEGORY_SYSTEM,
+    SDL_LogCategory_SDL_LOG_CATEGORY_VIDEO, SDL_LogPriority_SDL_LOG_PRIORITY_VERBOSE,
+    SDL_RendererInfo, SDL_WindowEventID_SDL_WINDOWEVENT_CLOSE,
+    SDL_WindowFlags_SDL_WINDOW_ALLOW_HIGHDPI, SDL_WindowFlags_SDL_WINDOW_BORDERLESS,
+    SDL_WindowFlags_SDL_WINDOW_FULLSCREEN, SDL_WindowFlags_SDL_WINDOW_FULLSCREEN_DESKTOP,
+    SDL_WindowFlags_SDL_WINDOW_HIDDEN, SDL_WindowFlags_SDL_WINDOW_INPUT_FOCUS,
+    SDL_WindowFlags_SDL_WINDOW_INPUT_GRABBED, SDL_WindowFlags_SDL_WINDOW_KEYBOARD_GRABBED,
+    SDL_WindowFlags_SDL_WINDOW_MAXIMIZED, SDL_WindowFlags_SDL_WINDOW_METAL,
+    SDL_WindowFlags_SDL_WINDOW_MINIMIZED, SDL_WindowFlags_SDL_WINDOW_MOUSE_FOCUS,
+    SDL_WindowFlags_SDL_WINDOW_OPENGL, SDL_WindowFlags_SDL_WINDOW_RESIZABLE,
+    SDL_WindowFlags_SDL_WINDOW_VULKAN, SDL_bool, SDL_bool_SDL_FALSE, SDL_bool_SDL_TRUE,
+    SDL_HINT_AUDIODRIVER, SDL_HINT_VIDEODRIVER, SDL_INIT_AUDIO, SDL_INIT_VIDEO,
 };
 use crate::testsupport::{
-    c_string, lock_usage_cache, windowpos_centered, windowpos_undefined, FONT_LINE_HEIGHT,
-    SDLTest_CommonState, VERBOSE_EVENT, VERBOSE_MODES,
-    VERBOSE_MOTION, VERBOSE_RENDER, VERBOSE_VIDEO,
+    c_string, lock_usage_cache, windowpos_centered, windowpos_undefined, SDLTest_CommonState,
+    FONT_LINE_HEIGHT, VERBOSE_EVENT, VERBOSE_MODES, VERBOSE_MOTION, VERBOSE_RENDER, VERBOSE_VIDEO,
 };
 
 const VIDEO_USAGE: &[&str] = &[
@@ -190,7 +187,11 @@ pub unsafe extern "C" fn SDLTest_CommonCreateState(
         verbose: 0,
         videodriver: ptr::null(),
         display: 0,
-        window_title: if title.is_null() { b"sdl-test\0".as_ptr().cast() } else { title },
+        window_title: if title.is_null() {
+            b"sdl-test\0".as_ptr().cast()
+        } else {
+            title
+        },
         window_icon: ptr::null(),
         window_flags: 0,
         flash_on_focus_loss: SDL_bool_SDL_FALSE,
@@ -257,10 +258,7 @@ pub unsafe extern "C" fn SDLTest_CommonCreateState(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDLTest_CommonArg(
-    state: *mut SDLTest_CommonState,
-    index: c_int,
-) -> c_int {
+pub unsafe extern "C" fn SDLTest_CommonArg(state: *mut SDLTest_CommonState, index: c_int) -> c_int {
     if state.is_null() {
         return -1;
     }
@@ -276,13 +274,17 @@ pub unsafe extern "C" fn SDLTest_CommonArg(
     match value.as_str() {
         "--trackmem" => return 1,
         "--video" => {
-            let Some(_driver) = next_string else { return -1; };
+            let Some(_driver) = next_string else {
+                return -1;
+            };
             (*state).videodriver = next;
             sdl::SDL_SetHint(SDL_HINT_VIDEODRIVER.as_ptr().cast(), next);
             return 2;
         }
         "--audio" => {
-            let Some(_driver) = next_string else { return -1; };
+            let Some(_driver) = next_string else {
+                return -1;
+            };
             (*state).audiodriver = next;
             sdl::SDL_SetHint(SDL_HINT_AUDIODRIVER.as_ptr().cast(), next);
             return 2;
@@ -299,10 +301,13 @@ pub unsafe extern "C" fn SDLTest_CommonArg(
             return 1;
         }
         "--info" => {
-            let Some(mode) = next_string else { return -1; };
+            let Some(mode) = next_string else {
+                return -1;
+            };
             match mode.as_str() {
                 "all" => {
-                    (*state).verbose |= VERBOSE_VIDEO | VERBOSE_MODES | VERBOSE_RENDER | VERBOSE_EVENT;
+                    (*state).verbose |=
+                        VERBOSE_VIDEO | VERBOSE_MODES | VERBOSE_RENDER | VERBOSE_EVENT;
                     return 2;
                 }
                 "video" => (*state).verbose |= VERBOSE_VIDEO,
@@ -315,7 +320,9 @@ pub unsafe extern "C" fn SDLTest_CommonArg(
             return 2;
         }
         "--log" => {
-            let Some(channel) = next_string else { return -1; };
+            let Some(channel) = next_string else {
+                return -1;
+            };
             match channel.as_str() {
                 "all" => sdl::SDL_LogSetAllPriority(SDL_LogPriority_SDL_LOG_PRIORITY_VERBOSE),
                 "error" => sdl::SDL_LogSetPriority(
@@ -347,12 +354,16 @@ pub unsafe extern "C" fn SDLTest_CommonArg(
             return 2;
         }
         "--display" => {
-            let Some(number) = next_string else { return -1; };
+            let Some(number) = next_string else {
+                return -1;
+            };
             (*state).display = number.parse().unwrap_or(0);
             return 2;
         }
         "--windows" => {
-            let Some(number) = next_string else { return -1; };
+            let Some(number) = next_string else {
+                return -1;
+            };
             (*state).num_windows = number.parse().unwrap_or(1).max(0);
             return 2;
         }
@@ -376,52 +387,78 @@ pub unsafe extern "C" fn SDLTest_CommonArg(
             return 1;
         }
         "--position" => {
-            let Some(position) = next_string else { return -1; };
-            let Some((x, y)) = parse_pair(&position, ',') else { return -1; };
+            let Some(position) = next_string else {
+                return -1;
+            };
+            let Some((x, y)) = parse_pair(&position, ',') else {
+                return -1;
+            };
             (*state).window_x = x;
             (*state).window_y = y;
             return 2;
         }
         "--geometry" => {
-            let Some(geometry) = next_string else { return -1; };
-            let Some((w, h)) = parse_pair(&geometry, 'x') else { return -1; };
+            let Some(geometry) = next_string else {
+                return -1;
+            };
+            let Some((w, h)) = parse_pair(&geometry, 'x') else {
+                return -1;
+            };
             (*state).window_w = w;
             (*state).window_h = h;
             return 2;
         }
         "--min-geometry" => {
-            let Some(geometry) = next_string else { return -1; };
-            let Some((w, h)) = parse_pair(&geometry, 'x') else { return -1; };
+            let Some(geometry) = next_string else {
+                return -1;
+            };
+            let Some((w, h)) = parse_pair(&geometry, 'x') else {
+                return -1;
+            };
             (*state).window_minW = w;
             (*state).window_minH = h;
             return 2;
         }
         "--max-geometry" => {
-            let Some(geometry) = next_string else { return -1; };
-            let Some((w, h)) = parse_pair(&geometry, 'x') else { return -1; };
+            let Some(geometry) = next_string else {
+                return -1;
+            };
+            let Some((w, h)) = parse_pair(&geometry, 'x') else {
+                return -1;
+            };
             (*state).window_maxW = w;
             (*state).window_maxH = h;
             return 2;
         }
         "--logical" => {
-            let Some(geometry) = next_string else { return -1; };
-            let Some((w, h)) = parse_pair(&geometry, 'x') else { return -1; };
+            let Some(geometry) = next_string else {
+                return -1;
+            };
+            let Some((w, h)) = parse_pair(&geometry, 'x') else {
+                return -1;
+            };
             (*state).logical_w = w;
             (*state).logical_h = h;
             return 2;
         }
         "--scale" => {
-            let Some(scale) = next_string else { return -1; };
+            let Some(scale) = next_string else {
+                return -1;
+            };
             (*state).scale = scale.parse().unwrap_or(1.0);
             return 2;
         }
         "--depth" => {
-            let Some(depth) = next_string else { return -1; };
+            let Some(depth) = next_string else {
+                return -1;
+            };
             (*state).depth = depth.parse().unwrap_or(0);
             return 2;
         }
         "--refresh" => {
-            let Some(refresh) = next_string else { return -1; };
+            let Some(refresh) = next_string else {
+                return -1;
+            };
             (*state).refresh_rate = refresh.parse().unwrap_or(0);
             return 2;
         }
@@ -498,22 +535,30 @@ pub unsafe extern "C" fn SDLTest_CommonArg(
             return 1;
         }
         "--rate" => {
-            let Some(rate) = next_string else { return -1; };
+            let Some(rate) = next_string else {
+                return -1;
+            };
             (*state).audiospec.freq = rate.parse().unwrap_or((*state).audiospec.freq);
             return 2;
         }
         "--channels" => {
-            let Some(channels) = next_string else { return -1; };
+            let Some(channels) = next_string else {
+                return -1;
+            };
             (*state).audiospec.channels = channels.parse().unwrap_or((*state).audiospec.channels);
             return 2;
         }
         "--samples" => {
-            let Some(samples) = next_string else { return -1; };
+            let Some(samples) = next_string else {
+                return -1;
+            };
             (*state).audiospec.samples = samples.parse().unwrap_or((*state).audiospec.samples);
             return 2;
         }
         "--format" => {
-            let Some(format) = next_string else { return -1; };
+            let Some(format) = next_string else {
+                return -1;
+            };
             (*state).audiospec.format = match format.as_str() {
                 "U8" => sdl::AUDIO_U8 as u16,
                 "S8" => sdl::AUDIO_S8 as u16,
@@ -542,9 +587,7 @@ pub unsafe extern "C" fn SDLTest_CommonLogUsage(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDLTest_CommonUsage(
-    state: *mut SDLTest_CommonState,
-) -> *const c_char {
+pub unsafe extern "C" fn SDLTest_CommonUsage(state: *mut SDLTest_CommonState) -> *const c_char {
     render_usage(state, (*state).window_title, ptr::null())
 }
 
@@ -595,10 +638,7 @@ pub unsafe extern "C" fn SDLTest_CommonInit(state: *mut SDLTest_CommonState) -> 
             SDL_GLattr_SDL_GL_CONTEXT_MINOR_VERSION,
             (*state).gl_minor_version,
         );
-        sdl::SDL_GL_SetAttribute(
-            SDL_GLattr_SDL_GL_CONTEXT_FLAGS,
-            (*state).gl_debug,
-        );
+        sdl::SDL_GL_SetAttribute(SDL_GLattr_SDL_GL_CONTEXT_FLAGS, (*state).gl_debug);
         sdl::SDL_GL_SetAttribute(
             SDL_GLattr_SDL_GL_CONTEXT_PROFILE_MASK,
             (*state).gl_profile_mask,
@@ -606,12 +646,10 @@ pub unsafe extern "C" fn SDLTest_CommonInit(state: *mut SDLTest_CommonState) -> 
     }
 
     let count = (*state).num_windows as usize;
-    (*state).windows = sdl::SDL_calloc(count, std::mem::size_of::<*mut sdl::SDL_Window>())
-        .cast();
-    (*state).renderers = sdl::SDL_calloc(count, std::mem::size_of::<*mut sdl::SDL_Renderer>())
-        .cast();
-    (*state).targets = sdl::SDL_calloc(count, std::mem::size_of::<*mut sdl::SDL_Texture>())
-        .cast();
+    (*state).windows = sdl::SDL_calloc(count, std::mem::size_of::<*mut sdl::SDL_Window>()).cast();
+    (*state).renderers =
+        sdl::SDL_calloc(count, std::mem::size_of::<*mut sdl::SDL_Renderer>()).cast();
+    (*state).targets = sdl::SDL_calloc(count, std::mem::size_of::<*mut sdl::SDL_Texture>()).cast();
     if (*state).windows.is_null() || (*state).renderers.is_null() || (*state).targets.is_null() {
         cleanup_windows(state);
         return SDL_bool_SDL_FALSE;

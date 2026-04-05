@@ -6,8 +6,7 @@ use std::ptr;
 use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
-    self as sdl, SDL_AudioSpec, SDL_Rect, SDL_Renderer, SDL_Texture, SDL_Window, SDL_bool,
-    Uint32,
+    self as sdl, SDL_AudioSpec, SDL_Rect, SDL_Renderer, SDL_Texture, SDL_Window, SDL_bool, Uint32,
 };
 
 pub mod assert;
