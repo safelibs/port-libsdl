@@ -20,7 +20,7 @@ use safe_sdl::core::rwops::{
     SDL_RWtell, SDL_RWwrite, SDL_ReadLE32,
 };
 use safe_sdl::video::blit::{
-    SDL_ConvertPixels, SDL_SoftStretch, SDL_UpperBlit, SDL_UpperBlitScaled,
+    SDL_ConvertPixels, SDL_PremultiplyAlpha, SDL_SoftStretch, SDL_UpperBlit, SDL_UpperBlitScaled,
 };
 use safe_sdl::video::bmp::{SDL_LoadBMP_RW, SDL_SaveBMP_RW};
 use safe_sdl::video::pixels::{
@@ -547,6 +547,62 @@ fn surface_convert_pixels_copies_expected_content() {
         );
 
         assert_ne!(u32::from_ne_bytes(dst[..4].try_into().unwrap()), 0);
+        SDL_FreeSurface(src_surface);
+    }
+}
+
+#[test]
+fn surface_premultiply_alpha_matches_argb8888_reference() {
+    let _serial = testutils::serial_lock();
+
+    unsafe {
+        let src_surface = create_argb8888_surface(2, 1);
+        assert!(!src_surface.is_null(), "{}", testutils::current_error());
+        let pixels = (*src_surface).pixels.cast::<Uint32>();
+        *pixels = SDL_MapRGBA((*src_surface).format, 100, 50, 25, 128);
+        *pixels.add(1) = SDL_MapRGBA((*src_surface).format, 255, 64, 32, 64);
+
+        let mut dst = [0u8; 8];
+        assert_eq!(
+            SDL_PremultiplyAlpha(
+                2,
+                1,
+                SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888,
+                (*src_surface).pixels,
+                (*src_surface).pitch,
+                SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888,
+                dst.as_mut_ptr().cast(),
+                8,
+            ),
+            0,
+            "{}",
+            testutils::current_error()
+        );
+
+        let mut r = 0;
+        let mut g = 0;
+        let mut b = 0;
+        let mut a = 0;
+        SDL_GetRGBA(
+            u32::from_ne_bytes(dst[..4].try_into().unwrap()),
+            (*src_surface).format,
+            &mut r,
+            &mut g,
+            &mut b,
+            &mut a,
+        );
+        assert_eq!((r, g, b, a), (50, 25, 12, 128));
+
+        SDL_GetRGBA(
+            u32::from_ne_bytes(dst[4..8].try_into().unwrap()),
+            (*src_surface).format,
+            &mut r,
+            &mut g,
+            &mut b,
+            &mut a,
+        );
+        assert_eq!((r, g, b, a), (64, 16, 8, 64));
+
         SDL_FreeSurface(src_surface);
     }
 }
