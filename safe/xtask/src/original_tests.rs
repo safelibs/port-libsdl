@@ -5,7 +5,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use anyhow::{anyhow, bail, Context, Result};
 use tempfile::tempdir;
@@ -17,13 +17,14 @@ use crate::contracts::{
 };
 
 const DEFAULT_CTEST_TARGETS: &[&str] = &["testatomic", "testplatform", "testqsort"];
-const HEADLESS_CTEST_UNSUPPORTED_TARGETS: &[&str] = &[
+const HEADLESS_ORIGINAL_SUITE_UNSUPPORTED_TARGETS: &[&str] = &[
     "testautomation",
     "testlocale",
     "testkeys",
     "testbounds",
     "testdisplayinfo",
 ];
+const ORIGINAL_SUITE_TIMEOUT: Duration = Duration::from_secs(120);
 
 pub struct CompileOriginalTestObjectsArgs {
     pub repo_root: PathBuf,
@@ -763,10 +764,35 @@ pub fn build_original_autotools_suite(args: BuildOriginalAutotoolsSuiteArgs) -> 
 pub fn run_original_autotools_check(args: RunOriginalAutotoolsCheckArgs) -> Result<()> {
     let build_dir = absolutize(&args.repo_root, &args.build_dir);
     let stage_root = resolve_autotools_stage_root(&args.repo_root, &build_dir, args.stage_root)?;
-    let mut make_cmd = Command::new("make");
-    make_cmd.current_dir(&build_dir).arg("check");
-    apply_stage_suite_env(&mut make_cmd, &stage_root)?;
-    run_command(&mut make_cmd, "run original autotools check")
+    let targets = default_headless_original_suite_targets(&args.repo_root)?;
+    if targets.is_empty() {
+        bail!("original autotools check selected no runnable targets");
+    }
+
+    for target in targets {
+        let executable = build_dir.join(&target);
+        if !executable.exists() {
+            bail!(
+                "original autotools test target {} is missing binary {}",
+                target,
+                executable.display()
+            );
+        }
+
+        let mut cmd = Command::new(&executable);
+        cmd.current_dir(&build_dir)
+            .env("SDL_AUDIODRIVER", "dummy")
+            .env("SDL_VIDEODRIVER", "dummy")
+            .env("SDL_TESTS_QUICK", "1");
+        apply_stage_suite_env(&mut cmd, &stage_root)?;
+        run_command_with_timeout(
+            &mut cmd,
+            &format!("run original autotools test {target}"),
+            ORIGINAL_SUITE_TIMEOUT,
+        )?;
+    }
+
+    Ok(())
 }
 
 fn resolve_token(
@@ -839,28 +865,8 @@ fn resolve_original_test_dir(repo_root: &Path, original_dir: &Path) -> Result<Pa
 fn ctest_filter_from_test_list(repo_root: &Path, test_list: &str) -> Result<Option<String>> {
     let candidate_path = absolutize(repo_root, Path::new(test_list));
     if candidate_path.exists() {
-        let value: serde_json::Value = serde_json::from_slice(&fs::read(&candidate_path)?)
-            .with_context(|| format!("parse CTest test list {}", candidate_path.display()))?;
-        let targets = value
-            .get("targets")
-            .and_then(|targets| targets.as_array())
-            .ok_or_else(|| {
-                anyhow!(
-                    "CTest test list {} is missing targets",
-                    candidate_path.display()
-                )
-            })?
-            .iter()
-            .map(|entry| {
-                entry.as_str().map(str::to_string).ok_or_else(|| {
-                    anyhow!(
-                        "CTest test list {} contains a non-string target",
-                        candidate_path.display()
-                    )
-                })
-            })
-            .collect::<Result<Vec<_>>>()?;
-        return test_names_to_ctest_regex(&filter_headless_ctest_targets(targets));
+        let targets = load_test_list_targets(&candidate_path)?;
+        return test_names_to_ctest_regex(&filter_headless_original_suite_targets(targets));
     }
 
     let targets = test_list
@@ -872,23 +878,7 @@ fn ctest_filter_from_test_list(repo_root: &Path, test_list: &str) -> Result<Opti
 }
 
 fn default_ctest_filter(repo_root: &Path) -> Result<Option<String>> {
-    let noninteractive_path = repo_root.join("safe/generated/noninteractive_test_list.json");
-    let value: serde_json::Value = serde_json::from_slice(&fs::read(&noninteractive_path)?)
-        .with_context(|| format!("parse CTest test list {}", noninteractive_path.display()))?;
-    let targets = value
-        .get("targets")
-        .and_then(|targets| targets.as_array())
-        .ok_or_else(|| anyhow!("{} is missing targets", noninteractive_path.display()))?
-        .iter()
-        .map(|entry| {
-            entry.as_str().map(str::to_string).ok_or_else(|| {
-                anyhow!(
-                    "{} contains a non-string target",
-                    noninteractive_path.display()
-                )
-            })
-        })
-        .collect::<Result<Vec<_>>>()?;
+    let targets = load_noninteractive_test_targets(repo_root)?;
     let standalone = load_standalone_test_manifest(
         &repo_root.join("safe/generated/standalone_test_manifest.json"),
     )?;
@@ -917,10 +907,37 @@ fn test_names_to_ctest_regex(targets: &[String]) -> Result<Option<String>> {
     Ok(Some(format!("^({})$", targets.join("|"))))
 }
 
-fn filter_headless_ctest_targets(targets: Vec<String>) -> Vec<String> {
+fn default_headless_original_suite_targets(repo_root: &Path) -> Result<Vec<String>> {
+    Ok(filter_headless_original_suite_targets(
+        load_noninteractive_test_targets(repo_root)?,
+    ))
+}
+
+fn load_noninteractive_test_targets(repo_root: &Path) -> Result<Vec<String>> {
+    load_test_list_targets(&repo_root.join("safe/generated/noninteractive_test_list.json"))
+}
+
+fn load_test_list_targets(path: &Path) -> Result<Vec<String>> {
+    let value: serde_json::Value = serde_json::from_slice(&fs::read(path)?)
+        .with_context(|| format!("parse test list {}", path.display()))?;
+    value
+        .get("targets")
+        .and_then(|targets| targets.as_array())
+        .ok_or_else(|| anyhow!("{} is missing targets", path.display()))?
+        .iter()
+        .map(|entry| {
+            entry
+                .as_str()
+                .map(str::to_string)
+                .ok_or_else(|| anyhow!("{} contains a non-string target", path.display()))
+        })
+        .collect::<Result<Vec<_>>>()
+}
+
+fn filter_headless_original_suite_targets(targets: Vec<String>) -> Vec<String> {
     targets
         .into_iter()
-        .filter(|target| !HEADLESS_CTEST_UNSUPPORTED_TARGETS.contains(&target.as_str()))
+        .filter(|target| !HEADLESS_ORIGINAL_SUITE_UNSUPPORTED_TARGETS.contains(&target.as_str()))
         .collect()
 }
 
@@ -1037,6 +1054,28 @@ fn run_command(cmd: &mut Command, description: &str) -> Result<()> {
         bail!("{description} failed with status {status}");
     }
     Ok(())
+}
+
+fn run_command_with_timeout(cmd: &mut Command, description: &str, timeout: Duration) -> Result<()> {
+    let mut child = cmd.spawn().with_context(|| description.to_string())?;
+    let deadline = Instant::now() + timeout;
+    loop {
+        if let Some(status) = child
+            .try_wait()
+            .with_context(|| format!("{description}: poll child process"))?
+        {
+            if status.success() {
+                return Ok(());
+            }
+            bail!("{description} failed with status {status}");
+        }
+        if Instant::now() >= deadline {
+            let _ = child.kill();
+            let _ = child.wait();
+            bail!("{description} timed out after {}s", timeout.as_secs());
+        }
+        thread::sleep(Duration::from_millis(200));
+    }
 }
 
 fn render_library_arg(name: &str) -> String {
@@ -1166,7 +1205,8 @@ mod tests {
     use std::path::PathBuf;
 
     use super::{
-        filter_headless_ctest_targets, record_autotools_stage_root, resolve_autotools_stage_root,
+        filter_headless_original_suite_targets, record_autotools_stage_root,
+        resolve_autotools_stage_root,
     };
     use tempfile::tempdir;
 
@@ -1203,8 +1243,8 @@ mod tests {
     }
 
     #[test]
-    fn headless_ctest_filter_removes_known_host_video_blockers() {
-        let filtered = filter_headless_ctest_targets(vec![
+    fn headless_original_suite_filter_removes_known_host_video_blockers() {
+        let filtered = filter_headless_original_suite_targets(vec![
             "testatomic".to_string(),
             "testlocale".to_string(),
             "testaudioinfo".to_string(),
