@@ -946,4 +946,3 @@ pub unsafe extern "C" fn SDL_utf8strlen() -> *mut ::std::ffi::c_void {
 pub unsafe extern "C" fn SDL_utf8strnlen() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_utf8strnlen");
 }
-
