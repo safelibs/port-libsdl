@@ -83,16 +83,14 @@ fn main() -> Result<()> {
             let map_path = parsed
                 .map
                 .unwrap_or_else(|| parsed.generated.join("original_test_port_map.json"));
-            let _ = (
-                &parsed.original,
-                parsed.expect_source_files,
-                parsed.expect_executable_targets,
-            );
             verify_test_port_coverage(
                 &repo_root,
                 &map_path,
+                &parsed.original,
                 &parsed.phase,
                 parsed.require_complete,
+                parsed.expect_source_files,
+                parsed.expect_executable_targets,
             )
         }
         "stage-install" => {
@@ -911,12 +909,23 @@ where
 
 #[cfg(test)]
 mod tests {
+    use std::fs;
     use std::path::PathBuf;
 
     use super::{
         OriginalCtestCliArgs, RunOriginalAutotoolsCheckCliArgs, VerifyTestPortCoverageArgs,
         PHASE_08_ID,
     };
+    use crate::contracts::{load_original_test_port_map, verify_test_port_coverage};
+    use tempfile::tempdir;
+
+    fn repo_root() -> PathBuf {
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .parent()
+            .and_then(|path| path.parent())
+            .expect("workspace root")
+            .to_path_buf()
+    }
 
     #[test]
     fn verify_test_port_coverage_defaults_phase_08() {
@@ -957,6 +966,37 @@ mod tests {
         assert_eq!(
             parsed.build_dir,
             PathBuf::from("/tmp/libsdl-safe-autotools")
+        );
+    }
+
+    #[test]
+    fn verify_test_port_coverage_rejects_removed_source_entry() {
+        let repo_root = repo_root();
+        let source_map = repo_root.join("safe/generated/original_test_port_map.json");
+        let mut port_map = load_original_test_port_map(&source_map).expect("load port map");
+        port_map.entries.pop().expect("remove one source entry");
+
+        let temp = tempdir().expect("temporary map dir");
+        let temp_map = temp.path().join("original_test_port_map.json");
+        let mut bytes = serde_json::to_vec_pretty(&port_map).expect("serialize temp port map");
+        bytes.push(b'\n');
+        fs::write(&temp_map, bytes).expect("write temp port map");
+
+        let err = verify_test_port_coverage(
+            &repo_root,
+            &temp_map,
+            &repo_root.join("original"),
+            PHASE_08_ID,
+            true,
+            Some(116),
+            Some(71),
+        )
+        .expect_err("removed source entry must fail coverage verification");
+
+        assert!(
+            err.to_string()
+                .contains("expected 116 upstream test/support source files, found 115"),
+            "unexpected error: {err:#}"
         );
     }
 }

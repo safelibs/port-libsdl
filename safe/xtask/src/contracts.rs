@@ -956,9 +956,20 @@ pub fn load_standalone_test_manifest(path: &Path) -> Result<StandaloneTestManife
 pub fn verify_test_port_coverage(
     repo_root: &Path,
     map_path: &Path,
+    original_dir: &Path,
     phase: &str,
     require_complete: bool,
+    expect_source_files: Option<usize>,
+    expect_executable_targets: Option<usize>,
 ) -> Result<()> {
+    verify_test_port_map(
+        repo_root,
+        map_path,
+        original_dir,
+        expect_source_files,
+        expect_executable_targets,
+    )?;
+
     let port_map = load_original_test_port_map(map_path)?;
     let phase_entries = port_map
         .entries
