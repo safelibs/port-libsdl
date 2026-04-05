@@ -218,39 +218,57 @@ pub(crate) unsafe fn descriptor_from_format_ptr(
 }
 
 pub(crate) fn format_descriptor(format: Uint32) -> Option<FormatDescriptor> {
-    static CACHE: OnceLock<Mutex<HashMap<Uint32, Option<FormatDescriptor>>>> = OnceLock::new();
-    let cache = CACHE.get_or_init(|| Mutex::new(HashMap::new()));
-    if let Some(cached) = cache
-        .lock()
-        .unwrap_or_else(|poisoned| poisoned.into_inner())
-        .get(&format)
-        .copied()
-    {
-        return cached;
+    const PIXELFLAG_STANDARD: u32 = 1;
+    const PIXELTYPE_INDEX1: u8 = 1;
+    const PIXELTYPE_INDEX4: u8 = 2;
+    const PIXELTYPE_INDEX8: u8 = 3;
+    const PIXELTYPE_PACKED8: u8 = 4;
+    const PIXELTYPE_PACKED16: u8 = 5;
+    const PIXELTYPE_PACKED32: u8 = 6;
+    const PIXELTYPE_ARRAYU8: u8 = 7;
+    const PIXELTYPE_INDEX2: u8 = 12;
+    const PACKEDLAYOUT_332: u8 = 1;
+    const PACKEDLAYOUT_4444: u8 = 2;
+    const PACKEDLAYOUT_1555: u8 = 3;
+    const PACKEDLAYOUT_5551: u8 = 4;
+    const PACKEDLAYOUT_565: u8 = 5;
+    const PACKEDLAYOUT_8888: u8 = 6;
+    const PACKEDLAYOUT_2101010: u8 = 7;
+
+    if format == 0 || ((format >> 28) & 0x0f) != PIXELFLAG_STANDARD {
+        return None;
     }
 
-    clear_real_error();
-    let raw = unsafe { (real_sdl().alloc_format)(format) };
-    let descriptor = if raw.is_null() {
-        None
-    } else {
-        let descriptor = unsafe {
-            FormatDescriptor {
-                bits_per_pixel: (*raw).BitsPerPixel,
-                bytes_per_pixel: (*raw).BytesPerPixel,
-            }
-        };
-        unsafe {
-            (real_sdl().free_format)(raw);
-        }
-        Some(descriptor)
+    let pixel_type = ((format >> 24) & 0x0f) as u8;
+    let layout = ((format >> 16) & 0x0f) as u8;
+    let bits = ((format >> 8) & 0xff) as u8;
+    let bytes = (format & 0xff) as u8;
+
+    let valid = match pixel_type {
+        PIXELTYPE_INDEX1 => bits == 1 && bytes == 0 && layout == 0,
+        PIXELTYPE_INDEX2 => bits == 2 && bytes == 0 && layout == 0,
+        PIXELTYPE_INDEX4 => bits == 4 && bytes == 0 && layout == 0,
+        PIXELTYPE_INDEX8 => bits == 8 && bytes == 1 && layout == 0,
+        PIXELTYPE_PACKED8 => bits == 8 && bytes == 1 && layout == PACKEDLAYOUT_332,
+        PIXELTYPE_PACKED16 => match layout {
+            PACKEDLAYOUT_4444 => bytes == 2 && matches!(bits, 12 | 16),
+            PACKEDLAYOUT_1555 => bytes == 2 && matches!(bits, 15 | 16),
+            PACKEDLAYOUT_5551 | PACKEDLAYOUT_565 => bytes == 2 && bits == 16,
+            _ => false,
+        },
+        PIXELTYPE_PACKED32 => match layout {
+            PACKEDLAYOUT_8888 => bytes == 4 && matches!(bits, 24 | 32),
+            PACKEDLAYOUT_2101010 => bytes == 4 && bits == 32,
+            _ => false,
+        },
+        PIXELTYPE_ARRAYU8 => layout == 0 && bytes == 3 && bits == 24,
+        _ => false,
     };
 
-    cache
-        .lock()
-        .unwrap_or_else(|poisoned| poisoned.into_inner())
-        .insert(format, descriptor);
-    descriptor
+    valid.then_some(FormatDescriptor {
+        bits_per_pixel: bits,
+        bytes_per_pixel: bytes,
+    })
 }
 
 pub(crate) unsafe fn validate_surface_storage(
@@ -680,6 +698,11 @@ pub(crate) unsafe fn create_preallocated_surface_with_format(
         return apply_math_error_ptr(error);
     }
 
+    if pixels.is_null() && width > 0 && height > 0 && pitch > 0 {
+        let _ = invalid_param_error("pixels");
+        return ptr::null_mut();
+    }
+
     let surface = create_surface_shell(depth, format, "Couldn't create RGB surface");
     if surface.is_null() {
         return ptr::null_mut();
@@ -705,12 +728,6 @@ pub(crate) unsafe fn create_preallocated_surface_with_format(
             return apply_math_error_ptr(error);
         }
     };
-
-    if size > 0 && pixels.is_null() {
-        (real_sdl().free_surface)(surface);
-        let _ = invalid_param_error("pixels");
-        return ptr::null_mut();
-    }
 
     finalize_registered_surface(
         surface,
