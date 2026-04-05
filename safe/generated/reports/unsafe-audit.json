@@ -1,0 +1,572 @@
+{
+  "phase_id": "impl_phase_10_packaging_dependents_final",
+  "rules": [
+    {
+      "pattern": "safe/sdl2main/src/lib.rs",
+      "category": "ffi",
+      "justification": "Exports the `SDL_main` compatibility shim consumed from C toolchains."
+    },
+    {
+      "pattern": "safe/src/abi/generated_types.rs",
+      "category": "generated",
+      "justification": "Bindgen-generated foreign types, extern declarations, and layout assertions."
+    },
+    {
+      "pattern": "safe/src/audio/*.rs",
+      "category": "ffi",
+      "justification": "Exported C ABI wrappers, raw audio buffers, and decoder/stream pointer interop."
+    },
+    {
+      "pattern": "safe/src/core/*.rs",
+      "category": "ffi",
+      "justification": "Exported C ABI wrappers around libc, threading, allocation, logging, and platform runtime entrypoints."
+    },
+    {
+      "pattern": "safe/src/events/*.rs",
+      "category": "ffi",
+      "justification": "Exported C ABI wrappers around event callbacks and raw SDL pointer types."
+    },
+    {
+      "pattern": "safe/src/exports/generated_linux_stubs.rs",
+      "category": "generated",
+      "justification": "Generated aborting ABI stubs for unimplemented exports."
+    },
+    {
+      "pattern": "safe/src/input/*.rs",
+      "category": "ffi",
+      "justification": "Exported C ABI wrappers over joystick/controller/haptic/sensor raw handles."
+    },
+    {
+      "pattern": "safe/src/input/linux/*.rs",
+      "category": "os",
+      "justification": "Direct Linux device, evdev, udev, and ioctl interaction."
+    },
+    {
+      "pattern": "safe/src/main_archive.rs",
+      "category": "ffi",
+      "justification": "Linker-visible archive helpers and exported C shims."
+    },
+    {
+      "pattern": "safe/src/render/core.rs",
+      "category": "ffi",
+      "justification": "Renderer ABI surface and raw texture/renderer pointer ownership."
+    },
+    {
+      "pattern": "safe/src/render/gl.rs",
+      "category": "ffi",
+      "justification": "Raw GL and Metal function-pointer forwarding across the SDL ABI."
+    },
+    {
+      "pattern": "safe/src/render/gles.rs",
+      "category": "performance",
+      "justification": "Raw GLES proc-table access and texture upload kernels kept close to the ABI and hot paths."
+    },
+    {
+      "pattern": "safe/src/render/software.rs",
+      "category": "ffi",
+      "justification": "Raw renderer and surface pointer forwarding for the software backend."
+    },
+    {
+      "pattern": "safe/src/testsupport/*.rs",
+      "category": "ffi",
+      "justification": "SDL_test support ports mirroring upstream pointer-heavy helpers."
+    },
+    {
+      "pattern": "safe/src/video/*.rs",
+      "category": "ffi",
+      "justification": "Exported C ABI wrappers over windows, displays, surfaces, pixels, clipboard, and platform video handles."
+    },
+    {
+      "pattern": "safe/src/video/linux/*.rs",
+      "category": "os",
+      "justification": "Direct Linux window-system, KMS/DRM, Wayland/X11, and IME integration."
+    },
+    {
+      "pattern": "safe/tests/*.rs",
+      "category": "tests",
+      "justification": "Integration tests intentionally exercise ABI-level entrypoints, raw pointers, and external runtimes."
+    },
+    {
+      "pattern": "safe/tests/common/*.rs",
+      "category": "tests",
+      "justification": "Shared ABI-level test harness helpers."
+    },
+    {
+      "pattern": "safe/xtask/src/contracts.rs",
+      "category": "generated",
+      "justification": "Contract/codegen verification parses generated Rust and C signatures plus emitted unsafe export stubs."
+    }
+  ],
+  "entries": [
+    {
+      "path": "safe/sdl2main/src/lib.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/sdl2main/src/lib.rs"
+    },
+    {
+      "path": "safe/src/abi/generated_types.rs",
+      "category": "generated",
+      "matched_pattern": "safe/src/abi/generated_types.rs"
+    },
+    {
+      "path": "safe/src/audio/convert.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/audio/*.rs"
+    },
+    {
+      "path": "safe/src/audio/device.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/audio/*.rs"
+    },
+    {
+      "path": "safe/src/audio/stream.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/audio/*.rs"
+    },
+    {
+      "path": "safe/src/audio/wave.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/audio/*.rs"
+    },
+    {
+      "path": "safe/src/core/assert.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/cpuinfo.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/error.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/filesystem.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/hints.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/init.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/libm.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/loadso.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/locale.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/log.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/memory.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/misc.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/mutex.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/platform.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/power.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/rwops.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/stdlib.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/system.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/thread.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/core/timer.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/core/*.rs"
+    },
+    {
+      "path": "safe/src/events/gesture.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/events/*.rs"
+    },
+    {
+      "path": "safe/src/events/keyboard.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/events/*.rs"
+    },
+    {
+      "path": "safe/src/events/mouse.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/events/*.rs"
+    },
+    {
+      "path": "safe/src/events/queue.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/events/*.rs"
+    },
+    {
+      "path": "safe/src/events/touch.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/events/*.rs"
+    },
+    {
+      "path": "safe/src/exports/generated_linux_stubs.rs",
+      "category": "generated",
+      "matched_pattern": "safe/src/exports/generated_linux_stubs.rs"
+    },
+    {
+      "path": "safe/src/input/gamecontroller.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/input/*.rs"
+    },
+    {
+      "path": "safe/src/input/guid.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/input/*.rs"
+    },
+    {
+      "path": "safe/src/input/haptic.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/input/*.rs"
+    },
+    {
+      "path": "safe/src/input/hidapi.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/input/*.rs"
+    },
+    {
+      "path": "safe/src/input/joystick.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/input/*.rs"
+    },
+    {
+      "path": "safe/src/input/linux/evdev.rs",
+      "category": "os",
+      "matched_pattern": "safe/src/input/linux/*.rs"
+    },
+    {
+      "path": "safe/src/input/mod.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/input/*.rs"
+    },
+    {
+      "path": "safe/src/input/sensor.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/input/*.rs"
+    },
+    {
+      "path": "safe/src/main_archive.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/main_archive.rs"
+    },
+    {
+      "path": "safe/src/render/core.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/render/core.rs"
+    },
+    {
+      "path": "safe/src/render/gl.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/render/gl.rs"
+    },
+    {
+      "path": "safe/src/render/gles.rs",
+      "category": "performance",
+      "matched_pattern": "safe/src/render/gles.rs"
+    },
+    {
+      "path": "safe/src/render/software.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/render/software.rs"
+    },
+    {
+      "path": "safe/src/testsupport/assert.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/testsupport/*.rs"
+    },
+    {
+      "path": "safe/src/testsupport/common.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/testsupport/*.rs"
+    },
+    {
+      "path": "safe/src/testsupport/compare.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/testsupport/*.rs"
+    },
+    {
+      "path": "safe/src/testsupport/crc32.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/testsupport/*.rs"
+    },
+    {
+      "path": "safe/src/testsupport/font.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/testsupport/*.rs"
+    },
+    {
+      "path": "safe/src/testsupport/fuzzer.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/testsupport/*.rs"
+    },
+    {
+      "path": "safe/src/testsupport/harness.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/testsupport/*.rs"
+    },
+    {
+      "path": "safe/src/testsupport/images.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/testsupport/*.rs"
+    },
+    {
+      "path": "safe/src/testsupport/log.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/testsupport/*.rs"
+    },
+    {
+      "path": "safe/src/testsupport/md5.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/testsupport/*.rs"
+    },
+    {
+      "path": "safe/src/testsupport/memory.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/testsupport/*.rs"
+    },
+    {
+      "path": "safe/src/testsupport/mod.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/testsupport/*.rs"
+    },
+    {
+      "path": "safe/src/testsupport/random.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/testsupport/*.rs"
+    },
+    {
+      "path": "safe/src/video/blit.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/video/*.rs"
+    },
+    {
+      "path": "safe/src/video/bmp.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/video/*.rs"
+    },
+    {
+      "path": "safe/src/video/clipboard.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/video/*.rs"
+    },
+    {
+      "path": "safe/src/video/display.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/video/*.rs"
+    },
+    {
+      "path": "safe/src/video/egl.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/video/*.rs"
+    },
+    {
+      "path": "safe/src/video/linux/ime.rs",
+      "category": "os",
+      "matched_pattern": "safe/src/video/linux/*.rs"
+    },
+    {
+      "path": "safe/src/video/messagebox.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/video/*.rs"
+    },
+    {
+      "path": "safe/src/video/mod.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/video/*.rs"
+    },
+    {
+      "path": "safe/src/video/pixels.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/video/*.rs"
+    },
+    {
+      "path": "safe/src/video/rect.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/video/*.rs"
+    },
+    {
+      "path": "safe/src/video/shape.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/video/*.rs"
+    },
+    {
+      "path": "safe/src/video/surface.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/video/*.rs"
+    },
+    {
+      "path": "safe/src/video/syswm.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/video/*.rs"
+    },
+    {
+      "path": "safe/src/video/vulkan.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/video/*.rs"
+    },
+    {
+      "path": "safe/src/video/window.rs",
+      "category": "ffi",
+      "matched_pattern": "safe/src/video/*.rs"
+    },
+    {
+      "path": "safe/tests/common/testutils.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/common/*.rs"
+    },
+    {
+      "path": "safe/tests/evdev_fixtures.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/openurl_smoke.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/original_apps_audio.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/original_apps_core.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/original_apps_input.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/original_apps_render.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/original_apps_surface.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/original_apps_video.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/security_bmp_parser.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/security_gles_texture_lifecycle.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/security_surface_math.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/security_wave_adpcm.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/upstream_port_audio.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/upstream_port_core.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/upstream_port_input.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/upstream_port_render.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/upstream_port_surface.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/upstream_port_video_events.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/tests/xvfb_window_smoke.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
+    },
+    {
+      "path": "safe/xtask/src/contracts.rs",
+      "category": "generated",
+      "matched_pattern": "safe/xtask/src/contracts.rs"
+    }
+  ]
+}

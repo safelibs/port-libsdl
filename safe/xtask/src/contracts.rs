@@ -9,6 +9,11 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use tempfile::TempDir;
 
+use crate::perf::{
+    PerfDefaultPolicy, PerfThresholds, PerfWorkload, PerfWorkloadManifest, PerfWorkloadThreshold,
+    PHASE_09_ID,
+};
+
 pub const PHASE_ID: &str = "impl_phase_01_contract_bootstrap";
 pub const PHASE_08_ID: &str = "impl_phase_08_testsupport_and_full_upstream_tests";
 pub const UBUNTU_RELEASE: &str = "Ubuntu 24.04";
@@ -484,36 +489,6 @@ pub struct CveEntry {
     pub rust_port_focus: Vec<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PerfWorkloadManifest {
-    pub schema_version: u32,
-    pub phase_id: String,
-    pub workloads: Vec<PerfWorkload>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PerfWorkload {
-    pub workload_id: String,
-    pub subsystem: String,
-    pub driver_sources: Vec<String>,
-    pub resource_paths: Vec<String>,
-    pub description: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PerfThresholds {
-    pub schema_version: u32,
-    pub phase_id: String,
-    pub thresholds: Vec<PerfThreshold>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PerfThreshold {
-    pub workload_id: String,
-    pub max_regression_ratio: f64,
-    pub max_absolute_startup_delta_ms: u32,
-}
-
 #[derive(Debug, Clone)]
 struct TargetPlan {
     name: String,
@@ -646,6 +621,7 @@ pub fn abi_check(
     dynapi_source_path: &Path,
     library: Option<&Path>,
     require_soname: Option<&str>,
+    exports_contract_path: Option<&Path>,
 ) -> Result<()> {
     let symbol_manifest = load_linux_symbol_manifest_input(symbols_manifest_path)?;
     let dynapi_manifest = load_dynapi_manifest_input(dynapi_manifest_path)?;
@@ -655,9 +631,35 @@ pub fn abi_check(
         fs::read_to_string(&resolved_exports_source).context("read generated_linux_stubs.rs")?;
     let stub_symbols = extract_stub_symbol_names(&stubs_source)?;
     let implemented_symbols = implemented_export_symbols(&repo_root.join("safe"))?;
+    let exported_surface = stub_symbols
+        .union(&implemented_symbols)
+        .cloned()
+        .collect::<BTreeSet<_>>();
     for symbol in &symbol_manifest.symbols {
-        if !stub_symbols.contains(&symbol.name) && !implemented_symbols.contains(&symbol.name) {
-            bail!("missing exported symbol implementation or stub for {}", symbol.name);
+        if !exported_surface.contains(&symbol.name) {
+            bail!(
+                "missing exported symbol implementation or stub for {}",
+                symbol.name
+            );
+        }
+    }
+    if let Some(exports_contract_path) = exports_contract_path {
+        let contract_exports = parse_dynapi_exports(exports_contract_path)?;
+        let missing = contract_exports
+            .into_iter()
+            .filter(|name| {
+                symbol_manifest
+                    .symbols
+                    .iter()
+                    .any(|entry| entry.name == *name)
+            })
+            .filter(|name| !exported_surface.contains(name))
+            .collect::<Vec<_>>();
+        if !missing.is_empty() {
+            bail!(
+                "generated export surface missing SDL2.exports entrypoints: {:?}",
+                missing
+            );
         }
     }
 
@@ -738,6 +740,23 @@ fn resolve_exports_source_path(repo_root: &Path, exports_input_path: &Path) -> P
     } else {
         repo_root.join("safe/src/exports/generated_linux_stubs.rs")
     }
+}
+
+fn parse_dynapi_exports(path: &Path) -> Result<BTreeSet<String>> {
+    let contents = fs::read_to_string(path)
+        .with_context(|| format!("read SDL dynapi exports {}", path.display()))?;
+    let export_re = Regex::new(r#"'(SDL_[A-Za-z0-9_]+)'\s*$"#)?;
+    let mut exports = BTreeSet::new();
+    for line in contents.lines() {
+        let trimmed = line.trim();
+        if !trimmed.starts_with("++") {
+            continue;
+        }
+        if let Some(captures) = export_re.captures(trimmed) {
+            exports.insert(captures[1].to_string());
+        }
+    }
+    Ok(exports)
 }
 
 pub fn generate_real_sdl_config() -> String {
@@ -1860,16 +1879,17 @@ fn build_port_map(inputs: &Inputs, target_plans: &[TargetPlan]) -> Result<Origin
             .into_owned();
         let (source_kind, ubuntu_buildable, ubuntu_runnable, rust_target_kind, rust_target_path) =
             if source.starts_with("original/src/test/") {
-                let rust_target_path = phase8_testsupport_target_path(source).unwrap_or_else(|| {
-                    format!(
-                        "safe/src/testsupport/{}.rs",
-                        Path::new(source)
-                            .file_stem()
-                            .unwrap_or_default()
-                            .to_string_lossy()
-                            .trim_start_matches("SDL_test_")
-                    )
-                });
+                let rust_target_path =
+                    phase8_testsupport_target_path(source).unwrap_or_else(|| {
+                        format!(
+                            "safe/src/testsupport/{}.rs",
+                            Path::new(source)
+                                .file_stem()
+                                .unwrap_or_default()
+                                .to_string_lossy()
+                                .trim_start_matches("SDL_test_")
+                        )
+                    });
                 (
                     "SDL2_test support source".to_string(),
                     true,
@@ -2234,11 +2254,11 @@ fn build_cve_contract(inputs: &Inputs) -> Result<CveContract> {
 
 fn build_perf_workload_manifest() -> PerfWorkloadManifest {
     PerfWorkloadManifest {
-        schema_version: 1,
-        phase_id: PHASE_ID.to_string(),
+        schema_version: 2,
+        phase_id: PHASE_09_ID.to_string(),
         workloads: vec![
             PerfWorkload {
-                workload_id: "surface_blit_fill_convert".to_string(),
+                workload_id: "surface_create_fill_convert_blit".to_string(),
                 subsystem: "video_surface".to_string(),
                 driver_sources: vec![
                     "original/test/testsprite2.c".to_string(),
@@ -2251,26 +2271,28 @@ fn build_perf_workload_manifest() -> PerfWorkloadManifest {
                     "original/test/axis.bmp".to_string(),
                     "original/test/button.bmp".to_string(),
                 ],
-                description: "Exercise surface load, blit, fill, and pixel conversion paths with authoritative upstream sample images.".to_string(),
+                warmup_loops: 8,
+                timed_loops: 240,
+                description: "Exercise repeated surface creation, fill, pixel conversion, and scaled blit paths against the upstream sample bitmaps.".to_string(),
             },
             PerfWorkload {
-                workload_id: "renderer_queue_texture_upload".to_string(),
+                workload_id: "renderer_queue_copy_texture_upload".to_string(),
                 subsystem: "render".to_string(),
                 driver_sources: vec![
                     "original/test/testrendercopyex.c".to_string(),
                     "original/test/testrendertarget.c".to_string(),
                     "original/test/teststreaming.c".to_string(),
-                    "original/test/testgles2_sdf.c".to_string(),
                 ],
                 resource_paths: vec![
-                    "original/test/moose.dat".to_string(),
+                    "original/test/sample.bmp".to_string(),
                     "original/test/testgles2_sdf_img_normal.bmp".to_string(),
-                    "original/test/testgles2_sdf_img_sdf.bmp".to_string(),
                 ],
-                description: "Measure renderer command queue pressure and texture upload using upstream render smoke assets.".to_string(),
+                warmup_loops: 4,
+                timed_loops: 120,
+                description: "Drive software renderer copy pressure with repeated texture upload/update and many queued render-copy commands.".to_string(),
             },
             PerfWorkload {
-                workload_id: "audio_convert_resample_wave_decode".to_string(),
+                workload_id: "audio_stream_convert_resample_wave".to_string(),
                 subsystem: "audio".to_string(),
                 driver_sources: vec![
                     "original/test/loopwave.c".to_string(),
@@ -2279,24 +2301,32 @@ fn build_perf_workload_manifest() -> PerfWorkloadManifest {
                     "original/test/testautomation_audio.c".to_string(),
                 ],
                 resource_paths: vec!["original/test/sample.wav".to_string()],
-                description: "Stress the authoritative WAVE decode, conversion, and resample scenarios from the upstream tests.".to_string(),
+                warmup_loops: 2,
+                timed_loops: 48,
+                description: "Stress SDL_LoadWAV_RW plus SDL_AudioStream format conversion and resampling using the checked-in upstream sample wave.".to_string(),
             },
             PerfWorkload {
-                workload_id: "event_queue_and_controller_maps".to_string(),
-                subsystem: "events_and_input".to_string(),
+                workload_id: "event_queue_throughput".to_string(),
+                subsystem: "events".to_string(),
                 driver_sources: vec![
                     "original/test/testautomation_events.c".to_string(),
+                ],
+                resource_paths: vec![],
+                warmup_loops: 16,
+                timed_loops: 320,
+                description: "Measure custom-event enqueue and dequeue throughput with fixed-size batches under the SDL events subsystem.".to_string(),
+            },
+            PerfWorkload {
+                workload_id: "controller_mapping_guid".to_string(),
+                subsystem: "input".to_string(),
+                driver_sources: vec![
                     "original/test/testgamecontroller.c".to_string(),
                     "original/test/controllermap.c".to_string(),
                 ],
-                resource_paths: vec![
-                    "original/test/axis.bmp".to_string(),
-                    "original/test/button.bmp".to_string(),
-                    "original/test/controllermap.bmp".to_string(),
-                    "original/test/controllermap_back.bmp".to_string(),
-                    "original/test/utf8.txt".to_string(),
-                ],
-                description: "Cover event queue churn and controller map lookups using the existing upstream controller resources.".to_string(),
+                resource_paths: vec![],
+                warmup_loops: 4,
+                timed_loops: 256,
+                description: "Cover controller mapping lookup and GUID string formatting over a pre-seeded Linux mapping set.".to_string(),
             },
         ],
     }
@@ -2304,15 +2334,36 @@ fn build_perf_workload_manifest() -> PerfWorkloadManifest {
 
 fn build_perf_thresholds(manifest: &PerfWorkloadManifest) -> PerfThresholds {
     PerfThresholds {
-        schema_version: 1,
-        phase_id: PHASE_ID.to_string(),
-        thresholds: manifest
+        schema_version: 2,
+        phase_id: PHASE_09_ID.to_string(),
+        default_policy: PerfDefaultPolicy {
+            samples_per_workload: 5,
+            max_median_cpu_regression_ratio: 1.2,
+            max_peak_allocation_regression_ratio: 1.25,
+        },
+        workloads: manifest
             .workloads
             .iter()
-            .map(|workload| PerfThreshold {
+            .map(|workload| PerfWorkloadThreshold {
                 workload_id: workload.workload_id.clone(),
-                max_regression_ratio: 1.15,
-                max_absolute_startup_delta_ms: 25,
+                max_median_cpu_regression_ratio: if workload.workload_id
+                    == "audio_stream_convert_resample_wave"
+                {
+                    Some(1.8)
+                } else {
+                    Some(1.2)
+                },
+                max_peak_allocation_regression_ratio: Some(1.25),
+                waiver_id: if workload.workload_id == "audio_stream_convert_resample_wave" {
+                    Some("audio_pure_rust_decode_resample".to_string())
+                } else {
+                    None
+                },
+                reason: if workload.workload_id == "audio_stream_convert_resample_wave" {
+                    Some("The safe build keeps checked Rust implementations for MS ADPCM decode and sample-rate conversion; after buffer reuse and resample-order tuning the remaining CPU gap is accepted to preserve memory safety and deterministic behavior without hand-written unsafe SIMD".to_string())
+                } else {
+                    None
+                },
             })
             .collect(),
     }
@@ -2537,9 +2588,10 @@ fn generate_bindings(inputs: &Inputs) -> Result<String> {
         .generate_comments(true)
         .generate()
         .context("generate bindgen ABI types")?;
+    let bindings = bindings.to_string();
     Ok(format!(
         "/* Generated by xtask capture-contracts from authoritative public headers. */\n{}\n",
-        bindings.to_string()
+        bindings.trim_end()
     ))
 }
 
@@ -2565,7 +2617,8 @@ fn render_linux_stubs(
             symbol.name, symbol.name
         ));
     }
-    source
+    let trimmed = source.trim_end();
+    format!("{trimmed}\n")
 }
 
 fn implemented_export_symbols(safe_root: &Path) -> Result<BTreeSet<String>> {
@@ -2574,8 +2627,7 @@ fn implemented_export_symbols(safe_root: &Path) -> Result<BTreeSet<String>> {
     let export_re = Regex::new(r#"pub\s+unsafe\s+extern\s+"C"\s+fn\s+(SDL_[A-Za-z0-9_]+)\s*\("#)?;
     let macro_export_re = Regex::new(r#"fn\s+(SDL_[A-Za-z0-9_]+)\s*\(.*=\s*[A-Za-z0-9_]+;"#)?;
     let macro_arg_export_re = Regex::new(r#"[A-Za-z0-9_]+!\(\s*(SDL_[A-Za-z0-9_]+)\b"#)?;
-    let c_export_re =
-        Regex::new(r#"(?m)^[A-Za-z_][A-Za-z0-9_\s\*]*\b(SDL_[A-Za-z0-9_]+)\s*\("#)?;
+    let c_export_re = Regex::new(r#"(?m)^[A-Za-z_][A-Za-z0-9_\s\*]*\b(SDL_[A-Za-z0-9_]+)\s*\("#)?;
     let mut symbols = BTreeSet::new();
     for path in files {
         if path.ends_with("src/exports/generated_linux_stubs.rs")
@@ -2635,7 +2687,7 @@ fn render_dynapi_source(manifest: &DynapiManifest) -> String {
             .collect::<Vec<_>>()
             .join(", ");
         source.push_str(&format!(
-            "    DynapiSlot {{ slot_index: {}, symbol: \"{}\", line: {}, guards: &[{}] }},\n",
+            "    DynapiSlot {{\n        slot_index: {},\n        symbol: \"{}\",\n        line: {},\n        guards: &[{}],\n    }},\n",
             slot.slot_index, slot.name, slot.line, guards
         ));
     }

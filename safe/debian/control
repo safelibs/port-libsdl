@@ -1,0 +1,62 @@
+Source: libsdl2
+Priority: optional
+Section: libs
+Maintainer: SafeLibs Packaging Maintainers <noreply@example.com>
+Standards-Version: 4.6.2
+Build-Depends:
+ debhelper-compat (= 13),
+ build-essential,
+ cargo,
+ dpkg-dev,
+ pkg-config,
+ rustc
+Homepage: https://www.libsdl.org/
+Rules-Requires-Root: no
+
+Package: libsdl2-2.0-0
+Architecture: any
+Multi-Arch: same
+Pre-Depends:
+ ${misc:Pre-Depends}
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends}
+Suggests:
+ xdg-utils
+Description: Simple DirectMedia Layer
+ SDL is a library that allows programs portable low level access to a video
+ framebuffer, audio output, mouse, and keyboard.
+ .
+ This build ships the SafeLibs Rust implementation packaged with Debian's
+ historical ABI, SONAME, and install layout.
+
+Package: libsdl2-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends:
+ libsdl2-2.0-0 (= ${binary:Version}),
+ ${misc:Depends}
+Description: Simple DirectMedia Layer development files
+ SDL is a library that allows programs portable low level access to a video
+ framebuffer, audio output, mouse, and keyboard.
+ .
+ This package contains the files needed to compile and link programs which
+ use SDL.
+
+Package: libsdl2-tests
+Section: misc
+Architecture: any
+Depends:
+ libsdl2-2.0-0 (= ${binary:Version}),
+ ${misc:Depends},
+ ${shlibs:Depends}
+Suggests:
+ gnome-desktop-testing
+Description: Simple DirectMedia Layer automated and manual tests
+ SDL is a library that allows programs portable low level access to a video
+ framebuffer, audio output, mouse, and keyboard.
+ .
+ This package contains manual and automated tests. The automated tests can
+ be run using ginsttest-runner in the gnome-desktop-testing package,
+ or manually.

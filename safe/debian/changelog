@@ -1,0 +1,6 @@
+libsdl2 (2.30.0+dfsg-1ubuntu3.1+safelibs1) noble; urgency=medium
+
+  * Package the SafeLibs SDL2 implementation with Debian-compatible
+    runtime, development, and installed-tests payloads.
+
+ -- SafeLibs Automation <noreply@example.com>  Sun, 05 Apr 2026 12:00:00 -0700

@@ -12,6 +12,17 @@ use crate::contracts::{
     load_install_contract, load_public_header_inventory, DriverFamilyContract,
     PublicHeaderInventory, SDL_RUNTIME_REALNAME, SDL_SONAME, SDL_VERSION, UBUNTU_MULTIARCH,
 };
+use crate::original_tests::{
+    compile_original_test_objects, relink_original_test_objects, CompileOriginalTestObjectsArgs,
+    RelinkOriginalTestObjectsArgs,
+};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StageInstallMode {
+    Bootstrap,
+    Runtime,
+    Full,
+}
 
 pub struct StageInstallArgs {
     pub repo_root: PathBuf,
@@ -19,6 +30,7 @@ pub struct StageInstallArgs {
     pub original_dir: PathBuf,
     pub stage_root: PathBuf,
     pub library_path: Option<PathBuf>,
+    pub mode: StageInstallMode,
 }
 
 pub struct VerifyBootstrapStageArgs {
@@ -56,6 +68,9 @@ pub fn stage_install(args: StageInstallArgs) -> Result<()> {
     install_cmake_surface(&original_dir, &stage_root)?;
     install_helper_archives(&args.repo_root, &stage_root)?;
     install_library_artifacts(&args.repo_root, &stage_root, args.library_path.as_deref())?;
+    if args.mode == StageInstallMode::Full {
+        install_installed_tests(&args.repo_root, &generated_dir, &stage_root)?;
+    }
 
     let _ = install_contract;
     Ok(())
@@ -580,12 +595,60 @@ fn render_lowercase_cmake_version(original_dir: &Path) -> Result<String> {
 
 fn render_uppercase_cmake_config() -> String {
     [
-        "include(\"${CMAKE_CURRENT_LIST_DIR}/sdl2-config.cmake\")",
-        "foreach(_sdl2_targets_file SDL2Targets.cmake SDL2staticTargets.cmake SDL2mainTargets.cmake SDL2testTargets.cmake)",
-        "  if(EXISTS \"${CMAKE_CURRENT_LIST_DIR}/${_sdl2_targets_file}\")",
-        "    include(\"${CMAKE_CURRENT_LIST_DIR}/${_sdl2_targets_file}\")",
+        "set(SDL2_FOUND TRUE)",
+        "",
+        "if(EXISTS \"${CMAKE_CURRENT_LIST_DIR}/SDL2Targets.cmake\")",
+        "  include(\"${CMAKE_CURRENT_LIST_DIR}/SDL2Targets.cmake\")",
+        "  set(SDL2_SDL2_FOUND TRUE)",
+        "endif()",
+        "if(EXISTS \"${CMAKE_CURRENT_LIST_DIR}/SDL2staticTargets.cmake\")",
+        "  if(ANDROID)",
+        "    enable_language(CXX)",
         "  endif()",
-        "endforeach()",
+        "  include(\"${CMAKE_CURRENT_LIST_DIR}/SDL2staticTargets.cmake\")",
+        "  set(SDL2_SDL2-static_FOUND TRUE)",
+        "endif()",
+        "if(EXISTS \"${CMAKE_CURRENT_LIST_DIR}/SDL2mainTargets.cmake\")",
+        "  include(\"${CMAKE_CURRENT_LIST_DIR}/SDL2mainTargets.cmake\")",
+        "  set(SDL2_SDL2main_FOUND TRUE)",
+        "endif()",
+        "if(EXISTS \"${CMAKE_CURRENT_LIST_DIR}/SDL2testTargets.cmake\")",
+        "  include(\"${CMAKE_CURRENT_LIST_DIR}/SDL2testTargets.cmake\")",
+        "  set(SDL2_SDL2test_FOUND TRUE)",
+        "endif()",
+        "",
+        "include(\"${CMAKE_CURRENT_LIST_DIR}/sdlfind.cmake\")",
+        "",
+        "if(TARGET SDL2::SDL2-static AND NOT TARGET SDL2::SDL2)",
+        "  if(CMAKE_VERSION VERSION_LESS \"3.18\")",
+        "    add_library(SDL2::SDL2 INTERFACE IMPORTED)",
+        "    set_target_properties(SDL2::SDL2 PROPERTIES INTERFACE_LINK_LIBRARIES \"SDL2::SDL2-static\")",
+        "  else()",
+        "    add_library(SDL2::SDL2 ALIAS SDL2::SDL2-static)",
+        "  endif()",
+        "endif()",
+        "",
+        "set(SDL2_PREFIX \"/usr\")",
+        "set(SDL2_EXEC_PREFIX \"/usr\")",
+        "set(SDL2_INCLUDE_DIR \"/usr/include/SDL2\")",
+        "set(SDL2_INCLUDE_DIRS \"/usr/include;/usr/include/SDL2\")",
+        "set(SDL2_BINDIR \"/usr/bin\")",
+        &format!("set(SDL2_LIBDIR \"/usr/lib/{UBUNTU_MULTIARCH}\")"),
+        "set(SDL2_LIBRARIES SDL2::SDL2)",
+        "set(SDL2_STATIC_LIBRARIES SDL2::SDL2-static)",
+        "set(SDL2_STATIC_PRIVATE_LIBS)",
+        "",
+        "set(SDL2MAIN_LIBRARY)",
+        "if(TARGET SDL2::SDL2main)",
+        "  set(SDL2MAIN_LIBRARY SDL2::SDL2main)",
+        "  list(INSERT SDL2_LIBRARIES 0 SDL2::SDL2main)",
+        "  list(INSERT SDL2_STATIC_LIBRARIES 0 SDL2::SDL2main)",
+        "endif()",
+        "",
+        "set(SDL2TEST_LIBRARY)",
+        "if(TARGET SDL2::SDL2test)",
+        "  set(SDL2TEST_LIBRARY SDL2::SDL2test)",
+        "endif()",
         "",
     ]
     .join("\n")
@@ -715,6 +778,40 @@ fn install_library_artifacts(
     Ok(())
 }
 
+fn install_installed_tests(
+    repo_root: &Path,
+    generated_dir: &Path,
+    stage_root: &Path,
+) -> Result<()> {
+    let build_root = tempdir().context("create installed-tests build tempdir")?;
+    let objects_dir = build_root.path().join("objects");
+    let linked_dir = build_root.path().join("linked");
+
+    compile_original_test_objects(CompileOriginalTestObjectsArgs {
+        repo_root: repo_root.to_path_buf(),
+        generated_dir: generated_dir.to_path_buf(),
+        output_dir: objects_dir.clone(),
+    })?;
+    relink_original_test_objects(RelinkOriginalTestObjectsArgs {
+        repo_root: repo_root.to_path_buf(),
+        generated_dir: generated_dir.to_path_buf(),
+        objects_dir,
+        output_dir: linked_dir.clone(),
+        library_path: stage_root.join(format!("usr/lib/{UBUNTU_MULTIARCH}/{SDL_SONAME}")),
+    })?;
+
+    let installed_tests_dir = stage_root.join("usr/libexec/installed-tests/SDL2");
+    copy_dir_contents(&linked_dir, &installed_tests_dir)?;
+
+    let metadata_dir = stage_root.join("usr/share/installed-tests/SDL2");
+    copy_dir_contents(
+        &repo_root.join("safe/upstream-tests/installed-tests/usr/share/installed-tests/SDL2"),
+        &metadata_dir,
+    )?;
+
+    Ok(())
+}
+
 fn verify_headers(stage_root: &Path, inventory: &PublicHeaderInventory) -> Result<()> {
     for header in &inventory.headers {
         ensure_exists(&stage_root.join(&header.install_relpath))?;
@@ -725,6 +822,25 @@ fn verify_headers(stage_root: &Path, inventory: &PublicHeaderInventory) -> Resul
 fn ensure_exists(path: &Path) -> Result<()> {
     if !path.exists() {
         bail!("missing staged path {}", path.display());
+    }
+    Ok(())
+}
+
+fn copy_dir_contents(source: &Path, destination: &Path) -> Result<()> {
+    fs::create_dir_all(destination)?;
+    for entry in
+        fs::read_dir(source).with_context(|| format!("read directory {}", source.display()))?
+    {
+        let entry = entry?;
+        let entry_path = entry.path();
+        let target_path = destination.join(entry.file_name());
+        if entry.file_type()?.is_dir() {
+            copy_dir_contents(&entry_path, &target_path)?;
+        } else {
+            fs::copy(&entry_path, &target_path).with_context(|| {
+                format!("copy {} to {}", entry_path.display(), target_path.display())
+            })?;
+        }
     }
     Ok(())
 }

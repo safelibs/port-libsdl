@@ -9,9 +9,9 @@ usage() {
   cat <<'EOF'
 usage: test-original.sh [--only <slug-or-manifest-name>]
 
-Builds the upstream SDL source from ./original inside an Ubuntu 24.04 Docker
-container, installs it into /usr/local, and then exercises the dependent
-software listed in dependents.json.
+Builds the safe SDL Debian packages from ./safe using the checked-in
+contracts/original inputs inside an Ubuntu 24.04 Docker container, installs
+them, and then exercises the dependent software listed in dependents.json.
 
 --only runs a single dependent check. Accepted values include:
   qemu, ffmpeg, scrcpy, love, pygame, scummvm, supertuxkart,
@@ -44,6 +44,11 @@ command -v docker >/dev/null 2>&1 || {
 
 [[ -d "$ROOT/original" ]] || {
   echo "missing original source tree" >&2
+  exit 1
+}
+
+[[ -d "$ROOT/safe" ]] || {
+  echo "missing safe source tree" >&2
   exit 1
 }
 
@@ -96,9 +101,10 @@ ROOT=/work
 ONLY_FILTER="${LIBSDL_TEST_ONLY:-}"
 HOME=/tmp/libsdl-home
 MULTIARCH="$(gcc -print-multiarch)"
-ORIGINAL_SDL_SO=""
-ORIGINAL_SDL_LIBDIR=""
-ORIGINAL_SDL_PKGCONFIG_DIR=""
+SAFE_REPO=/tmp/libsdl-safe-repo
+SAFE_SDL_SO=""
+SAFE_SDL_LIBDIR=""
+SAFE_SDL_PKGCONFIG_DIR=""
 XVFB_PID=""
 MATCHED_ONLY=0
 TEST_USER=libsdltest
@@ -180,7 +186,8 @@ selection_matches() {
 install_runtime_packages() {
   log_step "Installing SDL build dependencies and dependent packages"
   apt-get update
-  apt-get build-dep -y libsdl2
+  apt-get build-dep -y "$SAFE_REPO/original"
+  apt-get build-dep -y "$SAFE_REPO/safe"
 
   local packages=()
   selection_matches ffmpeg "FFmpeg" && packages+=(ffmpeg)
@@ -213,41 +220,58 @@ install_runtime_packages() {
   fi
 }
 
-build_original_sdl() {
-  log_step "Building original SDL"
+prepare_safe_source_tree() {
+  rm -rf "$SAFE_REPO"
+  mkdir -p "$SAFE_REPO"
+  rsync -a --delete "$ROOT/safe/" "$SAFE_REPO/safe/"
+  rsync -a --delete "$ROOT/original/" "$SAFE_REPO/original/"
+  rsync -a "$ROOT/dependents.json" "$SAFE_REPO/"
+  rsync -a "$ROOT/relevant_cves.json" "$SAFE_REPO/"
+}
 
-  rm -rf /tmp/libsdl-original
-  rsync -a --delete "$ROOT/original/" /tmp/libsdl-original/
+build_safe_sdl() {
+  log_step "Building and installing safe SDL Debian packages"
 
   (
-    cd /tmp/libsdl-original
-    ./configure --prefix=/usr/local --disable-static >/tmp/libsdl-configure.log 2>&1
-    make -j"$(nproc)" >/tmp/libsdl-make.log 2>&1
-    make install >/tmp/libsdl-install.log 2>&1
-  )
+    cd "$SAFE_REPO/safe"
+    dpkg-buildpackage -us -uc -b >/tmp/libsdl-safe-build.log 2>&1
+  ) || {
+    cat /tmp/libsdl-safe-build.log >&2 || true
+    die "failed to build safe SDL Debian packages"
+  }
 
-  local installed_sdl installed_pc
-  installed_sdl="$(find /usr/local \( -type f -o -type l \) -name 'libSDL2-2.0.so.0*' | sort | head -n1)"
-  installed_pc="$(find /usr/local -type f -path '*/pkgconfig/sdl2.pc' | sort | head -n1)"
+  local runtime_deb dev_deb tests_deb installed_pc
+  runtime_deb="$(find "$SAFE_REPO" -maxdepth 1 -type f -name 'libsdl2-2.0-0_*_*.deb' | sort | tail -n1)"
+  dev_deb="$(find "$SAFE_REPO" -maxdepth 1 -type f -name 'libsdl2-dev_*_*.deb' | sort | tail -n1)"
+  tests_deb="$(find "$SAFE_REPO" -maxdepth 1 -type f -name 'libsdl2-tests_*_*.deb' | sort | tail -n1)"
 
-  [[ -n "$installed_sdl" ]] || die "failed to locate installed libSDL2-2.0.so.0"
-  [[ -n "$installed_pc" ]] || die "failed to locate installed sdl2.pc"
+  [[ -n "$runtime_deb" ]] || die "failed to locate built libsdl2-2.0-0 package"
+  [[ -n "$dev_deb" ]] || die "failed to locate built libsdl2-dev package"
+  [[ -n "$tests_deb" ]] || die "failed to locate built libsdl2-tests package"
 
-  ORIGINAL_SDL_SO="$(readlink -f "$installed_sdl")"
-  ORIGINAL_SDL_LIBDIR="$(dirname "$ORIGINAL_SDL_SO")"
-  ORIGINAL_SDL_PKGCONFIG_DIR="$(dirname "$installed_pc")"
+  apt-get install -y --no-install-recommends \
+    "$runtime_deb" \
+    "$dev_deb" \
+    "$tests_deb" \
+    >/tmp/libsdl-safe-install.log 2>&1 || {
+      cat /tmp/libsdl-safe-install.log >&2 || true
+      die "failed to install safe SDL Debian packages"
+    }
 
-  [[ -n "$ORIGINAL_SDL_SO" && -f "$ORIGINAL_SDL_SO" ]] || die "failed to locate installed libSDL2-2.0.so.0"
-  [[ -n "$ORIGINAL_SDL_PKGCONFIG_DIR" && -d "$ORIGINAL_SDL_PKGCONFIG_DIR" ]] || die "failed to locate installed sdl2.pc"
-
-  printf '%s\n' "$ORIGINAL_SDL_LIBDIR" >/etc/ld.so.conf.d/zz-libsdl-local.conf
   ldconfig
 
-  export PATH="/usr/local/bin:$PATH"
-  export LD_LIBRARY_PATH="$ORIGINAL_SDL_LIBDIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-  export PKG_CONFIG_PATH="$ORIGINAL_SDL_PKGCONFIG_DIR${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+  SAFE_SDL_SO="$(readlink -f "/usr/lib/${MULTIARCH}/libSDL2-2.0.so.0")"
+  SAFE_SDL_LIBDIR="/usr/lib/${MULTIARCH}"
+  installed_pc="$(find "/usr/lib/${MULTIARCH}" -type f -path '*/pkgconfig/sdl2.pc' | sort | head -n1)"
+  SAFE_SDL_PKGCONFIG_DIR="$(dirname "$installed_pc")"
 
-  pkg-config --variable=prefix sdl2 | grep -Fx '/usr/local' >/dev/null
+  [[ -n "$SAFE_SDL_SO" && -f "$SAFE_SDL_SO" ]] || die "failed to locate installed safe libSDL2-2.0.so.0"
+  [[ -n "$SAFE_SDL_PKGCONFIG_DIR" && -d "$SAFE_SDL_PKGCONFIG_DIR" ]] || die "failed to locate installed safe sdl2.pc"
+
+  export LD_LIBRARY_PATH="$SAFE_SDL_LIBDIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+  export PKG_CONFIG_PATH="$SAFE_SDL_PKGCONFIG_DIR${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+
+  pkg-config --variable=prefix sdl2 | grep -Fx '/usr' >/dev/null
 }
 
 cleanup_xvfb() {
@@ -298,15 +322,15 @@ run_as_test_user() {
     "$@"
 }
 
-assert_uses_original_sdl() {
+assert_uses_safe_sdl() {
   local target="$1"
   local resolved
 
   resolved="$(ldd "$target" 2>/dev/null | awk '$1 == "libSDL2-2.0.so.0" { print $3; exit }')"
   [[ -n "$resolved" ]] || die "ldd did not report libSDL2-2.0.so.0 for $target"
   resolved="$(readlink -f "$resolved")"
-  [[ "$resolved" == "$ORIGINAL_SDL_SO" ]] || {
-    printf 'expected %s to resolve libSDL2-2.0.so.0 from %s, got %s\n' "$target" "$ORIGINAL_SDL_SO" "$resolved" >&2
+  [[ "$resolved" == "$SAFE_SDL_SO" ]] || {
+    printf 'expected %s to resolve libSDL2-2.0.so.0 from %s, got %s\n' "$target" "$SAFE_SDL_SO" "$resolved" >&2
     ldd "$target" >&2
     exit 1
   }
@@ -414,7 +438,7 @@ test_qemu() {
   local ui_module
   ui_module="$(first_installed_path qemu-system-gui '/ui-sdl\.so$')"
   [[ -n "$ui_module" ]] || die "failed to locate qemu SDL UI module"
-  assert_uses_original_sdl "$ui_module"
+  assert_uses_safe_sdl "$ui_module"
 
   start_xvfb
   run_window_smoke qemu 'QEMU' \
@@ -427,7 +451,7 @@ test_qemu() {
 }
 
 test_ffmpeg() {
-  assert_uses_original_sdl "$(command -v ffplay)"
+  assert_uses_safe_sdl "$(command -v ffplay)"
 
   start_xvfb
   timeout 30 env SDL_AUDIODRIVER=dummy \
@@ -439,7 +463,7 @@ test_scrcpy() {
   local scrcpy_elf
   scrcpy_elf="$(first_installed_elf scrcpy '/scrcpy$')"
   [[ -n "$scrcpy_elf" ]] || die "failed to locate scrcpy ELF binary"
-  assert_uses_original_sdl "$scrcpy_elf"
+  assert_uses_safe_sdl "$scrcpy_elf"
 
   # The packaged scrcpy binary cannot reach its SDL viewer path without an
   # attached Android device, so build a narrow smoke probe around scrcpy's
@@ -786,7 +810,7 @@ EOF
     -I/tmp/scrcpy-probe \
     $(pkg-config --cflags --libs sdl2)
 
-  assert_uses_original_sdl /tmp/scrcpy-probe/scrcpy-screen-otg-smoke
+  assert_uses_safe_sdl /tmp/scrcpy-probe/scrcpy-screen-otg-smoke
 
   start_xvfb
   run_window_smoke scrcpy 'scrcpy SDL frontend smoke' \
@@ -796,7 +820,7 @@ EOF
 test_love() {
   local love_bin
   love_bin="$(readlink -f "$(command -v love)")"
-  assert_uses_original_sdl "$love_bin"
+  assert_uses_safe_sdl "$love_bin"
 
   mkdir -p /tmp/love-smoke
   cat >/tmp/love-smoke/main.lua <<'LUA'
@@ -853,7 +877,7 @@ test_pygame() {
 
   pygame_base="$(find "$build_lib"/pygame -maxdepth 1 -type f -name 'base*.so' | head -n1)"
   [[ -n "$pygame_base" ]] || die "failed to locate built pygame base extension"
-  assert_uses_original_sdl "$pygame_base"
+  assert_uses_safe_sdl "$pygame_base"
 
   start_xvfb
   if ! env SDL_AUDIODRIVER=dummy PYTHONPATH="$build_lib" python3 -X faulthandler <<'PY' >/tmp/pygame.log 2>&1
@@ -885,7 +909,7 @@ test_scummvm() {
   local scummvm_bin
   scummvm_bin="$(first_installed_elf scummvm '/scummvm$')"
   [[ -n "$scummvm_bin" ]] || die "failed to locate scummvm binary"
-  assert_uses_original_sdl "$scummvm_bin"
+  assert_uses_safe_sdl "$scummvm_bin"
 
   start_xvfb
   run_window_smoke scummvm 'ScummVM' \
@@ -897,7 +921,7 @@ test_supertuxkart() {
   local supertuxkart_bin
   supertuxkart_bin="$(first_installed_elf supertuxkart '/supertuxkart$')"
   [[ -n "$supertuxkart_bin" ]] || die "failed to locate supertuxkart binary"
-  assert_uses_original_sdl "$supertuxkart_bin"
+  assert_uses_safe_sdl "$supertuxkart_bin"
 
   start_xvfb
   run_window_smoke supertuxkart 'SuperTuxKart' \
@@ -911,7 +935,7 @@ test_tuxpaint() {
   local tuxpaint_bin
   tuxpaint_bin="$(first_installed_elf tuxpaint '/tuxpaint$')"
   [[ -n "$tuxpaint_bin" ]] || die "failed to locate tuxpaint binary"
-  assert_uses_original_sdl "$tuxpaint_bin"
+  assert_uses_safe_sdl "$tuxpaint_bin"
 
   start_xvfb
   run_window_smoke tuxpaint 'Tux Paint' \
@@ -925,7 +949,7 @@ test_openttd() {
 
   openttd_bin="$(first_installed_elf openttd '/openttd$')"
   [[ -n "$openttd_bin" ]] || die "failed to locate openttd binary"
-  assert_uses_original_sdl "$openttd_bin"
+  assert_uses_safe_sdl "$openttd_bin"
 
   graphics_set="$("$openttd_bin" -h | awk '
     /^List of graphics sets:/ { in_graphics = 1; next }
@@ -950,7 +974,7 @@ test_0ad() {
   local pyrogenesis_bin
   pyrogenesis_bin="$(first_installed_elf 0ad '/pyrogenesis$')"
   [[ -n "$pyrogenesis_bin" ]] || die "failed to locate pyrogenesis binary"
-  assert_uses_original_sdl "$pyrogenesis_bin"
+  assert_uses_safe_sdl "$pyrogenesis_bin"
 
   start_xvfb
   run_window_smoke 0ad '*' \
@@ -1024,7 +1048,7 @@ CPP
     -L"/usr/lib/${MULTIARCH}" \
     -limgui
 
-  assert_uses_original_sdl /tmp/imgui-probe
+  assert_uses_safe_sdl /tmp/imgui-probe
 }
 
 test_libtcod() {
@@ -1045,7 +1069,7 @@ C
     /tmp/libtcod-probe.c \
     $(pkg-config --cflags --libs libtcod)
 
-  assert_uses_original_sdl /tmp/libtcod-probe
+  assert_uses_safe_sdl /tmp/libtcod-probe
   /tmp/libtcod-probe
 }
 
@@ -1074,8 +1098,9 @@ run_case() {
 
 validate_dependents_inventory
 setup_test_user
+prepare_safe_source_tree
 install_runtime_packages
-build_original_sdl
+build_safe_sdl
 
 run_case qemu "QEMU system GUI modules" test_qemu
 run_case ffmpeg "FFmpeg" test_ffmpeg

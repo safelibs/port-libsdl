@@ -75,6 +75,7 @@ pub struct BuildOriginalCmakeSuiteArgs {
 pub struct RunOriginalCtestArgs {
     pub repo_root: PathBuf,
     pub build_dir: PathBuf,
+    pub stage_root: Option<PathBuf>,
     pub filter: Option<String>,
     pub test_list: Option<String>,
 }
@@ -106,14 +107,7 @@ pub fn compile_original_test_objects(args: CompileOriginalTestObjectsArgs) -> Re
 
     let include_temp = tempdir().context("create generated include tempdir")?;
     let generated_include_dir = include_temp.path();
-    fs::write(
-        generated_include_dir.join("SDL_config.h"),
-        generate_real_sdl_config(),
-    )?;
-    fs::write(
-        generated_include_dir.join("SDL_revision.h"),
-        generate_sdl_revision_header(),
-    )?;
+    prepare_original_generated_include_dir(&args.repo_root, generated_include_dir)?;
 
     for unit in manifest
         .translation_units
@@ -124,7 +118,7 @@ pub fn compile_original_test_objects(args: CompileOriginalTestObjectsArgs) -> Re
         if let Some(parent) = object_path.parent() {
             fs::create_dir_all(parent)?;
         }
-        let mut cmd = Command::new("cc");
+        let mut cmd = Command::new(&manifest.toolchain_defaults.compiler);
         cmd.current_dir(&args.repo_root)
             .arg("-c")
             .arg(&unit.source_path)
@@ -140,6 +134,9 @@ pub fn compile_original_test_objects(args: CompileOriginalTestObjectsArgs) -> Re
         }
         for definition in &unit.compile_definitions {
             cmd.arg(format!("-D{definition}"));
+        }
+        for flag in &manifest.toolchain_defaults.baseline_compiler_flags {
+            cmd.arg(flag);
         }
         for flag in &unit.compile_flags {
             cmd.arg(flag);
@@ -183,7 +180,7 @@ pub fn relink_original_test_objects(args: RelinkOriginalTestObjectsArgs) -> Resu
         .filter(|target| target.ubuntu_24_04_enabled)
     {
         let output_path = output_dir.join(&target.output_name);
-        let mut cmd = Command::new("cc");
+        let mut cmd = Command::new(&manifest.toolchain_defaults.linker);
         cmd.current_dir(&args.repo_root).arg("-o").arg(&output_path);
         for object_id in &target.object_ids {
             let unit = manifest
@@ -200,7 +197,9 @@ pub fn relink_original_test_objects(args: RelinkOriginalTestObjectsArgs) -> Resu
         for search in &manifest.toolchain_defaults.baseline_linker_flags {
             cmd.arg(search);
         }
-        cmd.arg("-lSDL2_test").arg("-lSDL2");
+        for library in &manifest.toolchain_defaults.baseline_link_libraries {
+            cmd.arg(render_library_arg(library));
+        }
         for library in &target.link_libraries {
             cmd.arg(render_library_arg(library));
         }
@@ -217,6 +216,8 @@ pub fn relink_original_test_objects(args: RelinkOriginalTestObjectsArgs) -> Resu
                 String::from_utf8_lossy(&output.stderr)
             );
         }
+
+        copy_target_resources(&args.repo_root, &output_dir, &target.resource_paths)?;
     }
 
     Ok(())
@@ -228,20 +229,30 @@ pub fn run_relinked_original_tests(args: RunRelinkedOriginalTestsArgs) -> Result
     let standalone =
         load_standalone_test_manifest(&generated_dir.join("standalone_test_manifest.json"))?;
 
-    for target in standalone
-        .targets
-        .iter()
-        .filter(|target| target.ci_validation_mode == "auto_run")
-    {
+    for target in standalone.targets.iter().filter(|target| {
+        matches!(
+            target.ci_validation_mode.as_str(),
+            "auto_run" | "fixture_run"
+        )
+    }) {
         if let Some(filter) = &args.filter {
             if &target.target_name != filter {
                 continue;
             }
         }
-        let status = Command::new(bin_dir.join(&target.target_name))
-            .current_dir(&bin_dir)
+        let executable = bin_dir.join(&target.target_name);
+        if !executable.exists() {
+            bail!("missing relinked binary {}", executable.display());
+        }
+        let mut cmd = Command::new(&executable);
+        cmd.current_dir(&bin_dir)
             .env("SDL_AUDIODRIVER", "dummy")
             .env("SDL_VIDEODRIVER", "dummy")
+            .env("SDL_TESTS_QUICK", "1");
+        for (key, value) in &target.checker_runner_contract.environment {
+            cmd.env(key, value);
+        }
+        let status = cmd
             .status()
             .with_context(|| format!("run {}", target.target_name))?;
         if !status.success() {
@@ -672,7 +683,11 @@ pub fn run_original_ctest(args: RunOriginalCtestArgs) -> Result<()> {
     cmd.current_dir(&args.repo_root)
         .arg("--test-dir")
         .arg(&build_dir)
-        .arg("--output-on-failure");
+        .arg("--output-on-failure")
+        .env("SDL_TESTS_QUICK", "1");
+    if let Some(stage_root) = args.stage_root.as_ref() {
+        apply_stage_suite_env(&mut cmd, &absolutize(&args.repo_root, stage_root))?;
+    }
     let filter = match (&args.filter, &args.test_list) {
         (Some(filter), _) => Some(filter.clone()),
         (None, Some(test_list)) => ctest_filter_from_test_list(&args.repo_root, test_list)?,
@@ -732,6 +747,39 @@ fn resolve_token(
             .to_string()),
         _ => Ok(value.to_string()),
     }
+}
+
+fn prepare_original_generated_include_dir(
+    repo_root: &Path,
+    generated_include_dir: &Path,
+) -> Result<()> {
+    let original_dir = repo_root.join("original");
+    fs::write(
+        generated_include_dir.join("SDL_config.h"),
+        fs::read(original_dir.join("debian/SDL_config.h"))
+            .context("read original Debian SDL_config.h wrapper")?,
+    )?;
+    fs::write(
+        generated_include_dir.join("SDL_revision.h"),
+        generate_sdl_revision_header(),
+    )?;
+
+    let multiarch_dir = generated_include_dir.join("SDL2");
+    fs::create_dir_all(&multiarch_dir)?;
+    fs::write(
+        multiarch_dir.join("_real_SDL_config.h"),
+        generate_real_sdl_config(),
+    )?;
+    for header in ["SDL_platform.h", "begin_code.h", "close_code.h"] {
+        let link = multiarch_dir.join(header);
+        if link.exists() {
+            fs::remove_file(&link)?;
+        }
+        std::os::unix::fs::symlink(original_dir.join("include").join(header), &link)
+            .with_context(|| format!("symlink {}", link.display()))?;
+    }
+
+    Ok(())
 }
 
 fn resolve_original_test_dir(repo_root: &Path, original_dir: &Path) -> Result<PathBuf> {

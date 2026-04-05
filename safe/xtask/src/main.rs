@@ -1,4 +1,5 @@
 mod contracts;
+mod final_phase;
 mod original_tests;
 mod perf;
 mod stage_install;
@@ -12,6 +13,7 @@ use contracts::{
     abi_check, capture_contracts, verify_captured_contracts, verify_test_port_coverage,
     verify_test_port_map, ContractArgs, PHASE_08_ID,
 };
+use final_phase::{final_check, verify_unsafe_allowlist, FinalCheckArgs};
 use original_tests::{
     build_original_autotools_suite, build_original_cmake_suite, build_original_standalone,
     compile_original_test_objects, relink_original_test_objects, run_evdev_fixture_tests,
@@ -30,7 +32,7 @@ use perf::{
 };
 use stage_install::{
     stage_install, verify_bootstrap_stage, verify_driver_contract, StageInstallArgs,
-    VerifyBootstrapStageArgs, VerifyDriverContractArgs,
+    StageInstallMode, VerifyBootstrapStageArgs, VerifyDriverContractArgs,
 };
 
 fn main() -> Result<()> {
@@ -60,7 +62,13 @@ fn main() -> Result<()> {
                 .unwrap_or_else(|| parsed.generated.join("dynapi_manifest.json"));
             let exports_source = parsed
                 .exports
+                .as_ref()
+                .filter(|path| path.extension().and_then(|ext| ext.to_str()) == Some("rs"))
+                .cloned()
                 .unwrap_or_else(|| PathBuf::from("safe/src/exports/generated_linux_stubs.rs"));
+            let exports_contract = parsed
+                .exports
+                .filter(|path| path.extension().and_then(|ext| ext.to_str()) != Some("rs"));
             let dynapi_source = PathBuf::from("safe/src/dynapi/generated.rs");
             abi_check(
                 &repo_root,
@@ -70,6 +78,7 @@ fn main() -> Result<()> {
                 &dynapi_source,
                 parsed.library.as_deref(),
                 parsed.require_soname.as_deref(),
+                exports_contract.as_deref(),
             )
         }
         "verify-test-port-map" => {
@@ -108,6 +117,7 @@ fn main() -> Result<()> {
                 original_dir: parsed.original,
                 stage_root: parsed.root,
                 library_path: parsed.library,
+                mode: parsed.mode,
             })
         }
         "build-original-cmake-suite" => {
@@ -124,6 +134,7 @@ fn main() -> Result<()> {
             run_original_ctest(RunOriginalCtestArgs {
                 repo_root,
                 build_dir: parsed.build_dir,
+                stage_root: parsed.root,
                 filter: parsed.filter,
                 test_list: parsed.test_list,
             })
@@ -267,13 +278,42 @@ fn main() -> Result<()> {
             run_xvfb(repo_root, parsed.command)
         }
         "run-xvfb-window-smoke" => run_xvfb_window_smoke(repo_root),
+        "final-check" => {
+            let parsed = FinalCheckCliArgs::parse(&remaining)?;
+            final_check(FinalCheckArgs {
+                repo_root,
+                generated_dir: parsed.generated,
+                original_dir: parsed.original,
+                dependents_path: parsed.dependents,
+                cves_path: parsed.cves,
+                stage_root: parsed.stage_root,
+                cmake_build_dir: parsed.cmake_build_dir,
+                autotools_build_dir: parsed.autotools_build_dir,
+                relink_objects_dir: parsed.relink_objects_dir,
+                relink_bin_dir: parsed.relink_bin_dir,
+                original_reference_build_dir: parsed.original_reference_build_dir,
+                original_prefix_dir: parsed.original_prefix_dir,
+                perf_runner_dir: parsed.perf_runner_dir,
+                perf_manifest: parsed.perf_manifest,
+                perf_thresholds: parsed.perf_thresholds,
+                perf_report: parsed.perf_report,
+                perf_waivers: parsed.perf_waivers,
+                unsafe_allowlist: parsed.unsafe_allowlist,
+                phase_report: parsed.phase_report,
+                unsafe_report: parsed.unsafe_report,
+            })
+        }
+        "verify-unsafe-allowlist" => {
+            let parsed = VerifyUnsafeAllowlistCliArgs::parse(&remaining)?;
+            verify_unsafe_allowlist(&repo_root, &parsed.allowlist, &parsed.report).map(|_| ())
+        }
         _ => usage(),
     }
 }
 
 fn usage<T>() -> Result<T> {
     bail!(
-        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|build-original-cmake-suite|run-original-ctest|build-original-autotools-suite|run-original-autotools-check|build-original-reference|perf-capture|perf-assert|verify-bootstrap-stage|verify-driver-contract|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone|run-evdev-fixture-tests|run-fixture-backed-original-tests|run-gesture-replay|run-xvfb|run-xvfb-window-smoke> ..."
+        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|build-original-cmake-suite|run-original-ctest|build-original-autotools-suite|run-original-autotools-check|build-original-reference|perf-capture|perf-assert|verify-bootstrap-stage|verify-driver-contract|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone|run-evdev-fixture-tests|run-fixture-backed-original-tests|run-gesture-replay|run-xvfb|run-xvfb-window-smoke|final-check|verify-unsafe-allowlist> ..."
     )
 }
 
@@ -479,6 +519,7 @@ struct StageInstallCliArgs {
     original: PathBuf,
     root: PathBuf,
     library: Option<PathBuf>,
+    mode: StageInstallMode,
 }
 
 impl StageInstallCliArgs {
@@ -506,15 +547,175 @@ impl StageInstallCliArgs {
             }
         }
         let mode = mode.unwrap_or_else(|| "full".to_string());
-        if mode != "bootstrap" && mode != "runtime" && mode != "full" {
-            bail!("unsupported --mode {mode}");
-        }
+        let mode = match mode.as_str() {
+            "bootstrap" => StageInstallMode::Bootstrap,
+            "runtime" => StageInstallMode::Runtime,
+            "full" => StageInstallMode::Full,
+            _ => bail!("unsupported --mode {mode}"),
+        };
         Ok(Self {
             generated,
             original,
             root: root.ok_or_else(|| anyhow!("--root or --destdir is required"))?,
             library,
+            mode,
         })
+    }
+}
+
+#[derive(Debug)]
+struct FinalCheckCliArgs {
+    generated: PathBuf,
+    original: PathBuf,
+    dependents: PathBuf,
+    cves: PathBuf,
+    stage_root: PathBuf,
+    cmake_build_dir: PathBuf,
+    autotools_build_dir: PathBuf,
+    relink_objects_dir: PathBuf,
+    relink_bin_dir: PathBuf,
+    original_reference_build_dir: PathBuf,
+    original_prefix_dir: PathBuf,
+    perf_runner_dir: PathBuf,
+    perf_manifest: PathBuf,
+    perf_thresholds: PathBuf,
+    perf_report: PathBuf,
+    perf_waivers: PathBuf,
+    unsafe_allowlist: PathBuf,
+    phase_report: PathBuf,
+    unsafe_report: PathBuf,
+}
+
+impl FinalCheckCliArgs {
+    fn parse(args: &[String]) -> Result<Self> {
+        let mut generated = PathBuf::from("safe/generated");
+        let mut original = PathBuf::from("original");
+        let mut dependents = PathBuf::from("dependents.json");
+        let mut cves = PathBuf::from("relevant_cves.json");
+        let mut stage_root = PathBuf::from("build-phase10-safe-stage");
+        let mut cmake_build_dir = PathBuf::from("build-phase10-upstream-cmake");
+        let mut autotools_build_dir = PathBuf::from("build-phase10-upstream-autotools");
+        let mut relink_objects_dir = PathBuf::from("build-phase10-relinked-objects");
+        let mut relink_bin_dir = PathBuf::from("build-phase10-relinked-bins");
+        let mut original_reference_build_dir = PathBuf::from("build-phase10-original-reference");
+        let mut original_prefix_dir = PathBuf::from("build-phase10-original-prefix");
+        let mut perf_runner_dir = PathBuf::from("build-phase10-perf");
+        let mut perf_manifest = PathBuf::from(DEFAULT_PERF_MANIFEST);
+        let mut perf_thresholds = PathBuf::from(DEFAULT_PERF_THRESHOLDS);
+        let mut perf_report = PathBuf::from(DEFAULT_PERF_REPORT);
+        let mut perf_waivers = PathBuf::from(DEFAULT_PERF_WAIVERS);
+        let mut unsafe_allowlist = PathBuf::from("safe/docs/unsafe-allowlist.md");
+        let mut phase_report = PathBuf::from("safe/generated/reports/phase10-final-check.json");
+        let mut unsafe_report = PathBuf::from("safe/generated/reports/unsafe-audit.json");
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            match arg.as_str() {
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
+                "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
+                "--dependents" => {
+                    dependents = PathBuf::from(require_value(&mut iter, "--dependents")?)
+                }
+                "--cves" => cves = PathBuf::from(require_value(&mut iter, "--cves")?),
+                "--stage-root" => {
+                    stage_root = PathBuf::from(require_value(&mut iter, "--stage-root")?)
+                }
+                "--cmake-build-dir" => {
+                    cmake_build_dir = PathBuf::from(require_value(&mut iter, "--cmake-build-dir")?)
+                }
+                "--autotools-build-dir" => {
+                    autotools_build_dir =
+                        PathBuf::from(require_value(&mut iter, "--autotools-build-dir")?)
+                }
+                "--relink-objects-dir" => {
+                    relink_objects_dir =
+                        PathBuf::from(require_value(&mut iter, "--relink-objects-dir")?)
+                }
+                "--relink-bin-dir" => {
+                    relink_bin_dir = PathBuf::from(require_value(&mut iter, "--relink-bin-dir")?)
+                }
+                "--original-reference-build-dir" => {
+                    original_reference_build_dir =
+                        PathBuf::from(require_value(&mut iter, "--original-reference-build-dir")?)
+                }
+                "--original-prefix-dir" => {
+                    original_prefix_dir =
+                        PathBuf::from(require_value(&mut iter, "--original-prefix-dir")?)
+                }
+                "--perf-runner-dir" => {
+                    perf_runner_dir = PathBuf::from(require_value(&mut iter, "--perf-runner-dir")?)
+                }
+                "--perf-manifest" => {
+                    perf_manifest = PathBuf::from(require_value(&mut iter, "--perf-manifest")?)
+                }
+                "--perf-thresholds" => {
+                    perf_thresholds = PathBuf::from(require_value(&mut iter, "--perf-thresholds")?)
+                }
+                "--perf-report" => {
+                    perf_report = PathBuf::from(require_value(&mut iter, "--perf-report")?)
+                }
+                "--perf-waivers" => {
+                    perf_waivers = PathBuf::from(require_value(&mut iter, "--perf-waivers")?)
+                }
+                "--unsafe-allowlist" => {
+                    unsafe_allowlist =
+                        PathBuf::from(require_value(&mut iter, "--unsafe-allowlist")?)
+                }
+                "--phase-report" => {
+                    phase_report = PathBuf::from(require_value(&mut iter, "--phase-report")?)
+                }
+                "--unsafe-report" => {
+                    unsafe_report = PathBuf::from(require_value(&mut iter, "--unsafe-report")?)
+                }
+                other => bail!("unknown argument {other}"),
+            }
+        }
+        Ok(Self {
+            generated,
+            original,
+            dependents,
+            cves,
+            stage_root,
+            cmake_build_dir,
+            autotools_build_dir,
+            relink_objects_dir,
+            relink_bin_dir,
+            original_reference_build_dir,
+            original_prefix_dir,
+            perf_runner_dir,
+            perf_manifest,
+            perf_thresholds,
+            perf_report,
+            perf_waivers,
+            unsafe_allowlist,
+            phase_report,
+            unsafe_report,
+        })
+    }
+}
+
+#[derive(Debug)]
+struct VerifyUnsafeAllowlistCliArgs {
+    allowlist: PathBuf,
+    report: PathBuf,
+}
+
+impl VerifyUnsafeAllowlistCliArgs {
+    fn parse(args: &[String]) -> Result<Self> {
+        let mut allowlist = PathBuf::from("safe/docs/unsafe-allowlist.md");
+        let mut report = PathBuf::from("safe/generated/reports/unsafe-audit.json");
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            match arg.as_str() {
+                "--allowlist" => {
+                    allowlist = PathBuf::from(require_value(&mut iter, "--allowlist")?)
+                }
+                "--report" => report = PathBuf::from(require_value(&mut iter, "--report")?),
+                other => bail!("unknown argument {other}"),
+            }
+        }
+        Ok(Self { allowlist, report })
     }
 }
 
@@ -720,6 +921,7 @@ impl RunOriginalAutotoolsCheckCliArgs {
 #[derive(Debug)]
 struct OriginalCtestCliArgs {
     build_dir: PathBuf,
+    root: Option<PathBuf>,
     filter: Option<String>,
     test_list: Option<String>,
 }
@@ -727,6 +929,7 @@ struct OriginalCtestCliArgs {
 impl OriginalCtestCliArgs {
     fn parse(args: &[String], default_build_dir: &str) -> Result<Self> {
         let mut build_dir = PathBuf::from(default_build_dir);
+        let mut root = None;
         let mut filter = None;
         let mut test_list = None;
         let mut iter = args.iter();
@@ -735,6 +938,7 @@ impl OriginalCtestCliArgs {
                 "--build-dir" => {
                     build_dir = PathBuf::from(require_value(&mut iter, "--build-dir")?)
                 }
+                "--root" => root = Some(PathBuf::from(require_value(&mut iter, "--root")?)),
                 "--filter" | "--regex" => filter = Some(require_value(&mut iter, arg)?.to_string()),
                 "--test-list" => {
                     test_list = Some(require_value(&mut iter, "--test-list")?.to_string())
@@ -744,6 +948,7 @@ impl OriginalCtestCliArgs {
         }
         Ok(Self {
             build_dir,
+            root,
             filter,
             test_list,
         })

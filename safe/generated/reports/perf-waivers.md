@@ -12,5 +12,5 @@ Phase: `impl_phase_09_performance`.
 - Reason: The safe build keeps checked Rust implementations for MS ADPCM decode and sample-rate conversion; after buffer reuse and resample-order tuning the remaining CPU gap is accepted to preserve memory safety and deterministic behavior without hand-written unsafe SIMD.
 - Allowed CPU ratio: 1.800.
 - Allowed allocation ratio: 1.250.
-- Measured CPU ratio: 1.719; measured allocation ratio: 1.000.
+- Measured CPU ratio: 1.766; measured allocation ratio: 1.000.
 

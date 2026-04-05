@@ -9,7 +9,7 @@ use anyhow::{anyhow, bail, Context, Result};
 use serde::{Deserialize, Serialize};
 
 use crate::contracts::UBUNTU_MULTIARCH;
-use crate::stage_install::{stage_install, StageInstallArgs};
+use crate::stage_install::{stage_install, StageInstallArgs, StageInstallMode};
 
 pub const PHASE_09_ID: &str = "impl_phase_09_performance";
 pub const DEFAULT_ORIGINAL_BUILD_DIR: &str = "build-phase9-original-reference";
@@ -910,6 +910,7 @@ pub fn perf_capture(args: PerfCaptureArgs) -> Result<()> {
         original_dir: args.original_dir.clone(),
         stage_root: safe_stage_root.clone(),
         library_path: None,
+        mode: StageInstallMode::Full,
     })?;
 
     let runner_dir = absolutize(&args.repo_root, &args.runner_dir);
