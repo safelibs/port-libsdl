@@ -70,6 +70,7 @@ RUN sed 's/^Types: deb$/Types: deb-src/' /etc/apt/sources.list.d/ubuntu.sources 
       automake \
       build-essential \
       ca-certificates \
+      curl \
       dbus-x11 \
       dpkg-dev \
       file \
@@ -84,7 +85,11 @@ RUN sed 's/^Types: deb$/Types: deb-src/' /etc/apt/sources.list.d/ubuntu.sources 
       xauth \
       xvfb \
       xdotool \
+ && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+      | bash -s -- -y --profile minimal --default-toolchain stable \
  && rm -rf /var/lib/apt/lists/*
+
+ENV PATH=/root/.cargo/bin:${PATH}
 DOCKERFILE
 
 docker run --rm -i \
@@ -231,6 +236,15 @@ prepare_safe_source_tree() {
 
 build_safe_sdl() {
   log_step "Building and installing safe SDL Debian packages"
+
+  rm -f "$SAFE_REPO/safe/Cargo.lock"
+  (
+    cd "$SAFE_REPO/safe"
+    cargo generate-lockfile --manifest-path Cargo.toml >/tmp/libsdl-safe-lock.log 2>&1
+  ) || {
+    cat /tmp/libsdl-safe-lock.log >&2 || true
+    die "failed to generate Docker-local Cargo.lock for safe SDL"
+  }
 
   (
     cd "$SAFE_REPO/safe"
