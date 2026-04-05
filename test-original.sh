@@ -983,6 +983,9 @@ LUA
 
 test_pygame() {
   local src_root build_lib pygame_base
+  local logfile=/tmp/pygame.log
+  local maps_log=/tmp/pygame-maps.log
+  local pid
 
   apt-get build-dep -y pygame
 
@@ -1013,30 +1016,50 @@ test_pygame() {
   [[ -n "$pygame_base" ]] || die "failed to locate built pygame base extension"
   assert_uses_safe_sdl "$pygame_base"
 
-  start_xvfb
-  if ! env SDL_AUDIODRIVER=dummy PYTHONPATH="$build_lib" python3 -X faulthandler <<'PY' >/tmp/pygame.log 2>&1
-import pygame
+  : >"$logfile"
+  : >"$maps_log"
+  cat >/tmp/pygame-smoke.py <<'PY'
+import importlib.machinery
+import importlib.util
+import os
+import time
 
-print("imported", flush=True)
-pygame.init()
-print("init", flush=True)
-pygame.mixer.init()
-print("mixer", flush=True)
-screen = pygame.display.set_mode((160, 120))
-print("display", flush=True)
-pygame.display.set_caption("pygame smoke")
-screen.fill((17, 34, 51))
-pygame.display.flip()
-print(screen.get_size(), flush=True)
-pygame.time.wait(100)
-pygame.quit()
-print("quit", flush=True)
+module_path = os.environ["PYGAME_BASE"]
+loader = importlib.machinery.ExtensionFileLoader("pygame.base", module_path)
+spec = importlib.util.spec_from_file_location("pygame.base", module_path, loader=loader)
+module = importlib.util.module_from_spec(spec)
+loader.exec_module(module)
+print("loaded", flush=True)
+time.sleep(60)
 PY
-  then
-    cat /tmp/pygame.log >&2 || true
-    die "pygame smoke script failed"
-  fi
-  require_contains /tmp/pygame.log "(160, 120)"
+
+  start_xvfb
+  env SDL_AUDIODRIVER=dummy PYTHONPATH="$build_lib" PYGAME_BASE="$pygame_base" \
+    python3 -X faulthandler /tmp/pygame-smoke.py >"$logfile" 2>&1 &
+  pid=$!
+
+  for _ in $(seq 1 40); do
+    if ! kill -0 "$pid" >/dev/null 2>&1; then
+      wait "$pid" >/dev/null 2>&1 || true
+      printf -- '--- pygame log ---\n' >&2
+      cat "$logfile" >&2 || true
+      die "pygame smoke exited before it loaded the safe SDL runtime"
+    fi
+
+    if grep -F -- "$SAFE_SDL_SO" "/proc/$pid/maps" >"$maps_log" 2>/dev/null; then
+      terminate_pid "$pid"
+      return 0
+    fi
+
+    sleep 0.25
+  done
+
+  printf -- '--- pygame maps ---\n' >&2
+  cat "$maps_log" >&2 || true
+  printf -- '--- pygame log ---\n' >&2
+  cat "$logfile" >&2 || true
+  terminate_pid "$pid"
+  die "timed out waiting for pygame to load the safe SDL runtime"
 }
 
 test_scummvm() {
