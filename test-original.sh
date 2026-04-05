@@ -456,19 +456,45 @@ run_window_smoke() {
 }
 
 test_qemu() {
-  local ui_module
+  local ui_module logfile pid
   ui_module="$(first_installed_path qemu-system-gui '/ui-sdl\.so$')"
   [[ -n "$ui_module" ]] || die "failed to locate qemu SDL UI module"
   assert_uses_safe_sdl "$ui_module"
 
   start_xvfb
-  run_window_smoke qemu 'QEMU' \
-    qemu-system-x86_64 \
+  logfile=/tmp/qemu.log
+  : >"$logfile"
+  qemu-system-x86_64 \
       -display sdl,gl=off \
       -accel tcg \
       -m 64 \
       -serial none \
-      -monitor none
+      -monitor none \
+      >"$logfile" 2>&1 &
+  pid=$!
+
+  for _ in $(seq 1 160); do
+    if ! kill -0 "$pid" >/dev/null 2>&1; then
+      cat "$logfile" >&2 || true
+      die "qemu exited before loading the SDL UI module"
+    fi
+
+    if grep -F -- "$ui_module" "/proc/$pid/maps" >/tmp/qemu-maps.log 2>/dev/null \
+      && grep -F -- "$SAFE_SDL_SO" "/proc/$pid/maps" >>/tmp/qemu-maps.log 2>/dev/null
+    then
+      terminate_pid "$pid"
+      return 0
+    fi
+
+    sleep 0.25
+  done
+
+  printf -- '--- qemu maps ---\n' >&2
+  cat /tmp/qemu-maps.log >&2 || true
+  printf -- '--- qemu log ---\n' >&2
+  cat "$logfile" >&2 || true
+  terminate_pid "$pid"
+  die "timed out waiting for qemu to load ui-sdl.so and the safe SDL runtime"
 }
 
 test_ffmpeg() {
