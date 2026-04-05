@@ -259,6 +259,8 @@ pub fn final_check(args: FinalCheckArgs) -> Result<()> {
         standalone_manifest: args.generated_dir.join("standalone_test_manifest.json"),
         bin_dir: args.relink_bin_dir.clone(),
         filter: None,
+        validation_modes: vec!["auto_run".to_string(), "fixture_run".to_string()],
+        skip_if_empty: false,
     })?;
 
     let unsafe_report =

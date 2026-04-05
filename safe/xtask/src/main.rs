@@ -268,6 +268,8 @@ fn main() -> Result<()> {
                 standalone_manifest: parsed.manifest,
                 bin_dir: parsed.bin_dir,
                 filter: parsed.target,
+                validation_modes: parsed.validation_modes,
+                skip_if_empty: parsed.skip_if_empty,
             })
         }
         "run-original-standalone" => {
@@ -1301,6 +1303,8 @@ struct RunRelinkedCliArgs {
     manifest: PathBuf,
     bin_dir: PathBuf,
     target: Option<String>,
+    validation_modes: Vec<String>,
+    skip_if_empty: bool,
 }
 
 impl RunRelinkedCliArgs {
@@ -1309,6 +1313,8 @@ impl RunRelinkedCliArgs {
         let mut manifest = PathBuf::from("safe/generated/standalone_test_manifest.json");
         let mut bin_dir = None;
         let mut target = None;
+        let mut validation_modes = vec!["auto_run".to_string(), "fixture_run".to_string()];
+        let mut skip_if_empty = false;
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
@@ -1324,6 +1330,15 @@ impl RunRelinkedCliArgs {
                 "--bin-dir" | "--build-dir" => {
                     bin_dir = Some(PathBuf::from(require_value(&mut iter, arg)?))
                 }
+                "--validation-mode" | "--validation-modes" => {
+                    validation_modes = require_value(&mut iter, arg)?
+                        .split(',')
+                        .map(str::trim)
+                        .filter(|mode| !mode.is_empty())
+                        .map(ToOwned::to_owned)
+                        .collect();
+                }
+                "--skip-if-empty" => skip_if_empty = true,
                 "--target" => target = Some(require_value(&mut iter, "--target")?.to_string()),
                 other => bail!("unknown argument {other}"),
             }
@@ -1333,6 +1348,8 @@ impl RunRelinkedCliArgs {
             manifest,
             bin_dir: bin_dir.ok_or_else(|| anyhow!("--bin-dir is required"))?,
             target,
+            validation_modes,
+            skip_if_empty,
         })
     }
 }
@@ -1640,6 +1657,23 @@ mod tests {
         ])
         .expect("parse run-relinked-original-tests args");
         assert_eq!(parsed.bin_dir, PathBuf::from("build-phase10-relinked-bins"));
+    }
+
+    #[test]
+    fn run_relinked_cli_accepts_validation_modes_and_skip_if_empty() {
+        let parsed = RunRelinkedCliArgs::parse(&[
+            "--build-dir".to_string(),
+            "build-phase10-relinked-bins".to_string(),
+            "--validation-modes".to_string(),
+            "auto_run,fixture_run".to_string(),
+            "--skip-if-empty".to_string(),
+        ])
+        .expect("parse run-relinked-original-tests args");
+        assert_eq!(
+            parsed.validation_modes,
+            vec!["auto_run".to_string(), "fixture_run".to_string()]
+        );
+        assert!(parsed.skip_if_empty);
     }
 
     #[test]

@@ -49,6 +49,8 @@ pub struct RunRelinkedOriginalTestsArgs {
     pub standalone_manifest: PathBuf,
     pub bin_dir: PathBuf,
     pub filter: Option<String>,
+    pub validation_modes: Vec<String>,
+    pub skip_if_empty: bool,
 }
 
 pub struct BuildOriginalStandaloneArgs {
@@ -252,18 +254,19 @@ pub fn run_relinked_original_tests(args: RunRelinkedOriginalTestsArgs) -> Result
     let bin_dir = absolutize(&args.repo_root, &args.bin_dir);
     let standalone_manifest = absolutize(&args.repo_root, &args.standalone_manifest);
     let standalone = load_standalone_test_manifest(&standalone_manifest)?;
+    let mut ran_any = false;
 
     for target in standalone.targets.iter().filter(|target| {
-        matches!(
-            target.ci_validation_mode.as_str(),
-            "auto_run" | "fixture_run"
-        )
+        args.validation_modes
+            .iter()
+            .any(|mode| mode == &target.ci_validation_mode)
     }) {
         if let Some(filter) = &args.filter {
             if &target.target_name != filter {
                 continue;
             }
         }
+        ran_any = true;
         let executable = bin_dir.join(&target.target_name);
         if !executable.exists() {
             bail!("missing relinked binary {}", executable.display());
@@ -282,6 +285,10 @@ pub fn run_relinked_original_tests(args: RunRelinkedOriginalTestsArgs) -> Result
         if !status.success() {
             bail!("relinked test {} failed", target.target_name);
         }
+    }
+
+    if !ran_any && !args.skip_if_empty {
+        bail!("no relinked tests matched the requested filter/modes");
     }
 
     Ok(())
