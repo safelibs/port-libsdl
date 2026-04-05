@@ -185,26 +185,28 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/checkkeys.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "checkkeys"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/checkkeysthreads.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/checkkeysthreads.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "checkkeysthreads"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/controllermap.c",
@@ -328,26 +330,28 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_clipboard.rs",
+      "rust_target_path": "safe/tests/upstream_port_video_events.rs",
       "upstream_targets": [
         "testautomation"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/upstream_port_video_events.rs"
     },
     {
       "original_path": "original/test/testautomation_events.c",
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_events.rs",
+      "rust_target_path": "safe/tests/upstream_port_video_events.rs",
       "upstream_targets": [
         "testautomation"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/upstream_port_video_events.rs"
     },
     {
       "original_path": "original/test/testautomation_guid.c",
@@ -393,13 +397,14 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_keyboard.rs",
+      "rust_target_path": "safe/tests/upstream_port_video_events.rs",
       "upstream_targets": [
         "testautomation"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/upstream_port_video_events.rs"
     },
     {
       "original_path": "original/test/testautomation_log.c",
@@ -445,13 +450,14 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_mouse.rs",
+      "rust_target_path": "safe/tests/upstream_port_video_events.rs",
       "upstream_targets": [
         "testautomation"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/upstream_port_video_events.rs"
     },
     {
       "original_path": "original/test/testautomation_pixels.c",
@@ -575,13 +581,14 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_syswm.rs",
+      "rust_target_path": "safe/tests/upstream_port_video_events.rs",
       "upstream_targets": [
         "testautomation"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/upstream_port_video_events.rs"
     },
     {
       "original_path": "original/test/testautomation_timer.c",
@@ -601,52 +608,56 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_video.rs",
+      "rust_target_path": "safe/tests/upstream_port_video_events.rs",
       "upstream_targets": [
         "testautomation"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/upstream_port_video_events.rs"
     },
     {
       "original_path": "original/test/testbounds.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testbounds.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testbounds"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testcustomcursor.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testcustomcursor.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testcustomcursor"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testdisplayinfo.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testdisplayinfo.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testdisplayinfo"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testdraw2.c",
@@ -679,13 +690,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testdropfile.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testdropfile"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testerror.c",
@@ -783,13 +795,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testgesture.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testgesture"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testgl2.c",
@@ -861,13 +874,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testhittesting.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testhittesting"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testhotplug.c",
@@ -900,13 +914,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testime.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testime"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testintersections.c",
@@ -939,13 +954,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testkeys.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testkeys"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testloadso.c",
@@ -978,39 +994,42 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testlock.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testlock"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testmessage.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testmessage.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testmessage"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testmouse.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testmouse.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testmouse"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testmultiaudio.c",
@@ -1030,59 +1049,64 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testnative.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testnative"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testnativecocoa.m",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": false,
       "ubuntu_runnable": false,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testnativecocoa.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testnativeos2.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": false,
       "ubuntu_runnable": false,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testnativeos2.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testnativew32.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": false,
       "ubuntu_runnable": false,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testnativew32.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testnativex11.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testnative.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testnative"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testoffscreen.c",
@@ -1154,13 +1178,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testrelative.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testrelative"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testrendercopyex.c",
@@ -1271,13 +1296,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testshape.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testshape"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testsprite2.c",
@@ -1445,13 +1471,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_04_video_events",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testwm2.rs",
+      "rust_target_path": "safe/tests/original_apps_video.rs",
       "upstream_targets": [
         "testwm2"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_video.rs"
     },
     {
       "original_path": "original/test/testyuv.c",
@@ -1498,14 +1525,16 @@
     {
       "target_name": "checkkeys",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "checkkeysthreads",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "controllermap",
@@ -1558,20 +1587,23 @@
     {
       "target_name": "testbounds",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "testcustomcursor",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "testdisplayinfo",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "testdraw2",
@@ -1588,8 +1620,9 @@
     {
       "target_name": "testdropfile",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "testerror",
@@ -1636,8 +1669,9 @@
     {
       "target_name": "testgesture",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "testgl2",
@@ -1672,8 +1706,9 @@
     {
       "target_name": "testhittesting",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "testhotplug",
@@ -1690,8 +1725,9 @@
     {
       "target_name": "testime",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "testintersections",
@@ -1708,8 +1744,9 @@
     {
       "target_name": "testkeys",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "testloadso",
@@ -1726,20 +1763,23 @@
     {
       "target_name": "testlock",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "testmessage",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "testmouse",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "testmultiaudio",
@@ -1750,8 +1790,9 @@
     {
       "target_name": "testnative",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "testoffscreen",
@@ -1786,8 +1827,9 @@
     {
       "target_name": "testrelative",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "testrendercopyex",
@@ -1840,8 +1882,9 @@
     {
       "target_name": "testshape",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "testsprite2",
@@ -1906,8 +1949,9 @@
     {
       "target_name": "testwm2",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_04_video_events",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-4 ports"
     },
     {
       "target_name": "testyuv",

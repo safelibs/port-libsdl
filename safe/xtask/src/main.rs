@@ -13,12 +13,13 @@ use contracts::{
 };
 use original_tests::{
     build_original_standalone, compile_original_test_objects, relink_original_test_objects,
-    run_original_standalone, run_relinked_original_tests, BuildOriginalStandaloneArgs,
-    CompileOriginalTestObjectsArgs, RelinkOriginalTestObjectsArgs, RunOriginalStandaloneArgs,
-    RunRelinkedOriginalTestsArgs,
+    run_gesture_replay, run_original_standalone, run_relinked_original_tests,
+    run_xvfb_window_smoke, BuildOriginalStandaloneArgs, CompileOriginalTestObjectsArgs,
+    RelinkOriginalTestObjectsArgs, RunOriginalStandaloneArgs, RunRelinkedOriginalTestsArgs,
 };
 use stage_install::{
-    stage_install, verify_bootstrap_stage, StageInstallArgs, VerifyBootstrapStageArgs,
+    stage_install, verify_bootstrap_stage, verify_driver_contract, StageInstallArgs,
+    VerifyBootstrapStageArgs, VerifyDriverContractArgs,
 };
 
 fn main() -> Result<()> {
@@ -98,6 +99,15 @@ fn main() -> Result<()> {
                 stage_root: parsed.root,
             })
         }
+        "verify-driver-contract" => {
+            let parsed = VerifyDriverContractCliArgs::parse(&remaining)?;
+            verify_driver_contract(VerifyDriverContractArgs {
+                repo_root,
+                generated_dir: parsed.generated,
+                stage_root: parsed.root,
+                kind: parsed.kind,
+            })
+        }
         "compile-original-test-objects" => {
             let parsed = CompileOriginalCliArgs::parse(&remaining)?;
             compile_original_test_objects(CompileOriginalTestObjectsArgs {
@@ -148,13 +158,15 @@ fn main() -> Result<()> {
                 skip_if_empty: parsed.skip_if_empty,
             })
         }
+        "run-gesture-replay" => run_gesture_replay(repo_root),
+        "run-xvfb-window-smoke" => run_xvfb_window_smoke(repo_root),
         _ => usage(),
     }
 }
 
 fn usage<T>() -> Result<T> {
     bail!(
-        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|verify-bootstrap-stage|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone> ..."
+        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|verify-bootstrap-stage|verify-driver-contract|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone|run-gesture-replay|run-xvfb-window-smoke> ..."
     )
 }
 
@@ -451,6 +463,39 @@ impl VerifyBootstrapStageCliArgs {
         Ok(Self {
             generated,
             root: root.ok_or_else(|| anyhow!("--root or --destdir is required"))?,
+        })
+    }
+}
+
+#[derive(Debug)]
+struct VerifyDriverContractCliArgs {
+    generated: PathBuf,
+    root: PathBuf,
+    kind: String,
+}
+
+impl VerifyDriverContractCliArgs {
+    fn parse(args: &[String]) -> Result<Self> {
+        let mut generated = PathBuf::from("safe/generated");
+        let mut root = None;
+        let mut kind = None;
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            match arg.as_str() {
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
+                "--root" | "--destdir" => {
+                    root = Some(PathBuf::from(require_value(&mut iter, arg)?))
+                }
+                "--kind" => kind = Some(require_value(&mut iter, "--kind")?.to_string()),
+                other => bail!("unknown argument {other}"),
+            }
+        }
+        Ok(Self {
+            generated,
+            root: root.ok_or_else(|| anyhow!("--root or --destdir is required"))?,
+            kind: kind.ok_or_else(|| anyhow!("--kind is required"))?,
         })
     }
 }

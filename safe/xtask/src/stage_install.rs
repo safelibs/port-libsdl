@@ -1,13 +1,16 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::thread;
+use std::time::Duration;
 
 use anyhow::{anyhow, bail, Context, Result};
+use tempfile::tempdir;
 
 use crate::contracts::{
-    generate_real_sdl_config, generate_sdl_revision_header, load_install_contract,
-    load_public_header_inventory, rel, PublicHeaderInventory, SDL_RUNTIME_REALNAME, SDL_SONAME,
-    SDL_VERSION, UBUNTU_MULTIARCH,
+    generate_real_sdl_config, generate_sdl_revision_header, load_driver_contract,
+    load_install_contract, load_public_header_inventory, rel, PublicHeaderInventory,
+    SDL_RUNTIME_REALNAME, SDL_SONAME, SDL_VERSION, UBUNTU_MULTIARCH,
 };
 
 pub struct StageInstallArgs {
@@ -22,6 +25,13 @@ pub struct VerifyBootstrapStageArgs {
     pub repo_root: PathBuf,
     pub generated_dir: PathBuf,
     pub stage_root: PathBuf,
+}
+
+pub struct VerifyDriverContractArgs {
+    pub repo_root: PathBuf,
+    pub generated_dir: PathBuf,
+    pub stage_root: PathBuf,
+    pub kind: String,
 }
 
 pub fn stage_install(args: StageInstallArgs) -> Result<()> {
@@ -71,6 +81,77 @@ pub fn verify_bootstrap_stage(args: VerifyBootstrapStageArgs) -> Result<()> {
 
     for cmake_path in &install_contract.cmake_surface {
         ensure_exists(&stage_root.join(cmake_path))?;
+    }
+
+    Ok(())
+}
+
+pub fn verify_driver_contract(args: VerifyDriverContractArgs) -> Result<()> {
+    if args.kind != "video" {
+        bail!("unsupported driver contract kind {}", args.kind);
+    }
+
+    let generated_dir = absolutize(&args.repo_root, &args.generated_dir);
+    let stage_root = absolutize(&args.repo_root, &args.stage_root);
+    let driver_contract = load_driver_contract(&generated_dir.join("driver_contract.json"))?;
+    let expected = driver_contract
+        .video
+        .registry_order
+        .iter()
+        .map(|entry| entry.driver_name.clone())
+        .collect::<Vec<_>>();
+    let probe = build_driver_probe(&args.repo_root, &stage_root)?;
+
+    let listed = run_driver_probe(&probe, &[], &[])?;
+    if listed != expected {
+        bail!(
+            "video driver registry mismatch\nexpected: {:?}\nactual: {:?}",
+            expected,
+            listed
+        );
+    }
+
+    let dummy = run_driver_probe(&probe, &["init-nohint"], &[("SDL_VIDEODRIVER", "dummy")])?;
+    if dummy != ["dummy".to_string()] {
+        bail!("explicit dummy driver probe failed: {:?}", dummy);
+    }
+
+    let offscreen = run_driver_probe(
+        &probe,
+        &["init-nohint"],
+        &[("SDL_VIDEODRIVER", "offscreen")],
+    )?;
+    if offscreen != ["offscreen".to_string()] {
+        bail!("explicit offscreen driver probe failed: {:?}", offscreen);
+    }
+
+    let x_display = if let Ok(display) = std::env::var("DISPLAY") {
+        Some((None, display))
+    } else {
+        spawn_xvfb()
+    };
+
+    if let Some((_guard, display)) = x_display {
+        let env = [("DISPLAY", display.as_str())];
+        let no_hint = run_driver_probe(&probe, &["init-nohint"], &env)?;
+        if no_hint != ["x11".to_string()] {
+            bail!(
+                "no-hint video probe did not select x11 under X11/Xvfb: {:?}",
+                no_hint
+            );
+        }
+
+        let explicit_x11 = run_driver_probe(
+            &probe,
+            &["init-nohint"],
+            &[("DISPLAY", display.as_str()), ("SDL_VIDEODRIVER", "x11")],
+        )?;
+        if explicit_x11 != ["x11".to_string()] {
+            bail!(
+                "explicit x11 driver probe failed under X11/Xvfb: {:?}",
+                explicit_x11
+            );
+        }
     }
 
     Ok(())
@@ -472,6 +553,149 @@ fn absolutize(repo_root: &Path, path: &Path) -> PathBuf {
     } else {
         repo_root.join(path)
     }
+}
+
+fn build_driver_probe(repo_root: &Path, stage_root: &Path) -> Result<PathBuf> {
+    let temp = tempdir().context("create driver probe tempdir")?;
+    let temp_path = temp.path().to_path_buf();
+    std::mem::forget(temp);
+    let source = temp_path.join("driver_probe.c");
+    let binary = temp_path.join("driver_probe");
+    let stage_include_root = stage_root.join("usr/include");
+    let stage_header_dir = stage_include_root.join("SDL2");
+    let stage_multiarch_include = stage_include_root.join(UBUNTU_MULTIARCH);
+    let stage_libdir = stage_root.join(format!("usr/lib/{UBUNTU_MULTIARCH}"));
+
+    fs::write(
+        &source,
+        r#"#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "SDL.h"
+
+int main(int argc, char **argv) {
+    if (argc < 2) {
+        fprintf(stderr, "missing mode\n");
+        return 64;
+    }
+    if (strcmp(argv[1], "list") == 0) {
+        const int count = SDL_GetNumVideoDrivers();
+        for (int i = 0; i < count; ++i) {
+            const char *name = SDL_GetVideoDriver(i);
+            puts(name ? name : "");
+        }
+        return 0;
+    }
+    if (strcmp(argv[1], "init-nohint") == 0) {
+        if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+            fprintf(stderr, "%s\n", SDL_GetError());
+            return 2;
+        }
+        puts(SDL_GetCurrentVideoDriver());
+        SDL_Quit();
+        return 0;
+    }
+    if (strcmp(argv[1], "init-explicit") == 0) {
+        if (argc < 3) {
+            fprintf(stderr, "missing driver name\n");
+            return 64;
+        }
+        if (SDL_VideoInit(argv[2]) != 0) {
+            fprintf(stderr, "%s\n", SDL_GetError());
+            return 3;
+        }
+        puts(SDL_GetCurrentVideoDriver());
+        SDL_VideoQuit();
+        return 0;
+    }
+    fprintf(stderr, "unknown mode: %s\n", argv[1]);
+    return 64;
+}
+"#,
+    )?;
+
+    let output = Command::new("cc")
+        .current_dir(repo_root)
+        .arg("-o")
+        .arg(&binary)
+        .arg(&source)
+        .arg("-I")
+        .arg(&stage_header_dir)
+        .arg("-I")
+        .arg(&stage_multiarch_include)
+        .arg(format!("-L{}", stage_libdir.display()))
+        .arg(format!("-Wl,-rpath,{}", stage_libdir.display()))
+        .arg("-lSDL2")
+        .output()
+        .context("compile driver probe")?;
+    if !output.status.success() {
+        bail!(
+            "compiling driver probe failed:\n{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
+    Ok(binary)
+}
+
+fn run_driver_probe(probe: &Path, args: &[&str], envs: &[(&str, &str)]) -> Result<Vec<String>> {
+    let mut cmd = Command::new(probe);
+    if args.is_empty() {
+        cmd.arg("list");
+    } else {
+        cmd.args(args);
+    }
+    for (key, value) in envs {
+        cmd.env(key, value);
+    }
+    let output = cmd
+        .output()
+        .with_context(|| format!("run {}", probe.display()))?;
+    if !output.status.success() {
+        bail!(
+            "driver probe {:?} failed:\n{}",
+            args,
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+    Ok(String::from_utf8_lossy(&output.stdout)
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty())
+        .map(str::to_string)
+        .collect())
+}
+
+struct XvfbGuard {
+    child: std::process::Child,
+}
+
+impl Drop for XvfbGuard {
+    fn drop(&mut self) {
+        let _ = self.child.kill();
+        let _ = self.child.wait();
+    }
+}
+
+fn spawn_xvfb() -> Option<(Option<XvfbGuard>, String)> {
+    for display in 91..100 {
+        let display_name = format!(":{display}");
+        let child = Command::new("Xvfb")
+            .arg(&display_name)
+            .arg("-screen")
+            .arg("0")
+            .arg("1024x768x24")
+            .arg("-nolisten")
+            .arg("tcp")
+            .stdin(std::process::Stdio::null())
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .spawn()
+            .ok()?;
+        thread::sleep(Duration::from_millis(500));
+        return Some((Some(XvfbGuard { child }), display_name));
+    }
+    None
 }
 
 fn static_private_link_flags() -> String {

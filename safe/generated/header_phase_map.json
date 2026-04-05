@@ -48,8 +48,8 @@
       "header_name": "SDL_clipboard.h",
       "install_relpath": "usr/include/SDL2/SDL_clipboard.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_04_video_events",
+      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
     },
     {
       "header_name": "SDL_config.h",
@@ -181,8 +181,8 @@
       "header_name": "SDL_events.h",
       "install_relpath": "usr/include/SDL2/SDL_events.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_04_video_events",
+      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
     },
     {
       "header_name": "SDL_filesystem.h",
@@ -202,8 +202,8 @@
       "header_name": "SDL_gesture.h",
       "install_relpath": "usr/include/SDL2/SDL_gesture.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_04_video_events",
+      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
     },
     {
       "header_name": "SDL_guid.h",
@@ -244,15 +244,15 @@
       "header_name": "SDL_keyboard.h",
       "install_relpath": "usr/include/SDL2/SDL_keyboard.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_04_video_events",
+      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
     },
     {
       "header_name": "SDL_keycode.h",
       "install_relpath": "usr/include/SDL2/SDL_keycode.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_04_video_events",
+      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
     },
     {
       "header_name": "SDL_loadso.h",
@@ -286,8 +286,8 @@
       "header_name": "SDL_messagebox.h",
       "install_relpath": "usr/include/SDL2/SDL_messagebox.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_04_video_events",
+      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
     },
     {
       "header_name": "SDL_metal.h",
@@ -307,8 +307,8 @@
       "header_name": "SDL_mouse.h",
       "install_relpath": "usr/include/SDL2/SDL_mouse.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_04_video_events",
+      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
     },
     {
       "header_name": "SDL_mutex.h",
@@ -440,8 +440,8 @@
       "header_name": "SDL_scancode.h",
       "install_relpath": "usr/include/SDL2/SDL_scancode.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_04_video_events",
+      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
     },
     {
       "header_name": "SDL_sensor.h",
@@ -454,8 +454,8 @@
       "header_name": "SDL_shape.h",
       "install_relpath": "usr/include/SDL2/SDL_shape.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_04_video_events",
+      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
     },
     {
       "header_name": "SDL_stdinc.h",
@@ -482,8 +482,8 @@
       "header_name": "SDL_syswm.h",
       "install_relpath": "usr/include/SDL2/SDL_syswm.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_04_video_events",
+      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
     },
     {
       "header_name": "SDL_test.h",
@@ -594,8 +594,8 @@
       "header_name": "SDL_touch.h",
       "install_relpath": "usr/include/SDL2/SDL_touch.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_04_video_events",
+      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
     },
     {
       "header_name": "SDL_types.h",
@@ -615,8 +615,8 @@
       "header_name": "SDL_video.h",
       "install_relpath": "usr/include/SDL2/SDL_video.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_04_video_events",
+      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
     },
     {
       "header_name": "SDL_vulkan.h",

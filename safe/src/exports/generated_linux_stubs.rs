@@ -854,6 +854,7 @@ pub unsafe extern "C" fn SDL_LinuxSetThreadPriorityAndPolicy() -> *mut ::std::ff
     crate::exports::abort_unimplemented("SDL_LinuxSetThreadPriorityAndPolicy");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_AddEventWatch() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_AddEventWatch");
@@ -995,11 +996,13 @@ pub unsafe extern "C" fn SDL_CalculateGammaRamp() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_CalculateGammaRamp");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_CaptureMouse() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_CaptureMouse");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_ClearComposition() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_ClearComposition");
@@ -1084,6 +1087,7 @@ pub unsafe extern "C" fn SDL_ConvertSurfaceFormat() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_ConvertSurfaceFormat");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_CreateColorCursor() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_CreateColorCursor");
@@ -1095,6 +1099,7 @@ pub unsafe extern "C" fn SDL_CreateCond() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_CreateCond");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_CreateCursor() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_CreateCursor");
@@ -1141,6 +1146,7 @@ pub unsafe extern "C" fn SDL_CreateSemaphore() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_CreateSemaphore");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_CreateShapedWindow() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_CreateShapedWindow");
@@ -1151,6 +1157,7 @@ pub unsafe extern "C" fn SDL_CreateSoftwareRenderer() -> *mut ::std::ffi::c_void
     crate::exports::abort_unimplemented("SDL_CreateSoftwareRenderer");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_CreateSystemCursor() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_CreateSystemCursor");
@@ -1178,16 +1185,19 @@ pub unsafe extern "C" fn SDL_CreateThreadWithStackSize() -> *mut ::std::ffi::c_v
     crate::exports::abort_unimplemented("SDL_CreateThreadWithStackSize");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_CreateWindow() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_CreateWindow");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_CreateWindowAndRenderer() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_CreateWindowAndRenderer");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_CreateWindowFrom() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_CreateWindowFrom");
@@ -1198,6 +1208,7 @@ pub unsafe extern "C" fn SDL_DYNAPI_entry() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_DYNAPI_entry");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_DelEventWatch() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_DelEventWatch");
@@ -1248,11 +1259,13 @@ pub unsafe extern "C" fn SDL_DestroyTexture() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_DestroyTexture");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_DestroyWindow() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_DestroyWindow");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_DestroyWindowSurface() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_DestroyWindowSurface");
@@ -1264,6 +1277,7 @@ pub unsafe extern "C" fn SDL_DetachThread() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_DetachThread");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_DisableScreenSaver() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_DisableScreenSaver");
@@ -1275,6 +1289,7 @@ pub unsafe extern "C" fn SDL_DuplicateSurface() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_DuplicateSurface");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_EnableScreenSaver() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_EnableScreenSaver");
@@ -1298,6 +1313,7 @@ pub unsafe extern "C" fn SDL_Error() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_Error");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_EventState() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_EventState");
@@ -1315,21 +1331,25 @@ pub unsafe extern "C" fn SDL_FillRects() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_FillRects");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_FilterEvents() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_FilterEvents");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_FlashWindow() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_FlashWindow");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_FlushEvent() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_FlushEvent");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_FlushEvents() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_FlushEvents");
@@ -1340,6 +1360,7 @@ pub unsafe extern "C" fn SDL_FreeAudioStream() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_FreeAudioStream");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_FreeCursor() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_FreeCursor");
@@ -1822,11 +1843,13 @@ pub unsafe extern "C" fn SDL_GetClipRect() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetClipRect");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetClipboardText() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetClipboardText");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetClosestDisplayMode() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetClosestDisplayMode");
@@ -1843,16 +1866,19 @@ pub unsafe extern "C" fn SDL_GetCurrentAudioDriver() -> *mut ::std::ffi::c_void 
     crate::exports::abort_unimplemented("SDL_GetCurrentAudioDriver");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetCurrentDisplayMode() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetCurrentDisplayMode");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetCurrentVideoDriver() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetCurrentVideoDriver");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetCursor() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetCursor");
@@ -1869,41 +1895,49 @@ pub unsafe extern "C" fn SDL_GetDefaultAudioInfo() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetDefaultAudioInfo");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetDefaultCursor() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetDefaultCursor");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetDesktopDisplayMode() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetDesktopDisplayMode");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetDisplayBounds() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetDisplayBounds");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetDisplayDPI() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetDisplayDPI");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetDisplayMode() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetDisplayMode");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetDisplayName() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetDisplayName");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetDisplayOrientation() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetDisplayOrientation");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetDisplayUsableBounds() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetDisplayUsableBounds");
@@ -1921,16 +1955,19 @@ pub unsafe extern "C" fn SDL_GetErrorMsg() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetErrorMsg");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetEventFilter() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetEventFilter");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetGlobalMouseState() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetGlobalMouseState");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetGrabbedWindow() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetGrabbedWindow");
@@ -1953,26 +1990,31 @@ pub unsafe extern "C" fn SDL_GetJoystickGUIDInfo() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetJoystickGUIDInfo");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetKeyFromName() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetKeyFromName");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetKeyFromScancode() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetKeyFromScancode");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetKeyName() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetKeyName");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetKeyboardFocus() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetKeyboardFocus");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetKeyboardState() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetKeyboardState");
@@ -1984,16 +2026,19 @@ pub unsafe extern "C" fn SDL_GetMemoryFunctions() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetMemoryFunctions");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetModState() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetModState");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetMouseFocus() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetMouseFocus");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetMouseState() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetMouseState");
@@ -2015,6 +2060,7 @@ pub unsafe extern "C" fn SDL_GetNumAudioDrivers() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetNumAudioDrivers");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetNumDisplayModes() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetNumDisplayModes");
@@ -2025,21 +2071,25 @@ pub unsafe extern "C" fn SDL_GetNumRenderDrivers() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetNumRenderDrivers");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetNumTouchDevices() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetNumTouchDevices");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetNumTouchFingers() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetNumTouchFingers");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetNumVideoDisplays() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetNumVideoDisplays");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetNumVideoDrivers() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetNumVideoDrivers");
@@ -2075,6 +2125,7 @@ pub unsafe extern "C" fn SDL_GetPlatform() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetPlatform");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetPointDisplayIndex() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetPointDisplayIndex");
@@ -2098,6 +2149,7 @@ pub unsafe extern "C" fn SDL_GetPreferredLocales() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetPreferredLocales");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetPrimarySelectionText() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetPrimarySelectionText");
@@ -2120,16 +2172,19 @@ pub unsafe extern "C" fn SDL_GetRGBA() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetRGBA");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetRectDisplayIndex() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetRectDisplayIndex");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetRelativeMouseMode() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetRelativeMouseMode");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetRelativeMouseState() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetRelativeMouseState");
@@ -2182,21 +2237,25 @@ pub unsafe extern "C" fn SDL_GetRevisionNumber() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetRevisionNumber");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetScancodeFromKey() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetScancodeFromKey");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetScancodeFromName() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetScancodeFromName");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetScancodeName() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetScancodeName");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetShapedWindowMode() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetShapedWindowMode");
@@ -2275,6 +2334,7 @@ pub unsafe extern "C" fn SDL_GetTicks() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetTicks");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetTouchDevice() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetTouchDevice");
@@ -2285,11 +2345,13 @@ pub unsafe extern "C" fn SDL_GetTouchDeviceType() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetTouchDeviceType");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetTouchFinger() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetTouchFinger");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetTouchName() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetTouchName");
@@ -2301,51 +2363,61 @@ pub unsafe extern "C" fn SDL_GetVersion() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetVersion");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetVideoDriver() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetVideoDriver");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowBordersSize() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowBordersSize");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowBrightness() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowBrightness");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowData() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowData");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowDisplayIndex() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowDisplayIndex");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowDisplayMode() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowDisplayMode");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowFlags() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowFlags");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowFromID() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowFromID");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowGammaRamp() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowGammaRamp");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowGrab() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowGrab");
@@ -2356,71 +2428,85 @@ pub unsafe extern "C" fn SDL_GetWindowICCProfile() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowICCProfile");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowID() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowID");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowKeyboardGrab() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowKeyboardGrab");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowMaximumSize() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowMaximumSize");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowMinimumSize() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowMinimumSize");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowMouseGrab() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowMouseGrab");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowMouseRect() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowMouseRect");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowOpacity() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowOpacity");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowPixelFormat() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowPixelFormat");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowPosition() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowPosition");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowSize() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowSize");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowSizeInPixels() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowSizeInPixels");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowSurface() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowSurface");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowTitle() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowTitle");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetWindowWMInfo() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetWindowWMInfo");
@@ -2607,6 +2693,7 @@ pub unsafe extern "C" fn SDL_HasAltiVec() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_HasAltiVec");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_HasClipboardText() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_HasClipboardText");
@@ -2618,11 +2705,13 @@ pub unsafe extern "C" fn SDL_HasColorKey() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_HasColorKey");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_HasEvent() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_HasEvent");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_HasEvents() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_HasEvents");
@@ -2664,6 +2753,7 @@ pub unsafe extern "C" fn SDL_HasNEON() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_HasNEON");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_HasPrimarySelectionText() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_HasPrimarySelectionText");
@@ -2705,6 +2795,7 @@ pub unsafe extern "C" fn SDL_HasSSE() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_HasSSE");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_HasScreenKeyboardSupport() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_HasScreenKeyboardSupport");
@@ -2721,6 +2812,7 @@ pub unsafe extern "C" fn SDL_HasWindowSurface() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_HasWindowSurface");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_HideWindow() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_HideWindow");
@@ -2767,16 +2859,19 @@ pub unsafe extern "C" fn SDL_IsGameController() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_IsGameController");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_IsScreenKeyboardShown() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_IsScreenKeyboardShown");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_IsScreenSaverEnabled() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_IsScreenSaverEnabled");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_IsShapedWindow() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_IsShapedWindow");
@@ -2787,6 +2882,7 @@ pub unsafe extern "C" fn SDL_IsTablet() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_IsTablet");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_IsTextInputActive() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_IsTextInputActive");
@@ -3078,6 +3174,7 @@ pub unsafe extern "C" fn SDL_LoadBMP_RW() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_LoadBMP_RW");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_LoadDollarTemplates() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_LoadDollarTemplates");
@@ -3274,6 +3371,7 @@ pub unsafe extern "C" fn SDL_MasksToPixelFormatEnum() -> *mut ::std::ffi::c_void
     crate::exports::abort_unimplemented("SDL_MasksToPixelFormatEnum");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_MaximizeWindow() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_MaximizeWindow");
@@ -3311,6 +3409,7 @@ pub unsafe extern "C" fn SDL_Metal_GetLayer() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_Metal_GetLayer");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_MinimizeWindow() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_MinimizeWindow");
@@ -3407,6 +3506,7 @@ pub unsafe extern "C" fn SDL_PauseAudioDevice() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_PauseAudioDevice");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_PeepEvents() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_PeepEvents");
@@ -3418,6 +3518,7 @@ pub unsafe extern "C" fn SDL_PixelFormatEnumToMasks() -> *mut ::std::ffi::c_void
     crate::exports::abort_unimplemented("SDL_PixelFormatEnumToMasks");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_PollEvent() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_PollEvent");
@@ -3429,11 +3530,13 @@ pub unsafe extern "C" fn SDL_PremultiplyAlpha() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_PremultiplyAlpha");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_PumpEvents() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_PumpEvents");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_PushEvent() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_PushEvent");
@@ -3521,6 +3624,7 @@ pub unsafe extern "C" fn SDL_RWwrite() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_RWwrite");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_RaiseWindow() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_RaiseWindow");
@@ -3568,11 +3672,13 @@ pub unsafe extern "C" fn SDL_ReadU8() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_ReadU8");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_RecordGesture() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_RecordGesture");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_RegisterEvents() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_RegisterEvents");
@@ -3828,11 +3934,13 @@ pub unsafe extern "C" fn SDL_ResetHints() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_ResetHints");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_ResetKeyboard() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_ResetKeyboard");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_RestoreWindow() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_RestoreWindow");
@@ -3862,6 +3970,7 @@ pub unsafe extern "C" fn SDL_SIMDRealloc() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SIMDRealloc");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SaveAllDollarTemplates() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SaveAllDollarTemplates");
@@ -3873,6 +3982,7 @@ pub unsafe extern "C" fn SDL_SaveBMP_RW() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SaveBMP_RW");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SaveDollarTemplate() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SaveDollarTemplate");
@@ -3990,6 +4100,7 @@ pub unsafe extern "C" fn SDL_SetClipRect() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetClipRect");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetClipboardText() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetClipboardText");
@@ -4001,6 +4112,7 @@ pub unsafe extern "C" fn SDL_SetColorKey() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetColorKey");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetCursor() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetCursor");
@@ -4012,6 +4124,7 @@ pub unsafe extern "C" fn SDL_SetError() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetError");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetEventFilter() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetEventFilter");
@@ -4041,6 +4154,7 @@ pub unsafe extern "C" fn SDL_SetMemoryFunctions() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetMemoryFunctions");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetModState() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetModState");
@@ -4058,11 +4172,13 @@ pub unsafe extern "C" fn SDL_SetPixelFormatPalette() -> *mut ::std::ffi::c_void 
     crate::exports::abort_unimplemented("SDL_SetPixelFormatPalette");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetPrimarySelectionText() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetPrimarySelectionText");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetRelativeMouseMode() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetRelativeMouseMode");
@@ -4113,6 +4229,7 @@ pub unsafe extern "C" fn SDL_SetSurfaceRLE() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetSurfaceRLE");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetTextInputRect() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetTextInputRect");
@@ -4149,31 +4266,37 @@ pub unsafe extern "C" fn SDL_SetThreadPriority() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetThreadPriority");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowAlwaysOnTop() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowAlwaysOnTop");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowBordered() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowBordered");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowBrightness() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowBrightness");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowData() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowData");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowDisplayMode() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowDisplayMode");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowFullscreen() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowFullscreen");
@@ -4184,81 +4307,97 @@ pub unsafe extern "C" fn SDL_SetWindowGammaRamp() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowGammaRamp");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowGrab() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowGrab");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowHitTest() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowHitTest");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowIcon() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowIcon");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowInputFocus() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowInputFocus");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowKeyboardGrab() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowKeyboardGrab");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowMaximumSize() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowMaximumSize");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowMinimumSize() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowMinimumSize");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowModalFor() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowModalFor");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowMouseGrab() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowMouseGrab");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowMouseRect() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowMouseRect");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowOpacity() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowOpacity");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowPosition() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowPosition");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowResizable() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowResizable");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowShape() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowShape");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowSize() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowSize");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetWindowTitle() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetWindowTitle");
@@ -4269,21 +4408,25 @@ pub unsafe extern "C" fn SDL_SetYUVConversionMode() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SetYUVConversionMode");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_ShowCursor() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_ShowCursor");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_ShowMessageBox() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_ShowMessageBox");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_ShowSimpleMessageBox() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_ShowSimpleMessageBox");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_ShowWindow() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_ShowWindow");
@@ -4301,11 +4444,13 @@ pub unsafe extern "C" fn SDL_SoftStretchLinear() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SoftStretchLinear");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_StartTextInput() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_StartTextInput");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_StopTextInput() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_StopTextInput");
@@ -4412,11 +4557,13 @@ pub unsafe extern "C" fn SDL_UpdateTexture() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_UpdateTexture");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_UpdateWindowSurface() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_UpdateWindowSurface");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_UpdateWindowSurfaceRects() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_UpdateWindowSurfaceRects");
@@ -4439,11 +4586,13 @@ pub unsafe extern "C" fn SDL_UpperBlitScaled() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_UpperBlitScaled");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_VideoInit() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_VideoInit");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_VideoQuit() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_VideoQuit");
@@ -4479,11 +4628,13 @@ pub unsafe extern "C" fn SDL_Vulkan_UnloadLibrary() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_Vulkan_UnloadLibrary");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_WaitEvent() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_WaitEvent");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_WaitEventTimeout() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_WaitEventTimeout");
@@ -4495,11 +4646,13 @@ pub unsafe extern "C" fn SDL_WaitThread() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_WaitThread");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_WarpMouseGlobal() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_WarpMouseGlobal");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_WarpMouseInWindow() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_WarpMouseInWindow");

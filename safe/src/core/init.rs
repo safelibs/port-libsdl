@@ -81,7 +81,9 @@ fn init_locked(state: &mut InitState, flags: Uint32) -> Result<(), ()> {
     let mut initialized = 0;
 
     if flags & SDL_INIT_EVENTS != 0 {
-        if should_init(state, SDL_INIT_EVENTS) {}
+        if should_init(state, SDL_INIT_EVENTS) {
+            crate::events::queue::init_event_subsystem()?;
+        }
         incr_refcount(state, SDL_INIT_EVENTS);
         initialized |= SDL_INIT_EVENTS;
     }
@@ -94,7 +96,14 @@ fn init_locked(state: &mut InitState, flags: Uint32) -> Result<(), ()> {
 
     if flags & SDL_INIT_VIDEO != 0 {
         if should_init(state, SDL_INIT_VIDEO) {
+            let needed_events = should_init(state, SDL_INIT_EVENTS);
             init_or_incr(state, SDL_INIT_EVENTS)?;
+            if crate::video::display::init_video_subsystem().is_err() {
+                if needed_events {
+                    quit_locked(state, SDL_INIT_EVENTS);
+                }
+                return Err(());
+            }
         }
         incr_refcount(state, SDL_INIT_VIDEO);
         initialized |= SDL_INIT_VIDEO;
@@ -171,6 +180,7 @@ fn quit_locked(state: &mut InitState, flags: Uint32) {
 
     if flags & SDL_INIT_VIDEO != 0 {
         if should_quit(state, SDL_INIT_VIDEO) {
+            crate::video::display::quit_video_subsystem();
             quit_locked(state, SDL_INIT_EVENTS);
         }
         decr_refcount(state, SDL_INIT_VIDEO);
@@ -184,6 +194,9 @@ fn quit_locked(state: &mut InitState, flags: Uint32) {
     }
 
     if flags & SDL_INIT_EVENTS != 0 {
+        if should_quit(state, SDL_INIT_EVENTS) {
+            crate::events::queue::quit_event_subsystem();
+        }
         decr_refcount(state, SDL_INIT_EVENTS);
     }
 }

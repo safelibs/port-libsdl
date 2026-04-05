@@ -853,6 +853,10 @@ pub fn load_install_contract(path: &Path) -> Result<InstallContract> {
     read_json(path)
 }
 
+pub fn load_driver_contract(path: &Path) -> Result<DriverContract> {
+    read_json(path)
+}
+
 pub fn load_original_test_object_manifest(path: &Path) -> Result<OriginalTestObjectManifest> {
     read_json(path)
 }

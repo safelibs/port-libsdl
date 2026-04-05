@@ -417,6 +417,22 @@ pub fn run_original_standalone(args: RunOriginalStandaloneArgs) -> Result<()> {
     Ok(())
 }
 
+pub fn run_gesture_replay(repo_root: PathBuf) -> Result<()> {
+    run_safe_test_binary(
+        &repo_root,
+        "original_apps_video",
+        "gesture_replay_roundtrip_is_deterministic",
+    )
+}
+
+pub fn run_xvfb_window_smoke(repo_root: PathBuf) -> Result<()> {
+    run_safe_test_binary(
+        &repo_root,
+        "xvfb_window_smoke",
+        "xvfb_backed_x11_window_smoke_replaces_manual_window_demos",
+    )
+}
+
 fn resolve_token(
     value: &str,
     generated_include_dir: &Path,
@@ -460,6 +476,25 @@ fn copy_target_resources(repo_root: &Path, build_dir: &Path, resources: &[String
         );
         fs::copy(&source, &destination)
             .with_context(|| format!("copy {} to {}", source.display(), destination.display()))?;
+    }
+    Ok(())
+}
+
+fn run_safe_test_binary(repo_root: &Path, test_name: &str, filter: &str) -> Result<()> {
+    let status = Command::new("cargo")
+        .current_dir(repo_root)
+        .arg("test")
+        .arg("--manifest-path")
+        .arg("safe/Cargo.toml")
+        .arg("--test")
+        .arg(test_name)
+        .arg(filter)
+        .arg("--")
+        .arg("--exact")
+        .status()
+        .with_context(|| format!("run cargo test {test_name}::{filter}"))?;
+    if !status.success() {
+        bail!("cargo test {test_name} {filter} failed");
     }
     Ok(())
 }

@@ -52,7 +52,16 @@ pub(crate) fn out_of_memory_error() -> libc::c_int {
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetError() -> *const libc::c_char {
-    safe_sdl_get_error_message()
+    if safe_sdl_error_is_active() != 0 {
+        safe_sdl_get_error_message()
+    } else {
+        let host = crate::video::real_error_ptr();
+        if host.is_null() {
+            b"\0".as_ptr().cast()
+        } else {
+            host
+        }
+    }
 }
 
 #[no_mangle]
@@ -63,7 +72,12 @@ pub unsafe extern "C" fn SDL_GetErrorMsg(
     let text = if safe_sdl_error_is_active() != 0 {
         safe_sdl_get_error_message()
     } else {
-        b"\0".as_ptr().cast()
+        let host = crate::video::real_error_ptr();
+        if host.is_null() {
+            b"\0".as_ptr().cast()
+        } else {
+            host
+        }
     };
     write_error_string(errstr, maxlen, text);
     errstr
@@ -72,6 +86,7 @@ pub unsafe extern "C" fn SDL_GetErrorMsg(
 #[no_mangle]
 pub unsafe extern "C" fn SDL_ClearError() {
     safe_sdl_clear_error_message();
+    crate::video::clear_real_error();
 }
 
 #[no_mangle]
