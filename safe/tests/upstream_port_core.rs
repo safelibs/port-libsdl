@@ -183,6 +183,35 @@ fn main_subsystem_refcount_and_dependency_cascade() {
 }
 
 #[test]
+fn multi_flag_init_rolls_back_earlier_subsystems_on_failure() {
+    let _serial = testutils::serial_lock();
+    let _video = testutils::ScopedEnvVar::set("SDL_VIDEODRIVER", "safe-invalid-driver");
+
+    unsafe {
+        SDL_Quit();
+
+        assert_eq!(
+            SDL_InitSubSystem(SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_VIDEO),
+            -1
+        );
+        assert_eq!(
+            SDL_WasInit(SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_VIDEO),
+            0,
+            "failed multi-flag init should fully unwind prior refcount increments"
+        );
+
+        assert_eq!(
+            SDL_InitSubSystem(SDL_INIT_TIMER),
+            0,
+            "{}",
+            testutils::current_error()
+        );
+        SDL_QuitSubSystem(SDL_INIT_TIMER);
+        SDL_Quit();
+    }
+}
+
+#[test]
 fn audio_init_does_not_implicitly_initialize_events() {
     let _serial = testutils::serial_lock();
     let _audio = testutils::ScopedEnvVar::set("SDL_AUDIODRIVER", "dummy");

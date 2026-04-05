@@ -77,12 +77,35 @@ fn init_or_incr(state: &mut InitState, subsystem: Uint32) -> Result<(), ()> {
     init_locked(state, subsystem)
 }
 
+fn rollback_to_snapshot(state: &mut InitState, snapshot: [u8; 32]) {
+    loop {
+        let mut rollback_flags = 0;
+        for (index, count) in state.subsystem_refcount.iter().enumerate() {
+            if *count > snapshot[index] {
+                rollback_flags |= 1 << index;
+            }
+        }
+        if rollback_flags == 0 {
+            return;
+        }
+        quit_locked(state, rollback_flags);
+    }
+}
+
+fn fail_init(state: &mut InitState, snapshot: [u8; 32]) -> Result<(), ()> {
+    rollback_to_snapshot(state, snapshot);
+    Err(())
+}
+
 fn init_locked(state: &mut InitState, flags: Uint32) -> Result<(), ()> {
+    let snapshot = state.subsystem_refcount;
     let mut initialized = 0;
 
     if flags & SDL_INIT_EVENTS != 0 {
         if should_init(state, SDL_INIT_EVENTS) {
-            crate::events::queue::init_event_subsystem()?;
+            if crate::events::queue::init_event_subsystem().is_err() {
+                return fail_init(state, snapshot);
+            }
         }
         incr_refcount(state, SDL_INIT_EVENTS);
         initialized |= SDL_INIT_EVENTS;
@@ -96,13 +119,11 @@ fn init_locked(state: &mut InitState, flags: Uint32) -> Result<(), ()> {
 
     if flags & SDL_INIT_VIDEO != 0 {
         if should_init(state, SDL_INIT_VIDEO) {
-            let needed_events = should_init(state, SDL_INIT_EVENTS);
-            init_or_incr(state, SDL_INIT_EVENTS)?;
+            if init_or_incr(state, SDL_INIT_EVENTS).is_err() {
+                return fail_init(state, snapshot);
+            }
             if crate::video::display::init_video_subsystem().is_err() {
-                if needed_events {
-                    quit_locked(state, SDL_INIT_EVENTS);
-                }
-                return Err(());
+                return fail_init(state, snapshot);
             }
         }
         incr_refcount(state, SDL_INIT_VIDEO);
@@ -112,7 +133,7 @@ fn init_locked(state: &mut InitState, flags: Uint32) -> Result<(), ()> {
     if flags & SDL_INIT_AUDIO != 0 {
         if should_init(state, SDL_INIT_AUDIO) {
             if crate::audio::device::init_audio_subsystem().is_err() {
-                return Err(());
+                return fail_init(state, snapshot);
             }
         }
         incr_refcount(state, SDL_INIT_AUDIO);
@@ -121,8 +142,12 @@ fn init_locked(state: &mut InitState, flags: Uint32) -> Result<(), ()> {
 
     if flags & SDL_INIT_JOYSTICK != 0 {
         if should_init(state, SDL_INIT_JOYSTICK) {
-            init_or_incr(state, SDL_INIT_EVENTS)?;
-            crate::input::init_input_subsystem(SDL_INIT_JOYSTICK)?;
+            if init_or_incr(state, SDL_INIT_EVENTS).is_err() {
+                return fail_init(state, snapshot);
+            }
+            if crate::input::init_input_subsystem(SDL_INIT_JOYSTICK).is_err() {
+                return fail_init(state, snapshot);
+            }
         }
         incr_refcount(state, SDL_INIT_JOYSTICK);
         initialized |= SDL_INIT_JOYSTICK;
@@ -130,8 +155,12 @@ fn init_locked(state: &mut InitState, flags: Uint32) -> Result<(), ()> {
 
     if flags & SDL_INIT_GAMECONTROLLER != 0 {
         if should_init(state, SDL_INIT_GAMECONTROLLER) {
-            init_or_incr(state, SDL_INIT_JOYSTICK)?;
-            crate::input::init_input_subsystem(SDL_INIT_GAMECONTROLLER)?;
+            if init_or_incr(state, SDL_INIT_JOYSTICK).is_err() {
+                return fail_init(state, snapshot);
+            }
+            if crate::input::init_input_subsystem(SDL_INIT_GAMECONTROLLER).is_err() {
+                return fail_init(state, snapshot);
+            }
         }
         incr_refcount(state, SDL_INIT_GAMECONTROLLER);
         initialized |= SDL_INIT_GAMECONTROLLER;
@@ -139,7 +168,9 @@ fn init_locked(state: &mut InitState, flags: Uint32) -> Result<(), ()> {
 
     if flags & SDL_INIT_HAPTIC != 0 {
         if should_init(state, SDL_INIT_HAPTIC) {
-            crate::input::init_input_subsystem(SDL_INIT_HAPTIC)?;
+            if crate::input::init_input_subsystem(SDL_INIT_HAPTIC).is_err() {
+                return fail_init(state, snapshot);
+            }
         }
         incr_refcount(state, SDL_INIT_HAPTIC);
         initialized |= SDL_INIT_HAPTIC;
@@ -147,7 +178,9 @@ fn init_locked(state: &mut InitState, flags: Uint32) -> Result<(), ()> {
 
     if flags & SDL_INIT_SENSOR != 0 {
         if should_init(state, SDL_INIT_SENSOR) {
-            crate::input::init_input_subsystem(SDL_INIT_SENSOR)?;
+            if crate::input::init_input_subsystem(SDL_INIT_SENSOR).is_err() {
+                return fail_init(state, snapshot);
+            }
         }
         incr_refcount(state, SDL_INIT_SENSOR);
         initialized |= SDL_INIT_SENSOR;
