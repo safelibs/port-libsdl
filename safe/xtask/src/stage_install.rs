@@ -647,12 +647,17 @@ fn render_uppercase_cmake_config() -> String {
         "  endif()",
         "endif()",
         "",
-        "set(SDL2_PREFIX \"/usr\")",
-        "set(SDL2_EXEC_PREFIX \"/usr\")",
-        "set(SDL2_INCLUDE_DIR \"/usr/include/SDL2\")",
-        "set(SDL2_INCLUDE_DIRS \"/usr/include;/usr/include/SDL2\")",
-        "set(SDL2_BINDIR \"/usr/bin\")",
-        &format!("set(SDL2_LIBDIR \"/usr/lib/{UBUNTU_MULTIARCH}\")"),
+        "if(TARGET SDL2::SDL2 AND NOT TARGET SDL2)",
+        "  add_library(SDL2 INTERFACE IMPORTED)",
+        "  set_target_properties(SDL2 PROPERTIES INTERFACE_LINK_LIBRARIES \"SDL2::SDL2\")",
+        "endif()",
+        "",
+        "get_filename_component(SDL2_PREFIX \"${CMAKE_CURRENT_LIST_DIR}/../../../..\" ABSOLUTE)",
+        "set(SDL2_EXEC_PREFIX \"${SDL2_PREFIX}\")",
+        "set(SDL2_INCLUDE_DIR \"${SDL2_PREFIX}/include/SDL2\")",
+        "set(SDL2_INCLUDE_DIRS \"${SDL2_PREFIX}/include;${SDL2_INCLUDE_DIR}\")",
+        "set(SDL2_BINDIR \"${SDL2_PREFIX}/bin\")",
+        &format!("set(SDL2_LIBDIR \"${{SDL2_PREFIX}}/lib/{UBUNTU_MULTIARCH}\")"),
         "set(SDL2_LIBRARIES SDL2::SDL2)",
         "set(SDL2_STATIC_LIBRARIES SDL2::SDL2-static)",
         "set(SDL2_STATIC_PRIVATE_LIBS)",
@@ -1143,7 +1148,10 @@ fn static_private_link_flags() -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{detect_real_sdl_library, validate_packaged_probe_real_sdl_path, UBUNTU_MULTIARCH};
+    use super::{
+        detect_real_sdl_library, render_uppercase_cmake_config,
+        validate_packaged_probe_real_sdl_path, UBUNTU_MULTIARCH,
+    };
     use std::fs;
     use tempfile::tempdir;
 
@@ -1174,6 +1182,40 @@ mod tests {
         assert!(
             error.to_string().contains("preserved original SDL runtime"),
             "unexpected error: {error:#}"
+        );
+    }
+
+    #[test]
+    fn uppercase_cmake_config_is_prefix_relative_and_defines_plain_sdl2_target() {
+        let config = render_uppercase_cmake_config();
+
+        assert!(
+            config.contains(
+                "get_filename_component(SDL2_PREFIX \"${CMAKE_CURRENT_LIST_DIR}/../../../..\" ABSOLUTE)"
+            ),
+            "config should derive SDL2_PREFIX from its own install location: {config}"
+        );
+        assert!(
+            config.contains("set(SDL2_INCLUDE_DIR \"${SDL2_PREFIX}/include/SDL2\")"),
+            "config should expose prefix-relative include directories: {config}"
+        );
+        assert!(
+            config.contains("set(SDL2_LIBDIR \"${SDL2_PREFIX}/lib/"),
+            "config should expose a prefix-relative library directory: {config}"
+        );
+        assert!(
+            !config.contains("set(SDL2_PREFIX \"/usr\")"),
+            "config must not hardcode /usr: {config}"
+        );
+        assert!(
+            config.contains("if(TARGET SDL2::SDL2 AND NOT TARGET SDL2)"),
+            "config should define a plain SDL2 compatibility target: {config}"
+        );
+        assert!(
+            config.contains(
+                "set_target_properties(SDL2 PROPERTIES INTERFACE_LINK_LIBRARIES \"SDL2::SDL2\")"
+            ),
+            "plain SDL2 target should forward to the imported namespaced target: {config}"
         );
     }
 }
