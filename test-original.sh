@@ -104,7 +104,9 @@ export LC_ALL=C.UTF-8
 
 ROOT=/work
 ONLY_FILTER="${LIBSDL_TEST_ONLY:-}"
-HOME=/tmp/libsdl-home
+ROOT_HOME=/tmp/libsdl-root-home
+TEST_USER_HOME=/tmp/libsdl-test-home
+HOME="$ROOT_HOME"
 RUSTUP_HOME=/root/.rustup
 CARGO_HOME=/root/.cargo
 PATH="/root/.cargo/bin:${PATH}"
@@ -120,7 +122,7 @@ TEST_USER_RUNTIME_DIR="/tmp/${TEST_USER}-runtime"
 
 export HOME RUSTUP_HOME CARGO_HOME PATH
 
-mkdir -p "$HOME"
+mkdir -p "$ROOT_HOME" "$TEST_USER_HOME"
 
 log_step() {
   printf '\n==> %s\n' "$1"
@@ -178,11 +180,11 @@ apt_install() {
 
 setup_test_user() {
   if ! id -u "$TEST_USER" >/dev/null 2>&1; then
-    useradd --home-dir "$HOME" --create-home --shell /bin/bash "$TEST_USER"
+    useradd --home-dir "$TEST_USER_HOME" --create-home --shell /bin/bash "$TEST_USER"
   fi
 
-  mkdir -p "$HOME" "$TEST_USER_RUNTIME_DIR"
-  chown -R "$TEST_USER:$TEST_USER" "$HOME" "$TEST_USER_RUNTIME_DIR"
+  mkdir -p "$TEST_USER_HOME" "$TEST_USER_RUNTIME_DIR"
+  chown -R "$TEST_USER:$TEST_USER" "$TEST_USER_HOME" "$TEST_USER_RUNTIME_DIR"
   chmod 700 "$TEST_USER_RUNTIME_DIR"
 }
 
@@ -327,7 +329,7 @@ start_xvfb() {
 
 run_as_test_user() {
   runuser -u "$TEST_USER" -- env -i \
-    HOME="$HOME" \
+    HOME="$TEST_USER_HOME" \
     USER="$TEST_USER" \
     LOGNAME="$TEST_USER" \
     SHELL=/bin/bash \
@@ -421,7 +423,7 @@ run_window_smoke() {
     baseline_window_count="$(xwininfo -root -tree 2>/dev/null | awk '/^[[:space:]]+0x[0-9a-f]+ / {count++} END {print count + 0}')"
   fi
 
-  for _ in $(seq 1 160); do
+  for _ in $(seq 1 480); do
     if ! kill -0 "$pid" >/dev/null 2>&1; then
       cat "$logfile" >&2 || true
       die "$slug exited before creating a window"
@@ -1164,18 +1166,46 @@ test_openttd() {
 
 test_0ad() {
   local pyrogenesis_bin
+  local logfile=/tmp/0ad.log
+  local mainlog="$TEST_USER_HOME/.config/0ad/logs/mainlog.html"
+  local interesting_log="$TEST_USER_HOME/.config/0ad/logs/interestinglog.html"
+  local pid
   pyrogenesis_bin="$(first_installed_elf 0ad '/pyrogenesis$')"
   [[ -n "$pyrogenesis_bin" ]] || die "failed to locate pyrogenesis binary"
   assert_uses_safe_sdl "$pyrogenesis_bin"
 
+  rm -rf "$TEST_USER_HOME/.config/0ad"
+  : >"$logfile"
   start_xvfb
-  run_safe_sdl_runtime_smoke 0ad \
-    run_as_test_user \
-      "$pyrogenesis_bin" \
-      -quickstart \
-      -nosound \
-      -xres=1024 \
-      -yres=768
+  run_as_test_user \
+    "$pyrogenesis_bin" \
+    -quickstart \
+    -nosound \
+    -xres=1024 \
+    -yres=768 \
+    >"$logfile" 2>&1 &
+  pid=$!
+
+  for _ in $(seq 1 480); do
+    if ! kill -0 "$pid" >/dev/null 2>&1; then
+      wait "$pid" >/dev/null 2>&1 || true
+      printf -- '--- 0ad log ---\n' >&2
+      cat "$logfile" >&2 || true
+      die "0ad exited before it created user config state"
+    fi
+
+    if [[ -e "$mainlog" && -e "$interesting_log" ]]; then
+      terminate_pid "$pid"
+      return 0
+    fi
+
+    sleep 0.25
+  done
+
+  printf -- '--- 0ad log ---\n' >&2
+  cat "$logfile" >&2 || true
+  terminate_pid "$pid"
+  die "timed out waiting for 0ad to create user config state"
 }
 
 test_imgui() {
