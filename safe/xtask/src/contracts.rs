@@ -686,7 +686,7 @@ pub fn abi_check(args: AbiCheckArgs<'_>) -> Result<()> {
         );
     }
     for slot in &dynapi_manifest.slots {
-        let needle = (slot.slot_index, slot.name.as_str(), slot.line);
+        let needle = (slot.slot_index, slot.name.clone(), slot.line);
         if !dynapi_slots.contains(&needle) {
             bail!(
                 "missing dynapi slot {}:{} at line {}",
@@ -3058,17 +3058,64 @@ fn extract_stub_symbol_names(source: &str) -> Result<BTreeSet<String>> {
         .collect())
 }
 
-fn extract_dynapi_source_slots(source: &str) -> Result<BTreeSet<(usize, &str, usize)>> {
-    let re =
-        Regex::new(r#"DynapiSlot \{ slot_index: (\d+), symbol: "([A-Za-z0-9_]+)", line: (\d+),"#)?;
+fn extract_dynapi_source_slots(source: &str) -> Result<BTreeSet<(usize, String, usize)>> {
+    let single_line = Regex::new(
+        r#"^\s*DynapiSlot\s*\{\s*slot_index:\s*(\d+),\s*symbol:\s*"([^"]+)",\s*line:\s*(\d+),"#,
+    )?;
     let mut slots = BTreeSet::new();
-    for captures in re.captures_iter(source) {
-        slots.insert((
-            captures[1].parse()?,
-            captures.get(2).unwrap().as_str(),
-            captures[3].parse()?,
-        ));
+    let mut current: Option<(Option<usize>, Option<String>, Option<usize>)> = None;
+
+    for line in source.lines() {
+        let trimmed = line.trim();
+        if let Some(captures) = single_line.captures(trimmed) {
+            slots.insert((
+                captures[1].parse()?,
+                captures[2].to_string(),
+                captures[3].parse()?,
+            ));
+            continue;
+        }
+
+        if trimmed == "DynapiSlot {" {
+            current = Some((None, None, None));
+            continue;
+        }
+
+        let Some((slot_index, symbol, source_line)) = current.as_mut() else {
+            continue;
+        };
+
+        if let Some(value) = trimmed.strip_prefix("slot_index:") {
+            *slot_index = Some(value.trim().trim_end_matches(',').parse()?);
+            continue;
+        }
+        if let Some(value) = trimmed.strip_prefix("symbol:") {
+            *symbol = Some(
+                value
+                    .trim()
+                    .trim_end_matches(',')
+                    .trim_matches('"')
+                    .to_string(),
+            );
+            continue;
+        }
+        if let Some(value) = trimmed.strip_prefix("line:") {
+            *source_line = Some(value.trim().trim_end_matches(',').parse()?);
+            continue;
+        }
+        if trimmed == "}," {
+            let entry = current.take().context("incomplete DynapiSlot entry")?;
+            let slot_index = entry.0.context("missing dynapi slot_index")?;
+            let symbol = entry.1.context("missing dynapi symbol")?;
+            let source_line = entry.2.context("missing dynapi line")?;
+            slots.insert((slot_index, symbol, source_line));
+        }
     }
+
+    if current.is_some() {
+        bail!("unterminated DynapiSlot entry in generated dynapi source");
+    }
+
     Ok(slots)
 }
 
@@ -3133,4 +3180,41 @@ impl StringExt for String {
 enum BootstrapKind {
     Video,
     Audio,
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::BTreeSet;
+
+    use super::extract_dynapi_source_slots;
+
+    #[test]
+    fn extracts_multiline_dynapi_source_slots() {
+        let source = r#"
+pub const DYNAPI_SLOTS: &[DynapiSlot] = &[
+    DynapiSlot {
+        slot_index: 27,
+        symbol: "SDL_Init",
+        line: 88,
+        guards: &[],
+    },
+    DynapiSlot {
+        slot_index: 28,
+        symbol: "SDL_InitSubSystem",
+        line: 89,
+        guards: &["HAVE_SDL"],
+    },
+];
+"#;
+
+        let slots = extract_dynapi_source_slots(source).expect("parse dynapi source slots");
+
+        assert_eq!(
+            slots,
+            BTreeSet::from([
+                (27, "SDL_Init".to_string(), 88),
+                (28, "SDL_InitSubSystem".to_string(), 89),
+            ])
+        );
+    }
 }
