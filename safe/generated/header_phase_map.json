@@ -195,8 +195,8 @@
       "header_name": "SDL_gamecontroller.h",
       "install_relpath": "usr/include/SDL2/SDL_gamecontroller.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_07_input_devices",
+      "rationale": "phase 7 owns joystick, controller, haptic, HIDAPI, sensor, and Linux discovery behavior"
     },
     {
       "header_name": "SDL_gesture.h",
@@ -209,22 +209,22 @@
       "header_name": "SDL_guid.h",
       "install_relpath": "usr/include/SDL2/SDL_guid.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_07_input_devices",
+      "rationale": "phase 7 owns joystick, controller, haptic, HIDAPI, sensor, and Linux discovery behavior"
     },
     {
       "header_name": "SDL_haptic.h",
       "install_relpath": "usr/include/SDL2/SDL_haptic.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_07_input_devices",
+      "rationale": "phase 7 owns joystick, controller, haptic, HIDAPI, sensor, and Linux discovery behavior"
     },
     {
       "header_name": "SDL_hidapi.h",
       "install_relpath": "usr/include/SDL2/SDL_hidapi.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_07_input_devices",
+      "rationale": "phase 7 owns joystick, controller, haptic, HIDAPI, sensor, and Linux discovery behavior"
     },
     {
       "header_name": "SDL_hints.h",
@@ -237,8 +237,8 @@
       "header_name": "SDL_joystick.h",
       "install_relpath": "usr/include/SDL2/SDL_joystick.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_07_input_devices",
+      "rationale": "phase 7 owns joystick, controller, haptic, HIDAPI, sensor, and Linux discovery behavior"
     },
     {
       "header_name": "SDL_keyboard.h",
@@ -447,8 +447,8 @@
       "header_name": "SDL_sensor.h",
       "install_relpath": "usr/include/SDL2/SDL_sensor.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_07_input_devices",
+      "rationale": "phase 7 owns joystick, controller, haptic, HIDAPI, sensor, and Linux discovery behavior"
     },
     {
       "header_name": "SDL_shape.h",

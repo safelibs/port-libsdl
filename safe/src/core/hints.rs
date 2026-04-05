@@ -101,6 +101,32 @@ fn callbacks_match(lhs: SDL_HintCallback, rhs: SDL_HintCallback) -> bool {
     }
 }
 
+type RealSetHintWithPriorityFn =
+    unsafe extern "C" fn(*const libc::c_char, *const libc::c_char, SDL_HintPriority) -> SDL_bool;
+type RealResetHintFn = unsafe extern "C" fn(*const libc::c_char) -> SDL_bool;
+type RealResetHintsFn = unsafe extern "C" fn();
+type RealClearHintsFn = unsafe extern "C" fn();
+
+fn real_set_hint_with_priority_fn() -> RealSetHintWithPriorityFn {
+    static FN: OnceLock<RealSetHintWithPriorityFn> = OnceLock::new();
+    *FN.get_or_init(|| crate::video::load_symbol(b"SDL_SetHintWithPriority\0"))
+}
+
+fn real_reset_hint_fn() -> RealResetHintFn {
+    static FN: OnceLock<RealResetHintFn> = OnceLock::new();
+    *FN.get_or_init(|| crate::video::load_symbol(b"SDL_ResetHint\0"))
+}
+
+fn real_reset_hints_fn() -> RealResetHintsFn {
+    static FN: OnceLock<RealResetHintsFn> = OnceLock::new();
+    *FN.get_or_init(|| crate::video::load_symbol(b"SDL_ResetHints\0"))
+}
+
+fn real_clear_hints_fn() -> RealClearHintsFn {
+    static FN: OnceLock<RealClearHintsFn> = OnceLock::new();
+    *FN.get_or_init(|| crate::video::load_symbol(b"SDL_ClearHints\0"))
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetHintWithPriority(
     name: *const libc::c_char,
@@ -148,6 +174,9 @@ pub unsafe extern "C" fn SDL_SetHintWithPriority(
         );
     }
 
+    crate::video::clear_real_error();
+    let _ = real_set_hint_with_priority_fn()(name.as_ptr(), value, priority);
+
     crate::abi::generated_types::SDL_bool_SDL_TRUE
 }
 
@@ -192,6 +221,9 @@ pub unsafe extern "C" fn SDL_ResetHint(name: *const libc::c_char) -> SDL_bool {
         );
     }
 
+    crate::video::clear_real_error();
+    let _ = real_reset_hint_fn()(name.as_ptr());
+
     bool_to_sdl(found)
 }
 
@@ -225,6 +257,9 @@ pub unsafe extern "C" fn SDL_ResetHints() {
             );
         }
     }
+
+    crate::video::clear_real_error();
+    real_reset_hints_fn()();
 }
 
 #[no_mangle]
@@ -327,4 +362,6 @@ pub unsafe extern "C" fn SDL_DelHintCallback(
 #[no_mangle]
 pub unsafe extern "C" fn SDL_ClearHints() {
     lock_hints().clear();
+    crate::video::clear_real_error();
+    real_clear_hints_fn()();
 }

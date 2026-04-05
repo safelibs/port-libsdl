@@ -9,6 +9,7 @@ use std::time::Duration;
 
 use safe_sdl::abi::generated_types::Uint32;
 use safe_sdl::core::error::SDL_GetError;
+use safe_sdl::core::hints::{SDL_ResetHint, SDL_SetHint};
 use safe_sdl::core::init::{SDL_InitSubSystem, SDL_QuitSubSystem};
 use safe_sdl::video::display::{SDL_VideoInit, SDL_VideoQuit};
 
@@ -93,6 +94,28 @@ impl Drop for ScopedEnvVar {
             std::env::set_var(&self.key, value);
         } else {
             std::env::remove_var(&self.key);
+        }
+    }
+}
+
+pub struct HintGuard {
+    name: &'static [u8],
+}
+
+impl HintGuard {
+    pub fn set(name: &'static [u8], value: &str) -> Self {
+        let value = cstring(value);
+        unsafe {
+            SDL_SetHint(name.as_ptr().cast(), value.as_ptr());
+        }
+        Self { name }
+    }
+}
+
+impl Drop for HintGuard {
+    fn drop(&mut self) {
+        unsafe {
+            SDL_ResetHint(self.name.as_ptr().cast());
         }
     }
 }

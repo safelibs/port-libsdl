@@ -213,13 +213,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_07_input_devices",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/controllermap.rs",
+      "rust_target_path": "safe/tests/original_apps_input.rs",
       "upstream_targets": [
         "controllermap"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_input.rs"
     },
     {
       "original_path": "original/test/loopwave.c",
@@ -364,13 +365,14 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_07_input_devices",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_guid.rs",
+      "rust_target_path": "safe/tests/upstream_port_input.rs",
       "upstream_targets": [
         "testautomation"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/upstream_port_input.rs"
     },
     {
       "original_path": "original/test/testautomation_hints.c",
@@ -390,13 +392,14 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_07_input_devices",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_joystick.rs",
+      "rust_target_path": "safe/tests/upstream_port_input.rs",
       "upstream_targets": [
         "testautomation"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/upstream_port_input.rs"
     },
     {
       "original_path": "original/test/testautomation_keyboard.c",
@@ -726,13 +729,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_07_input_devices",
       "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testevdev.rs",
+      "rust_target_path": "safe/tests/original_apps_input.rs",
       "upstream_targets": [
         "testevdev"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "fixture-backed Rust port plus manifest-driven original C auto_run coverage in phase 7"
     },
     {
       "original_path": "original/test/testfile.c",
@@ -778,13 +782,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_07_input_devices",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testgamecontroller.rs",
+      "rust_target_path": "safe/tests/original_apps_input.rs",
       "upstream_targets": [
         "testgamecontroller"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_input.rs"
     },
     {
       "original_path": "original/test/testgeometry.c",
@@ -875,13 +880,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_07_input_devices",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testhaptic.rs",
+      "rust_target_path": "safe/tests/original_apps_input.rs",
       "upstream_targets": [
         "testhaptic"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "build-only original C target; runtime semantics covered in safe/tests/original_apps_input.rs"
     },
     {
       "original_path": "original/test/testhittesting.c",
@@ -902,13 +908,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_07_input_devices",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testhotplug.rs",
+      "rust_target_path": "safe/tests/original_apps_input.rs",
       "upstream_targets": [
         "testhotplug"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "build-only original C target; runtime semantics covered in safe/tests/original_apps_input.rs"
     },
     {
       "original_path": "original/test/testiconv.c",
@@ -955,13 +962,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_07_input_devices",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testjoystick.rs",
+      "rust_target_path": "safe/tests/original_apps_input.rs",
       "upstream_targets": [
         "testjoystick"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_input.rs"
     },
     {
       "original_path": "original/test/testkeys.c",
@@ -1251,13 +1259,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_07_input_devices",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testrumble.rs",
+      "rust_target_path": "safe/tests/original_apps_input.rs",
       "upstream_targets": [
         "testrumble"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_input.rs"
     },
     {
       "original_path": "original/test/testscale.c",
@@ -1291,13 +1300,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_07_input_devices",
       "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testsensor.rs",
+      "rust_target_path": "safe/tests/original_apps_input.rs",
       "upstream_targets": [
         "testsensor"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_input.rs"
     },
     {
       "original_path": "original/test/testshader.c",
@@ -1569,8 +1579,9 @@
     {
       "target_name": "controllermap",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_07_input_devices",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-7 ports"
     },
     {
       "target_name": "loopwave",
@@ -1670,8 +1681,9 @@
     {
       "target_name": "testevdev",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_07_input_devices",
+      "completion_state": "complete",
+      "completion_note": "manifest-driven original C auto_run plus deterministic Rust fixture coverage in phase 7"
     },
     {
       "target_name": "testfile",
@@ -1694,8 +1706,9 @@
     {
       "target_name": "testgamecontroller",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_07_input_devices",
+      "completion_state": "complete",
+      "completion_note": "build-only original C target with deterministic runtime coverage in Rust phase-7 ports"
     },
     {
       "target_name": "testgeometry",
@@ -1742,8 +1755,9 @@
     {
       "target_name": "testhaptic",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_07_input_devices",
+      "completion_state": "complete",
+      "completion_note": "build-only original C target; runtime semantics covered by deterministic Rust phase-7 ports"
     },
     {
       "target_name": "testhittesting",
@@ -1755,8 +1769,9 @@
     {
       "target_name": "testhotplug",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_07_input_devices",
+      "completion_state": "complete",
+      "completion_note": "build-only original C target; runtime semantics covered by deterministic Rust phase-7 ports"
     },
     {
       "target_name": "testiconv",
@@ -1780,8 +1795,9 @@
     {
       "target_name": "testjoystick",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_07_input_devices",
+      "completion_state": "complete",
+      "completion_note": "build-only original C target with deterministic runtime coverage in Rust phase-7 ports"
     },
     {
       "target_name": "testkeys",
@@ -1900,8 +1916,9 @@
     {
       "target_name": "testrumble",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_07_input_devices",
+      "completion_state": "complete",
+      "completion_note": "build-only original C target with deterministic runtime coverage in Rust phase-7 ports"
     },
     {
       "target_name": "testscale",
@@ -1919,8 +1936,9 @@
     {
       "target_name": "testsensor",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_07_input_devices",
+      "completion_state": "complete",
+      "completion_note": "build-only original C target with deterministic runtime coverage in Rust phase-7 ports"
     },
     {
       "target_name": "testshader",

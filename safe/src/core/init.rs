@@ -124,6 +124,7 @@ fn init_locked(state: &mut InitState, flags: Uint32) -> Result<(), ()> {
     if flags & SDL_INIT_JOYSTICK != 0 {
         if should_init(state, SDL_INIT_JOYSTICK) {
             init_or_incr(state, SDL_INIT_EVENTS)?;
+            crate::input::init_input_subsystem(SDL_INIT_JOYSTICK)?;
         }
         incr_refcount(state, SDL_INIT_JOYSTICK);
         initialized |= SDL_INIT_JOYSTICK;
@@ -132,17 +133,24 @@ fn init_locked(state: &mut InitState, flags: Uint32) -> Result<(), ()> {
     if flags & SDL_INIT_GAMECONTROLLER != 0 {
         if should_init(state, SDL_INIT_GAMECONTROLLER) {
             init_or_incr(state, SDL_INIT_JOYSTICK)?;
+            crate::input::init_input_subsystem(SDL_INIT_GAMECONTROLLER)?;
         }
         incr_refcount(state, SDL_INIT_GAMECONTROLLER);
         initialized |= SDL_INIT_GAMECONTROLLER;
     }
 
     if flags & SDL_INIT_HAPTIC != 0 {
+        if should_init(state, SDL_INIT_HAPTIC) {
+            crate::input::init_input_subsystem(SDL_INIT_HAPTIC)?;
+        }
         incr_refcount(state, SDL_INIT_HAPTIC);
         initialized |= SDL_INIT_HAPTIC;
     }
 
     if flags & SDL_INIT_SENSOR != 0 {
+        if should_init(state, SDL_INIT_SENSOR) {
+            crate::input::init_input_subsystem(SDL_INIT_SENSOR)?;
+        }
         incr_refcount(state, SDL_INIT_SENSOR);
         initialized |= SDL_INIT_SENSOR;
     }
@@ -153,12 +161,15 @@ fn init_locked(state: &mut InitState, flags: Uint32) -> Result<(), ()> {
 
 fn quit_locked(state: &mut InitState, flags: Uint32) {
     if flags & SDL_INIT_SENSOR != 0 {
-        if should_quit(state, SDL_INIT_SENSOR) {}
+        if should_quit(state, SDL_INIT_SENSOR) {
+            crate::input::quit_input_subsystem(SDL_INIT_SENSOR);
+        }
         decr_refcount(state, SDL_INIT_SENSOR);
     }
 
     if flags & SDL_INIT_GAMECONTROLLER != 0 {
         if should_quit(state, SDL_INIT_GAMECONTROLLER) {
+            crate::input::quit_input_subsystem(SDL_INIT_GAMECONTROLLER);
             quit_locked(state, SDL_INIT_JOYSTICK);
         }
         decr_refcount(state, SDL_INIT_GAMECONTROLLER);
@@ -166,12 +177,16 @@ fn quit_locked(state: &mut InitState, flags: Uint32) {
 
     if flags & SDL_INIT_JOYSTICK != 0 {
         if should_quit(state, SDL_INIT_JOYSTICK) {
+            crate::input::quit_input_subsystem(SDL_INIT_JOYSTICK);
             quit_locked(state, SDL_INIT_EVENTS);
         }
         decr_refcount(state, SDL_INIT_JOYSTICK);
     }
 
     if flags & SDL_INIT_HAPTIC != 0 {
+        if should_quit(state, SDL_INIT_HAPTIC) {
+            crate::input::quit_input_subsystem(SDL_INIT_HAPTIC);
+        }
         decr_refcount(state, SDL_INIT_HAPTIC);
     }
 

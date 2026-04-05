@@ -10,6 +10,7 @@ pub mod abi {
 pub mod audio;
 pub mod core;
 pub mod events;
+pub mod input;
 pub mod security {
     pub mod checked_math;
 }

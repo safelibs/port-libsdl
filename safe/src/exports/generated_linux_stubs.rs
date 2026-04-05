@@ -1524,301 +1524,302 @@ pub unsafe extern "C" fn SDL_GL_UnloadLibrary() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GL_UnloadLibrary");
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GUIDFromString() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GUIDFromString");
-}
+#[cfg(any())]
+mod phase7_guid_controller_stubs {
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GUIDFromString() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GUIDFromString");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GUIDToString() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GUIDToString");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GUIDToString() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GUIDToString");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerAddMapping() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerAddMapping");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerAddMapping() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerAddMapping");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerAddMappingsFromRW() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerAddMappingsFromRW");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerAddMappingsFromRW() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerAddMappingsFromRW");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerClose() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerClose");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerClose() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerClose");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerEventState() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerEventState");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerEventState() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerEventState");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerFromInstanceID() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerFromInstanceID");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerFromInstanceID() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerFromInstanceID");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerFromPlayerIndex() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerFromPlayerIndex");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerFromPlayerIndex() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerFromPlayerIndex");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetAppleSFSymbolsNameForAxis() -> *mut ::std::ffi::c_void
-{
-    crate::exports::abort_unimplemented("SDL_GameControllerGetAppleSFSymbolsNameForAxis");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetAppleSFSymbolsNameForAxis() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetAppleSFSymbolsNameForAxis");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetAppleSFSymbolsNameForButton(
-) -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetAppleSFSymbolsNameForButton");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetAppleSFSymbolsNameForButton() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetAppleSFSymbolsNameForButton");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetAttached() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetAttached");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetAttached() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetAttached");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetAxis() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetAxis");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetAxis() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetAxis");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetAxisFromString() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetAxisFromString");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetAxisFromString() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetAxisFromString");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetBindForAxis() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetBindForAxis");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetBindForAxis() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetBindForAxis");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetBindForButton() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetBindForButton");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetBindForButton() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetBindForButton");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetButton() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetButton");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetButton() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetButton");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetButtonFromString() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetButtonFromString");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetButtonFromString() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetButtonFromString");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetFirmwareVersion() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetFirmwareVersion");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetFirmwareVersion() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetFirmwareVersion");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetJoystick() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetJoystick");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetJoystick() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetJoystick");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetNumTouchpadFingers() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetNumTouchpadFingers");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetNumTouchpadFingers() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetNumTouchpadFingers");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetNumTouchpads() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetNumTouchpads");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetNumTouchpads() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetNumTouchpads");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetPlayerIndex() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetPlayerIndex");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetPlayerIndex() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetPlayerIndex");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetProduct() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetProduct");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetProduct() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetProduct");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetProductVersion() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetProductVersion");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetProductVersion() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetProductVersion");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetSensorData() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetSensorData");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetSensorData() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetSensorData");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetSensorDataRate() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetSensorDataRate");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetSensorDataRate() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetSensorDataRate");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetSensorDataWithTimestamp() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetSensorDataWithTimestamp");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetSensorDataWithTimestamp() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetSensorDataWithTimestamp");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetSerial() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetSerial");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetSerial() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetSerial");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetSteamHandle() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetSteamHandle");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetSteamHandle() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetSteamHandle");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetStringForAxis() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetStringForAxis");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetStringForAxis() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetStringForAxis");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetStringForButton() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetStringForButton");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetStringForButton() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetStringForButton");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetTouchpadFinger() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetTouchpadFinger");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetTouchpadFinger() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetTouchpadFinger");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetType() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetType");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetType() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetType");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetVendor() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerGetVendor");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerGetVendor() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerGetVendor");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerHasAxis() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerHasAxis");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerHasAxis() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerHasAxis");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerHasButton() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerHasButton");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerHasButton() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerHasButton");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerHasLED() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerHasLED");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerHasLED() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerHasLED");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerHasRumble() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerHasRumble");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerHasRumble() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerHasRumble");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerHasRumbleTriggers() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerHasRumbleTriggers");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerHasRumbleTriggers() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerHasRumbleTriggers");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerHasSensor() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerHasSensor");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerHasSensor() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerHasSensor");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerIsSensorEnabled() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerIsSensorEnabled");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerIsSensorEnabled() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerIsSensorEnabled");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerMapping() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerMapping");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerMapping() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerMapping");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerMappingForDeviceIndex() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerMappingForDeviceIndex");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerMappingForDeviceIndex() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerMappingForDeviceIndex");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerMappingForGUID() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerMappingForGUID");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerMappingForGUID() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerMappingForGUID");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerMappingForIndex() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerMappingForIndex");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerMappingForIndex() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerMappingForIndex");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerName() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerName");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerName() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerName");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerNameForIndex() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerNameForIndex");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerNameForIndex() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerNameForIndex");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerNumMappings() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerNumMappings");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerNumMappings() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerNumMappings");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerOpen() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerOpen");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerOpen() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerOpen");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerPath() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerPath");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerPath() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerPath");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerPathForIndex() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerPathForIndex");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerPathForIndex() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerPathForIndex");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerRumble() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerRumble");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerRumble() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerRumble");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerRumbleTriggers() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerRumbleTriggers");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerRumbleTriggers() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerRumbleTriggers");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerSendEffect() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerSendEffect");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerSendEffect() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerSendEffect");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerSetLED() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerSetLED");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerSetLED() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerSetLED");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerSetPlayerIndex() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerSetPlayerIndex");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerSetPlayerIndex() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerSetPlayerIndex");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerSetSensorEnabled() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerSetSensorEnabled");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerSetSensorEnabled() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerSetSensorEnabled");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerTypeForIndex() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerTypeForIndex");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerTypeForIndex() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerTypeForIndex");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerUpdate() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_GameControllerUpdate");
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_GameControllerUpdate() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_GameControllerUpdate");
+    }
 }
 
 #[cfg(any())]
@@ -2031,6 +2032,7 @@ pub unsafe extern "C" fn SDL_GetHintBoolean() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetHintBoolean");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetJoystickGUIDInfo() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetJoystickGUIDInfo");
@@ -2586,139 +2588,142 @@ pub unsafe extern "C" fn SDL_GetYUVConversionModeForResolution() -> *mut ::std::
     crate::exports::abort_unimplemented("SDL_GetYUVConversionModeForResolution");
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticClose() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticClose");
-}
+#[cfg(any())]
+mod phase7_haptic_stubs {
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticClose() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticClose");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticDestroyEffect() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticDestroyEffect");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticDestroyEffect() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticDestroyEffect");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticEffectSupported() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticEffectSupported");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticEffectSupported() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticEffectSupported");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticGetEffectStatus() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticGetEffectStatus");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticGetEffectStatus() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticGetEffectStatus");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticIndex() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticIndex");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticIndex() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticIndex");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticName() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticName");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticName() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticName");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticNewEffect() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticNewEffect");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticNewEffect() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticNewEffect");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticNumAxes() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticNumAxes");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticNumAxes() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticNumAxes");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticNumEffects() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticNumEffects");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticNumEffects() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticNumEffects");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticNumEffectsPlaying() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticNumEffectsPlaying");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticNumEffectsPlaying() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticNumEffectsPlaying");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticOpen() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticOpen");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticOpen() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticOpen");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticOpenFromJoystick() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticOpenFromJoystick");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticOpenFromJoystick() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticOpenFromJoystick");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticOpenFromMouse() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticOpenFromMouse");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticOpenFromMouse() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticOpenFromMouse");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticOpened() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticOpened");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticOpened() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticOpened");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticPause() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticPause");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticPause() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticPause");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticQuery() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticQuery");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticQuery() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticQuery");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticRumbleInit() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticRumbleInit");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticRumbleInit() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticRumbleInit");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticRumblePlay() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticRumblePlay");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticRumblePlay() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticRumblePlay");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticRumbleStop() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticRumbleStop");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticRumbleStop() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticRumbleStop");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticRumbleSupported() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticRumbleSupported");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticRumbleSupported() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticRumbleSupported");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticRunEffect() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticRunEffect");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticRunEffect() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticRunEffect");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticSetAutocenter() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticSetAutocenter");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticSetAutocenter() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticSetAutocenter");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticSetGain() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticSetGain");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticSetGain() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticSetGain");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticStopAll() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticStopAll");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticStopAll() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticStopAll");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticStopEffect() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticStopEffect");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticStopEffect() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticStopEffect");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticUnpause() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticUnpause");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticUnpause() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticUnpause");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_HapticUpdateEffect() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_HapticUpdateEffect");
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_HapticUpdateEffect() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_HapticUpdateEffect");
+    }
 }
 
 #[cfg(any())]
@@ -2918,6 +2923,7 @@ pub unsafe extern "C" fn SDL_IntersectRectAndLine() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_IntersectRectAndLine");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_IsGameController() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_IsGameController");
@@ -2957,279 +2963,282 @@ pub unsafe extern "C" fn SDL_IsTextInputShown() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_IsTextInputShown");
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickAttachVirtual() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickAttachVirtual");
-}
+#[cfg(any())]
+mod phase7_joystick_stubs {
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickAttachVirtual() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickAttachVirtual");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickAttachVirtualEx() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickAttachVirtualEx");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickAttachVirtualEx() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickAttachVirtualEx");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickClose() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickClose");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickClose() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickClose");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickCurrentPowerLevel() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickCurrentPowerLevel");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickCurrentPowerLevel() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickCurrentPowerLevel");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickDetachVirtual() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickDetachVirtual");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickDetachVirtual() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickDetachVirtual");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickEventState() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickEventState");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickEventState() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickEventState");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickFromInstanceID() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickFromInstanceID");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickFromInstanceID() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickFromInstanceID");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickFromPlayerIndex() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickFromPlayerIndex");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickFromPlayerIndex() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickFromPlayerIndex");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetAttached() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetAttached");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetAttached() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetAttached");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetAxis() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetAxis");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetAxis() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetAxis");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetAxisInitialState() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetAxisInitialState");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetAxisInitialState() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetAxisInitialState");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetBall() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetBall");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetBall() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetBall");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetButton() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetButton");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetButton() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetButton");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetDeviceGUID() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetDeviceGUID");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetDeviceGUID() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetDeviceGUID");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetDeviceInstanceID() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetDeviceInstanceID");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetDeviceInstanceID() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetDeviceInstanceID");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetDevicePlayerIndex() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetDevicePlayerIndex");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetDevicePlayerIndex() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetDevicePlayerIndex");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetDeviceProduct() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetDeviceProduct");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetDeviceProduct() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetDeviceProduct");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetDeviceProductVersion() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetDeviceProductVersion");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetDeviceProductVersion() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetDeviceProductVersion");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetDeviceType() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetDeviceType");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetDeviceType() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetDeviceType");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetDeviceVendor() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetDeviceVendor");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetDeviceVendor() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetDeviceVendor");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetFirmwareVersion() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetFirmwareVersion");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetFirmwareVersion() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetFirmwareVersion");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetGUID() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetGUID");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetGUID() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetGUID");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetGUIDFromString() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetGUIDFromString");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetGUIDFromString() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetGUIDFromString");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetGUIDString() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetGUIDString");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetGUIDString() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetGUIDString");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetHat() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetHat");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetHat() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetHat");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetPlayerIndex() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetPlayerIndex");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetPlayerIndex() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetPlayerIndex");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetProduct() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetProduct");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetProduct() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetProduct");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetProductVersion() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetProductVersion");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetProductVersion() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetProductVersion");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetSerial() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetSerial");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetSerial() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetSerial");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetType() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetType");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetType() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetType");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetVendor() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickGetVendor");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickGetVendor() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickGetVendor");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickHasLED() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickHasLED");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickHasLED() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickHasLED");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickHasRumble() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickHasRumble");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickHasRumble() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickHasRumble");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickHasRumbleTriggers() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickHasRumbleTriggers");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickHasRumbleTriggers() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickHasRumbleTriggers");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickInstanceID() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickInstanceID");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickInstanceID() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickInstanceID");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickIsHaptic() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickIsHaptic");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickIsHaptic() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickIsHaptic");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickIsVirtual() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickIsVirtual");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickIsVirtual() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickIsVirtual");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickName() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickName");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickName() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickName");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickNameForIndex() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickNameForIndex");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickNameForIndex() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickNameForIndex");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickNumAxes() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickNumAxes");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickNumAxes() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickNumAxes");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickNumBalls() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickNumBalls");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickNumBalls() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickNumBalls");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickNumButtons() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickNumButtons");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickNumButtons() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickNumButtons");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickNumHats() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickNumHats");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickNumHats() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickNumHats");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickOpen() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickOpen");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickOpen() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickOpen");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickPath() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickPath");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickPath() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickPath");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickPathForIndex() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickPathForIndex");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickPathForIndex() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickPathForIndex");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickRumble() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickRumble");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickRumble() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickRumble");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickRumbleTriggers() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickRumbleTriggers");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickRumbleTriggers() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickRumbleTriggers");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickSendEffect() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickSendEffect");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickSendEffect() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickSendEffect");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickSetLED() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickSetLED");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickSetLED() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickSetLED");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickSetPlayerIndex() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickSetPlayerIndex");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickSetPlayerIndex() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickSetPlayerIndex");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickSetVirtualAxis() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickSetVirtualAxis");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickSetVirtualAxis() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickSetVirtualAxis");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickSetVirtualButton() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickSetVirtualButton");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickSetVirtualButton() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickSetVirtualButton");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickSetVirtualHat() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickSetVirtualHat");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickSetVirtualHat() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickSetVirtualHat");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickUpdate() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_JoystickUpdate");
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_JoystickUpdate() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_JoystickUpdate");
+    }
 }
 
 #[cfg(any())]
@@ -3286,6 +3295,7 @@ pub unsafe extern "C" fn SDL_LockAudioDevice() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_LockAudioDevice");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_LockJoysticks() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_LockJoysticks");
@@ -3297,6 +3307,7 @@ pub unsafe extern "C" fn SDL_LockMutex() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_LockMutex");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_LockSensors() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_LockSensors");
@@ -3500,6 +3511,7 @@ pub unsafe extern "C" fn SDL_MixAudioFormat() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_MixAudioFormat");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_MouseIsHaptic() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_MouseIsHaptic");
@@ -3511,16 +3523,19 @@ pub unsafe extern "C" fn SDL_NewAudioStream() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_NewAudioStream");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_NumHaptics() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_NumHaptics");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_NumJoysticks() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_NumJoysticks");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_NumSensors() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_NumSensors");
@@ -4144,74 +4159,77 @@ pub unsafe extern "C" fn SDL_SemWaitTimeout() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_SemWaitTimeout");
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_SensorClose() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_SensorClose");
-}
+#[cfg(any())]
+mod phase7_sensor_stubs {
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_SensorClose() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_SensorClose");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_SensorFromInstanceID() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_SensorFromInstanceID");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_SensorFromInstanceID() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_SensorFromInstanceID");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_SensorGetData() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_SensorGetData");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_SensorGetData() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_SensorGetData");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_SensorGetDataWithTimestamp() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_SensorGetDataWithTimestamp");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_SensorGetDataWithTimestamp() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_SensorGetDataWithTimestamp");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_SensorGetDeviceInstanceID() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_SensorGetDeviceInstanceID");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_SensorGetDeviceInstanceID() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_SensorGetDeviceInstanceID");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_SensorGetDeviceName() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_SensorGetDeviceName");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_SensorGetDeviceName() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_SensorGetDeviceName");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_SensorGetDeviceNonPortableType() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_SensorGetDeviceNonPortableType");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_SensorGetDeviceNonPortableType() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_SensorGetDeviceNonPortableType");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_SensorGetDeviceType() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_SensorGetDeviceType");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_SensorGetDeviceType() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_SensorGetDeviceType");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_SensorGetInstanceID() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_SensorGetInstanceID");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_SensorGetInstanceID() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_SensorGetInstanceID");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_SensorGetName() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_SensorGetName");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_SensorGetName() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_SensorGetName");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_SensorGetNonPortableType() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_SensorGetNonPortableType");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_SensorGetNonPortableType() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_SensorGetNonPortableType");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_SensorGetType() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_SensorGetType");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_SensorGetType() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_SensorGetType");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_SensorOpen() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_SensorOpen");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_SensorOpen() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_SensorOpen");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_SensorUpdate() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_SensorUpdate");
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_SensorUpdate() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_SensorUpdate");
+    }
 }
 
 #[cfg(any())]
@@ -4657,6 +4675,7 @@ pub unsafe extern "C" fn SDL_UnlockAudioDevice() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_UnlockAudioDevice");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_UnlockJoysticks() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_UnlockJoysticks");
@@ -4668,6 +4687,7 @@ pub unsafe extern "C" fn SDL_UnlockMutex() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_UnlockMutex");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_UnlockSensors() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_UnlockSensors");
@@ -5042,99 +5062,102 @@ pub unsafe extern "C" fn SDL_getenv() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_getenv");
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_ble_scan() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_ble_scan");
-}
+#[cfg(any())]
+mod phase7_hid_stubs {
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_ble_scan() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_ble_scan");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_close() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_close");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_close() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_close");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_device_change_count() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_device_change_count");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_device_change_count() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_device_change_count");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_enumerate() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_enumerate");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_enumerate() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_enumerate");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_exit() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_exit");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_exit() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_exit");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_free_enumeration() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_free_enumeration");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_free_enumeration() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_free_enumeration");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_get_feature_report() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_get_feature_report");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_get_feature_report() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_get_feature_report");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_get_indexed_string() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_get_indexed_string");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_get_indexed_string() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_get_indexed_string");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_get_manufacturer_string() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_get_manufacturer_string");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_get_manufacturer_string() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_get_manufacturer_string");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_get_product_string() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_get_product_string");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_get_product_string() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_get_product_string");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_get_serial_number_string() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_get_serial_number_string");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_get_serial_number_string() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_get_serial_number_string");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_init() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_init");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_init() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_init");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_open() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_open");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_open() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_open");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_open_path() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_open_path");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_open_path() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_open_path");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_read() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_read");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_read() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_read");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_read_timeout() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_read_timeout");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_read_timeout() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_read_timeout");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_send_feature_report() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_send_feature_report");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_send_feature_report() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_send_feature_report");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_set_nonblocking() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_set_nonblocking");
-}
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_set_nonblocking() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_set_nonblocking");
+    }
 
-#[no_mangle]
-pub unsafe extern "C" fn SDL_hid_write() -> *mut ::std::ffi::c_void {
-    crate::exports::abort_unimplemented("SDL_hid_write");
+    #[no_mangle]
+    pub unsafe extern "C" fn SDL_hid_write() -> *mut ::std::ffi::c_void {
+        crate::exports::abort_unimplemented("SDL_hid_write");
+    }
 }
 
 #[cfg(any())]
