@@ -470,6 +470,50 @@ fn surface_bmp_roundtrip_and_blit_paths_match_owned_surface_behavior() {
 }
 
 #[test]
+fn upper_blit_paths_allow_upstream_clipping_to_smaller_destinations() {
+    let _serial = testutils::serial_lock();
+
+    unsafe {
+        let source = create_argb8888_surface(16, 16);
+        let dest = create_argb8888_surface(8, 8);
+        assert!(!source.is_null(), "{}", testutils::current_error());
+        assert!(!dest.is_null(), "{}", testutils::current_error());
+
+        let red = SDL_MapRGBA((*source).format, 255, 0, 0, 255);
+        let black = SDL_MapRGBA((*dest).format, 0, 0, 0, 255);
+        assert_eq!(SDL_FillRect(source, ptr::null(), red), 0);
+        assert_eq!(SDL_FillRect(dest, ptr::null(), black), 0);
+
+        let mut dstrect = SDL_Rect {
+            x: 0,
+            y: 0,
+            w: 0,
+            h: 0,
+        };
+        assert_eq!(SDL_UpperBlit(source, ptr::null(), dest, &mut dstrect), 0);
+        assert_eq!((dstrect.x, dstrect.y, dstrect.w, dstrect.h), (0, 0, 8, 8));
+        assert_eq!(read_pixel32(dest, 7, 7), red);
+
+        assert_eq!(SDL_FillRect(dest, ptr::null(), black), 0);
+        let mut scaled = SDL_Rect {
+            x: 0,
+            y: 0,
+            w: 16,
+            h: 16,
+        };
+        assert_eq!(
+            SDL_UpperBlitScaled(source, ptr::null(), dest, &mut scaled),
+            0
+        );
+        assert_eq!((scaled.x, scaled.y, scaled.w, scaled.h), (0, 0, 8, 8));
+        assert_eq!(read_pixel32(dest, 7, 7), red);
+
+        SDL_FreeSurface(dest);
+        SDL_FreeSurface(source);
+    }
+}
+
+#[test]
 fn surface_convert_pixels_copies_expected_content() {
     let _serial = testutils::serial_lock();
 

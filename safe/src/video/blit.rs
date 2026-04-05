@@ -4,36 +4,9 @@ use crate::video::surface::{
     apply_math_error, format_descriptor, real_sdl, sync_error_from_real, validate_surface_storage,
 };
 
-unsafe fn validate_surface_copy(
-    surface: *mut SDL_Surface,
-    width: libc::c_int,
-    height: libc::c_int,
-) -> Result<(), MathError> {
-    let descriptor = validate_surface_storage(surface)?;
-    let _ = checked_math::validate_copy_layout(
-        width,
-        height,
-        descriptor.bits_per_pixel,
-        descriptor.bytes_per_pixel,
-        (*surface).pitch,
-    )?;
+unsafe fn validate_blit_surface(surface: *mut SDL_Surface) -> Result<(), MathError> {
+    let _ = validate_surface_storage(surface)?;
     Ok(())
-}
-
-unsafe fn surface_dims(surface: *mut SDL_Surface) -> (libc::c_int, libc::c_int) {
-    ((*surface).w, (*surface).h)
-}
-
-unsafe fn rect_dims(
-    rect: *const SDL_Rect,
-    default_w: libc::c_int,
-    default_h: libc::c_int,
-) -> (libc::c_int, libc::c_int) {
-    if rect.is_null() {
-        (default_w, default_h)
-    } else {
-        ((*rect).w, (*rect).h)
-    }
 }
 
 #[no_mangle]
@@ -149,12 +122,10 @@ pub unsafe extern "C" fn SDL_UpperBlit(
     if dst.is_null() {
         return crate::core::error::invalid_param_error("dst");
     }
-    let (src_w, src_h) = surface_dims(src);
-    let (copy_w, copy_h) = rect_dims(srcrect, src_w, src_h);
-    if let Err(error) = validate_surface_copy(src, copy_w, copy_h) {
+    if let Err(error) = validate_blit_surface(src) {
         return apply_math_error(error);
     }
-    if let Err(error) = validate_surface_copy(dst, copy_w, copy_h) {
+    if let Err(error) = validate_blit_surface(dst) {
         return apply_math_error(error);
     }
 
@@ -179,12 +150,10 @@ pub unsafe extern "C" fn SDL_LowerBlit(
     if dst.is_null() {
         return crate::core::error::invalid_param_error("dst");
     }
-    let (src_w, src_h) = surface_dims(src);
-    let (copy_w, copy_h) = rect_dims(srcrect, src_w, src_h);
-    if let Err(error) = validate_surface_copy(src, copy_w, copy_h) {
+    if let Err(error) = validate_blit_surface(src) {
         return apply_math_error(error);
     }
-    if let Err(error) = validate_surface_copy(dst, copy_w, copy_h) {
+    if let Err(error) = validate_blit_surface(dst) {
         return apply_math_error(error);
     }
 
@@ -209,14 +178,10 @@ pub unsafe extern "C" fn SDL_SoftStretch(
     if dst.is_null() {
         return crate::core::error::invalid_param_error("dst");
     }
-    let (src_w, src_h) = surface_dims(src);
-    let (dst_w, dst_h) = surface_dims(dst);
-    let (copy_w, copy_h) = rect_dims(srcrect, src_w, src_h);
-    let (out_w, out_h) = rect_dims(dstrect, dst_w, dst_h);
-    if let Err(error) = validate_surface_copy(src, copy_w, copy_h) {
+    if let Err(error) = validate_blit_surface(src) {
         return apply_math_error(error);
     }
-    if let Err(error) = validate_surface_copy(dst, out_w, out_h) {
+    if let Err(error) = validate_blit_surface(dst) {
         return apply_math_error(error);
     }
 
@@ -241,14 +206,10 @@ pub unsafe extern "C" fn SDL_SoftStretchLinear(
     if dst.is_null() {
         return crate::core::error::invalid_param_error("dst");
     }
-    let (src_w, src_h) = surface_dims(src);
-    let (dst_w, dst_h) = surface_dims(dst);
-    let (copy_w, copy_h) = rect_dims(srcrect, src_w, src_h);
-    let (out_w, out_h) = rect_dims(dstrect, dst_w, dst_h);
-    if let Err(error) = validate_surface_copy(src, copy_w, copy_h) {
+    if let Err(error) = validate_blit_surface(src) {
         return apply_math_error(error);
     }
-    if let Err(error) = validate_surface_copy(dst, out_w, out_h) {
+    if let Err(error) = validate_blit_surface(dst) {
         return apply_math_error(error);
     }
 
@@ -273,14 +234,10 @@ pub unsafe extern "C" fn SDL_UpperBlitScaled(
     if dst.is_null() {
         return crate::core::error::invalid_param_error("dst");
     }
-    let (src_w, src_h) = surface_dims(src);
-    let (dst_w, dst_h) = surface_dims(dst);
-    let (copy_w, copy_h) = rect_dims(srcrect, src_w, src_h);
-    let (out_w, out_h) = rect_dims(dstrect, dst_w, dst_h);
-    if let Err(error) = validate_surface_copy(src, copy_w, copy_h) {
+    if let Err(error) = validate_blit_surface(src) {
         return apply_math_error(error);
     }
-    if let Err(error) = validate_surface_copy(dst, out_w, out_h) {
+    if let Err(error) = validate_blit_surface(dst) {
         return apply_math_error(error);
     }
 
@@ -305,14 +262,10 @@ pub unsafe extern "C" fn SDL_LowerBlitScaled(
     if dst.is_null() {
         return crate::core::error::invalid_param_error("dst");
     }
-    let (src_w, src_h) = surface_dims(src);
-    let (dst_w, dst_h) = surface_dims(dst);
-    let (copy_w, copy_h) = rect_dims(srcrect, src_w, src_h);
-    let (out_w, out_h) = rect_dims(dstrect, dst_w, dst_h);
-    if let Err(error) = validate_surface_copy(src, copy_w, copy_h) {
+    if let Err(error) = validate_blit_surface(src) {
         return apply_math_error(error);
     }
-    if let Err(error) = validate_surface_copy(dst, out_w, out_h) {
+    if let Err(error) = validate_blit_surface(dst) {
         return apply_math_error(error);
     }
 
