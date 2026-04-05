@@ -2,12 +2,14 @@
 mod testutils;
 
 use safe_sdl::abi::generated_types::SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888;
+use safe_sdl::core::error::SDL_ClearError;
 use safe_sdl::security::checked_math::{
     calculate_surface_allocation, validate_copy_layout, validate_preallocated_surface, MathError,
 };
 use safe_sdl::video::blit::{SDL_ConvertPixels, SDL_UpperBlit};
 use safe_sdl::video::surface::{
-    SDL_CreateRGBSurfaceFrom, SDL_CreateRGBSurfaceWithFormat, SDL_FreeSurface,
+    SDL_ConvertSurfaceFormat, SDL_CreateRGBSurfaceFrom, SDL_CreateRGBSurfaceWithFormat,
+    SDL_DuplicateSurface, SDL_FillRect, SDL_FreeSurface,
 };
 
 #[test]
@@ -108,5 +110,42 @@ fn constructors_and_copy_paths_reject_values_that_used_to_wrap() {
         (*src).pitch = original_pitch;
         SDL_FreeSurface(dst_surface);
         SDL_FreeSurface(src);
+    }
+}
+
+#[test]
+fn hostile_surface_with_null_pixels_is_rejected_before_host_calls() {
+    let _serial = testutils::serial_lock();
+
+    unsafe {
+        let surface = SDL_CreateRGBSurfaceWithFormat(
+            0,
+            4,
+            4,
+            32,
+            SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888,
+        );
+        assert!(!surface.is_null(), "{}", testutils::current_error());
+
+        let original_pixels = (*surface).pixels;
+        (*surface).pixels = std::ptr::null_mut();
+
+        SDL_ClearError();
+        let duplicate = SDL_DuplicateSurface(surface);
+        assert!(duplicate.is_null());
+        assert_eq!(testutils::current_error(), "Parameter 'surface' is invalid");
+
+        SDL_ClearError();
+        let converted =
+            SDL_ConvertSurfaceFormat(surface, SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888, 0);
+        assert!(converted.is_null());
+        assert_eq!(testutils::current_error(), "Parameter 'surface' is invalid");
+
+        SDL_ClearError();
+        assert_eq!(SDL_FillRect(surface, std::ptr::null(), 0), -1);
+        assert_eq!(testutils::current_error(), "Parameter 'surface' is invalid");
+
+        (*surface).pixels = original_pixels;
+        SDL_FreeSurface(surface);
     }
 }

@@ -204,13 +204,16 @@ pub(crate) unsafe fn validate_surface_storage(
     }
 
     let descriptor = descriptor_from_format_ptr((*surface).format)?;
-    checked_math::validate_surface_layout(
+    let layout_size = checked_math::validate_surface_layout(
         (*surface).w,
         (*surface).h,
         (*surface).pitch,
         descriptor.bits_per_pixel,
         descriptor.bytes_per_pixel,
     )?;
+    if layout_size > 0 && (*surface).pixels.is_null() {
+        return Err(MathError::InvalidParam("surface"));
+    }
     Ok(descriptor)
 }
 
