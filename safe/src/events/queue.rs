@@ -97,22 +97,19 @@ fn lock_host_event_transition() -> std::sync::MutexGuard<'static, ()> {
     }
 }
 
-pub(crate) fn ensure_real_event_subsystem() -> bool {
+pub(crate) fn ensure_real_event_subsystem() {
     if host_event_active().load(Ordering::Acquire) {
-        return false;
+        return;
     }
 
     let _guard = lock_host_event_transition();
     if host_event_active().load(Ordering::Acquire) {
-        return false;
+        return;
     }
     crate::video::clear_real_error();
     let rc = unsafe { (api().init_subsystem)(SDL_INIT_EVENTS) };
     if rc == 0 {
         host_event_active().store(true, Ordering::Release);
-        true
-    } else {
-        false
     }
 }
 

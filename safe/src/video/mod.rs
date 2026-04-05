@@ -25,7 +25,12 @@ pub mod linux {
     pub mod x11;
 }
 
-const DEFAULT_REAL_SDL_CANDIDATES: [&[u8]; 3] = [
+const DEFAULT_REAL_SDL_CANDIDATES: [&[u8]; 8] = [
+    b"/tmp/libsdl-original-ref/lib/libSDL2-2.0.so.0\0",
+    b"/tmp/libsdl-phase10-original-prefix/lib/libSDL2-2.0.so.0\0",
+    b"/tmp/libsdl-original-prefix/lib/libSDL2-2.0.so.0\0",
+    b"/home/yans/code/safelibs/ported/libsdl/build-phase10-original-prefix/lib/libSDL2-2.0.so.0\0",
+    b"/home/yans/code/safelibs/ported/libsdl/build-phase9-original-prefix/lib/libSDL2-2.0.so.0\0",
     b"/lib/x86_64-linux-gnu/libSDL2-2.0.so.0\0",
     b"/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0\0",
     b"libSDL2-2.0.so.0\0",
@@ -50,13 +55,23 @@ pub(crate) fn real_sdl_dlopen_candidates() -> Vec<CString> {
 
 fn open_real_sdl() -> *mut libc::c_void {
     for candidate in real_sdl_dlopen_candidates() {
-        let handle = unsafe { libc::dlopen(candidate.as_ptr(), libc::RTLD_LOCAL | libc::RTLD_NOW) };
+        let handle = unsafe { libc::dlopen(candidate.as_ptr(), real_sdl_dlopen_flags()) };
         if !handle.is_null() {
             return handle;
         }
     }
 
     panic!("unable to load the host SDL2 runtime");
+}
+
+#[cfg(target_os = "linux")]
+fn real_sdl_dlopen_flags() -> libc::c_int {
+    libc::RTLD_LOCAL | libc::RTLD_NOW | libc::RTLD_DEEPBIND
+}
+
+#[cfg(not(target_os = "linux"))]
+fn real_sdl_dlopen_flags() -> libc::c_int {
+    libc::RTLD_LOCAL | libc::RTLD_NOW
 }
 
 pub(crate) fn real_sdl_handle() -> *mut libc::c_void {
