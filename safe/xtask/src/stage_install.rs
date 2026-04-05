@@ -202,6 +202,7 @@ fn verify_video_driver_contract(
     contract: &DriverFamilyContract,
 ) -> Result<()> {
     validate_video_contract(contract)?;
+    let real_sdl_path = packaged_probe_real_sdl_path(repo_root, stage_root)?;
 
     let expected = contract
         .registry_order
@@ -210,7 +211,7 @@ fn verify_video_driver_contract(
         .collect::<Vec<_>>();
     let probe = build_driver_probe(repo_root, stage_root)?;
 
-    let listed = run_driver_probe(&probe, &["list-video"], &[])?;
+    let listed = run_driver_probe(&probe, &["list-video"], &[], real_sdl_path.as_deref())?;
     if listed != expected {
         bail!(
             "video driver registry mismatch\nexpected: {:?}\nactual: {:?}",
@@ -224,6 +225,7 @@ fn verify_video_driver_contract(
         &probe,
         &["init-video-nohint"],
         &[("SDL_VIDEODRIVER", "dummy")],
+        real_sdl_path.as_deref(),
     )?;
     if dummy != [dummy_expected] {
         bail!("explicit dummy driver probe failed: {:?}", dummy);
@@ -234,6 +236,7 @@ fn verify_video_driver_contract(
         &probe,
         &["init-video-nohint"],
         &[("SDL_VIDEODRIVER", "offscreen")],
+        real_sdl_path.as_deref(),
     )?;
     if offscreen != [offscreen_expected] {
         bail!("explicit offscreen driver probe failed: {:?}", offscreen);
@@ -248,7 +251,12 @@ fn verify_video_driver_contract(
     if let Some((_guard, display)) = x_display {
         let x11_expected = contract_selected_without_hint(contract, "x11")?;
         let env = [("DISPLAY", display.as_str())];
-        let no_hint = run_driver_probe(&probe, &["init-video-nohint"], &env)?;
+        let no_hint = run_driver_probe(
+            &probe,
+            &["init-video-nohint"],
+            &env,
+            real_sdl_path.as_deref(),
+        )?;
         if no_hint != [x11_expected.clone()] {
             bail!(
                 "no-hint video probe did not match contract under X11/Xvfb: {:?}",
@@ -260,6 +268,7 @@ fn verify_video_driver_contract(
             &probe,
             &["init-video-nohint"],
             &[("DISPLAY", display.as_str()), ("SDL_VIDEODRIVER", "x11")],
+            real_sdl_path.as_deref(),
         )?;
         if explicit_x11 != [x11_expected] {
             bail!(
@@ -371,6 +380,7 @@ fn verify_audio_driver_contract(
     contract: &DriverFamilyContract,
 ) -> Result<()> {
     validate_audio_contract(contract)?;
+    let real_sdl_path = packaged_probe_real_sdl_path(repo_root, stage_root)?;
 
     let expected = contract
         .registry_order
@@ -379,7 +389,7 @@ fn verify_audio_driver_contract(
         .collect::<Vec<_>>();
     let probe = build_driver_probe(repo_root, stage_root)?;
 
-    let listed = run_driver_probe(&probe, &["list-audio"], &[])?;
+    let listed = run_driver_probe(&probe, &["list-audio"], &[], real_sdl_path.as_deref())?;
     if listed != expected {
         bail!(
             "audio driver registry mismatch\nexpected: {:?}\nactual: {:?}",
@@ -393,13 +403,23 @@ fn verify_audio_driver_contract(
         .first()
         .ok_or_else(|| anyhow!("audio driver contract missing no_hint_probe_order"))?;
     let no_hint_expected = contract_selected_without_hint(contract, default_driver)?;
-    let no_hint = run_driver_probe(&probe, &["init-audio-nohint"], &[("SDL_AUDIODRIVER", "")])?;
+    let no_hint = run_driver_probe(
+        &probe,
+        &["init-audio-nohint"],
+        &[("SDL_AUDIODRIVER", "")],
+        real_sdl_path.as_deref(),
+    )?;
     if no_hint != [no_hint_expected] {
         bail!("no-hint audio driver probe failed: {:?}", no_hint);
     }
 
     for driver in ["pulseaudio", "dsp", "disk", "dummy"] {
-        let explicit = run_driver_probe(&probe, &["init-audio-explicit", driver], &[])?;
+        let explicit = run_driver_probe(
+            &probe,
+            &["init-audio-explicit", driver],
+            &[],
+            real_sdl_path.as_deref(),
+        )?;
         if explicit != [driver.to_string()] {
             bail!(
                 "explicit audio driver probe for {driver} failed: {:?}",
@@ -968,7 +988,12 @@ int main(int argc, char **argv) {
     Ok(binary)
 }
 
-fn run_driver_probe(probe: &Path, args: &[&str], envs: &[(&str, &str)]) -> Result<Vec<String>> {
+fn run_driver_probe(
+    probe: &Path,
+    args: &[&str],
+    envs: &[(&str, &str)],
+    real_sdl_path: Option<&Path>,
+) -> Result<Vec<String>> {
     let mut cmd = Command::new(probe);
     if args.is_empty() {
         cmd.arg("list-video");
@@ -977,6 +1002,10 @@ fn run_driver_probe(probe: &Path, args: &[&str], envs: &[(&str, &str)]) -> Resul
     }
     cmd.env_remove("SDL_AUDIODRIVER");
     cmd.env_remove("SDL_VIDEODRIVER");
+    cmd.env_remove("SAFE_SDL_REAL_SDL_PATH");
+    if let Some(real_sdl_path) = real_sdl_path {
+        cmd.env("SAFE_SDL_REAL_SDL_PATH", real_sdl_path);
+    }
     for (key, value) in envs {
         cmd.env(key, value);
     }
@@ -996,6 +1025,78 @@ fn run_driver_probe(probe: &Path, args: &[&str], envs: &[(&str, &str)]) -> Resul
         .filter(|line| !line.is_empty())
         .map(str::to_string)
         .collect())
+}
+
+fn packaged_probe_real_sdl_path(repo_root: &Path, stage_root: &Path) -> Result<Option<PathBuf>> {
+    if stage_root != Path::new("/") {
+        return Ok(None);
+    }
+
+    if let Some(path) = std::env::var_os("SAFE_SDL_REAL_SDL_PATH") {
+        let path = PathBuf::from(path);
+        validate_packaged_probe_real_sdl_path(stage_root, &path)?;
+        return Ok(Some(path));
+    }
+
+    for root in [
+        PathBuf::from("/tmp/libsdl-original-ref"),
+        repo_root.join("build-phase10-original-prefix"),
+        repo_root.join("build-phase9-original-prefix"),
+        repo_root.join("build-phase10-original-reference/prefix"),
+        repo_root.join("build-phase9-original-reference/prefix"),
+    ] {
+        if let Some(path) = detect_real_sdl_library(&root) {
+            validate_packaged_probe_real_sdl_path(stage_root, &path)?;
+            return Ok(Some(path));
+        }
+    }
+
+    bail!(
+        "packaged driver verification requires a preserved original SDL runtime; \
+set SAFE_SDL_REAL_SDL_PATH or run build-original-reference --prefix /tmp/libsdl-original-ref"
+    );
+}
+
+fn detect_real_sdl_library(root: &Path) -> Option<PathBuf> {
+    for libdir in [
+        root.join(format!("lib/{UBUNTU_MULTIARCH}")),
+        root.join("lib"),
+    ] {
+        for candidate in [
+            libdir.join(SDL_RUNTIME_REALNAME),
+            libdir.join(SDL_SONAME),
+            libdir.join("libSDL2.so"),
+        ] {
+            if candidate.exists() {
+                return Some(candidate);
+            }
+        }
+    }
+    None
+}
+
+fn validate_packaged_probe_real_sdl_path(stage_root: &Path, path: &Path) -> Result<()> {
+    if !path.exists() {
+        bail!(
+            "SAFE_SDL_REAL_SDL_PATH points to missing library {}",
+            path.display()
+        );
+    }
+
+    let packaged_library = stage_root.join(format!("usr/lib/{UBUNTU_MULTIARCH}/{SDL_SONAME}"));
+    if let (Ok(candidate), Ok(packaged)) =
+        (fs::canonicalize(path), fs::canonicalize(packaged_library))
+    {
+        if candidate == packaged {
+            bail!(
+                "SAFE_SDL_REAL_SDL_PATH resolved to the packaged safe library {}; \
+it must point at the preserved original SDL runtime",
+                path.display()
+            );
+        }
+    }
+
+    Ok(())
 }
 
 struct XvfbGuard {
@@ -1035,4 +1136,41 @@ fn spawn_xvfb() -> Option<(Option<XvfbGuard>, String)> {
 
 fn static_private_link_flags() -> String {
     "-ldl -lm -pthread -lrt".to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{detect_real_sdl_library, validate_packaged_probe_real_sdl_path, UBUNTU_MULTIARCH};
+    use std::fs;
+    use tempfile::tempdir;
+
+    #[test]
+    fn detect_real_sdl_library_finds_multiarch_runtime() {
+        let root = tempdir().expect("tempdir");
+        let libdir = root.path().join(format!("lib/{UBUNTU_MULTIARCH}"));
+        fs::create_dir_all(&libdir).expect("create libdir");
+        let candidate = libdir.join("libSDL2-2.0.so.0.0.0");
+        fs::write(&candidate, b"not an elf").expect("write candidate");
+
+        let detected = detect_real_sdl_library(root.path()).expect("candidate path");
+        assert_eq!(detected, candidate);
+    }
+
+    #[test]
+    fn validate_packaged_probe_real_sdl_path_rejects_packaged_library() {
+        let stage_root = tempdir().expect("stage root");
+        let packaged_dir = stage_root
+            .path()
+            .join(format!("usr/lib/{UBUNTU_MULTIARCH}"));
+        fs::create_dir_all(&packaged_dir).expect("create packaged dir");
+        let packaged = packaged_dir.join("libSDL2-2.0.so.0");
+        fs::write(&packaged, b"safe").expect("write packaged library");
+
+        let error = validate_packaged_probe_real_sdl_path(stage_root.path(), &packaged)
+            .expect_err("self-recursive packaged path should be rejected");
+        assert!(
+            error.to_string().contains("preserved original SDL runtime"),
+            "unexpected error: {error:#}"
+        );
+    }
 }
