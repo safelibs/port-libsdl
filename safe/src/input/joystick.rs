@@ -293,9 +293,14 @@ pub unsafe extern "C" fn SDL_JoystickAttachVirtualEx(
             desc.nbuttons as usize,
             desc.nhats as usize,
         ),
+        touchpads: Vec::new(),
+        sensors: Vec::new(),
         evdev: None,
         hint_path: None,
     });
+    if let Some(device) = state.devices.last_mut() {
+        super::refresh_device_features(device);
+    }
 
     device_index
 }
@@ -561,6 +566,7 @@ pub unsafe extern "C" fn SDL_JoystickUpdate() {
             }
         }
         device.state.apply_pending();
+        super::refresh_device_features(device);
     }
 }
 

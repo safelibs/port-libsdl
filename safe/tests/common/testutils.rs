@@ -8,7 +8,7 @@ use std::sync::{Mutex, MutexGuard, OnceLock};
 use std::thread;
 use std::time::Duration;
 
-use safe_sdl::abi::generated_types::Uint32;
+use safe_sdl::abi::generated_types::{wchar_t, Uint32};
 use safe_sdl::core::error::SDL_GetError;
 use safe_sdl::core::hints::{SDL_ResetHint, SDL_SetHint};
 use safe_sdl::core::init::{SDL_InitSubSystem, SDL_QuitSubSystem};
@@ -104,6 +104,38 @@ abs=0x10,-1,1,0,0,0,1
 abs=0x11,-1,1,0,0,0,-1
 ";
     std::fs::write(path, fixture).expect("write evdev fixture");
+}
+
+pub fn write_default_hidapi_fixture(path: &Path) {
+    let fixture = "\
+SAFE_HIDAPI_FIXTURE_V1
+vendor=0x1234
+product=0x5678
+release=0x0001
+manufacturer=Safe SDL
+product_string=Fixture HID Device
+serial=SAFE123
+usage_page=0x0001
+usage=0x0005
+interface_number=2
+interface_class=3
+interface_subclass=0
+interface_protocol=0
+input=00010203
+feature=10aabbcc
+";
+    std::fs::write(path, fixture).expect("write hidapi fixture");
+}
+
+pub fn wide_string_from_buffer(buffer: &[wchar_t]) -> String {
+    let end = buffer
+        .iter()
+        .position(|value| *value == 0)
+        .unwrap_or(buffer.len());
+    buffer[..end]
+        .iter()
+        .filter_map(|value| char::from_u32(*value as u32))
+        .collect()
 }
 
 pub struct ScopedEnvVar {

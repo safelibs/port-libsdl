@@ -4,7 +4,7 @@ use std::ptr;
 
 use crate::abi::generated_types::{
     SDL_GameController, SDL_GameControllerAxis, SDL_GameControllerAxis_SDL_CONTROLLER_AXIS_INVALID,
-    SDL_GameControllerAxis_SDL_CONTROLLER_AXIS_MAX, SDL_GameControllerBindType,
+    SDL_GameControllerAxis_SDL_CONTROLLER_AXIS_MAX,
     SDL_GameControllerBindType_SDL_CONTROLLER_BINDTYPE_AXIS,
     SDL_GameControllerBindType_SDL_CONTROLLER_BINDTYPE_BUTTON,
     SDL_GameControllerBindType_SDL_CONTROLLER_BINDTYPE_HAT,
@@ -27,9 +27,9 @@ use crate::core::rwops::{SDL_RWclose, SDL_RWread, SDL_RWsize};
 use crate::core::system::bool_to_sdl;
 
 use super::{
-    cstr_ptr, device_by_instance, device_index_to_instance, joystick_instance_from_handle,
-    lock_input_state, mapping_array, mapping_for_guid, mapping_for_guid_mut, BindKind,
-    ControllerHandle, MappingEntry,
+    cstr_ptr, device_by_instance, device_by_instance_mut, device_index_to_instance,
+    joystick_instance_from_handle, lock_input_state, mapping_for_guid, mapping_for_guid_mut,
+    BindKind, ControllerHandle, MappingEntry,
 };
 
 static AXIS_NAMES: [&[u8]; SDL_GameControllerAxis_SDL_CONTROLLER_AXIS_MAX as usize] = [
@@ -454,6 +454,18 @@ fn controller_instance(gamecontroller: *mut SDL_GameController) -> Option<SDL_Jo
         None
     } else {
         Some(unsafe { (*(gamecontroller as *mut ControllerHandle)).instance_id })
+    }
+}
+
+fn write_sensor_values(values: &[f32], data: *mut f32, num_values: c_int) {
+    if data.is_null() || num_values <= 0 {
+        return;
+    }
+    let len = num_values as usize;
+    unsafe {
+        for index in 0..len {
+            *data.add(index) = values.get(index).copied().unwrap_or(0.0);
+        }
     }
 }
 
@@ -1023,24 +1035,38 @@ pub unsafe extern "C" fn SDL_GameControllerGetButton(
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GameControllerGetNumTouchpads(
-    _gamecontroller: *mut SDL_GameController,
+    gamecontroller: *mut SDL_GameController,
 ) -> c_int {
-    0
+    let state = lock_input_state();
+    controller_instance(gamecontroller)
+        .and_then(|instance_id| device_by_instance(&state, instance_id))
+        .map(|device| device.touchpads.len() as c_int)
+        .unwrap_or(0)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GameControllerGetNumTouchpadFingers(
-    _gamecontroller: *mut SDL_GameController,
-    _touchpad: c_int,
+    gamecontroller: *mut SDL_GameController,
+    touchpad: c_int,
 ) -> c_int {
-    0
+    let state = lock_input_state();
+    let Some(device) = controller_instance(gamecontroller)
+        .and_then(|instance_id| device_by_instance(&state, instance_id))
+    else {
+        return 0;
+    };
+    usize::try_from(touchpad)
+        .ok()
+        .and_then(|index| device.touchpads.get(index))
+        .map(|touchpad| touchpad.fingers.len() as c_int)
+        .unwrap_or(0)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GameControllerGetTouchpadFinger(
-    _gamecontroller: *mut SDL_GameController,
-    _touchpad: c_int,
-    _finger: c_int,
+    gamecontroller: *mut SDL_GameController,
+    touchpad: c_int,
+    finger: c_int,
     state_out: *mut Uint8,
     x: *mut f32,
     y: *mut f32,
@@ -1058,59 +1084,125 @@ pub unsafe extern "C" fn SDL_GameControllerGetTouchpadFinger(
     if !pressure.is_null() {
         *pressure = 0.0;
     }
-    set_error_message("Game controller touchpads are not supported")
+    let state = lock_input_state();
+    let Some(device) = controller_instance(gamecontroller)
+        .and_then(|instance_id| device_by_instance(&state, instance_id))
+    else {
+        return invalid_param_error("gamecontroller");
+    };
+    let Some(finger_state) = usize::try_from(touchpad)
+        .ok()
+        .and_then(|touchpad_index| device.touchpads.get(touchpad_index))
+        .and_then(|touchpad| {
+            usize::try_from(finger)
+                .ok()
+                .and_then(|finger_index| touchpad.fingers.get(finger_index))
+        })
+    else {
+        return set_error_message("Touchpad finger is not available");
+    };
+    if !state_out.is_null() {
+        *state_out = finger_state.state;
+    }
+    if !x.is_null() {
+        *x = finger_state.x;
+    }
+    if !y.is_null() {
+        *y = finger_state.y;
+    }
+    if !pressure.is_null() {
+        *pressure = finger_state.pressure;
+    }
+    0
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GameControllerHasSensor(
-    _gamecontroller: *mut SDL_GameController,
-    _type_: SDL_SensorType,
+    gamecontroller: *mut SDL_GameController,
+    type_: SDL_SensorType,
 ) -> SDL_bool {
-    SDL_bool_SDL_FALSE
+    let state = lock_input_state();
+    bool_to_sdl(
+        controller_instance(gamecontroller)
+            .and_then(|instance_id| device_by_instance(&state, instance_id))
+            .and_then(|device| device.sensors.iter().find(|sensor| sensor.type_ == type_))
+            .is_some(),
+    )
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GameControllerSetSensorEnabled(
-    _gamecontroller: *mut SDL_GameController,
-    _type_: SDL_SensorType,
-    _enabled: SDL_bool,
+    gamecontroller: *mut SDL_GameController,
+    type_: SDL_SensorType,
+    enabled: SDL_bool,
 ) -> c_int {
-    set_error_message("Game controller sensors are not supported")
+    let mut state = lock_input_state();
+    let Some(device) = controller_instance(gamecontroller)
+        .and_then(|instance_id| device_by_instance_mut(&mut state, instance_id))
+    else {
+        return invalid_param_error("gamecontroller");
+    };
+    let Some(sensor_index) = device
+        .sensors
+        .iter()
+        .position(|sensor| sensor.type_ == type_)
+    else {
+        return set_error_message("Game controller sensor is not available");
+    };
+    device.sensors[sensor_index].enabled = enabled == SDL_bool_SDL_TRUE;
+    super::refresh_device_features(device);
+    device.sensors[sensor_index].enabled = enabled == SDL_bool_SDL_TRUE;
+    0
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GameControllerIsSensorEnabled(
-    _gamecontroller: *mut SDL_GameController,
-    _type_: SDL_SensorType,
+    gamecontroller: *mut SDL_GameController,
+    type_: SDL_SensorType,
 ) -> SDL_bool {
-    SDL_bool_SDL_FALSE
+    let state = lock_input_state();
+    bool_to_sdl(
+        controller_instance(gamecontroller)
+            .and_then(|instance_id| device_by_instance(&state, instance_id))
+            .and_then(|device| device.sensors.iter().find(|sensor| sensor.type_ == type_))
+            .map(|sensor| sensor.enabled)
+            .unwrap_or(false),
+    )
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GameControllerGetSensorDataRate(
-    _gamecontroller: *mut SDL_GameController,
-    _type_: SDL_SensorType,
+    gamecontroller: *mut SDL_GameController,
+    type_: SDL_SensorType,
 ) -> f32 {
-    0.0
+    let state = lock_input_state();
+    controller_instance(gamecontroller)
+        .and_then(|instance_id| device_by_instance(&state, instance_id))
+        .and_then(|device| device.sensors.iter().find(|sensor| sensor.type_ == type_))
+        .map(|sensor| sensor.rate_hz)
+        .unwrap_or(0.0)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GameControllerGetSensorData(
-    _gamecontroller: *mut SDL_GameController,
-    _type_: SDL_SensorType,
+    gamecontroller: *mut SDL_GameController,
+    type_: SDL_SensorType,
     data: *mut f32,
     num_values: c_int,
 ) -> c_int {
-    if !data.is_null() && num_values > 0 {
-        ptr::write_bytes(data, 0, num_values as usize);
-    }
-    set_error_message("Game controller sensors are not supported")
+    SDL_GameControllerGetSensorDataWithTimestamp(
+        gamecontroller,
+        type_,
+        ptr::null_mut(),
+        data,
+        num_values,
+    )
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GameControllerGetSensorDataWithTimestamp(
-    _gamecontroller: *mut SDL_GameController,
-    _type_: SDL_SensorType,
+    gamecontroller: *mut SDL_GameController,
+    type_: SDL_SensorType,
     timestamp: *mut Uint64,
     data: *mut f32,
     num_values: c_int,
@@ -1118,10 +1210,24 @@ pub unsafe extern "C" fn SDL_GameControllerGetSensorDataWithTimestamp(
     if !timestamp.is_null() {
         *timestamp = 0;
     }
-    if !data.is_null() && num_values > 0 {
-        ptr::write_bytes(data, 0, num_values as usize);
+    write_sensor_values(&[], data, num_values);
+    let state = lock_input_state();
+    let Some(device) = controller_instance(gamecontroller)
+        .and_then(|instance_id| device_by_instance(&state, instance_id))
+    else {
+        return invalid_param_error("gamecontroller");
+    };
+    let Some(sensor) = device.sensors.iter().find(|sensor| sensor.type_ == type_) else {
+        return set_error_message("Game controller sensor is not available");
+    };
+    if !sensor.enabled {
+        return set_error_message("Game controller sensor is disabled");
     }
-    set_error_message("Game controller sensors are not supported")
+    if !timestamp.is_null() {
+        *timestamp = sensor.timestamp_us;
+    }
+    write_sensor_values(&sensor.values, data, num_values);
+    0
 }
 
 #[no_mangle]

@@ -10,7 +10,7 @@ use std::sync::atomic::{AtomicI32, AtomicU32, AtomicUsize, Ordering};
 use std::sync::{Mutex, OnceLock};
 
 use safe_sdl::abi::generated_types::{
-    SDL_GameControllerAxis_SDL_CONTROLLER_AXIS_LEFTX,
+    wchar_t, SDL_GameControllerAxis_SDL_CONTROLLER_AXIS_LEFTX,
     SDL_GameControllerAxis_SDL_CONTROLLER_AXIS_MAX,
     SDL_GameControllerBindType_SDL_CONTROLLER_BINDTYPE_AXIS,
     SDL_GameControllerBindType_SDL_CONTROLLER_BINDTYPE_BUTTON,
@@ -21,11 +21,12 @@ use safe_sdl::abi::generated_types::{
     SDL_GameControllerButton_SDL_CONTROLLER_BUTTON_DPAD_UP,
     SDL_GameControllerButton_SDL_CONTROLLER_BUTTON_MAX,
     SDL_GameControllerType_SDL_CONTROLLER_TYPE_PS4,
-    SDL_GameControllerType_SDL_CONTROLLER_TYPE_VIRTUAL,
-    SDL_JoystickType_SDL_JOYSTICK_TYPE_GAMECONTROLLER, SDL_SensorType_SDL_SENSOR_INVALID,
-    SDL_VirtualJoystickDesc, SDL_bool_SDL_FALSE, SDL_bool_SDL_TRUE, Uint16, SDL_HAT_RIGHTUP,
-    SDL_HINT_JOYSTICK_DEVICE, SDL_INIT_GAMECONTROLLER, SDL_INIT_HAPTIC, SDL_INIT_JOYSTICK,
-    SDL_INIT_SENSOR, SDL_PRESSED, SDL_VIRTUAL_JOYSTICK_DESC_VERSION,
+    SDL_GameControllerType_SDL_CONTROLLER_TYPE_VIRTUAL, SDL_HapticEffect, SDL_HapticLeftRight,
+    SDL_JoystickType_SDL_JOYSTICK_TYPE_GAMECONTROLLER, SDL_SensorType_SDL_SENSOR_ACCEL,
+    SDL_SensorType_SDL_SENSOR_GYRO, SDL_VirtualJoystickDesc, SDL_bool_SDL_FALSE, SDL_bool_SDL_TRUE,
+    Uint16, SDL_HAPTIC_LEFTRIGHT, SDL_HAT_RIGHTUP, SDL_HINT_JOYSTICK_DEVICE,
+    SDL_INIT_GAMECONTROLLER, SDL_INIT_HAPTIC, SDL_INIT_JOYSTICK, SDL_INIT_SENSOR, SDL_PRESSED,
+    SDL_VIRTUAL_JOYSTICK_DESC_VERSION,
 };
 use safe_sdl::core::memory::SDL_free;
 use safe_sdl::core::rwops::SDL_RWFromConstMem;
@@ -34,23 +35,35 @@ use safe_sdl::input::gamecontroller::{
     SDL_GameControllerFromPlayerIndex, SDL_GameControllerGetAxis,
     SDL_GameControllerGetAxisFromString, SDL_GameControllerGetBindForAxis,
     SDL_GameControllerGetBindForButton, SDL_GameControllerGetButton,
-    SDL_GameControllerGetButtonFromString, SDL_GameControllerGetNumTouchpads,
+    SDL_GameControllerGetButtonFromString, SDL_GameControllerGetNumTouchpadFingers,
+    SDL_GameControllerGetNumTouchpads, SDL_GameControllerGetSensorData,
+    SDL_GameControllerGetSensorDataRate, SDL_GameControllerGetSensorDataWithTimestamp,
     SDL_GameControllerGetTouchpadFinger, SDL_GameControllerGetType, SDL_GameControllerHasAxis,
     SDL_GameControllerHasButton, SDL_GameControllerHasLED, SDL_GameControllerHasRumble,
-    SDL_GameControllerHasRumbleTriggers, SDL_GameControllerMappingForDeviceIndex,
+    SDL_GameControllerHasRumbleTriggers, SDL_GameControllerHasSensor,
+    SDL_GameControllerIsSensorEnabled, SDL_GameControllerMappingForDeviceIndex,
     SDL_GameControllerMappingForGUID, SDL_GameControllerMappingForIndex,
     SDL_GameControllerNameForIndex, SDL_GameControllerNumMappings, SDL_GameControllerOpen,
     SDL_GameControllerPathForIndex, SDL_GameControllerRumble, SDL_GameControllerRumbleTriggers,
     SDL_GameControllerSendEffect, SDL_GameControllerSetLED, SDL_GameControllerSetPlayerIndex,
-    SDL_GameControllerTypeForIndex, SDL_GameControllerUpdate, SDL_IsGameController,
+    SDL_GameControllerSetSensorEnabled, SDL_GameControllerTypeForIndex, SDL_GameControllerUpdate,
+    SDL_IsGameController,
 };
 use safe_sdl::input::haptic::{
-    SDL_HapticName, SDL_HapticOpen, SDL_HapticOpenFromJoystick, SDL_HapticOpenFromMouse,
-    SDL_JoystickIsHaptic, SDL_MouseIsHaptic, SDL_NumHaptics,
+    SDL_HapticClose, SDL_HapticGetEffectStatus, SDL_HapticIndex, SDL_HapticName,
+    SDL_HapticNewEffect, SDL_HapticNumAxes, SDL_HapticNumEffects, SDL_HapticNumEffectsPlaying,
+    SDL_HapticOpen, SDL_HapticOpenFromJoystick, SDL_HapticOpenFromMouse, SDL_HapticPause,
+    SDL_HapticQuery, SDL_HapticRumbleInit, SDL_HapticRumblePlay, SDL_HapticRumbleStop,
+    SDL_HapticRumbleSupported, SDL_HapticRunEffect, SDL_HapticSetAutocenter, SDL_HapticSetGain,
+    SDL_HapticStopAll, SDL_HapticStopEffect, SDL_HapticUnpause, SDL_JoystickIsHaptic,
+    SDL_MouseIsHaptic, SDL_NumHaptics,
 };
 use safe_sdl::input::hidapi::{
-    SDL_hid_ble_scan, SDL_hid_device_change_count, SDL_hid_enumerate, SDL_hid_exit, SDL_hid_init,
-    SDL_hid_open, SDL_hid_open_path, SDL_hid_read, SDL_hid_set_nonblocking,
+    SDL_hid_ble_scan, SDL_hid_close, SDL_hid_device_change_count, SDL_hid_enumerate, SDL_hid_exit,
+    SDL_hid_free_enumeration, SDL_hid_get_feature_report, SDL_hid_get_manufacturer_string,
+    SDL_hid_get_product_string, SDL_hid_get_serial_number_string, SDL_hid_init, SDL_hid_open,
+    SDL_hid_open_path, SDL_hid_read, SDL_hid_send_feature_report, SDL_hid_set_nonblocking,
+    SDL_hid_write, SAFE_SDL_HINT_HIDAPI_DEVICE,
 };
 use safe_sdl::input::joystick::{
     SDL_JoystickAttachVirtualEx, SDL_JoystickClose, SDL_JoystickDetachVirtual,
@@ -64,10 +77,11 @@ use safe_sdl::input::joystick::{
     SDL_JoystickSetVirtualButton, SDL_JoystickSetVirtualHat, SDL_NumJoysticks,
 };
 use safe_sdl::input::sensor::{
-    SDL_LockSensors, SDL_NumSensors, SDL_SensorFromInstanceID, SDL_SensorGetData,
+    SDL_LockSensors, SDL_NumSensors, SDL_SensorClose, SDL_SensorFromInstanceID, SDL_SensorGetData,
     SDL_SensorGetDataWithTimestamp, SDL_SensorGetDeviceInstanceID, SDL_SensorGetDeviceName,
-    SDL_SensorGetDeviceNonPortableType, SDL_SensorGetDeviceType, SDL_SensorOpen, SDL_SensorUpdate,
-    SDL_UnlockSensors,
+    SDL_SensorGetDeviceNonPortableType, SDL_SensorGetDeviceType, SDL_SensorGetInstanceID,
+    SDL_SensorGetName, SDL_SensorGetNonPortableType, SDL_SensorGetType, SDL_SensorOpen,
+    SDL_SensorUpdate, SDL_UnlockSensors,
 };
 
 const TEST_USB_VENDOR_SONY: Uint16 = 0x054c;
@@ -506,6 +520,26 @@ fn virtual_joystick_hotplug_rumble_and_player_index_cover_joystick_hotplug_and_r
         0
     );
     assert_eq!(
+        unsafe { SDL_JoystickSetVirtualAxis(joystick_one, 1, -11_111) },
+        0
+    );
+    assert_eq!(
+        unsafe { SDL_JoystickSetVirtualAxis(joystick_one, 2, 16_384) },
+        0
+    );
+    assert_eq!(
+        unsafe { SDL_JoystickSetVirtualAxis(joystick_one, 3, 8_192) },
+        0
+    );
+    assert_eq!(
+        unsafe { SDL_JoystickSetVirtualAxis(joystick_one, 4, -12_288) },
+        0
+    );
+    assert_eq!(
+        unsafe { SDL_JoystickSetVirtualAxis(joystick_one, 5, 4_096) },
+        0
+    );
+    assert_eq!(
         unsafe { SDL_JoystickSetVirtualHat(joystick_one, 0, SDL_HAT_RIGHTUP as u8) },
         0
     );
@@ -565,8 +599,12 @@ fn virtual_joystick_hotplug_rumble_and_player_index_cover_joystick_hotplug_and_r
     let mut x = 1.0f32;
     let mut y = 1.0f32;
     let mut pressure = 1.0f32;
-    assert_eq!(unsafe { SDL_GameControllerGetNumTouchpads(controller) }, 0);
-    assert!(
+    assert_eq!(unsafe { SDL_GameControllerGetNumTouchpads(controller) }, 1);
+    assert_eq!(
+        unsafe { SDL_GameControllerGetNumTouchpadFingers(controller, 0) },
+        1
+    );
+    assert_eq!(
         unsafe {
             SDL_GameControllerGetTouchpadFinger(
                 controller,
@@ -577,12 +615,93 @@ fn virtual_joystick_hotplug_rumble_and_player_index_cover_joystick_hotplug_and_r
                 &mut y,
                 &mut pressure,
             )
+        },
+        0
+    );
+    assert_eq!(finger_state, SDL_PRESSED as u8);
+    assert!((x - ((22_222.0 + 32_768.0) / 65_535.0)).abs() < 0.01);
+    assert!((y - ((-11_111.0 + 32_768.0) / 65_535.0)).abs() < 0.01);
+    assert!(pressure > 0.70 && pressure <= 1.0);
+
+    assert_eq!(
+        unsafe { SDL_GameControllerHasSensor(controller, SDL_SensorType_SDL_SENSOR_ACCEL) },
+        SDL_bool_SDL_TRUE
+    );
+    assert_eq!(
+        unsafe { SDL_GameControllerHasSensor(controller, SDL_SensorType_SDL_SENSOR_GYRO) },
+        SDL_bool_SDL_TRUE
+    );
+    assert_eq!(
+        unsafe { SDL_GameControllerIsSensorEnabled(controller, SDL_SensorType_SDL_SENSOR_ACCEL) },
+        SDL_bool_SDL_TRUE
+    );
+    assert!(
+        unsafe { SDL_GameControllerGetSensorDataRate(controller, SDL_SensorType_SDL_SENSOR_ACCEL) }
+            > 0.0
+    );
+    let mut accel = [0.0f32; 3];
+    let mut accel_timestamp = 0u64;
+    assert_eq!(
+        unsafe {
+            SDL_GameControllerGetSensorDataWithTimestamp(
+                controller,
+                SDL_SensorType_SDL_SENSOR_ACCEL,
+                &mut accel_timestamp,
+                accel.as_mut_ptr(),
+                accel.len() as c_int,
+            )
+        },
+        0
+    );
+    assert!(accel_timestamp > 0);
+    assert!(accel[0] > 0.0);
+    assert!(accel[1] < 0.0);
+    assert!(accel[2] > 0.0);
+    assert_eq!(
+        unsafe {
+            SDL_GameControllerSetSensorEnabled(
+                controller,
+                SDL_SensorType_SDL_SENSOR_ACCEL,
+                SDL_bool_SDL_FALSE,
+            )
+        },
+        0
+    );
+    assert_eq!(
+        unsafe { SDL_GameControllerIsSensorEnabled(controller, SDL_SensorType_SDL_SENSOR_ACCEL) },
+        SDL_bool_SDL_FALSE
+    );
+    assert!(
+        unsafe {
+            SDL_GameControllerGetSensorData(
+                controller,
+                SDL_SensorType_SDL_SENSOR_ACCEL,
+                accel.as_mut_ptr(),
+                accel.len() as c_int,
+            )
         } < 0
     );
-    assert_eq!(finger_state, 0);
-    assert_eq!(x, 0.0);
-    assert_eq!(y, 0.0);
-    assert_eq!(pressure, 0.0);
+    assert_eq!(
+        unsafe {
+            SDL_GameControllerSetSensorEnabled(
+                controller,
+                SDL_SensorType_SDL_SENSOR_ACCEL,
+                SDL_bool_SDL_TRUE,
+            )
+        },
+        0
+    );
+    assert_eq!(
+        unsafe {
+            SDL_GameControllerGetSensorData(
+                controller,
+                SDL_SensorType_SDL_SENSOR_ACCEL,
+                accel.as_mut_ptr(),
+                accel.len() as c_int,
+            )
+        },
+        0
+    );
 
     assert_eq!(
         unsafe { SDL_JoystickRumble(joystick_one, 0x1234, 0x5678, 250) },
@@ -639,77 +758,308 @@ fn virtual_joystick_hotplug_rumble_and_player_index_cover_joystick_hotplug_and_r
 }
 
 #[test]
-fn haptic_sensor_and_hidapi_ports_report_unavailable_without_hardware() {
+fn haptic_sensor_and_hidapi_ports_cover_virtual_and_fixture_backed_paths() {
     let _serial = testutils::serial_lock();
-    let _subsystem =
-        testutils::SubsystemGuard::init(SDL_INIT_JOYSTICK | SDL_INIT_HAPTIC | SDL_INIT_SENSOR);
+    let dir = tempfile::tempdir().expect("tempdir");
+    let hid_fixture = dir.path().join("fixture-hid.txt");
+    testutils::write_default_hidapi_fixture(&hid_fixture);
+    let _hid_hint = testutils::HintGuard::set(
+        SAFE_SDL_HINT_HIDAPI_DEVICE,
+        &hid_fixture.display().to_string(),
+    );
+    let _subsystem = testutils::SubsystemGuard::init(
+        SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_HAPTIC | SDL_INIT_SENSOR,
+    );
+    reset_virtual_telemetry();
 
-    assert_eq!(unsafe { SDL_NumHaptics() }, 0);
-    assert!(unsafe { SDL_HapticName(0) }.is_null());
-    assert!(unsafe { SDL_HapticOpen(0) }.is_null());
     assert_eq!(unsafe { SDL_MouseIsHaptic() }, 0);
     assert!(unsafe { SDL_HapticOpenFromMouse() }.is_null());
 
-    let name = testutils::cstring("No Haptics");
-    let device_index = unsafe { SDL_JoystickAttachVirtualEx(&virtual_desc(&name, 0, 0, false)) };
+    let name = testutils::cstring("Virtual Haptics");
+    let device_index = unsafe { SDL_JoystickAttachVirtualEx(&virtual_desc(&name, 0, 0, true)) };
     let joystick = unsafe { SDL_JoystickOpen(device_index) };
     assert!(!joystick.is_null(), "{}", testutils::current_error());
-    assert_eq!(unsafe { SDL_JoystickIsHaptic(joystick) }, 0);
-    assert!(unsafe { SDL_HapticOpenFromJoystick(joystick) }.is_null());
+    let controller = unsafe { SDL_GameControllerOpen(device_index) };
+    assert!(!controller.is_null(), "{}", testutils::current_error());
+
+    assert_eq!(
+        unsafe { SDL_JoystickSetVirtualButton(joystick, 0, SDL_PRESSED as u8) },
+        0
+    );
+    assert_eq!(
+        unsafe { SDL_JoystickSetVirtualAxis(joystick, 0, 20_000) },
+        0
+    );
+    assert_eq!(
+        unsafe { SDL_JoystickSetVirtualAxis(joystick, 1, -10_000) },
+        0
+    );
+    assert_eq!(
+        unsafe { SDL_JoystickSetVirtualAxis(joystick, 2, 15_000) },
+        0
+    );
+    assert_eq!(unsafe { SDL_JoystickSetVirtualAxis(joystick, 3, 9_000) }, 0);
+    assert_eq!(
+        unsafe { SDL_JoystickSetVirtualAxis(joystick, 4, -7_000) },
+        0
+    );
+    assert_eq!(unsafe { SDL_JoystickSetVirtualAxis(joystick, 5, 5_000) }, 0);
     unsafe {
-        SDL_JoystickClose(joystick);
+        SDL_SensorUpdate();
     }
-    assert_eq!(unsafe { SDL_JoystickDetachVirtual(device_index) }, 0);
+
+    assert_eq!(unsafe { SDL_NumHaptics() }, 1);
+    assert_eq!(c_string(unsafe { SDL_HapticName(0) }), "Virtual Haptics");
+    assert_eq!(unsafe { SDL_JoystickIsHaptic(joystick) }, 1);
+    let haptic = unsafe { SDL_HapticOpen(0) };
+    assert!(!haptic.is_null(), "{}", testutils::current_error());
+    let haptic_from_joystick = unsafe { SDL_HapticOpenFromJoystick(joystick) };
+    assert!(
+        !haptic_from_joystick.is_null(),
+        "{}",
+        testutils::current_error()
+    );
+    assert_eq!(unsafe { SDL_HapticIndex(haptic) }, 0);
+    assert!(unsafe { SDL_HapticNumEffects(haptic) } >= 16);
+    assert_eq!(unsafe { SDL_HapticNumAxes(haptic) }, 2);
+    assert_eq!(unsafe { SDL_HapticNumEffectsPlaying(haptic) }, 0);
+    assert_ne!(unsafe { SDL_HapticQuery(haptic) } & SDL_HAPTIC_LEFTRIGHT, 0);
+    assert_eq!(unsafe { SDL_HapticSetGain(haptic, 50) }, 0);
+    assert_eq!(unsafe { SDL_HapticSetAutocenter(haptic, 25) }, 0);
+    assert_eq!(unsafe { SDL_HapticRumbleSupported(haptic) }, 1);
+    assert_eq!(unsafe { SDL_HapticRumbleInit(haptic) }, 0);
+    assert_eq!(unsafe { SDL_HapticRumblePlay(haptic, 0.5, 250) }, 0);
+    assert_eq!(LAST_RUMBLE_LOW.load(Ordering::SeqCst), 32_767);
+    assert_eq!(LAST_RUMBLE_HIGH.load(Ordering::SeqCst), 32_767);
+    assert_eq!(unsafe { SDL_HapticRumbleStop(haptic) }, 0);
+    assert_eq!(LAST_RUMBLE_LOW.load(Ordering::SeqCst), 0);
+    assert_eq!(LAST_RUMBLE_HIGH.load(Ordering::SeqCst), 0);
+
+    let mut effect = SDL_HapticEffect {
+        leftright: SDL_HapticLeftRight {
+            type_: SDL_HAPTIC_LEFTRIGHT as Uint16,
+            length: 500,
+            large_magnitude: 0x4000,
+            small_magnitude: 0x2000,
+        },
+    };
+    let effect_id = unsafe { SDL_HapticNewEffect(haptic, &mut effect) };
+    assert!(effect_id >= 0, "{}", testutils::current_error());
+    assert_eq!(unsafe { SDL_HapticRunEffect(haptic, effect_id, 1) }, 0);
+    assert_eq!(LAST_RUMBLE_LOW.load(Ordering::SeqCst), 0x2000);
+    assert_eq!(LAST_RUMBLE_HIGH.load(Ordering::SeqCst), 0x1000);
+    assert_eq!(unsafe { SDL_HapticGetEffectStatus(haptic, effect_id) }, 1);
+    assert_eq!(unsafe { SDL_HapticPause(haptic) }, 0);
+    assert_eq!(unsafe { SDL_HapticUnpause(haptic) }, 0);
+    assert_eq!(unsafe { SDL_HapticStopEffect(haptic, effect_id) }, 0);
+    assert_eq!(unsafe { SDL_HapticGetEffectStatus(haptic, effect_id) }, 0);
+    assert_eq!(unsafe { SDL_HapticStopAll(haptic) }, 0);
+    assert_eq!(unsafe { SDL_HapticNumEffectsPlaying(haptic) }, 0);
 
     unsafe {
         SDL_LockSensors();
         SDL_UnlockSensors();
     }
-    assert_eq!(unsafe { SDL_NumSensors() }, 0);
-    assert!(unsafe { SDL_SensorGetDeviceName(0) }.is_null());
+    assert!(unsafe { SDL_NumSensors() } >= 2);
+    assert!(c_string(unsafe { SDL_SensorGetDeviceName(0) }).contains("accelerometer"));
     assert_eq!(
         unsafe { SDL_SensorGetDeviceType(0) },
-        SDL_SensorType_SDL_SENSOR_INVALID
+        SDL_SensorType_SDL_SENSOR_ACCEL
     );
-    assert_eq!(unsafe { SDL_SensorGetDeviceNonPortableType(0) }, -1);
-    assert_eq!(unsafe { SDL_SensorGetDeviceInstanceID(0) }, -1);
-    assert!(unsafe { SDL_SensorOpen(0) }.is_null());
-    assert!(unsafe { SDL_SensorFromInstanceID(-1) }.is_null());
-    let mut sensor_values = [1.0f32; 3];
-    let mut timestamp = 99u64;
-    assert!(
-        unsafe {
-            SDL_SensorGetData(
-                ptr::null_mut(),
-                sensor_values.as_mut_ptr(),
-                sensor_values.len() as c_int,
-            )
-        } < 0
+    assert_eq!(
+        unsafe { SDL_SensorGetDeviceNonPortableType(0) },
+        SDL_SensorType_SDL_SENSOR_ACCEL
     );
-    assert!(
+    let sensor_instance_id = unsafe { SDL_SensorGetDeviceInstanceID(0) };
+    assert!(sensor_instance_id >= 0);
+    let sensor = unsafe { SDL_SensorOpen(0) };
+    assert!(!sensor.is_null(), "{}", testutils::current_error());
+    assert_eq!(
+        unsafe { SDL_SensorFromInstanceID(sensor_instance_id) },
+        sensor
+    );
+    assert_eq!(
+        c_string(unsafe { SDL_SensorGetName(sensor) }),
+        c_string(unsafe { SDL_SensorGetDeviceName(0) })
+    );
+    assert_eq!(
+        unsafe { SDL_SensorGetType(sensor) },
+        SDL_SensorType_SDL_SENSOR_ACCEL
+    );
+    assert_eq!(
+        unsafe { SDL_SensorGetNonPortableType(sensor) },
+        SDL_SensorType_SDL_SENSOR_ACCEL
+    );
+    assert_eq!(
+        unsafe { SDL_SensorGetInstanceID(sensor) },
+        sensor_instance_id
+    );
+    let mut sensor_values = [0.0f32; 3];
+    let mut timestamp = 0u64;
+    assert_eq!(
         unsafe {
             SDL_SensorGetDataWithTimestamp(
-                ptr::null_mut(),
+                sensor,
                 &mut timestamp,
                 sensor_values.as_mut_ptr(),
                 sensor_values.len() as c_int,
             )
+        },
+        0
+    );
+    assert!(timestamp > 0);
+    assert!(sensor_values[0] > 0.0);
+    assert!(sensor_values[1] < 0.0);
+    assert!(sensor_values[2] > 0.0);
+    assert_eq!(
+        unsafe {
+            SDL_SensorGetData(
+                sensor,
+                sensor_values.as_mut_ptr(),
+                sensor_values.len() as c_int,
+            )
+        },
+        0
+    );
+    assert_eq!(
+        unsafe { SDL_GameControllerHasSensor(controller, SDL_SensorType_SDL_SENSOR_ACCEL) },
+        SDL_bool_SDL_TRUE
+    );
+    assert_eq!(
+        unsafe { SDL_GameControllerHasSensor(controller, SDL_SensorType_SDL_SENSOR_GYRO) },
+        SDL_bool_SDL_TRUE
+    );
+    assert!(
+        unsafe { SDL_GameControllerGetSensorDataRate(controller, SDL_SensorType_SDL_SENSOR_ACCEL) }
+            > 0.0
+    );
+    assert_eq!(
+        unsafe { SDL_GameControllerIsSensorEnabled(controller, SDL_SensorType_SDL_SENSOR_ACCEL) },
+        SDL_bool_SDL_TRUE
+    );
+    assert_eq!(
+        unsafe {
+            SDL_GameControllerSetSensorEnabled(
+                controller,
+                SDL_SensorType_SDL_SENSOR_ACCEL,
+                SDL_bool_SDL_FALSE,
+            )
+        },
+        0
+    );
+    assert!(
+        unsafe {
+            SDL_GameControllerGetSensorData(
+                controller,
+                SDL_SensorType_SDL_SENSOR_ACCEL,
+                sensor_values.as_mut_ptr(),
+                sensor_values.len() as c_int,
+            )
         } < 0
     );
-    unsafe {
-        SDL_SensorUpdate();
-    }
+    assert_eq!(
+        unsafe {
+            SDL_GameControllerSetSensorEnabled(
+                controller,
+                SDL_SensorType_SDL_SENSOR_ACCEL,
+                SDL_bool_SDL_TRUE,
+            )
+        },
+        0
+    );
+    assert_eq!(
+        unsafe {
+            SDL_GameControllerGetSensorDataWithTimestamp(
+                controller,
+                SDL_SensorType_SDL_SENSOR_GYRO,
+                &mut timestamp,
+                sensor_values.as_mut_ptr(),
+                sensor_values.len() as c_int,
+            )
+        },
+        0
+    );
+    assert!(timestamp > 0);
 
     assert_eq!(unsafe { SDL_hid_init() }, 0);
-    assert_eq!(unsafe { SDL_hid_device_change_count() }, 0);
-    assert!(unsafe { SDL_hid_enumerate(0, 0) }.is_null());
-    assert!(unsafe { SDL_hid_open(0, 0, ptr::null()) }.is_null());
-    let path = testutils::cstring("/tmp/nonexistent-hid-device");
-    assert!(unsafe { SDL_hid_open_path(path.as_ptr(), 0) }.is_null());
-    assert!(unsafe { SDL_hid_read(ptr::null_mut(), ptr::null_mut(), 0) } < 0);
-    assert!(unsafe { SDL_hid_set_nonblocking(ptr::null_mut(), 1) } < 0);
+    assert!(unsafe { SDL_hid_device_change_count() } > 0);
+    let enumeration = unsafe { SDL_hid_enumerate(0x1234, 0x5678) };
+    assert!(!enumeration.is_null(), "{}", testutils::current_error());
+    assert_eq!(unsafe { (*enumeration).vendor_id }, 0x1234);
+    assert_eq!(unsafe { (*enumeration).product_id }, 0x5678);
+    assert_eq!(
+        c_string(unsafe { (*enumeration).path }),
+        hid_fixture.display().to_string()
+    );
+    let hid = unsafe { SDL_hid_open(0x1234, 0x5678, ptr::null()) };
+    assert!(!hid.is_null(), "{}", testutils::current_error());
+    let hid_path = testutils::cstring(&hid_fixture.display().to_string());
+    let hid_by_path = unsafe { SDL_hid_open_path(hid_path.as_ptr(), 0) };
+    assert!(!hid_by_path.is_null(), "{}", testutils::current_error());
+    let output = [0x00u8, 0x10, 0x20];
+    assert_eq!(
+        unsafe { SDL_hid_write(hid, output.as_ptr(), output.len()) },
+        output.len() as c_int
+    );
+    let mut read_buffer = [0u8; 8];
+    assert_eq!(
+        unsafe { SDL_hid_read(hid, read_buffer.as_mut_ptr(), read_buffer.len()) },
+        4
+    );
+    assert_eq!(&read_buffer[..4], &[0x00, 0x01, 0x02, 0x03]);
+    assert_eq!(unsafe { SDL_hid_set_nonblocking(hid, 1) }, 0);
+    let feature = [0x33u8, 0xaa, 0xbb];
+    assert_eq!(
+        unsafe { SDL_hid_send_feature_report(hid, feature.as_ptr(), feature.len()) },
+        feature.len() as c_int
+    );
+    let mut feature_buffer = [0u8; 8];
+    assert_eq!(
+        unsafe {
+            SDL_hid_get_feature_report(hid, feature_buffer.as_mut_ptr(), feature_buffer.len())
+        },
+        feature.len() as c_int
+    );
+    assert_eq!(&feature_buffer[..feature.len()], &feature);
+    let mut wide_buffer = [0 as wchar_t; 32];
+    assert_eq!(
+        unsafe {
+            SDL_hid_get_manufacturer_string(hid, wide_buffer.as_mut_ptr(), wide_buffer.len())
+        },
+        0
+    );
+    assert_eq!(testutils::wide_string_from_buffer(&wide_buffer), "Safe SDL");
+    assert_eq!(
+        unsafe { SDL_hid_get_product_string(hid, wide_buffer.as_mut_ptr(), wide_buffer.len()) },
+        0
+    );
+    assert_eq!(
+        testutils::wide_string_from_buffer(&wide_buffer),
+        "Fixture HID Device"
+    );
+    assert_eq!(
+        unsafe {
+            SDL_hid_get_serial_number_string(hid, wide_buffer.as_mut_ptr(), wide_buffer.len())
+        },
+        0
+    );
+    assert_eq!(testutils::wide_string_from_buffer(&wide_buffer), "SAFE123");
     unsafe {
         SDL_hid_ble_scan(SDL_bool_SDL_FALSE);
     }
+    unsafe {
+        SDL_hid_close(hid_by_path);
+        SDL_hid_close(hid);
+        SDL_hid_free_enumeration(enumeration);
+    }
     assert_eq!(unsafe { SDL_hid_exit() }, 0);
+
+    unsafe {
+        SDL_SensorClose(sensor);
+        SDL_HapticClose(haptic_from_joystick);
+        SDL_HapticClose(haptic);
+        SDL_GameControllerClose(controller);
+        SDL_JoystickClose(joystick);
+    }
+    assert_eq!(unsafe { SDL_JoystickDetachVirtual(device_index) }, 0);
 }

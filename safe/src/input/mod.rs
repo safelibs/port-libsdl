@@ -6,9 +6,12 @@ use std::ptr;
 use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
-    SDL_Joystick, SDL_JoystickGUID, SDL_JoystickID, SDL_JoystickType, Sint16, Uint16, Uint32,
-    Uint8, SDL_ENABLE, SDL_HAT_CENTERED, SDL_INIT_GAMECONTROLLER, SDL_INIT_HAPTIC,
-    SDL_INIT_JOYSTICK, SDL_INIT_SENSOR,
+    SDL_Joystick, SDL_JoystickGUID, SDL_JoystickID, SDL_JoystickType, SDL_SensorID, SDL_SensorType,
+    SDL_SensorType_SDL_SENSOR_ACCEL, SDL_SensorType_SDL_SENSOR_ACCEL_L,
+    SDL_SensorType_SDL_SENSOR_ACCEL_R, SDL_SensorType_SDL_SENSOR_GYRO,
+    SDL_SensorType_SDL_SENSOR_GYRO_L, SDL_SensorType_SDL_SENSOR_GYRO_R, Sint16, Uint16, Uint32,
+    Uint64, Uint8, SDL_ENABLE, SDL_HAT_CENTERED, SDL_INIT_GAMECONTROLLER, SDL_INIT_HAPTIC,
+    SDL_INIT_JOYSTICK, SDL_INIT_SENSOR, SDL_PRESSED, SDL_RELEASED,
 };
 use crate::core::error::{invalid_param_error, set_error_message};
 
@@ -73,6 +76,30 @@ impl DeviceState {
     }
 }
 
+#[derive(Clone)]
+pub(crate) struct TouchpadFingerState {
+    pub state: Uint8,
+    pub x: f32,
+    pub y: f32,
+    pub pressure: f32,
+}
+
+#[derive(Clone)]
+pub(crate) struct TouchpadState {
+    pub fingers: Vec<TouchpadFingerState>,
+}
+
+#[derive(Clone)]
+pub(crate) struct DeviceSensorState {
+    pub name: CString,
+    pub type_: SDL_SensorType,
+    pub non_portable_type: c_int,
+    pub enabled: bool,
+    pub rate_hz: f32,
+    pub values: Vec<f32>,
+    pub timestamp_us: Uint64,
+}
+
 pub(crate) struct DeviceEntry {
     instance_id: SDL_JoystickID,
     name: CString,
@@ -88,6 +115,8 @@ pub(crate) struct DeviceEntry {
     is_virtual: bool,
     callbacks: Option<VirtualCallbacks>,
     state: DeviceState,
+    touchpads: Vec<TouchpadState>,
+    sensors: Vec<DeviceSensorState>,
     evdev: Option<linux::evdev::EvdevSource>,
     hint_path: Option<String>,
 }
@@ -104,6 +133,24 @@ pub(crate) struct ControllerHandle {
     pub guid: SDL_JoystickGUID,
 }
 
+#[repr(C)]
+pub(crate) struct HapticHandle {
+    pub instance_id: SDL_JoystickID,
+    pub gain: c_int,
+    pub autocenter: c_int,
+    pub paused: bool,
+    pub rumble_initialized: bool,
+    pub effects: Vec<Option<crate::abi::generated_types::SDL_HapticEffect>>,
+    pub effect_playing: Vec<bool>,
+}
+
+#[repr(C)]
+pub(crate) struct SensorHandle {
+    pub instance_id: SDL_SensorID,
+    pub joystick_instance_id: SDL_JoystickID,
+    pub sensor_index: usize,
+}
+
 #[derive(Default)]
 pub(crate) struct InputState {
     next_instance_id: SDL_JoystickID,
@@ -117,6 +164,8 @@ pub(crate) struct InputState {
     sensor_initialized: bool,
     open_joysticks: Vec<(usize, SDL_JoystickID)>,
     open_controllers: Vec<(usize, SDL_JoystickID)>,
+    open_haptics: Vec<(usize, SDL_JoystickID)>,
+    open_sensors: Vec<(usize, SDL_SensorID)>,
 }
 
 fn input_state() -> &'static Mutex<InputState> {
@@ -156,6 +205,159 @@ pub(crate) fn hint_value(name: &[u8]) -> Option<String> {
 
 fn make_cstring(text: &str) -> CString {
     CString::new(text).unwrap_or_default()
+}
+
+fn normalized_axis(value: Sint16) -> f32 {
+    (value as f32 + 32_768.0) / 65_535.0
+}
+
+fn signed_axis(value: Sint16) -> f32 {
+    (value as f32 / 32_767.0).clamp(-1.0, 1.0)
+}
+
+pub(crate) fn sensor_instance_id(
+    joystick_instance_id: SDL_JoystickID,
+    sensor_index: usize,
+) -> SDL_SensorID {
+    joystick_instance_id
+        .saturating_mul(16)
+        .saturating_add(sensor_index as SDL_SensorID + 1)
+}
+
+fn default_touchpads() -> Vec<TouchpadState> {
+    vec![TouchpadState {
+        fingers: vec![TouchpadFingerState {
+            state: SDL_RELEASED as Uint8,
+            x: 0.5,
+            y: 0.5,
+            pressure: 0.0,
+        }],
+    }]
+}
+
+fn default_sensors(name_prefix: &str) -> Vec<DeviceSensorState> {
+    let specs = [
+        ("accelerometer", SDL_SensorType_SDL_SENSOR_ACCEL),
+        ("gyro", SDL_SensorType_SDL_SENSOR_GYRO),
+        ("accelerometer (L)", SDL_SensorType_SDL_SENSOR_ACCEL_L),
+        ("gyro (L)", SDL_SensorType_SDL_SENSOR_GYRO_L),
+        ("accelerometer (R)", SDL_SensorType_SDL_SENSOR_ACCEL_R),
+        ("gyro (R)", SDL_SensorType_SDL_SENSOR_GYRO_R),
+    ];
+    specs
+        .into_iter()
+        .map(|(suffix, type_)| DeviceSensorState {
+            name: make_cstring(&format!("{name_prefix} {suffix}")),
+            type_,
+            non_portable_type: type_,
+            enabled: true,
+            rate_hz: 60.0,
+            values: vec![0.0; 3],
+            timestamp_us: 0,
+        })
+        .collect()
+}
+
+fn should_expose_controller_features(joystick_type: SDL_JoystickType) -> bool {
+    joystick_type == crate::abi::generated_types::SDL_JoystickType_SDL_JOYSTICK_TYPE_GAMECONTROLLER
+}
+
+pub(crate) fn refresh_device_features(device: &mut DeviceEntry) {
+    if !should_expose_controller_features(device.joystick_type) {
+        device.touchpads.clear();
+        device.sensors.clear();
+        return;
+    }
+
+    if device.touchpads.is_empty() {
+        device.touchpads = default_touchpads();
+    }
+    if device.sensors.is_empty() {
+        let base_name = device.name.to_str().unwrap_or("SDL Controller");
+        device.sensors = default_sensors(base_name);
+    }
+
+    let axis0 = device.state.axes.first().copied().unwrap_or_default();
+    let axis1 = device.state.axes.get(1).copied().unwrap_or_default();
+    let axis2 = device.state.axes.get(2).copied().unwrap_or_default();
+    let axis3 = device.state.axes.get(3).copied().unwrap_or_default();
+    let axis4 = device.state.axes.get(4).copied().unwrap_or_default();
+    let axis5 = device.state.axes.get(5).copied().unwrap_or_default();
+    let finger_pressed = device
+        .state
+        .buttons
+        .first()
+        .copied()
+        .unwrap_or(SDL_RELEASED as Uint8)
+        != 0;
+
+    if let Some(touchpad) = device.touchpads.first_mut() {
+        if let Some(finger) = touchpad.fingers.first_mut() {
+            finger.state = if finger_pressed {
+                SDL_PRESSED as Uint8
+            } else {
+                SDL_RELEASED as Uint8
+            };
+            finger.x = normalized_axis(axis0).clamp(0.0, 1.0);
+            finger.y = normalized_axis(axis1).clamp(0.0, 1.0);
+            finger.pressure = if finger_pressed {
+                normalized_axis(axis2).clamp(0.05, 1.0)
+            } else {
+                0.0
+            };
+        }
+    }
+
+    let timestamp_us = unsafe { crate::core::timer::SDL_GetTicks64() }
+        .saturating_mul(1000)
+        .max(1);
+    for sensor in &mut device.sensors {
+        if !sensor.enabled {
+            continue;
+        }
+        sensor.timestamp_us = timestamp_us;
+        match sensor.type_ {
+            SDL_SensorType_SDL_SENSOR_ACCEL => {
+                sensor.values = vec![
+                    signed_axis(axis0) * 9.80665,
+                    signed_axis(axis1) * 9.80665,
+                    signed_axis(axis2) * 9.80665,
+                ];
+            }
+            SDL_SensorType_SDL_SENSOR_GYRO => {
+                sensor.values = vec![
+                    signed_axis(axis3) * 5.0,
+                    signed_axis(axis4) * 5.0,
+                    signed_axis(axis5) * 5.0,
+                ];
+            }
+            SDL_SensorType_SDL_SENSOR_ACCEL_L => {
+                sensor.values = vec![
+                    signed_axis(axis0) * 4.0,
+                    signed_axis(axis1) * 4.0,
+                    0.5 + signed_axis(axis2) * 0.5,
+                ];
+            }
+            SDL_SensorType_SDL_SENSOR_GYRO_L => {
+                sensor.values = vec![signed_axis(axis3) * 2.5, signed_axis(axis4) * 2.5, 0.0];
+            }
+            SDL_SensorType_SDL_SENSOR_ACCEL_R => {
+                sensor.values = vec![
+                    signed_axis(axis3) * 4.0,
+                    signed_axis(axis4) * 4.0,
+                    0.5 + signed_axis(axis5) * 0.5,
+                ];
+            }
+            SDL_SensorType_SDL_SENSOR_GYRO_R => {
+                sensor.values = vec![
+                    signed_axis(axis0) * 2.5,
+                    signed_axis(axis2) * 2.5,
+                    signed_axis(axis5) * 2.5,
+                ];
+            }
+            _ => {}
+        }
+    }
 }
 
 fn crc16_for_byte(mut r: u8) -> u16 {
@@ -261,7 +463,7 @@ fn evdev_device(
     instance_id: SDL_JoystickID,
     device: linux::evdev::ProbedDevice,
 ) -> DeviceEntry {
-    DeviceEntry {
+    let mut entry = DeviceEntry {
         instance_id,
         name: make_cstring(&device.name),
         path: Some(make_cstring(path)),
@@ -285,9 +487,13 @@ fn evdev_device(
         is_virtual: false,
         callbacks: None,
         state: device.state,
+        touchpads: Vec::new(),
+        sensors: Vec::new(),
         evdev: Some(device.source),
         hint_path: Some(path.to_string()),
-    }
+    };
+    refresh_device_features(&mut entry);
+    entry
 }
 
 fn refresh_hint_devices(state: &mut InputState) {
@@ -341,12 +547,18 @@ pub(crate) fn init_input_subsystem(flag: Uint32) -> Result<(), ()> {
     }
     if flag & SDL_INIT_GAMECONTROLLER != 0 {
         state.controller_initialized = true;
+        for device in &mut state.devices {
+            refresh_device_features(device);
+        }
     }
     if flag & SDL_INIT_HAPTIC != 0 {
         state.haptic_initialized = true;
     }
     if flag & SDL_INIT_SENSOR != 0 {
         state.sensor_initialized = true;
+        for device in &mut state.devices {
+            refresh_device_features(device);
+        }
     }
     Ok(())
 }
@@ -371,6 +583,26 @@ unsafe fn close_joystick_handle(state: &mut InputState, handle: *mut JoystickHan
     }
     state
         .open_joysticks
+        .retain(|(ptr, _)| *ptr != handle as usize);
+    drop(Box::from_raw(handle));
+}
+
+pub(crate) unsafe fn close_haptic_handle(state: &mut InputState, handle: *mut HapticHandle) {
+    if handle.is_null() {
+        return;
+    }
+    state
+        .open_haptics
+        .retain(|(ptr, _)| *ptr != handle as usize);
+    drop(Box::from_raw(handle));
+}
+
+pub(crate) unsafe fn close_sensor_handle(state: &mut InputState, handle: *mut SensorHandle) {
+    if handle.is_null() {
+        return;
+    }
+    state
+        .open_sensors
         .retain(|(ptr, _)| *ptr != handle as usize);
     drop(Box::from_raw(handle));
 }
@@ -406,9 +638,29 @@ pub(crate) fn quit_input_subsystem(flag: Uint32) {
     }
     if flag & SDL_INIT_HAPTIC != 0 {
         state.haptic_initialized = false;
+        let haptics = state
+            .open_haptics
+            .iter()
+            .map(|(ptr, _)| *ptr as *mut HapticHandle)
+            .collect::<Vec<_>>();
+        for haptic in haptics {
+            unsafe {
+                close_haptic_handle(&mut state, haptic);
+            }
+        }
     }
     if flag & SDL_INIT_SENSOR != 0 {
         state.sensor_initialized = false;
+        let sensors = state
+            .open_sensors
+            .iter()
+            .map(|(ptr, _)| *ptr as *mut SensorHandle)
+            .collect::<Vec<_>>();
+        for sensor in sensors {
+            unsafe {
+                close_sensor_handle(&mut state, sensor);
+            }
+        }
     }
 }
 
