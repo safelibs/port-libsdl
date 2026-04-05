@@ -1607,7 +1607,10 @@ mod tests {
             "build-phase10-relinked-objects".to_string(),
         ])
         .expect("parse compile-original-test-objects args");
-        assert_eq!(parsed.output_dir, PathBuf::from("build-phase10-relinked-objects"));
+        assert_eq!(
+            parsed.output_dir,
+            PathBuf::from("build-phase10-relinked-objects")
+        );
     }
 
     #[test]
