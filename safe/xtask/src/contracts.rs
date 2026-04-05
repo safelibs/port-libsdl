@@ -199,6 +199,17 @@ pub struct Inputs {
     pub cves_path: PathBuf,
 }
 
+pub struct AbiCheckArgs<'a> {
+    pub repo_root: &'a Path,
+    pub symbols_manifest_path: &'a Path,
+    pub dynapi_manifest_path: &'a Path,
+    pub exports_source_path: &'a Path,
+    pub dynapi_source_path: &'a Path,
+    pub library: Option<&'a Path>,
+    pub require_soname: Option<&'a str>,
+    pub exports_contract_path: Option<&'a Path>,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PublicHeaderInventory {
     pub schema_version: u32,
@@ -613,16 +624,17 @@ pub fn verify_test_port_map(
     Ok(())
 }
 
-pub fn abi_check(
-    repo_root: &Path,
-    symbols_manifest_path: &Path,
-    dynapi_manifest_path: &Path,
-    exports_source_path: &Path,
-    dynapi_source_path: &Path,
-    library: Option<&Path>,
-    require_soname: Option<&str>,
-    exports_contract_path: Option<&Path>,
-) -> Result<()> {
+pub fn abi_check(args: AbiCheckArgs<'_>) -> Result<()> {
+    let AbiCheckArgs {
+        repo_root,
+        symbols_manifest_path,
+        dynapi_manifest_path,
+        exports_source_path,
+        dynapi_source_path,
+        library,
+        require_soname,
+        exports_contract_path,
+    } = args;
     let symbol_manifest = load_linux_symbol_manifest_input(symbols_manifest_path)?;
     let dynapi_manifest = load_dynapi_manifest_input(dynapi_manifest_path)?;
 
@@ -1144,14 +1156,16 @@ fn build_outputs(inputs: &Inputs) -> Result<Vec<GeneratedFile>> {
 
     validate_outputs(
         inputs,
-        &inventory,
-        &header_phase_map,
-        &linux_symbols,
-        &dynapi_manifest,
-        &driver_contract,
-        &standalone_manifest,
-        &original_test_object_manifest,
-        &port_map,
+        OutputContracts {
+            inventory: &inventory,
+            header_phase_map: &header_phase_map,
+            linux_symbols: &linux_symbols,
+            dynapi_manifest: &dynapi_manifest,
+            driver_contract: &driver_contract,
+            standalone_manifest: &standalone_manifest,
+            original_test_object_manifest: &original_test_object_manifest,
+            port_map: &port_map,
+        },
     )?;
 
     let generated_types = generate_bindings(inputs)?;
@@ -2029,9 +2043,7 @@ fn phase8_testsupport_target_path(source: &str) -> Option<String> {
 }
 
 fn phase8_automation_source(source: &str) -> bool {
-    PHASE_08_AUTOMATION_SOURCES
-        .iter()
-        .any(|original_path| *original_path == source)
+    PHASE_08_AUTOMATION_SOURCES.contains(&source)
 }
 
 fn apply_phase_08_entry_override(entry: &mut TestPortEntry) {
@@ -2369,17 +2381,28 @@ fn build_perf_thresholds(manifest: &PerfWorkloadManifest) -> PerfThresholds {
     }
 }
 
-fn validate_outputs(
-    inputs: &Inputs,
-    inventory: &PublicHeaderInventory,
-    header_phase_map: &HeaderPhaseMap,
-    linux_symbols: &LinuxSymbolManifest,
-    dynapi_manifest: &DynapiManifest,
-    driver_contract: &DriverContract,
-    standalone_manifest: &StandaloneTestManifest,
-    original_test_object_manifest: &OriginalTestObjectManifest,
-    port_map: &OriginalTestPortMap,
-) -> Result<()> {
+struct OutputContracts<'a> {
+    inventory: &'a PublicHeaderInventory,
+    header_phase_map: &'a HeaderPhaseMap,
+    linux_symbols: &'a LinuxSymbolManifest,
+    dynapi_manifest: &'a DynapiManifest,
+    driver_contract: &'a DriverContract,
+    standalone_manifest: &'a StandaloneTestManifest,
+    original_test_object_manifest: &'a OriginalTestObjectManifest,
+    port_map: &'a OriginalTestPortMap,
+}
+
+fn validate_outputs(inputs: &Inputs, outputs: OutputContracts<'_>) -> Result<()> {
+    let OutputContracts {
+        inventory,
+        header_phase_map,
+        linux_symbols,
+        dynapi_manifest,
+        driver_contract,
+        standalone_manifest,
+        original_test_object_manifest,
+        port_map,
+    } = outputs;
     if inventory.headers.len() != 91 {
         bail!(
             "expected 91 installed public headers, found {}",
@@ -2860,10 +2883,9 @@ fn resolve_bootstrap_token(token: &str, definition_contents: &str) -> Result<Str
     bail!("could not resolve bootstrap token {}", token)
 }
 
-fn parse_cmake_targets(
-    inputs: &Inputs,
-    cmake_contents: &str,
-) -> Result<Vec<(String, Vec<String>, bool, bool)>> {
+type CmakeTargetDecl = (String, Vec<String>, bool, bool);
+
+fn parse_cmake_targets(inputs: &Inputs, cmake_contents: &str) -> Result<Vec<CmakeTargetDecl>> {
     let decl_re = Regex::new(r#"(?s)add_sdl_test_executable\((.*?)\)"#)?;
     let mut raw: BTreeMap<String, Vec<(Vec<String>, bool, bool)>> = BTreeMap::new();
     let automation_sources = collect_matching_sources(

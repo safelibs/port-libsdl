@@ -11,7 +11,7 @@ use anyhow::{anyhow, bail, Result};
 
 use contracts::{
     abi_check, capture_contracts, verify_captured_contracts, verify_test_port_coverage,
-    verify_test_port_map, ContractArgs, PHASE_08_ID,
+    verify_test_port_map, AbiCheckArgs as ContractsAbiCheckArgs, ContractArgs, PHASE_08_ID,
 };
 use final_phase::{final_check, verify_unsafe_allowlist, FinalCheckArgs};
 use original_tests::{
@@ -70,16 +70,16 @@ fn main() -> Result<()> {
                 .exports
                 .filter(|path| path.extension().and_then(|ext| ext.to_str()) != Some("rs"));
             let dynapi_source = PathBuf::from("safe/src/dynapi/generated.rs");
-            abi_check(
-                &repo_root,
-                &symbols_manifest,
-                &dynapi_manifest,
-                &exports_source,
-                &dynapi_source,
-                parsed.library.as_deref(),
-                parsed.require_soname.as_deref(),
-                exports_contract.as_deref(),
-            )
+            abi_check(ContractsAbiCheckArgs {
+                repo_root: &repo_root,
+                symbols_manifest_path: &symbols_manifest,
+                dynapi_manifest_path: &dynapi_manifest,
+                exports_source_path: &exports_source,
+                dynapi_source_path: &dynapi_source,
+                library: parsed.library.as_deref(),
+                require_soname: parsed.require_soname.as_deref(),
+                exports_contract_path: exports_contract.as_deref(),
+            })
         }
         "verify-test-port-map" => {
             let parsed = VerifyTestPortMapArgs::parse(&remaining)?;

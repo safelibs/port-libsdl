@@ -89,9 +89,8 @@ pub fn verify_bootstrap_stage(args: VerifyBootstrapStageArgs) -> Result<()> {
         .dev_paths
         .iter()
         .chain(install_contract.runtime_paths.iter())
-        .cloned()
     {
-        ensure_exists(&stage_root.join(&required))?;
+        ensure_exists(&stage_root.join(required))?;
     }
 
     for cmake_path in &install_contract.cmake_surface {
@@ -1010,7 +1009,7 @@ impl Drop for XvfbGuard {
 fn spawn_xvfb() -> Option<(Option<XvfbGuard>, String)> {
     for display in 91..100 {
         let display_name = format!(":{display}");
-        let child = Command::new("Xvfb")
+        let child = match Command::new("Xvfb")
             .arg(&display_name)
             .arg("-screen")
             .arg("0")
@@ -1021,7 +1020,10 @@ fn spawn_xvfb() -> Option<(Option<XvfbGuard>, String)> {
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null())
             .spawn()
-            .ok()?;
+        {
+            Ok(child) => child,
+            Err(_) => continue,
+        };
         thread::sleep(Duration::from_millis(500));
         return Some((Some(XvfbGuard { child }), display_name));
     }

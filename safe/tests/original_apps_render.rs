@@ -1,3 +1,5 @@
+#![allow(clippy::all)]
+
 #[path = "common/testutils.rs"]
 mod testutils;
 #[path = "common/testyuv_cvt.rs"]
@@ -11,12 +13,11 @@ use safe_sdl::abi::generated_types::{
     SDL_GLattr_SDL_GL_CONTEXT_MAJOR_VERSION, SDL_GLattr_SDL_GL_CONTEXT_MINOR_VERSION,
     SDL_GLattr_SDL_GL_CONTEXT_PROFILE_MASK, SDL_GLprofile_SDL_GL_CONTEXT_PROFILE_ES,
     SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888, SDL_PixelFormatEnum_SDL_PIXELFORMAT_IYUV,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV12, SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB24,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV12, SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB24, SDL_Rect,
     SDL_Renderer, SDL_Surface, SDL_TextureAccess_SDL_TEXTUREACCESS_STREAMING,
-    SDL_TextureAccess_SDL_TEXTUREACCESS_TARGET,
-    SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_BT601, SDL_Window,
-    SDL_WindowFlags_SDL_WINDOW_HIDDEN, SDL_WindowFlags_SDL_WINDOW_OPENGL,
-    SDL_WindowFlags_SDL_WINDOW_VULKAN, SDL_INIT_VIDEO, SDL_Rect, Uint32,
+    SDL_TextureAccess_SDL_TEXTUREACCESS_TARGET, SDL_Window, SDL_WindowFlags_SDL_WINDOW_HIDDEN,
+    SDL_WindowFlags_SDL_WINDOW_OPENGL, SDL_WindowFlags_SDL_WINDOW_VULKAN, Uint32, SDL_INIT_VIDEO,
+    SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_BT601,
 };
 use safe_sdl::core::rwops::SDL_RWFromFile;
 use safe_sdl::render::core::{
@@ -212,7 +213,10 @@ fn testdraw2_testdrawchessboard_testgeometry_and_testviewport_ports_draw_expecte
                 assert_eq!(SDL_RenderFillRect(harness.renderer, &rect), 0);
             }
         }
-        assert_ne!(read_surface_pixel(harness.surface, 4, 4), read_surface_pixel(harness.surface, 12, 4));
+        assert_ne!(
+            read_surface_pixel(harness.surface, 4, 4),
+            read_surface_pixel(harness.surface, 12, 4)
+        );
 
         let viewport = SDL_Rect {
             x: 16,
@@ -291,10 +295,14 @@ fn testoffscreen_and_testrendertarget_ports_preserve_offscreen_and_target_workfl
             "offscreen"
         );
 
-        assert_eq!(SDL_SetRenderDrawColor(harness.renderer, 0x10, 0x9a, 0xce, 0xff), 0);
+        assert_eq!(
+            SDL_SetRenderDrawColor(harness.renderer, 0x10, 0x9a, 0xce, 0xff),
+            0
+        );
         assert_eq!(SDL_RenderClear(harness.renderer), 0);
         SDL_RenderPresent(harness.renderer);
-        let offscreen_pixel = read_renderer_pixel(harness.renderer, harness.width, harness.height, 1, 1);
+        let offscreen_pixel =
+            read_renderer_pixel(harness.renderer, harness.width, harness.height, 1, 1);
         assert_eq!(offscreen_pixel, (0x10, 0x9a, 0xce, 0xff));
 
         if SDL_RenderTargetSupported(harness.renderer) == 0 {
@@ -319,14 +327,16 @@ fn testoffscreen_and_testrendertarget_ports_preserve_offscreen_and_target_workfl
             "{}",
             testutils::current_error()
         );
-        let target_pixel = read_renderer_pixel(harness.renderer, harness.width, harness.height, 8, 8);
+        let target_pixel =
+            read_renderer_pixel(harness.renderer, harness.width, harness.height, 8, 8);
         assert_eq!(target_pixel, (255, 0, 0, 255));
         SDL_DestroyTexture(target);
     }
 }
 
 #[test]
-fn testoverlay2_testyuv_teststreaming_testrendercopyex_testscale_testsprite2_and_testspriteminimal_ports_use_authoritative_resources() {
+fn testoverlay2_testyuv_teststreaming_testrendercopyex_testscale_testsprite2_and_testspriteminimal_ports_use_authoritative_resources(
+) {
     let _serial = testutils::serial_lock();
     let _driver = testutils::ScopedEnvVar::set("SDL_VIDEODRIVER", "dummy");
     let _subsystem = testutils::SubsystemGuard::init(SDL_INIT_VIDEO);
@@ -336,11 +346,8 @@ fn testoverlay2_testyuv_teststreaming_testrendercopyex_testscale_testsprite2_and
         let sample = load_bmp("sample.bmp");
         let sprite = load_bmp("icon.bmp");
         let yuv_source = load_bmp("testyuv.bmp");
-        let yuv_source = SDL_ConvertSurfaceFormat(
-            yuv_source,
-            SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB24,
-            0,
-        );
+        let yuv_source =
+            SDL_ConvertSurfaceFormat(yuv_source, SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB24, 0);
         assert!(!yuv_source.is_null(), "{}", testutils::current_error());
 
         let sample_texture = SDL_CreateTextureFromSurface(harness.renderer, sample);
@@ -388,7 +395,12 @@ fn testoverlay2_testyuv_teststreaming_testrendercopyex_testscale_testsprite2_and
             chunk.copy_from_slice(&[0x00, 0xff, 0x00, 0xff]);
         }
         assert_eq!(
-            SDL_UpdateTexture(streaming, ptr::null(), streaming_pixels.as_ptr().cast(), 16 * 4),
+            SDL_UpdateTexture(
+                streaming,
+                ptr::null(),
+                streaming_pixels.as_ptr().cast(),
+                16 * 4
+            ),
             0,
             "{}",
             testutils::current_error()
@@ -408,7 +420,8 @@ fn testoverlay2_testyuv_teststreaming_testrendercopyex_testscale_testsprite2_and
             (*yuv_source).pixels.cast::<u8>(),
             ((*yuv_source).pitch * (*yuv_source).h) as usize,
         );
-        let mut iyuv = vec![0u8; yuv_buffer_len((*yuv_source).w as usize, (*yuv_source).h as usize)];
+        let mut iyuv =
+            vec![0u8; yuv_buffer_len((*yuv_source).w as usize, (*yuv_source).h as usize)];
         let mut nv12 = vec![0u8; iyuv.len()];
         assert!(testyuv_cvt::convert_rgb_to_yuv(
             SDL_PixelFormatEnum_SDL_PIXELFORMAT_IYUV,
@@ -522,15 +535,24 @@ fn testoverlay2_testyuv_teststreaming_testrendercopyex_testscale_testsprite2_and
 }
 
 #[test]
-fn testgl2_testgles_testgles2_testgles2_sdf_and_testshader_ports_validate_gl_gles_egl_resource_paths() {
+fn testgl2_testgles_testgles2_testgles2_sdf_and_testshader_ports_validate_gl_gles_egl_resource_paths(
+) {
     let _serial = testutils::serial_lock();
     let Some(_display) = testutils::acquire_x11_display() else {
         return;
     };
     let _subsystem = testutils::SubsystemGuard::init(SDL_INIT_VIDEO);
 
-    assert!(Path::new(&testutils::get_resource_filename(None, "testgles2_sdf_img_normal.bmp")).exists());
-    assert!(Path::new(&testutils::get_resource_filename(None, "testgles2_sdf_img_sdf.bmp")).exists());
+    assert!(Path::new(&testutils::get_resource_filename(
+        None,
+        "testgles2_sdf_img_normal.bmp"
+    ))
+    .exists());
+    assert!(Path::new(&testutils::get_resource_filename(
+        None,
+        "testgles2_sdf_img_sdf.bmp"
+    ))
+    .exists());
 
     if let Ok(egl) = EglLibrary::load(None) {
         let name = CString::new("eglGetDisplay").unwrap();
@@ -572,8 +594,14 @@ fn testgl2_testgles_testgles2_testgles2_sdf_and_testshader_ports_validate_gl_gle
             ),
             0
         );
-        assert_eq!(SDL_GL_SetAttribute(SDL_GLattr_SDL_GL_CONTEXT_MAJOR_VERSION, 2), 0);
-        assert_eq!(SDL_GL_SetAttribute(SDL_GLattr_SDL_GL_CONTEXT_MINOR_VERSION, 0), 0);
+        assert_eq!(
+            SDL_GL_SetAttribute(SDL_GLattr_SDL_GL_CONTEXT_MAJOR_VERSION, 2),
+            0
+        );
+        assert_eq!(
+            SDL_GL_SetAttribute(SDL_GLattr_SDL_GL_CONTEXT_MINOR_VERSION, 0),
+            0
+        );
 
         let gles_window = SDL_CreateWindow(
             testutils::cstring("gles-port").as_ptr(),

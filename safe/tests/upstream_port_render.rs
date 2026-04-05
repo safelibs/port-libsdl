@@ -1,4 +1,5 @@
 #![allow(non_upper_case_globals)]
+#![allow(clippy::all)]
 
 #[path = "common/testutils.rs"]
 mod testutils;
@@ -13,23 +14,21 @@ use safe_sdl::abi::generated_types::{
     SDL_PixelFormatEnum_SDL_PIXELFORMAT_IYUV, SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV12,
     SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV21, SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB24,
     SDL_PixelFormatEnum_SDL_PIXELFORMAT_UYVY, SDL_PixelFormatEnum_SDL_PIXELFORMAT_YUY2,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_YV12, SDL_PixelFormatEnum_SDL_PIXELFORMAT_YVYU,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_YV12, SDL_PixelFormatEnum_SDL_PIXELFORMAT_YVYU, SDL_Rect,
     SDL_RendererFlags_SDL_RENDERER_SOFTWARE, SDL_RendererInfo, SDL_ScaleMode_SDL_ScaleModeLinear,
-    SDL_Surface, SDL_TextureAccess_SDL_TEXTUREACCESS_STREAMING,
-    SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_BT601, SDL_bool_SDL_TRUE, SDL_Rect, SDL_Vertex,
-    Uint8, Uint32,
+    SDL_Surface, SDL_TextureAccess_SDL_TEXTUREACCESS_STREAMING, SDL_Vertex, SDL_bool_SDL_TRUE,
+    Uint32, Uint8, SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_BT601,
 };
 use safe_sdl::render::core::{
     SDL_CreateTexture, SDL_CreateTextureFromSurface, SDL_DestroyRenderer, SDL_DestroyTexture,
     SDL_GetNumRenderDrivers, SDL_GetRenderDriverInfo, SDL_GetRendererInfo,
     SDL_GetRendererOutputSize, SDL_GetTextureBlendMode, SDL_GetTextureColorMod,
     SDL_GetTextureScaleMode, SDL_GetTextureUserData, SDL_LockTexture, SDL_QueryTexture,
-    SDL_RenderClear, SDL_RenderCopy, SDL_RenderFillRect, SDL_RenderGeometry,
-    SDL_RenderGetClipRect, SDL_RenderGetIntegerScale, SDL_RenderGetLogicalSize,
-    SDL_RenderGetScale, SDL_RenderIsClipEnabled, SDL_RenderSetClipRect,
-    SDL_RenderSetIntegerScale, SDL_RenderSetLogicalSize, SDL_RenderSetScale, SDL_SetRenderDrawColor,
-    SDL_SetTextureBlendMode, SDL_SetTextureColorMod, SDL_SetTextureScaleMode,
-    SDL_SetTextureUserData, SDL_UnlockTexture,
+    SDL_RenderClear, SDL_RenderCopy, SDL_RenderFillRect, SDL_RenderGeometry, SDL_RenderGetClipRect,
+    SDL_RenderGetIntegerScale, SDL_RenderGetLogicalSize, SDL_RenderGetScale,
+    SDL_RenderIsClipEnabled, SDL_RenderSetClipRect, SDL_RenderSetIntegerScale,
+    SDL_RenderSetLogicalSize, SDL_RenderSetScale, SDL_SetRenderDrawColor, SDL_SetTextureBlendMode,
+    SDL_SetTextureColorMod, SDL_SetTextureScaleMode, SDL_SetTextureUserData, SDL_UnlockTexture,
 };
 use safe_sdl::render::software::SDL_CreateSoftwareRenderer;
 use safe_sdl::video::blit::{
@@ -76,7 +75,14 @@ impl SoftwareRendererHarness {
         SDL_UnlockSurface(self.surface);
 
         let (mut r, mut g, mut b, mut a) = (0, 0, 0, 0);
-        SDL_GetRGBA(pixel, (*self.surface).format, &mut r, &mut g, &mut b, &mut a);
+        SDL_GetRGBA(
+            pixel,
+            (*self.surface).format,
+            &mut r,
+            &mut g,
+            &mut b,
+            &mut a,
+        );
         (r, g, b, a)
     }
 }
@@ -159,7 +165,10 @@ fn primitives_clip_and_scale_roundtrip_pixels() {
 
     unsafe {
         let harness = SoftwareRendererHarness::new(32, 32);
-        assert_eq!(SDL_SetRenderDrawColor(harness.renderer, 255, 255, 255, 255), 0);
+        assert_eq!(
+            SDL_SetRenderDrawColor(harness.renderer, 255, 255, 255, 255),
+            0
+        );
         assert_eq!(SDL_RenderClear(harness.renderer), 0);
 
         let clip = SDL_Rect {
@@ -174,7 +183,12 @@ fn primitives_clip_and_scale_roundtrip_pixels() {
         SDL_RenderGetClipRect(harness.renderer, observed_clip.as_mut_ptr());
         let observed_clip = observed_clip.assume_init();
         assert_eq!(
-            (observed_clip.x, observed_clip.y, observed_clip.w, observed_clip.h),
+            (
+                observed_clip.x,
+                observed_clip.y,
+                observed_clip.w,
+                observed_clip.h
+            ),
             (0, 0, 8, 8)
         );
 
@@ -188,7 +202,10 @@ fn primitives_clip_and_scale_roundtrip_pixels() {
         let (mut logical_w, mut logical_h) = (0, 0);
         SDL_RenderGetLogicalSize(harness.renderer, &mut logical_w, &mut logical_h);
         assert_eq!((logical_w, logical_h), (16, 16));
-        assert_eq!(SDL_RenderSetIntegerScale(harness.renderer, SDL_bool_SDL_TRUE), 0);
+        assert_eq!(
+            SDL_RenderSetIntegerScale(harness.renderer, SDL_bool_SDL_TRUE),
+            0
+        );
         assert_ne!(SDL_RenderGetIntegerScale(harness.renderer), 0);
 
         assert_eq!(SDL_RenderSetScale(harness.renderer, 2.0, 2.0), 0);
@@ -372,12 +389,15 @@ fn render_geometry_and_yuv_helper_match_sdl() {
             testutils::current_error()
         );
         let (r, _g, _b, a) = harness.read_pixel(8, 4);
-        assert!(r > 0 && a > 0, "geometry path did not render into the surface");
+        assert!(
+            r > 0 && a > 0,
+            "geometry path did not render into the surface"
+        );
 
         let rgb = [
-            255u8, 0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 255, 255, 255, 0, 0, 255, 255, 255,
-            0, 255, 32, 64, 96, 240, 80, 40, 10, 20, 30, 200, 210, 220, 90, 40, 10, 25, 75, 125,
-            200, 180, 160, 12, 200, 32, 220, 110, 44,
+            255u8, 0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 255, 255, 255, 0, 0, 255, 255, 255, 0,
+            255, 32, 64, 96, 240, 80, 40, 10, 20, 30, 200, 210, 220, 90, 40, 10, 25, 75, 125, 200,
+            180, 160, 12, 200, 32, 220, 110, 44,
         ];
         let formats = [
             SDL_PixelFormatEnum_SDL_PIXELFORMAT_YV12,

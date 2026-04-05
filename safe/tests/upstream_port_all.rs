@@ -1,3 +1,5 @@
+#![allow(clippy::all)]
+
 #[path = "common/testutils.rs"]
 mod testutils;
 
@@ -5,7 +7,10 @@ use std::path::PathBuf;
 use std::process::Command;
 
 fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().to_path_buf()
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 
 #[test]

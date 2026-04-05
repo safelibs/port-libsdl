@@ -1,13 +1,14 @@
 #![allow(dead_code)]
 #![allow(non_upper_case_globals)]
+#![allow(clippy::all)]
 
 use safe_sdl::abi::generated_types::{
     SDL_PixelFormatEnum_SDL_PIXELFORMAT_IYUV, SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV12,
     SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV21, SDL_PixelFormatEnum_SDL_PIXELFORMAT_UYVY,
     SDL_PixelFormatEnum_SDL_PIXELFORMAT_YUY2, SDL_PixelFormatEnum_SDL_PIXELFORMAT_YV12,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_YVYU,
-    SDL_YUV_CONVERSION_MODE, SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_BT709,
-    SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_JPEG, Uint32,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_YVYU, Uint32, SDL_YUV_CONVERSION_MODE,
+    SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_BT709,
+    SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_JPEG,
 };
 
 fn clip3(min: f32, max: f32, value: f32) -> f32 {

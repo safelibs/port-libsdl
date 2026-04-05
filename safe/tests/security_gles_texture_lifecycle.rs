@@ -1,18 +1,17 @@
 #![allow(non_upper_case_globals)]
+#![allow(clippy::all)]
 
 #[path = "common/testutils.rs"]
 mod testutils;
 
-use std::ffi::CStr;
-use std::mem::MaybeUninit;
 use safe_sdl::abi::generated_types::{
     SDL_GLattr_SDL_GL_CONTEXT_MAJOR_VERSION, SDL_GLattr_SDL_GL_CONTEXT_MINOR_VERSION,
     SDL_GLattr_SDL_GL_CONTEXT_PROFILE_MASK, SDL_GLprofile_SDL_GL_CONTEXT_PROFILE_ES,
-    SDL_INIT_VIDEO, SDL_PixelFormatEnum_SDL_PIXELFORMAT_EXTERNAL_OES,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_IYUV, SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV12,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGBA32, SDL_RendererInfo,
-    SDL_TextureAccess_SDL_TEXTUREACCESS_STATIC, SDL_TextureAccess_SDL_TEXTUREACCESS_STREAMING,
-    SDL_WindowFlags_SDL_WINDOW_HIDDEN, SDL_WindowFlags_SDL_WINDOW_OPENGL,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_EXTERNAL_OES, SDL_PixelFormatEnum_SDL_PIXELFORMAT_IYUV,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV12, SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGBA32,
+    SDL_RendererInfo, SDL_TextureAccess_SDL_TEXTUREACCESS_STATIC,
+    SDL_TextureAccess_SDL_TEXTUREACCESS_STREAMING, SDL_WindowFlags_SDL_WINDOW_HIDDEN,
+    SDL_WindowFlags_SDL_WINDOW_OPENGL, SDL_INIT_VIDEO,
 };
 use safe_sdl::render::core::{
     SDL_CreateRenderer, SDL_CreateTexture, SDL_DestroyRenderer, SDL_DestroyTexture,
@@ -24,6 +23,8 @@ use safe_sdl::render::gles::{
     texture_creation_step_count_for_test, texture_lifecycle_counters,
 };
 use safe_sdl::video::window::{SDL_CreateWindow, SDL_DestroyWindow};
+use std::ffi::CStr;
+use std::mem::MaybeUninit;
 
 struct GlesHarness {
     window: *mut safe_sdl::abi::generated_types::SDL_Window,

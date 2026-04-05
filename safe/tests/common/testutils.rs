@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+#![allow(clippy::all)]
 
 use std::ffi::{CStr, CString};
 use std::path::Path;

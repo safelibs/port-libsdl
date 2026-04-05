@@ -1,4 +1,5 @@
 #![allow(non_upper_case_globals)]
+#![allow(clippy::all)]
 
 #[path = "common/testutils.rs"]
 mod testutils;

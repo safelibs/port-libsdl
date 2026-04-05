@@ -11,7 +11,8 @@ use tempfile::tempdir;
 
 use crate::contracts::{
     abi_check, load_install_contract, load_public_header_inventory, verify_captured_contracts,
-    verify_test_port_map, ContractArgs, PublicHeaderInventory, SDL_SONAME, UBUNTU_MULTIARCH,
+    verify_test_port_map, AbiCheckArgs, ContractArgs, PublicHeaderInventory, SDL_SONAME,
+    UBUNTU_MULTIARCH,
 };
 use crate::original_tests::{
     build_original_autotools_suite, build_original_cmake_suite, compile_original_test_objects,
@@ -551,7 +552,7 @@ fn verify_debian_multiarch_symlinks(original_dir: &Path) -> Result<()> {
         }
         let actual_target = fs::read_link(&installed)
             .with_context(|| format!("readlink {}", installed.display()))?;
-        if actual_target != PathBuf::from(&target) {
+        if actual_target.as_path() != Path::new(&target) {
             bail!(
                 "{} target mismatch: expected {}, found {}",
                 installed.display(),
@@ -650,16 +651,16 @@ fn verify_static_link_surface(repo_root: &Path) -> Result<()> {
 
 fn verify_installed_abi(repo_root: &Path, original_dir: &Path) -> Result<()> {
     let installed_library = PathBuf::from(format!("/usr/lib/{UBUNTU_MULTIARCH}/{SDL_SONAME}"));
-    abi_check(
+    abi_check(AbiCheckArgs {
         repo_root,
-        &original_dir.join("debian/libsdl2-2.0-0.symbols"),
-        &original_dir.join("src/dynapi/SDL_dynapi_procs.h"),
-        &repo_root.join("safe/src/exports/generated_linux_stubs.rs"),
-        &repo_root.join("safe/src/dynapi/generated.rs"),
-        Some(&installed_library),
-        Some(SDL_SONAME),
-        Some(&original_dir.join("src/dynapi/SDL2.exports")),
-    )
+        symbols_manifest_path: &original_dir.join("debian/libsdl2-2.0-0.symbols"),
+        dynapi_manifest_path: &original_dir.join("src/dynapi/SDL_dynapi_procs.h"),
+        exports_source_path: &repo_root.join("safe/src/exports/generated_linux_stubs.rs"),
+        dynapi_source_path: &repo_root.join("safe/src/dynapi/generated.rs"),
+        library: Some(&installed_library),
+        require_soname: Some(SDL_SONAME),
+        exports_contract_path: Some(&original_dir.join("src/dynapi/SDL2.exports")),
+    })
 }
 
 fn run_packaged_autopkgtests(repo_root: &Path) -> Result<()> {

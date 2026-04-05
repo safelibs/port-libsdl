@@ -1,7 +1,12 @@
+#![allow(clippy::all)]
+
 use std::path::PathBuf;
 
 fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap().to_path_buf()
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .to_path_buf()
 }
 
 #[test]
@@ -47,7 +52,10 @@ fn original_test_port_map_is_closed_out() {
     for entry in value["entries"].as_array().expect("entries array") {
         assert_eq!(entry["completion_state"].as_str(), Some("complete"));
     }
-    for entry in value["target_ownership"].as_array().expect("target_ownership array") {
+    for entry in value["target_ownership"]
+        .as_array()
+        .expect("target_ownership array")
+    {
         assert_eq!(entry["completion_state"].as_str(), Some("complete"));
     }
 }

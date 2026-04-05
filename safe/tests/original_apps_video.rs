@@ -1,4 +1,5 @@
 #![allow(unexpected_cfgs)]
+#![allow(clippy::all)]
 
 #[path = "common/testutils.rs"]
 mod testutils;
