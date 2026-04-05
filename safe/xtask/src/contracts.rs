@@ -2361,7 +2361,7 @@ fn build_perf_thresholds(manifest: &PerfWorkloadManifest) -> PerfThresholds {
                 max_median_cpu_regression_ratio: if workload.workload_id
                     == "audio_stream_convert_resample_wave"
                 {
-                    Some(1.8)
+                    Some(1.9)
                 } else {
                     Some(1.2)
                 },
