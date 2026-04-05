@@ -87,79 +87,18 @@ pub fn verify_bootstrap_stage(args: VerifyBootstrapStageArgs) -> Result<()> {
 }
 
 pub fn verify_driver_contract(args: VerifyDriverContractArgs) -> Result<()> {
-    if args.kind != "video" {
-        bail!("unsupported driver contract kind {}", args.kind);
-    }
-
     let contract_path = absolutize(&args.repo_root, &args.contract_path);
     let stage_root = absolutize(&args.repo_root, &args.stage_root);
     let driver_contract = load_driver_contract(&contract_path)?;
-    validate_video_contract(&driver_contract.video)?;
-
-    let expected = driver_contract
-        .video
-        .registry_order
-        .iter()
-        .map(|entry| entry.driver_name.clone())
-        .collect::<Vec<_>>();
-    let probe = build_driver_probe(&args.repo_root, &stage_root)?;
-
-    let listed = run_driver_probe(&probe, &[], &[])?;
-    if listed != expected {
-        bail!(
-            "video driver registry mismatch\nexpected: {:?}\nactual: {:?}",
-            expected,
-            listed
-        );
-    }
-
-    let dummy_expected = contract_selected_without_hint(&driver_contract.video, "dummy")?;
-    let dummy = run_driver_probe(&probe, &["init-nohint"], &[("SDL_VIDEODRIVER", "dummy")])?;
-    if dummy != [dummy_expected] {
-        bail!("explicit dummy driver probe failed: {:?}", dummy);
-    }
-
-    let offscreen_expected = contract_selected_without_hint(&driver_contract.video, "offscreen")?;
-    let offscreen = run_driver_probe(
-        &probe,
-        &["init-nohint"],
-        &[("SDL_VIDEODRIVER", "offscreen")],
-    )?;
-    if offscreen != [offscreen_expected] {
-        bail!("explicit offscreen driver probe failed: {:?}", offscreen);
-    }
-
-    let x_display = if let Ok(display) = std::env::var("DISPLAY") {
-        Some((None, display))
-    } else {
-        spawn_xvfb()
-    };
-
-    if let Some((_guard, display)) = x_display {
-        let x11_expected = contract_selected_without_hint(&driver_contract.video, "x11")?;
-        let env = [("DISPLAY", display.as_str())];
-        let no_hint = run_driver_probe(&probe, &["init-nohint"], &env)?;
-        if no_hint != [x11_expected.clone()] {
-            bail!(
-                "no-hint video probe did not match contract under X11/Xvfb: {:?}",
-                no_hint
-            );
+    match args.kind.as_str() {
+        "video" => {
+            verify_video_driver_contract(&args.repo_root, &stage_root, &driver_contract.video)
         }
-
-        let explicit_x11 = run_driver_probe(
-            &probe,
-            &["init-nohint"],
-            &[("DISPLAY", display.as_str()), ("SDL_VIDEODRIVER", "x11")],
-        )?;
-        if explicit_x11 != [x11_expected] {
-            bail!(
-                "explicit x11 driver probe did not match contract under X11/Xvfb: {:?}",
-                explicit_x11
-            );
+        "audio" => {
+            verify_audio_driver_contract(&args.repo_root, &stage_root, &driver_contract.audio)
         }
+        other => bail!("unsupported driver contract kind {other}"),
     }
-
-    Ok(())
 }
 
 fn validate_video_contract(contract: &DriverFamilyContract) -> Result<()> {
@@ -238,6 +177,221 @@ fn validate_video_contract(contract: &DriverFamilyContract) -> Result<()> {
     }
     if contract_selected_without_hint(contract, "evdev")? != "evdev" {
         bail!("video driver contract selected_without_hint mismatch for evdev");
+    }
+
+    Ok(())
+}
+
+fn verify_video_driver_contract(
+    repo_root: &Path,
+    stage_root: &Path,
+    contract: &DriverFamilyContract,
+) -> Result<()> {
+    validate_video_contract(contract)?;
+
+    let expected = contract
+        .registry_order
+        .iter()
+        .map(|entry| entry.driver_name.clone())
+        .collect::<Vec<_>>();
+    let probe = build_driver_probe(repo_root, stage_root)?;
+
+    let listed = run_driver_probe(&probe, &["list-video"], &[])?;
+    if listed != expected {
+        bail!(
+            "video driver registry mismatch\nexpected: {:?}\nactual: {:?}",
+            expected,
+            listed
+        );
+    }
+
+    let dummy_expected = contract_selected_without_hint(contract, "dummy")?;
+    let dummy = run_driver_probe(
+        &probe,
+        &["init-video-nohint"],
+        &[("SDL_VIDEODRIVER", "dummy")],
+    )?;
+    if dummy != [dummy_expected] {
+        bail!("explicit dummy driver probe failed: {:?}", dummy);
+    }
+
+    let offscreen_expected = contract_selected_without_hint(contract, "offscreen")?;
+    let offscreen = run_driver_probe(
+        &probe,
+        &["init-video-nohint"],
+        &[("SDL_VIDEODRIVER", "offscreen")],
+    )?;
+    if offscreen != [offscreen_expected] {
+        bail!("explicit offscreen driver probe failed: {:?}", offscreen);
+    }
+
+    let x_display = if let Ok(display) = std::env::var("DISPLAY") {
+        Some((None, display))
+    } else {
+        spawn_xvfb()
+    };
+
+    if let Some((_guard, display)) = x_display {
+        let x11_expected = contract_selected_without_hint(contract, "x11")?;
+        let env = [("DISPLAY", display.as_str())];
+        let no_hint = run_driver_probe(&probe, &["init-video-nohint"], &env)?;
+        if no_hint != [x11_expected.clone()] {
+            bail!(
+                "no-hint video probe did not match contract under X11/Xvfb: {:?}",
+                no_hint
+            );
+        }
+
+        let explicit_x11 = run_driver_probe(
+            &probe,
+            &["init-video-nohint"],
+            &[("DISPLAY", display.as_str()), ("SDL_VIDEODRIVER", "x11")],
+        )?;
+        if explicit_x11 != [x11_expected] {
+            bail!(
+                "explicit x11 driver probe did not match contract under X11/Xvfb: {:?}",
+                explicit_x11
+            );
+        }
+    }
+
+    Ok(())
+}
+
+fn validate_audio_contract(contract: &DriverFamilyContract) -> Result<()> {
+    let derived_no_hint = contract
+        .registry_order
+        .iter()
+        .filter(|entry| entry.demand_only != Some(true))
+        .map(|entry| entry.driver_name.clone())
+        .collect::<Vec<_>>();
+    if contract.no_hint_probe_order != derived_no_hint {
+        bail!(
+            "audio driver contract no_hint_probe_order mismatch\nexpected: {:?}\nactual: {:?}",
+            derived_no_hint,
+            contract.no_hint_probe_order
+        );
+    }
+
+    if contract.single_backend_expectations.len() != contract.registry_order.len() {
+        bail!(
+            "audio driver contract single_backend_expectations count mismatch: expected {}, got {}",
+            contract.registry_order.len(),
+            contract.single_backend_expectations.len()
+        );
+    }
+
+    for entry in &contract.registry_order {
+        let expectation = contract
+            .single_backend_expectations
+            .iter()
+            .find(|expectation| expectation.driver_name == entry.driver_name)
+            .ok_or_else(|| {
+                anyhow!(
+                    "audio driver contract missing single_backend_expectations entry for {}",
+                    entry.driver_name
+                )
+            })?;
+        let expected_selected = if entry.demand_only == Some(true) {
+            None
+        } else {
+            Some(entry.driver_name.clone())
+        };
+        if expectation.selected_without_hint != expected_selected {
+            bail!(
+                "audio driver contract selected_without_hint mismatch for {}\nexpected: {:?}\nactual: {:?}",
+                entry.driver_name,
+                expected_selected,
+                expectation.selected_without_hint
+            );
+        }
+        if expectation.rationale.trim().is_empty() {
+            bail!(
+                "audio driver contract rationale missing for {}",
+                entry.driver_name
+            );
+        }
+    }
+
+    let names = contract
+        .registry_order
+        .iter()
+        .map(|entry| entry.driver_name.as_str())
+        .collect::<Vec<_>>();
+    if names
+        != [
+            "pulseaudio",
+            "alsa",
+            "sndio",
+            "pipewire",
+            "dsp",
+            "disk",
+            "dummy",
+        ]
+    {
+        bail!("audio driver contract registry_order mismatch: {:?}", names);
+    }
+    if !contract
+        .registry_order
+        .iter()
+        .any(|entry| entry.driver_name == "dsp" && entry.demand_only != Some(true))
+    {
+        bail!("audio driver contract must preserve non-demand dsp entry");
+    }
+    for driver in ["disk", "dummy"] {
+        if !contract
+            .registry_order
+            .iter()
+            .any(|entry| entry.driver_name == driver && entry.demand_only == Some(true))
+        {
+            bail!("audio driver contract must preserve demand_only semantics for {driver}");
+        }
+    }
+
+    Ok(())
+}
+
+fn verify_audio_driver_contract(
+    repo_root: &Path,
+    stage_root: &Path,
+    contract: &DriverFamilyContract,
+) -> Result<()> {
+    validate_audio_contract(contract)?;
+
+    let expected = contract
+        .registry_order
+        .iter()
+        .map(|entry| entry.driver_name.clone())
+        .collect::<Vec<_>>();
+    let probe = build_driver_probe(repo_root, stage_root)?;
+
+    let listed = run_driver_probe(&probe, &["list-audio"], &[])?;
+    if listed != expected {
+        bail!(
+            "audio driver registry mismatch\nexpected: {:?}\nactual: {:?}",
+            expected,
+            listed
+        );
+    }
+
+    let default_driver = contract
+        .no_hint_probe_order
+        .first()
+        .ok_or_else(|| anyhow!("audio driver contract missing no_hint_probe_order"))?;
+    let no_hint_expected = contract_selected_without_hint(contract, default_driver)?;
+    let no_hint = run_driver_probe(&probe, &["init-audio-nohint"], &[("SDL_AUDIODRIVER", "")])?;
+    if no_hint != [no_hint_expected] {
+        bail!("no-hint audio driver probe failed: {:?}", no_hint);
+    }
+
+    for driver in ["pulseaudio", "dsp", "disk", "dummy"] {
+        let explicit = run_driver_probe(&probe, &["init-audio-explicit", driver], &[])?;
+        if explicit != [driver.to_string()] {
+            bail!(
+                "explicit audio driver probe for {driver} failed: {:?}",
+                explicit
+            );
+        }
     }
 
     Ok(())
@@ -678,7 +832,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, "missing mode\n");
         return 64;
     }
-    if (strcmp(argv[1], "list") == 0) {
+    if (strcmp(argv[1], "list-video") == 0) {
         const int count = SDL_GetNumVideoDrivers();
         for (int i = 0; i < count; ++i) {
             const char *name = SDL_GetVideoDriver(i);
@@ -686,7 +840,7 @@ int main(int argc, char **argv) {
         }
         return 0;
     }
-    if (strcmp(argv[1], "init-nohint") == 0) {
+    if (strcmp(argv[1], "init-video-nohint") == 0) {
         if (SDL_Init(SDL_INIT_VIDEO) != 0) {
             fprintf(stderr, "%s\n", SDL_GetError());
             return 2;
@@ -695,7 +849,7 @@ int main(int argc, char **argv) {
         SDL_Quit();
         return 0;
     }
-    if (strcmp(argv[1], "init-explicit") == 0) {
+    if (strcmp(argv[1], "init-video-explicit") == 0) {
         if (argc < 3) {
             fprintf(stderr, "missing driver name\n");
             return 64;
@@ -706,6 +860,36 @@ int main(int argc, char **argv) {
         }
         puts(SDL_GetCurrentVideoDriver());
         SDL_VideoQuit();
+        return 0;
+    }
+    if (strcmp(argv[1], "list-audio") == 0) {
+        const int count = SDL_GetNumAudioDrivers();
+        for (int i = 0; i < count; ++i) {
+            const char *name = SDL_GetAudioDriver(i);
+            puts(name ? name : "");
+        }
+        return 0;
+    }
+    if (strcmp(argv[1], "init-audio-nohint") == 0) {
+        if (SDL_AudioInit(NULL) != 0) {
+            fprintf(stderr, "%s\n", SDL_GetError());
+            return 4;
+        }
+        puts(SDL_GetCurrentAudioDriver());
+        SDL_AudioQuit();
+        return 0;
+    }
+    if (strcmp(argv[1], "init-audio-explicit") == 0) {
+        if (argc < 3) {
+            fprintf(stderr, "missing driver name\n");
+            return 64;
+        }
+        if (SDL_AudioInit(argv[2]) != 0) {
+            fprintf(stderr, "%s\n", SDL_GetError());
+            return 5;
+        }
+        puts(SDL_GetCurrentAudioDriver());
+        SDL_AudioQuit();
         return 0;
     }
     fprintf(stderr, "unknown mode: %s\n", argv[1]);
@@ -741,10 +925,12 @@ int main(int argc, char **argv) {
 fn run_driver_probe(probe: &Path, args: &[&str], envs: &[(&str, &str)]) -> Result<Vec<String>> {
     let mut cmd = Command::new(probe);
     if args.is_empty() {
-        cmd.arg("list");
+        cmd.arg("list-video");
     } else {
         cmd.args(args);
     }
+    cmd.env_remove("SDL_AUDIODRIVER");
+    cmd.env_remove("SDL_VIDEODRIVER");
     for (key, value) in envs {
         cmd.env(key, value);
     }

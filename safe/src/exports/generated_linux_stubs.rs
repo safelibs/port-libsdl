@@ -950,41 +950,49 @@ pub unsafe extern "C" fn SDL_AtomicUnlock() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_AtomicUnlock");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_AudioInit() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_AudioInit");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_AudioQuit() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_AudioQuit");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_AudioStreamAvailable() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_AudioStreamAvailable");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_AudioStreamClear() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_AudioStreamClear");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_AudioStreamFlush() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_AudioStreamFlush");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_AudioStreamGet() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_AudioStreamGet");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_AudioStreamPut() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_AudioStreamPut");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_BuildAudioCVT() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_BuildAudioCVT");
@@ -1020,16 +1028,19 @@ pub unsafe extern "C" fn SDL_ClearHints() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_ClearHints");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_ClearQueuedAudio() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_ClearQueuedAudio");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_CloseAudio() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_CloseAudio");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_CloseAudioDevice() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_CloseAudioDevice");
@@ -1064,6 +1075,7 @@ pub unsafe extern "C" fn SDL_CondWaitTimeout() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_CondWaitTimeout");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_ConvertAudio() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_ConvertAudio");
@@ -1230,6 +1242,7 @@ pub unsafe extern "C" fn SDL_Delay() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_Delay");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_DequeueAudio() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_DequeueAudio");
@@ -1361,6 +1374,7 @@ pub unsafe extern "C" fn SDL_FlushEvents() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_FlushEvents");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_FreeAudioStream() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_FreeAudioStream");
@@ -1396,6 +1410,7 @@ pub unsafe extern "C" fn SDL_FreeSurface() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_FreeSurface");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_FreeWAV() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_FreeWAV");
@@ -1818,26 +1833,31 @@ pub unsafe extern "C" fn SDL_GetAssertionReport() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetAssertionReport");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetAudioDeviceName() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetAudioDeviceName");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetAudioDeviceSpec() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetAudioDeviceSpec");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetAudioDeviceStatus() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetAudioDeviceStatus");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetAudioDriver() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetAudioDriver");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetAudioStatus() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetAudioStatus");
@@ -1885,6 +1905,7 @@ pub unsafe extern "C" fn SDL_GetColorKey() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetColorKey");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetCurrentAudioDriver() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetCurrentAudioDriver");
@@ -1914,6 +1935,7 @@ pub unsafe extern "C" fn SDL_GetDefaultAssertionHandler() -> *mut ::std::ffi::c_
     crate::exports::abort_unimplemented("SDL_GetDefaultAssertionHandler");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetDefaultAudioInfo() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetDefaultAudioInfo");
@@ -2074,11 +2096,13 @@ pub unsafe extern "C" fn SDL_GetNumAllocations() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetNumAllocations");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetNumAudioDevices() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetNumAudioDevices");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetNumAudioDrivers() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetNumAudioDrivers");
@@ -2180,6 +2204,7 @@ pub unsafe extern "C" fn SDL_GetPrimarySelectionText() -> *mut ::std::ffi::c_voi
     crate::exports::abort_unimplemented("SDL_GetPrimarySelectionText");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetQueuedAudioSize() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_GetQueuedAudioSize");
@@ -3243,16 +3268,19 @@ pub unsafe extern "C" fn SDL_LoadObject() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_LoadObject");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_LoadWAV_RW() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_LoadWAV_RW");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_LockAudio() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_LockAudio");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_LockAudioDevice() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_LockAudioDevice");
@@ -3460,11 +3488,13 @@ pub unsafe extern "C" fn SDL_MinimizeWindow() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_MinimizeWindow");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_MixAudio() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_MixAudio");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_MixAudioFormat() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_MixAudioFormat");
@@ -3475,6 +3505,7 @@ pub unsafe extern "C" fn SDL_MouseIsHaptic() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_MouseIsHaptic");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_NewAudioStream() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_NewAudioStream");
@@ -3525,11 +3556,13 @@ pub unsafe extern "C" fn SDL_OnApplicationWillTerminate() -> *mut ::std::ffi::c_
     crate::exports::abort_unimplemented("SDL_OnApplicationWillTerminate");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_OpenAudio() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_OpenAudio");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_OpenAudioDevice() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_OpenAudioDevice");
@@ -3541,11 +3574,13 @@ pub unsafe extern "C" fn SDL_OpenURL() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_OpenURL");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_PauseAudio() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_PauseAudio");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_PauseAudioDevice() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_PauseAudioDevice");
@@ -3593,6 +3628,7 @@ pub unsafe extern "C" fn SDL_QueryTexture() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_QueryTexture");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_QueueAudio() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_QueueAudio");
@@ -4609,11 +4645,13 @@ pub unsafe extern "C" fn SDL_UnloadObject() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_UnloadObject");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_UnlockAudio() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_UnlockAudio");
 }
 
+#[cfg(any())]
 #[no_mangle]
 pub unsafe extern "C" fn SDL_UnlockAudioDevice() -> *mut ::std::ffi::c_void {
     crate::exports::abort_unimplemented("SDL_UnlockAudioDevice");

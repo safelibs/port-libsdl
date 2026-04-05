@@ -807,6 +807,7 @@ pub fn generate_real_sdl_config() -> String {
         "#define SDL_AUDIO_DRIVER_PULSEAUDIO 1",
         "#define SDL_AUDIO_DRIVER_SNDIO 1",
         "#define SDL_AUDIO_DRIVER_PIPEWIRE 1",
+        "#define SDL_AUDIO_DRIVER_OSS 1",
         "#define SDL_AUDIO_DRIVER_DISK 1",
         "#define SDL_AUDIO_DRIVER_DUMMY 1",
         "#define SDL_JOYSTICK_LINUX 1",
@@ -1137,6 +1138,8 @@ fn build_header_phase_map(inventory: &PublicHeaderInventory) -> HeaderPhaseMap {
                 || phase1_semantic.contains(header.header_name.as_str())
             {
                 PHASE_ID
+            } else if header.header_name == "SDL_audio.h" {
+                "impl_phase_06_audio"
             } else {
                 "future_phase_unassigned"
             };
@@ -1144,6 +1147,8 @@ fn build_header_phase_map(inventory: &PublicHeaderInventory) -> HeaderPhaseMap {
                 "compile-time-only compatibility surface must remain installable during bootstrap"
             } else if phase1_semantic.contains(header.header_name.as_str()) {
                 "phase 1 owns the generated or bootstrap support semantics for this header"
+            } else if header.header_name == "SDL_audio.h" {
+                "phase 6 owns audio device, stream, conversion, resampling, and hardened WAVE semantics"
             } else {
                 "header is installed in phase 1 but behavior is deferred to later implementation phases"
             };
@@ -1312,6 +1317,7 @@ fn build_audio_driver_family(inputs: &Inputs) -> Result<DriverFamilyContract> {
             "SDL_AUDIO_DRIVER_ALSA",
             "SDL_AUDIO_DRIVER_SNDIO",
             "SDL_AUDIO_DRIVER_PIPEWIRE",
+            "SDL_AUDIO_DRIVER_OSS",
             "SDL_AUDIO_DRIVER_DISK",
             "SDL_AUDIO_DRIVER_DUMMY",
         ],
@@ -2197,7 +2203,17 @@ fn validate_outputs(
     if video_names != ["x11", "wayland", "KMSDRM", "offscreen", "dummy", "evdev"] {
         bail!("unexpected Ubuntu video driver order: {:?}", video_names);
     }
-    if audio_names != ["pulseaudio", "alsa", "sndio", "pipewire", "disk", "dummy"] {
+    if audio_names
+        != [
+            "pulseaudio",
+            "alsa",
+            "sndio",
+            "pipewire",
+            "dsp",
+            "disk",
+            "dummy",
+        ]
+    {
         bail!("unexpected Ubuntu audio driver order: {:?}", audio_names);
     }
     if !driver_contract.video.registry_order.iter().any(|entry| {

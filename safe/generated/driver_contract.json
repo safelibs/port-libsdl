@@ -151,6 +151,16 @@
       },
       {
         "registry_index": 4,
+        "bootstrap_symbol": "DSP_bootstrap",
+        "driver_name": "dsp",
+        "description": "OSS /dev/dsp standard audio",
+        "feature_predicates": [
+          "SDL_AUDIO_DRIVER_OSS"
+        ],
+        "demand_only": false
+      },
+      {
+        "registry_index": 5,
         "bootstrap_symbol": "DISKAUDIO_bootstrap",
         "driver_name": "disk",
         "description": "direct-to-disk audio",
@@ -160,7 +170,7 @@
         "demand_only": true
       },
       {
-        "registry_index": 5,
+        "registry_index": 6,
         "bootstrap_symbol": "DUMMYAUDIO_bootstrap",
         "driver_name": "dummy",
         "description": "SDL dummy audio driver",
@@ -174,7 +184,8 @@
       "pulseaudio",
       "alsa",
       "sndio",
-      "pipewire"
+      "pipewire",
+      "dsp"
     ],
     "single_backend_expectations": [
       {
@@ -195,6 +206,11 @@
       {
         "driver_name": "pipewire",
         "selected_without_hint": "pipewire",
+        "rationale": "audio init walks the registry in order, skipping demand_only backends"
+      },
+      {
+        "driver_name": "dsp",
+        "selected_without_hint": "dsp",
         "rationale": "audio init walks the registry in order, skipping demand_only backends"
       },
       {

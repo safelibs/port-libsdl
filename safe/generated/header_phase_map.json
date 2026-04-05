@@ -27,8 +27,8 @@
       "header_name": "SDL_audio.h",
       "install_relpath": "usr/include/SDL2/SDL_audio.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_06_audio",
+      "rationale": "phase 6 owns audio device, stream, conversion, resampling, and hardened WAVE semantics"
     },
     {
       "header_name": "SDL_bits.h",

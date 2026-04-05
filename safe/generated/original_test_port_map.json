@@ -226,26 +226,28 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/loopwave.rs",
+      "owning_phase": "impl_phase_06_audio",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_audio.rs",
       "upstream_targets": [
         "loopwave"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_audio.rs"
     },
     {
       "original_path": "original/test/loopwavequeue.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/loopwavequeue.rs",
+      "owning_phase": "impl_phase_06_audio",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_audio.rs",
       "upstream_targets": [
         "loopwavequeue"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_audio.rs"
     },
     {
       "original_path": "original/test/testatomic.c",
@@ -265,39 +267,42 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testaudiocapture.rs",
+      "owning_phase": "impl_phase_06_audio",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_audio.rs",
       "upstream_targets": [
         "testaudiocapture"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_audio.rs"
     },
     {
       "original_path": "original/test/testaudiohotplug.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testaudiohotplug.rs",
+      "owning_phase": "impl_phase_06_audio",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_audio.rs",
       "upstream_targets": [
         "testaudiohotplug"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_audio.rs"
     },
     {
       "original_path": "original/test/testaudioinfo.c",
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_06_audio",
       "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testaudioinfo.rs",
+      "rust_target_path": "safe/tests/original_apps_audio.rs",
       "upstream_targets": [
         "testaudioinfo"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_audio.rs"
     },
     {
       "original_path": "original/test/testautomation.c",
@@ -317,13 +322,14 @@
       "source_kind": "automation suite source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_06_audio",
       "rust_target_kind": "integration_test",
-      "rust_target_path": "safe/tests/testautomation/testautomation_audio.rs",
+      "rust_target_path": "safe/tests/upstream_port_audio.rs",
       "upstream_targets": [
         "testautomation"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/upstream_port_audio.rs"
     },
     {
       "original_path": "original/test/testautomation_clipboard.c",
@@ -1044,13 +1050,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testmultiaudio.rs",
+      "owning_phase": "impl_phase_06_audio",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_audio.rs",
       "upstream_targets": [
         "testmultiaudio"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_audio.rs"
     },
     {
       "original_path": "original/test/testnative.c",
@@ -1230,13 +1237,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "rust_target_kind": "cfg_gated_test",
-      "rust_target_path": "safe/tests/upstream/testresample.rs",
+      "owning_phase": "impl_phase_06_audio",
+      "rust_target_kind": "integration_test",
+      "rust_target_path": "safe/tests/original_apps_audio.rs",
       "upstream_targets": [
         "testresample"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_audio.rs"
     },
     {
       "original_path": "original/test/testrumble.c",
@@ -1366,13 +1374,14 @@
       "source_kind": "standalone executable source",
       "ubuntu_buildable": true,
       "ubuntu_runnable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
+      "owning_phase": "impl_phase_06_audio",
       "rust_target_kind": "smoke_test",
-      "rust_target_path": "safe/tests/upstream/testsurround.rs",
+      "rust_target_path": "safe/tests/original_apps_audio.rs",
       "upstream_targets": [
         "testsurround"
       ],
-      "completion_state": "incomplete"
+      "completion_state": "complete",
+      "completion_note": "ported into safe/tests/original_apps_audio.rs"
     },
     {
       "original_path": "original/test/testthread.c",
@@ -1566,14 +1575,16 @@
     {
       "target_name": "loopwave",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_06_audio",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-6 ports"
     },
     {
       "target_name": "loopwavequeue",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_06_audio",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-6 ports"
     },
     {
       "target_name": "testatomic",
@@ -1584,20 +1595,23 @@
     {
       "target_name": "testaudiocapture",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_06_audio",
+      "completion_state": "complete",
+      "completion_note": "build-only upstream demo with deterministic synthetic-device coverage in Rust phase-6 ports"
     },
     {
       "target_name": "testaudiohotplug",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_06_audio",
+      "completion_state": "complete",
+      "completion_note": "build-only upstream demo with deterministic synthetic-device coverage in Rust phase-6 ports"
     },
     {
       "target_name": "testaudioinfo",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_06_audio",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-6 ports"
     },
     {
       "target_name": "testautomation",
@@ -1812,8 +1826,9 @@
     {
       "target_name": "testmultiaudio",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_06_audio",
+      "completion_state": "complete",
+      "completion_note": "build-only upstream demo with deterministic synthetic-device coverage in Rust phase-6 ports"
     },
     {
       "target_name": "testnative",
@@ -1878,8 +1893,9 @@
     {
       "target_name": "testresample",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_06_audio",
+      "completion_state": "complete",
+      "completion_note": "build-only upstream demo with deterministic conversion coverage in Rust phase-6 ports"
     },
     {
       "target_name": "testrumble",
@@ -1944,8 +1960,9 @@
     {
       "target_name": "testsurround",
       "linux_buildable": true,
-      "owning_phase": "impl_phase_01_contract_bootstrap",
-      "completion_state": "incomplete"
+      "owning_phase": "impl_phase_06_audio",
+      "completion_state": "complete",
+      "completion_note": "stage-built C target with deterministic runtime coverage in Rust phase-6 ports"
     },
     {
       "target_name": "testthread",

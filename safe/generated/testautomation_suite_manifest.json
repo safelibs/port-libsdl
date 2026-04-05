@@ -37,7 +37,7 @@
     {
       "suite_name": "audio",
       "source_path": "original/test/testautomation_audio.c",
-      "owning_phase": "impl_phase_01_contract_bootstrap"
+      "owning_phase": "impl_phase_06_audio"
     },
     {
       "suite_name": "clipboard",

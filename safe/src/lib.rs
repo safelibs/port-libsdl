@@ -7,6 +7,7 @@ pub mod abi {
     pub mod generated_types;
 }
 
+pub mod audio;
 pub mod core;
 pub mod events;
 pub mod security {
