@@ -270,6 +270,9 @@ pub(crate) unsafe fn validate_surface_storage(
     )?;
 
     if let Some((buffer_len, expected_pixels)) = surface_record_metadata(surface) {
+        if layout_size > 0 && (*surface).pixels.is_null() {
+            return Err(MathError::InvalidParam("surface"));
+        }
         if (*surface).pixels as usize != expected_pixels {
             return Err(MathError::InvalidParam("surface"));
         }
@@ -702,6 +705,12 @@ pub(crate) unsafe fn create_preallocated_surface_with_format(
             return apply_math_error_ptr(error);
         }
     };
+
+    if size > 0 && pixels.is_null() {
+        (real_sdl().free_surface)(surface);
+        let _ = invalid_param_error("pixels");
+        return ptr::null_mut();
+    }
 
     finalize_registered_surface(
         surface,

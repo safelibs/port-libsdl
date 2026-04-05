@@ -51,6 +51,20 @@ fn constructors_and_copy_paths_reject_values_that_used_to_wrap() {
         assert!(!testutils::current_error().is_empty());
 
         let mut pixels = [0u8; 16];
+        let null_pixels = SDL_CreateRGBSurfaceFrom(
+            std::ptr::null_mut(),
+            4,
+            4,
+            32,
+            16,
+            0x000000ff,
+            0x0000ff00,
+            0x00ff0000,
+            0xff000000,
+        );
+        assert!(null_pixels.is_null());
+        assert!(!testutils::current_error().is_empty());
+
         let from = SDL_CreateRGBSurfaceFrom(
             pixels.as_mut_ptr().cast(),
             1024,
