@@ -549,7 +549,9 @@ impl BuildOriginalReferenceCliArgs {
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
-                "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
+                "--original" | "--source" => {
+                    original = PathBuf::from(require_value(&mut iter, arg)?)
+                }
                 "--build-dir" => {
                     build_dir = PathBuf::from(require_value(&mut iter, "--build-dir")?)
                 }
@@ -597,11 +599,13 @@ impl PerfCaptureCliArgs {
                 "--generated" => {
                     generated = PathBuf::from(require_value(&mut iter, "--generated")?)
                 }
-                "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
-                "--original-prefix" | "--prefix" => {
+                "--original" | "--source" => {
+                    original = PathBuf::from(require_value(&mut iter, arg)?)
+                }
+                "--original-prefix" | "--reference-prefix" | "--prefix" => {
                     original_prefix = PathBuf::from(require_value(&mut iter, arg)?)
                 }
-                "--safe-stage" | "--safe-root" | "--stage-root" => {
+                "--safe-stage" | "--safe-root" | "--stage-root" | "--candidate-prefix" => {
                     safe_stage = PathBuf::from(require_value(&mut iter, arg)?)
                 }
                 "--runner-dir" => {
@@ -611,7 +615,7 @@ impl PerfCaptureCliArgs {
                 "--thresholds" => {
                     thresholds = PathBuf::from(require_value(&mut iter, "--thresholds")?)
                 }
-                "--report" => report = PathBuf::from(require_value(&mut iter, "--report")?),
+                "--report" | "--output" => report = PathBuf::from(require_value(&mut iter, arg)?),
                 "--waivers" => waivers = PathBuf::from(require_value(&mut iter, "--waivers")?),
                 other => bail!("unknown argument {other}"),
             }
@@ -648,7 +652,7 @@ impl PerfAssertCliArgs {
                 "--thresholds" => {
                     thresholds = PathBuf::from(require_value(&mut iter, "--thresholds")?)
                 }
-                "--report" => report = PathBuf::from(require_value(&mut iter, "--report")?),
+                "--report" | "--output" => report = PathBuf::from(require_value(&mut iter, arg)?),
                 "--waivers" => waivers = PathBuf::from(require_value(&mut iter, "--waivers")?),
                 other => bail!("unknown argument {other}"),
             }
