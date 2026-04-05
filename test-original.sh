@@ -888,9 +888,38 @@ EOF
 
   assert_uses_safe_sdl /tmp/scrcpy-probe/scrcpy-screen-otg-smoke
 
+  local logfile=/tmp/scrcpy.log
+  local maps_log=/tmp/scrcpy-maps.log
+  local pid
+  : >"$logfile"
+  : >"$maps_log"
+
   start_xvfb
-  run_window_smoke scrcpy 'scrcpy SDL frontend smoke' \
-    /tmp/scrcpy-probe/scrcpy-screen-otg-smoke
+  /tmp/scrcpy-probe/scrcpy-screen-otg-smoke >"$logfile" 2>&1 &
+  pid=$!
+
+  for _ in $(seq 1 40); do
+    if ! kill -0 "$pid" >/dev/null 2>&1; then
+      wait "$pid" >/dev/null 2>&1 || true
+      printf -- '--- scrcpy log ---\n' >&2
+      cat "$logfile" >&2 || true
+      die "scrcpy SDL frontend smoke exited before it loaded the safe SDL runtime"
+    fi
+
+    if grep -F -- "$SAFE_SDL_SO" "/proc/$pid/maps" >"$maps_log" 2>/dev/null; then
+      terminate_pid "$pid"
+      return 0
+    fi
+
+    sleep 0.25
+  done
+
+  printf -- '--- scrcpy maps ---\n' >&2
+  cat "$maps_log" >&2 || true
+  printf -- '--- scrcpy log ---\n' >&2
+  cat "$logfile" >&2 || true
+  terminate_pid "$pid"
+  die "timed out waiting for scrcpy SDL frontend smoke to load the safe SDL runtime"
 }
 
 test_love() {

@@ -14,7 +14,7 @@
   "artifacts": {
     "original_reference_prefix": "/tmp/libsdl-original-ref",
     "safe_stage_root": "/tmp/libsdl-safe-root",
-    "benchmark_runner": "/tmp/libsdl-perf-runner-1775402985809240069-0/perf_runner",
+    "benchmark_runner": "/tmp/libsdl-perf-runner-1775404461387987724-0/perf_runner",
     "original_real_sdl_path": "/tmp/libsdl-original-ref/lib/libSDL2-2.0.so.0"
   },
   "workloads": [
@@ -28,102 +28,102 @@
         "original/test/button.bmp"
       ],
       "original": {
-        "median_cpu_time_us": 42050,
-        "median_wall_time_us": 42066,
-        "peak_rss_kib": 8352,
+        "median_cpu_time_us": 42282,
+        "median_wall_time_us": 42288,
+        "peak_rss_kib": 8360,
         "samples": [
           {
             "workload_id": "surface_create_fill_convert_blit",
             "loops": 240,
-            "cpu_time_us": 43838,
-            "wall_time_us": 43846,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 43107,
+            "wall_time_us": 43127,
+            "max_rss_kib": 8360,
             "checksum": 304822504
           },
           {
             "workload_id": "surface_create_fill_convert_blit",
             "loops": 240,
-            "cpu_time_us": 42050,
-            "wall_time_us": 42066,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 42941,
+            "wall_time_us": 43020,
+            "max_rss_kib": 8360,
             "checksum": 304822504
           },
           {
             "workload_id": "surface_create_fill_convert_blit",
             "loops": 240,
-            "cpu_time_us": 41696,
-            "wall_time_us": 41701,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 42118,
+            "wall_time_us": 42124,
+            "max_rss_kib": 8360,
             "checksum": 304822504
           },
           {
             "workload_id": "surface_create_fill_convert_blit",
             "loops": 240,
-            "cpu_time_us": 42278,
-            "wall_time_us": 42285,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 42048,
+            "wall_time_us": 42098,
+            "max_rss_kib": 8360,
             "checksum": 304822504
           },
           {
             "workload_id": "surface_create_fill_convert_blit",
             "loops": 240,
-            "cpu_time_us": 41178,
-            "wall_time_us": 41184,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 42282,
+            "wall_time_us": 42288,
+            "max_rss_kib": 8360,
             "checksum": 304822504
           }
         ]
       },
       "safe": {
-        "median_cpu_time_us": 41815,
-        "median_wall_time_us": 41828,
-        "peak_rss_kib": 8352,
+        "median_cpu_time_us": 42509,
+        "median_wall_time_us": 42515,
+        "peak_rss_kib": 8360,
         "samples": [
           {
             "workload_id": "surface_create_fill_convert_blit",
             "loops": 240,
-            "cpu_time_us": 41223,
-            "wall_time_us": 41228,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 42054,
+            "wall_time_us": 42059,
+            "max_rss_kib": 8360,
             "checksum": 304822504
           },
           {
             "workload_id": "surface_create_fill_convert_blit",
             "loops": 240,
-            "cpu_time_us": 42312,
-            "wall_time_us": 42319,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 42509,
+            "wall_time_us": 42515,
+            "max_rss_kib": 8360,
             "checksum": 304822504
           },
           {
             "workload_id": "surface_create_fill_convert_blit",
             "loops": 240,
-            "cpu_time_us": 41815,
-            "wall_time_us": 41828,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 42005,
+            "wall_time_us": 42053,
+            "max_rss_kib": 8360,
             "checksum": 304822504
           },
           {
             "workload_id": "surface_create_fill_convert_blit",
             "loops": 240,
-            "cpu_time_us": 41494,
-            "wall_time_us": 41499,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 42713,
+            "wall_time_us": 42720,
+            "max_rss_kib": 8360,
             "checksum": 304822504
           },
           {
             "workload_id": "surface_create_fill_convert_blit",
             "loops": 240,
-            "cpu_time_us": 42254,
-            "wall_time_us": 42260,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 43923,
+            "wall_time_us": 43951,
+            "max_rss_kib": 8360,
             "checksum": 304822504
           }
         ]
       },
       "regression": {
-        "median_cpu_ratio": 0.9944114149821641,
-        "median_wall_ratio": 0.9943422241239956,
+        "median_cpu_ratio": 1.005368714819545,
+        "median_wall_ratio": 1.005367953083617,
         "peak_allocation_ratio": 1.0
       },
       "thresholds": {
@@ -142,102 +142,102 @@
         "original/test/testgles2_sdf_img_normal.bmp"
       ],
       "original": {
-        "median_cpu_time_us": 89415,
-        "median_wall_time_us": 89421,
-        "peak_rss_kib": 8352,
+        "median_cpu_time_us": 88701,
+        "median_wall_time_us": 88842,
+        "peak_rss_kib": 8360,
         "samples": [
           {
             "workload_id": "renderer_queue_copy_texture_upload",
             "loops": 120,
-            "cpu_time_us": 89561,
-            "wall_time_us": 89568,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 90145,
+            "wall_time_us": 90152,
+            "max_rss_kib": 8360,
             "checksum": 238145348
           },
           {
             "workload_id": "renderer_queue_copy_texture_upload",
             "loops": 120,
-            "cpu_time_us": 89135,
-            "wall_time_us": 89142,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 89595,
+            "wall_time_us": 89722,
+            "max_rss_kib": 8360,
             "checksum": 238145348
           },
           {
             "workload_id": "renderer_queue_copy_texture_upload",
             "loops": 120,
-            "cpu_time_us": 89973,
-            "wall_time_us": 90243,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 87648,
+            "wall_time_us": 87774,
+            "max_rss_kib": 8360,
             "checksum": 238145348
           },
           {
             "workload_id": "renderer_queue_copy_texture_upload",
             "loops": 120,
-            "cpu_time_us": 89415,
-            "wall_time_us": 89421,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 88701,
+            "wall_time_us": 88842,
+            "max_rss_kib": 8360,
             "checksum": 238145348
           },
           {
             "workload_id": "renderer_queue_copy_texture_upload",
             "loops": 120,
-            "cpu_time_us": 89308,
-            "wall_time_us": 89317,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 88208,
+            "wall_time_us": 88342,
+            "max_rss_kib": 8360,
             "checksum": 238145348
           }
         ]
       },
       "safe": {
-        "median_cpu_time_us": 89522,
-        "median_wall_time_us": 89527,
-        "peak_rss_kib": 8352,
+        "median_cpu_time_us": 89739,
+        "median_wall_time_us": 90007,
+        "peak_rss_kib": 8360,
         "samples": [
           {
             "workload_id": "renderer_queue_copy_texture_upload",
             "loops": 120,
-            "cpu_time_us": 89522,
-            "wall_time_us": 89527,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 89739,
+            "wall_time_us": 90130,
+            "max_rss_kib": 8360,
             "checksum": 238145348
           },
           {
             "workload_id": "renderer_queue_copy_texture_upload",
             "loops": 120,
-            "cpu_time_us": 89730,
-            "wall_time_us": 89736,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 88969,
+            "wall_time_us": 89107,
+            "max_rss_kib": 8360,
             "checksum": 238145348
           },
           {
             "workload_id": "renderer_queue_copy_texture_upload",
             "loops": 120,
-            "cpu_time_us": 88606,
-            "wall_time_us": 88611,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 89244,
+            "wall_time_us": 89386,
+            "max_rss_kib": 8360,
             "checksum": 238145348
           },
           {
             "workload_id": "renderer_queue_copy_texture_upload",
             "loops": 120,
-            "cpu_time_us": 90016,
-            "wall_time_us": 90024,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 89873,
+            "wall_time_us": 90007,
+            "max_rss_kib": 8360,
             "checksum": 238145348
           },
           {
             "workload_id": "renderer_queue_copy_texture_upload",
             "loops": 120,
-            "cpu_time_us": 89520,
-            "wall_time_us": 89526,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 90154,
+            "wall_time_us": 90291,
+            "max_rss_kib": 8360,
             "checksum": 238145348
           }
         ]
       },
       "regression": {
-        "median_cpu_ratio": 1.001196667225857,
-        "median_wall_ratio": 1.001185403876047,
+        "median_cpu_ratio": 1.0117022356005005,
+        "median_wall_ratio": 1.0131131671956957,
         "peak_allocation_ratio": 1.0
       },
       "thresholds": {
@@ -255,102 +255,102 @@
         "original/test/sample.wav"
       ],
       "original": {
-        "median_cpu_time_us": 98286,
-        "median_wall_time_us": 98292,
-        "peak_rss_kib": 8352,
+        "median_cpu_time_us": 98600,
+        "median_wall_time_us": 98606,
+        "peak_rss_kib": 8360,
         "samples": [
           {
             "workload_id": "audio_stream_convert_resample_wave",
             "loops": 48,
-            "cpu_time_us": 98684,
-            "wall_time_us": 98695,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 99590,
+            "wall_time_us": 99756,
+            "max_rss_kib": 8360,
             "checksum": 48196900
           },
           {
             "workload_id": "audio_stream_convert_resample_wave",
             "loops": 48,
-            "cpu_time_us": 96873,
-            "wall_time_us": 96897,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 101122,
+            "wall_time_us": 101285,
+            "max_rss_kib": 8360,
             "checksum": 48196900
           },
           {
             "workload_id": "audio_stream_convert_resample_wave",
             "loops": 48,
-            "cpu_time_us": 97130,
-            "wall_time_us": 97311,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 97775,
+            "wall_time_us": 97781,
+            "max_rss_kib": 8360,
             "checksum": 48196900
           },
           {
             "workload_id": "audio_stream_convert_resample_wave",
             "loops": 48,
-            "cpu_time_us": 98286,
-            "wall_time_us": 98292,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 98332,
+            "wall_time_us": 98496,
+            "max_rss_kib": 8360,
             "checksum": 48196900
           },
           {
             "workload_id": "audio_stream_convert_resample_wave",
             "loops": 48,
-            "cpu_time_us": 99242,
-            "wall_time_us": 99247,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 98600,
+            "wall_time_us": 98606,
+            "max_rss_kib": 8360,
             "checksum": 48196900
           }
         ]
       },
       "safe": {
-        "median_cpu_time_us": 169499,
-        "median_wall_time_us": 169505,
-        "peak_rss_kib": 8352,
+        "median_cpu_time_us": 169893,
+        "median_wall_time_us": 169923,
+        "peak_rss_kib": 8360,
         "samples": [
           {
             "workload_id": "audio_stream_convert_resample_wave",
             "loops": 48,
-            "cpu_time_us": 169097,
-            "wall_time_us": 169107,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 170222,
+            "wall_time_us": 170929,
+            "max_rss_kib": 8360,
             "checksum": 48186600
           },
           {
             "workload_id": "audio_stream_convert_resample_wave",
             "loops": 48,
-            "cpu_time_us": 171276,
-            "wall_time_us": 171283,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 169605,
+            "wall_time_us": 169612,
+            "max_rss_kib": 8360,
             "checksum": 48186600
           },
           {
             "workload_id": "audio_stream_convert_resample_wave",
             "loops": 48,
-            "cpu_time_us": 169499,
-            "wall_time_us": 169505,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 169893,
+            "wall_time_us": 170227,
+            "max_rss_kib": 8360,
             "checksum": 48186600
           },
           {
             "workload_id": "audio_stream_convert_resample_wave",
             "loops": 48,
-            "cpu_time_us": 173516,
-            "wall_time_us": 173527,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 169917,
+            "wall_time_us": 169923,
+            "max_rss_kib": 8360,
             "checksum": 48186600
           },
           {
             "workload_id": "audio_stream_convert_resample_wave",
             "loops": 48,
-            "cpu_time_us": 168841,
-            "wall_time_us": 168847,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 168411,
+            "wall_time_us": 168759,
+            "max_rss_kib": 8360,
             "checksum": 48186600
           }
         ]
       },
       "regression": {
-        "median_cpu_ratio": 1.724548765846611,
-        "median_wall_ratio": 1.7245045375005086,
+        "median_cpu_ratio": 1.723052738336714,
+        "median_wall_ratio": 1.723252134758534,
         "peak_allocation_ratio": 1.0
       },
       "thresholds": {
@@ -366,102 +366,102 @@
       "description": "Measure custom-event enqueue and dequeue throughput with fixed-size batches under the SDL events subsystem.",
       "resource_paths": [],
       "original": {
-        "median_cpu_time_us": 10872,
-        "median_wall_time_us": 10873,
-        "peak_rss_kib": 8352,
+        "median_cpu_time_us": 10826,
+        "median_wall_time_us": 10827,
+        "peak_rss_kib": 8360,
         "samples": [
           {
             "workload_id": "event_queue_throughput",
             "loops": 320,
-            "cpu_time_us": 10973,
-            "wall_time_us": 10973,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 10938,
+            "wall_time_us": 10939,
+            "max_rss_kib": 8360,
             "checksum": 53821136896
           },
           {
             "workload_id": "event_queue_throughput",
             "loops": 320,
-            "cpu_time_us": 11019,
-            "wall_time_us": 11018,
-            "max_rss_kib": 8352,
-            "checksum": 53821136896
-          },
-          {
-            "workload_id": "event_queue_throughput",
-            "loops": 320,
-            "cpu_time_us": 10795,
+            "cpu_time_us": 10796,
             "wall_time_us": 10796,
-            "max_rss_kib": 8352,
+            "max_rss_kib": 8360,
             "checksum": 53821136896
           },
           {
             "workload_id": "event_queue_throughput",
             "loops": 320,
-            "cpu_time_us": 10872,
-            "wall_time_us": 10873,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 10826,
+            "wall_time_us": 10827,
+            "max_rss_kib": 8360,
             "checksum": 53821136896
           },
           {
             "workload_id": "event_queue_throughput",
             "loops": 320,
-            "cpu_time_us": 10836,
-            "wall_time_us": 10841,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 10703,
+            "wall_time_us": 10704,
+            "max_rss_kib": 8360,
+            "checksum": 53821136896
+          },
+          {
+            "workload_id": "event_queue_throughput",
+            "loops": 320,
+            "cpu_time_us": 10912,
+            "wall_time_us": 10912,
+            "max_rss_kib": 8360,
             "checksum": 53821136896
           }
         ]
       },
       "safe": {
-        "median_cpu_time_us": 11532,
-        "median_wall_time_us": 11533,
-        "peak_rss_kib": 8352,
+        "median_cpu_time_us": 11569,
+        "median_wall_time_us": 11569,
+        "peak_rss_kib": 8360,
         "samples": [
           {
             "workload_id": "event_queue_throughput",
             "loops": 320,
-            "cpu_time_us": 11468,
-            "wall_time_us": 11468,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 11569,
+            "wall_time_us": 11569,
+            "max_rss_kib": 8360,
             "checksum": 53821136896
           },
           {
             "workload_id": "event_queue_throughput",
             "loops": 320,
-            "cpu_time_us": 11577,
-            "wall_time_us": 11577,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 11611,
+            "wall_time_us": 11610,
+            "max_rss_kib": 8360,
             "checksum": 53821136896
           },
           {
             "workload_id": "event_queue_throughput",
             "loops": 320,
-            "cpu_time_us": 11532,
-            "wall_time_us": 11532,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 11603,
+            "wall_time_us": 11602,
+            "max_rss_kib": 8360,
             "checksum": 53821136896
           },
           {
             "workload_id": "event_queue_throughput",
             "loops": 320,
-            "cpu_time_us": 11596,
-            "wall_time_us": 11597,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 11443,
+            "wall_time_us": 11452,
+            "max_rss_kib": 8360,
             "checksum": 53821136896
           },
           {
             "workload_id": "event_queue_throughput",
             "loops": 320,
-            "cpu_time_us": 11532,
-            "wall_time_us": 11533,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 11531,
+            "wall_time_us": 11531,
+            "max_rss_kib": 8360,
             "checksum": 53821136896
           }
         ]
       },
       "regression": {
-        "median_cpu_ratio": 1.0607064017660044,
-        "median_wall_ratio": 1.060700818541341,
+        "median_cpu_ratio": 1.0686310733419546,
+        "median_wall_ratio": 1.0685323727717744,
         "peak_allocation_ratio": 1.0
       },
       "thresholds": {
@@ -477,102 +477,102 @@
       "description": "Cover controller mapping lookup and GUID string formatting over a pre-seeded Linux mapping set.",
       "resource_paths": [],
       "original": {
-        "median_cpu_time_us": 69835,
-        "median_wall_time_us": 69840,
-        "peak_rss_kib": 8352,
+        "median_cpu_time_us": 67215,
+        "median_wall_time_us": 67226,
+        "peak_rss_kib": 8360,
         "samples": [
           {
             "workload_id": "controller_mapping_guid",
             "loops": 256,
-            "cpu_time_us": 65732,
-            "wall_time_us": 65741,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 70576,
+            "wall_time_us": 70663,
+            "max_rss_kib": 8360,
             "checksum": 54912000
           },
           {
             "workload_id": "controller_mapping_guid",
             "loops": 256,
-            "cpu_time_us": 70528,
-            "wall_time_us": 70536,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 66117,
+            "wall_time_us": 66121,
+            "max_rss_kib": 8360,
             "checksum": 54912000
           },
           {
             "workload_id": "controller_mapping_guid",
             "loops": 256,
-            "cpu_time_us": 67779,
-            "wall_time_us": 67796,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 64128,
+            "wall_time_us": 64134,
+            "max_rss_kib": 8360,
             "checksum": 54912000
           },
           {
             "workload_id": "controller_mapping_guid",
             "loops": 256,
-            "cpu_time_us": 69835,
-            "wall_time_us": 69840,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 67215,
+            "wall_time_us": 67226,
+            "max_rss_kib": 8360,
             "checksum": 54912000
           },
           {
             "workload_id": "controller_mapping_guid",
             "loops": 256,
-            "cpu_time_us": 72378,
-            "wall_time_us": 72384,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 70368,
+            "wall_time_us": 70374,
+            "max_rss_kib": 8360,
             "checksum": 54912000
           }
         ]
       },
       "safe": {
-        "median_cpu_time_us": 13469,
-        "median_wall_time_us": 13468,
-        "peak_rss_kib": 8352,
+        "median_cpu_time_us": 13482,
+        "median_wall_time_us": 13481,
+        "peak_rss_kib": 8360,
         "samples": [
           {
             "workload_id": "controller_mapping_guid",
             "loops": 256,
-            "cpu_time_us": 13609,
-            "wall_time_us": 13609,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 13487,
+            "wall_time_us": 13488,
+            "max_rss_kib": 8360,
             "checksum": 54912000
           },
           {
             "workload_id": "controller_mapping_guid",
             "loops": 256,
-            "cpu_time_us": 13278,
-            "wall_time_us": 13278,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 13551,
+            "wall_time_us": 13552,
+            "max_rss_kib": 8360,
             "checksum": 54912000
           },
           {
             "workload_id": "controller_mapping_guid",
             "loops": 256,
-            "cpu_time_us": 13537,
-            "wall_time_us": 13537,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 13482,
+            "wall_time_us": 13481,
+            "max_rss_kib": 8360,
             "checksum": 54912000
           },
           {
             "workload_id": "controller_mapping_guid",
             "loops": 256,
-            "cpu_time_us": 13469,
-            "wall_time_us": 13468,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 13370,
+            "wall_time_us": 13376,
+            "max_rss_kib": 8360,
             "checksum": 54912000
           },
           {
             "workload_id": "controller_mapping_guid",
             "loops": 256,
-            "cpu_time_us": 13347,
-            "wall_time_us": 13347,
-            "max_rss_kib": 8352,
+            "cpu_time_us": 13386,
+            "wall_time_us": 13386,
+            "max_rss_kib": 8360,
             "checksum": 54912000
           }
         ]
       },
       "regression": {
-        "median_cpu_ratio": 0.1928689052767237,
-        "median_wall_ratio": 0.19284077892325316,
+        "median_cpu_ratio": 0.20058022762776165,
+        "median_wall_ratio": 0.20053253205604973,
         "peak_allocation_ratio": 1.0
       },
       "thresholds": {
