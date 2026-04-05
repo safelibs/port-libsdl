@@ -105,6 +105,9 @@ export LC_ALL=C.UTF-8
 ROOT=/work
 ONLY_FILTER="${LIBSDL_TEST_ONLY:-}"
 HOME=/tmp/libsdl-home
+RUSTUP_HOME=/root/.rustup
+CARGO_HOME=/root/.cargo
+PATH="/root/.cargo/bin:${PATH}"
 MULTIARCH="$(gcc -print-multiarch)"
 SAFE_REPO=/tmp/libsdl-safe-repo
 SAFE_SDL_SO=""
@@ -114,6 +117,8 @@ XVFB_PID=""
 MATCHED_ONLY=0
 TEST_USER=libsdltest
 TEST_USER_RUNTIME_DIR="/tmp/${TEST_USER}-runtime"
+
+export HOME RUSTUP_HOME CARGO_HOME PATH
 
 mkdir -p "$HOME"
 
