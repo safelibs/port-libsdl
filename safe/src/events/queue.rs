@@ -97,7 +97,7 @@ fn lock_host_event_transition() -> std::sync::MutexGuard<'static, ()> {
     }
 }
 
-fn ensure_real_event_subsystem() {
+pub(crate) fn ensure_real_event_subsystem() {
     if host_event_active().load(Ordering::Acquire) {
         return;
     }

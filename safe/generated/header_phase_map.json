@@ -13,15 +13,15 @@
       "header_name": "SDL_assert.h",
       "install_relpath": "usr/include/SDL2/SDL_assert.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_atomic.h",
       "install_relpath": "usr/include/SDL2/SDL_atomic.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_audio.h",
@@ -153,8 +153,8 @@
       "header_name": "SDL_cpuinfo.h",
       "install_relpath": "usr/include/SDL2/SDL_cpuinfo.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_egl.h",
@@ -174,8 +174,8 @@
       "header_name": "SDL_error.h",
       "install_relpath": "usr/include/SDL2/SDL_error.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_events.h",
@@ -188,8 +188,8 @@
       "header_name": "SDL_filesystem.h",
       "install_relpath": "usr/include/SDL2/SDL_filesystem.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_gamecontroller.h",
@@ -230,8 +230,8 @@
       "header_name": "SDL_hints.h",
       "install_relpath": "usr/include/SDL2/SDL_hints.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_joystick.h",
@@ -258,22 +258,22 @@
       "header_name": "SDL_loadso.h",
       "install_relpath": "usr/include/SDL2/SDL_loadso.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_locale.h",
       "install_relpath": "usr/include/SDL2/SDL_locale.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_log.h",
       "install_relpath": "usr/include/SDL2/SDL_log.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_main.h",
@@ -300,8 +300,8 @@
       "header_name": "SDL_misc.h",
       "install_relpath": "usr/include/SDL2/SDL_misc.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_mouse.h",
@@ -314,8 +314,8 @@
       "header_name": "SDL_mutex.h",
       "install_relpath": "usr/include/SDL2/SDL_mutex.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_name.h",
@@ -391,15 +391,15 @@
       "header_name": "SDL_platform.h",
       "install_relpath": "usr/include/SDL2/SDL_platform.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_01_contract_bootstrap",
-      "rationale": "phase 1 owns the generated or bootstrap support semantics for this header"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_power.h",
       "install_relpath": "usr/include/SDL2/SDL_power.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_quit.h",
@@ -433,8 +433,8 @@
       "header_name": "SDL_rwops.h",
       "install_relpath": "usr/include/SDL2/SDL_rwops.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_scancode.h",
@@ -461,8 +461,8 @@
       "header_name": "SDL_stdinc.h",
       "install_relpath": "usr/include/SDL2/SDL_stdinc.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_01_contract_bootstrap",
-      "rationale": "phase 1 owns the generated or bootstrap support semantics for this header"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_surface.h",
@@ -475,8 +475,8 @@
       "header_name": "SDL_system.h",
       "install_relpath": "usr/include/SDL2/SDL_system.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_syswm.h",
@@ -580,15 +580,15 @@
       "header_name": "SDL_thread.h",
       "install_relpath": "usr/include/SDL2/SDL_thread.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_timer.h",
       "install_relpath": "usr/include/SDL2/SDL_timer.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "future_phase_unassigned",
-      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_touch.h",
@@ -608,8 +608,8 @@
       "header_name": "SDL_version.h",
       "install_relpath": "usr/include/SDL2/SDL_version.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_01_contract_bootstrap",
-      "rationale": "phase 1 owns the generated or bootstrap support semantics for this header"
+      "semantic_phase": "impl_phase_02_core_runtime",
+      "rationale": "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
     },
     {
       "header_name": "SDL_video.h",

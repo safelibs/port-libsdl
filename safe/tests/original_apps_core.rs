@@ -280,6 +280,17 @@ fn locale_list_is_terminated_and_freeable() {
 }
 
 #[test]
+fn dummy_video_init_returns_for_packaged_consumers() {
+    let _serial = testutils::serial_lock();
+    let _video = testutils::ScopedEnvVar::set("SDL_VIDEODRIVER", "dummy");
+
+    unsafe {
+        assert_eq!(SDL_Init(SDL_INIT_VIDEO), 0, "{}", testutils::current_error());
+        SDL_Quit();
+    }
+}
+
+#[test]
 fn platform_power_and_version_smoke() {
     let _serial = testutils::serial_lock();
 

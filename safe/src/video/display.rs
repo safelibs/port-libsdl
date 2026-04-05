@@ -1,7 +1,9 @@
-use std::sync::OnceLock;
+use std::ffi::CStr;
+use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
-    SDL_DisplayMode, SDL_DisplayOrientation, SDL_Point, SDL_Rect, SDL_bool, SDL_INIT_VIDEO,
+    SDL_DisplayMode, SDL_DisplayOrientation, SDL_Point, SDL_Rect, SDL_bool, SDL_HINT_VIDEODRIVER,
+    SDL_INIT_VIDEO,
 };
 
 struct DisplayApi {
@@ -35,6 +37,59 @@ struct DisplayApi {
     disable_screen_saver: unsafe extern "C" fn(),
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum VideoBackend {
+    Host,
+    Dummy,
+    Offscreen,
+}
+
+fn video_backend() -> &'static Mutex<Option<VideoBackend>> {
+    static BACKEND: OnceLock<Mutex<Option<VideoBackend>>> = OnceLock::new();
+    BACKEND.get_or_init(|| Mutex::new(None))
+}
+
+fn lock_video_backend() -> std::sync::MutexGuard<'static, Option<VideoBackend>> {
+    match video_backend().lock() {
+        Ok(guard) => guard,
+        Err(poisoned) => poisoned.into_inner(),
+    }
+}
+
+fn requested_driver_name(driver_name: *const libc::c_char) -> Option<String> {
+    unsafe {
+        let value = if driver_name.is_null() {
+            crate::core::hints::SDL_GetHint(SDL_HINT_VIDEODRIVER.as_ptr().cast())
+        } else {
+            driver_name
+        };
+        if value.is_null() {
+            return None;
+        }
+        CStr::from_ptr(value)
+            .to_str()
+            .ok()
+            .and_then(|text| text.split(',').map(str::trim).find(|candidate| !candidate.is_empty()))
+            .map(str::to_ascii_lowercase)
+    }
+}
+
+fn backend_name(backend: VideoBackend) -> Option<*const libc::c_char> {
+    match backend {
+        VideoBackend::Host => None,
+        VideoBackend::Dummy => Some(b"dummy\0".as_ptr().cast()),
+        VideoBackend::Offscreen => Some(b"offscreen\0".as_ptr().cast()),
+    }
+}
+
+fn selected_stub_backend(driver_name: *const libc::c_char) -> Option<VideoBackend> {
+    match requested_driver_name(driver_name).as_deref() {
+        Some("dummy") => Some(VideoBackend::Dummy),
+        Some("offscreen") => Some(VideoBackend::Offscreen),
+        _ => None,
+    }
+}
+
 fn api() -> &'static DisplayApi {
     static API: OnceLock<DisplayApi> = OnceLock::new();
     API.get_or_init(|| DisplayApi {
@@ -63,9 +118,16 @@ fn api() -> &'static DisplayApi {
 }
 
 pub(crate) fn init_video_subsystem() -> Result<(), ()> {
+    if let Some(backend) = selected_stub_backend(std::ptr::null()) {
+        *lock_video_backend() = Some(backend);
+        return Ok(());
+    }
+
+    crate::events::queue::ensure_real_event_subsystem();
     crate::video::clear_real_error();
     let rc = unsafe { (api().video_init)(std::ptr::null()) };
     if rc == 0 {
+        *lock_video_backend() = Some(VideoBackend::Host);
         Ok(())
     } else {
         Err(())
@@ -73,6 +135,13 @@ pub(crate) fn init_video_subsystem() -> Result<(), ()> {
 }
 
 pub(crate) fn quit_video_subsystem() {
+    let backend = {
+        let mut state = lock_video_backend();
+        state.take()
+    };
+    if backend != Some(VideoBackend::Host) {
+        return;
+    }
     unsafe {
         (api().video_quit)();
     }
@@ -92,18 +161,40 @@ pub unsafe extern "C" fn SDL_GetVideoDriver(index: libc::c_int) -> *const libc::
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetCurrentVideoDriver() -> *const libc::c_char {
+    if let Some(backend) = *lock_video_backend() {
+        if let Some(name) = backend_name(backend) {
+            return name;
+        }
+    }
     crate::video::clear_real_error();
     (api().get_current_video_driver)()
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_VideoInit(driver_name: *const libc::c_char) -> libc::c_int {
+    if let Some(backend) = selected_stub_backend(driver_name) {
+        *lock_video_backend() = Some(backend);
+        return 0;
+    }
+
+    crate::events::queue::ensure_real_event_subsystem();
     crate::video::clear_real_error();
-    (api().video_init)(driver_name)
+    let rc = (api().video_init)(driver_name);
+    if rc == 0 {
+        *lock_video_backend() = Some(VideoBackend::Host);
+    }
+    rc
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_VideoQuit() {
+    let backend = {
+        let mut state = lock_video_backend();
+        state.take()
+    };
+    if backend != Some(VideoBackend::Host) {
+        return;
+    }
     crate::video::clear_real_error();
     (api().video_quit)();
 }

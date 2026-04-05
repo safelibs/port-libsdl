@@ -67,6 +67,28 @@ const PHASE1_SEMANTIC_HEADERS: &[&str] = &[
     "SDL_test_random.h",
 ];
 
+const PHASE2_SEMANTIC_HEADERS: &[&str] = &[
+    "SDL_assert.h",
+    "SDL_atomic.h",
+    "SDL_cpuinfo.h",
+    "SDL_error.h",
+    "SDL_filesystem.h",
+    "SDL_hints.h",
+    "SDL_loadso.h",
+    "SDL_locale.h",
+    "SDL_log.h",
+    "SDL_misc.h",
+    "SDL_mutex.h",
+    "SDL_platform.h",
+    "SDL_power.h",
+    "SDL_rwops.h",
+    "SDL_stdinc.h",
+    "SDL_system.h",
+    "SDL_thread.h",
+    "SDL_timer.h",
+    "SDL_version.h",
+];
+
 const RESOURCE_FILES: &[&str] = &[
     "original/test/axis.bmp",
     "original/test/button.bmp",
@@ -1327,11 +1349,14 @@ fn build_public_header_inventory(inputs: &Inputs) -> Result<PublicHeaderInventor
 fn build_header_phase_map(inventory: &PublicHeaderInventory) -> HeaderPhaseMap {
     let compatibility: BTreeSet<_> = COMPATIBILITY_HEADERS.iter().copied().collect();
     let phase1_semantic: BTreeSet<_> = PHASE1_SEMANTIC_HEADERS.iter().copied().collect();
+    let phase2_semantic: BTreeSet<_> = PHASE2_SEMANTIC_HEADERS.iter().copied().collect();
     let entries = inventory
         .headers
         .iter()
         .map(|header| {
-            let semantic_phase = if compatibility.contains(header.header_name.as_str())
+            let semantic_phase = if phase2_semantic.contains(header.header_name.as_str()) {
+                PHASE_02_ID
+            } else if compatibility.contains(header.header_name.as_str())
                 || phase1_semantic.contains(header.header_name.as_str())
             {
                 PHASE_ID
@@ -1342,6 +1367,8 @@ fn build_header_phase_map(inventory: &PublicHeaderInventory) -> HeaderPhaseMap {
             };
             let rationale = if compatibility.contains(header.header_name.as_str()) {
                 "compile-time-only compatibility surface must remain installable during bootstrap"
+            } else if phase2_semantic.contains(header.header_name.as_str()) {
+                "phase 2 owns the core runtime semantics for initialization, threading, filesystem, hints, logging, timing, and version queries"
             } else if phase1_semantic.contains(header.header_name.as_str()) {
                 "phase 1 owns the generated or bootstrap support semantics for this header"
             } else if header.header_name == "SDL_audio.h" {
