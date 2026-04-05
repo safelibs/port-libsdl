@@ -15,6 +15,7 @@ use crate::perf::{
 };
 
 pub const PHASE_ID: &str = "impl_phase_01_contract_bootstrap";
+pub const PHASE_02_ID: &str = "impl_phase_02_core_runtime";
 pub const PHASE_08_ID: &str = "impl_phase_08_testsupport_and_full_upstream_tests";
 pub const UBUNTU_RELEASE: &str = "Ubuntu 24.04";
 pub const UBUNTU_MULTIARCH: &str = "x86_64-linux-gnu";
@@ -480,6 +481,29 @@ pub struct InstallContract {
     pub multiarch_include_paths: Vec<String>,
     pub tests_package_paths: Vec<String>,
     pub runtime_paths: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RuntimeConsumerContract {
+    pub schema_version: u32,
+    pub phase_id: String,
+    pub multiarch_triplet: String,
+    pub required_stage_paths: Vec<String>,
+    pub standalone_validation: RuntimeStandaloneValidation,
+    pub autopkgtests: Vec<RuntimeAutopkgtest>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RuntimeStandaloneValidation {
+    pub build_manifest: String,
+    pub port_map: String,
+    pub auto_run_validation_mode: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RuntimeAutopkgtest {
+    pub script: String,
+    pub required_packages: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -1149,6 +1173,7 @@ fn build_outputs(inputs: &Inputs) -> Result<Vec<GeneratedFile>> {
     let original_test_object_manifest = build_original_test_object_manifest(&target_plans);
     let port_map = build_port_map(inputs, &target_plans)?;
     let install_contract = build_install_contract(&inventory, &standalone_manifest);
+    let runtime_consumer_contract = build_runtime_consumer_contract(&install_contract);
     let cve_contract = build_cve_contract(inputs)?;
     let perf_workloads = build_perf_workload_manifest();
     let perf_thresholds = build_perf_thresholds(&perf_workloads);
@@ -1225,6 +1250,10 @@ fn build_outputs(inputs: &Inputs) -> Result<Vec<GeneratedFile>> {
         json_output(
             inputs.generated_dir.join("cve_contract.json"),
             &cve_contract,
+        )?,
+        json_output(
+            inputs.generated_dir.join("runtime_consumer_contract.json"),
+            &runtime_consumer_contract,
         )?,
         json_output(
             inputs.generated_dir.join("perf_workload_manifest.json"),
@@ -1991,9 +2020,6 @@ fn build_port_map(inputs: &Inputs, target_plans: &[TargetPlan]) -> Result<Origin
             upstream_targets: targets,
         };
         if let Some(existing) = existing_entries.get(source) {
-            entry.source_kind = existing.source_kind.clone();
-            entry.ubuntu_buildable = existing.ubuntu_buildable;
-            entry.ubuntu_runnable = existing.ubuntu_runnable;
             entry.owning_phase = existing.owning_phase.clone();
             entry.completion_state = existing.completion_state;
             entry.completion_note = existing.completion_note.clone();
@@ -2212,6 +2238,53 @@ fn build_install_contract(
         runtime_paths: vec![
             format!("usr/lib/{UBUNTU_MULTIARCH}/{SDL_RUNTIME_REALNAME}"),
             format!("usr/lib/{UBUNTU_MULTIARCH}/{SDL_SONAME}"),
+        ],
+    }
+}
+
+fn build_runtime_consumer_contract(install_contract: &InstallContract) -> RuntimeConsumerContract {
+    let triplet = &install_contract.multiarch_triplet;
+    let mut required_stage_paths = vec![
+        format!("usr/lib/{triplet}/libSDL2.a"),
+        format!("usr/lib/{triplet}/libSDL2main.a"),
+        format!("usr/lib/{triplet}/libSDL2_test.a"),
+    ];
+    required_stage_paths.extend(install_contract.cmake_surface.iter().cloned());
+    required_stage_paths.extend([
+        format!("usr/lib/{triplet}/pkgconfig/sdl2.pc"),
+        "usr/bin/sdl2-config".to_string(),
+        "usr/share/aclocal/sdl2.m4".to_string(),
+    ]);
+
+    RuntimeConsumerContract {
+        schema_version: 1,
+        phase_id: PHASE_02_ID.to_string(),
+        multiarch_triplet: install_contract.multiarch_triplet.clone(),
+        required_stage_paths,
+        standalone_validation: RuntimeStandaloneValidation {
+            build_manifest: "safe/generated/standalone_test_manifest.json".to_string(),
+            port_map: "safe/generated/original_test_port_map.json".to_string(),
+            auto_run_validation_mode: "auto_run".to_string(),
+        },
+        autopkgtests: vec![
+            RuntimeAutopkgtest {
+                script: "original/debian/tests/build".to_string(),
+                required_packages: vec![
+                    "build-essential".to_string(),
+                    "clang".to_string(),
+                    "cmake".to_string(),
+                    "pkg-config".to_string(),
+                ],
+            },
+            RuntimeAutopkgtest {
+                script: "original/debian/tests/cmake".to_string(),
+                required_packages: vec![
+                    "build-essential".to_string(),
+                    "clang".to_string(),
+                    "cmake".to_string(),
+                    "pkg-config".to_string(),
+                ],
+            },
         ],
     }
 }

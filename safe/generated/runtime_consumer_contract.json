@@ -4,18 +4,20 @@
   "multiarch_triplet": "x86_64-linux-gnu",
   "required_stage_paths": [
     "usr/lib/x86_64-linux-gnu/libSDL2.a",
-    "usr/share/aclocal/sdl2.m4",
+    "usr/lib/x86_64-linux-gnu/libSDL2main.a",
+    "usr/lib/x86_64-linux-gnu/libSDL2_test.a",
     "usr/lib/x86_64-linux-gnu/cmake/SDL2/sdl2-config.cmake",
     "usr/lib/x86_64-linux-gnu/cmake/SDL2/sdl2-config-version.cmake",
     "usr/lib/x86_64-linux-gnu/cmake/SDL2/SDL2Config.cmake",
     "usr/lib/x86_64-linux-gnu/cmake/SDL2/SDL2ConfigVersion.cmake",
-    "usr/lib/x86_64-linux-gnu/cmake/SDL2/sdlfind.cmake",
     "usr/lib/x86_64-linux-gnu/cmake/SDL2/SDL2Targets.cmake",
     "usr/lib/x86_64-linux-gnu/cmake/SDL2/SDL2staticTargets.cmake",
     "usr/lib/x86_64-linux-gnu/cmake/SDL2/SDL2mainTargets.cmake",
     "usr/lib/x86_64-linux-gnu/cmake/SDL2/SDL2testTargets.cmake",
+    "usr/lib/x86_64-linux-gnu/cmake/SDL2/sdlfind.cmake",
     "usr/lib/x86_64-linux-gnu/pkgconfig/sdl2.pc",
-    "usr/bin/sdl2-config"
+    "usr/bin/sdl2-config",
+    "usr/share/aclocal/sdl2.m4"
   ],
   "standalone_validation": {
     "build_manifest": "safe/generated/standalone_test_manifest.json",
