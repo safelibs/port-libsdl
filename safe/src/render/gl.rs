@@ -100,6 +100,12 @@ pub unsafe extern "C" fn SDL_GL_GetAttribute(
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GL_CreateContext(window: *mut SDL_Window) -> SDL_GLContext {
     crate::video::clear_real_error();
+
+    if crate::video::window::is_stub_window(window) {
+        crate::core::error::set_error_message("OpenGL is not available for this window");
+        return std::ptr::null_mut();
+    }
+
     (api().gl_create_context)(window)
 }
 
@@ -109,6 +115,12 @@ pub unsafe extern "C" fn SDL_GL_MakeCurrent(
     context: SDL_GLContext,
 ) -> libc::c_int {
     crate::video::clear_real_error();
+
+    if crate::video::window::is_stub_window(window) {
+        let _ = context;
+        return crate::core::error::set_error_message("OpenGL is not available for this window");
+    }
+
     (api().gl_make_current)(window, context)
 }
 
@@ -131,6 +143,12 @@ pub unsafe extern "C" fn SDL_GL_GetDrawableSize(
     h: *mut libc::c_int,
 ) {
     crate::video::clear_real_error();
+
+    if crate::video::window::is_stub_window(window) {
+        crate::video::window::SDL_GetWindowSizeInPixels(window, w, h);
+        return;
+    }
+
     (api().gl_get_drawable_size)(window, w, h);
 }
 
@@ -149,6 +167,12 @@ pub unsafe extern "C" fn SDL_GL_GetSwapInterval() -> libc::c_int {
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GL_SwapWindow(window: *mut SDL_Window) {
     crate::video::clear_real_error();
+
+    if crate::video::window::is_stub_window(window) {
+        let _ = crate::core::error::set_error_message("OpenGL is not available for this window");
+        return;
+    }
+
     (api().gl_swap_window)(window);
 }
 
@@ -161,6 +185,12 @@ pub unsafe extern "C" fn SDL_GL_DeleteContext(context: SDL_GLContext) {
 #[no_mangle]
 pub unsafe extern "C" fn SDL_Metal_CreateView(window: *mut SDL_Window) -> SDL_MetalView {
     crate::video::clear_real_error();
+
+    if crate::video::window::is_stub_window(window) {
+        crate::core::error::set_error_message("Metal is not available for this window");
+        return std::ptr::null_mut();
+    }
+
     (api().metal_create_view)(window)
 }
 
@@ -183,5 +213,11 @@ pub unsafe extern "C" fn SDL_Metal_GetDrawableSize(
     h: *mut libc::c_int,
 ) {
     crate::video::clear_real_error();
+
+    if crate::video::window::is_stub_window(window) {
+        crate::video::window::SDL_GetWindowSizeInPixels(window, w, h);
+        return;
+    }
+
     (api().metal_get_drawable_size)(window, w, h);
 }

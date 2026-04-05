@@ -51,6 +51,13 @@ pub unsafe extern "C" fn SDL_Vulkan_GetInstanceExtensions(
     pNames: *mut *const libc::c_char,
 ) -> SDL_bool {
     crate::video::clear_real_error();
+
+    if crate::video::window::is_stub_window(window) {
+        let _ = (pCount, pNames);
+        let _ = crate::core::error::set_error_message("Vulkan is not available for this window");
+        return 0;
+    }
+
     (api().get_instance_extensions)(window, pCount, pNames)
 }
 
@@ -61,6 +68,13 @@ pub unsafe extern "C" fn SDL_Vulkan_CreateSurface(
     surface: *mut u64,
 ) -> SDL_bool {
     crate::video::clear_real_error();
+
+    if crate::video::window::is_stub_window(window) {
+        let _ = (instance, surface);
+        let _ = crate::core::error::set_error_message("Vulkan is not available for this window");
+        return 0;
+    }
+
     (api().create_surface)(window, instance, surface)
 }
 
@@ -71,5 +85,11 @@ pub unsafe extern "C" fn SDL_Vulkan_GetDrawableSize(
     h: *mut libc::c_int,
 ) {
     crate::video::clear_real_error();
+
+    if crate::video::window::is_stub_window(window) {
+        crate::video::window::SDL_GetWindowSizeInPixels(window, w, h);
+        return;
+    }
+
     (api().get_drawable_size)(window, w, h);
 }

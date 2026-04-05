@@ -3,9 +3,10 @@ use std::ptr;
 use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
-    SDL_BlendMode, SDL_Color, SDL_FPoint, SDL_FRect, SDL_Point, SDL_Rect, SDL_Renderer,
-    SDL_RendererFlip, SDL_RendererInfo, SDL_ScaleMode, SDL_ScaleMode_SDL_ScaleModeLinear,
-    SDL_Surface, SDL_Texture, SDL_Vertex, SDL_Window, SDL_bool, Uint32, Uint8,
+    SDL_BlendMode, SDL_Color, SDL_FPoint, SDL_FRect, SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888,
+    SDL_Point, SDL_Rect, SDL_Renderer, SDL_RendererFlip, SDL_RendererInfo, SDL_ScaleMode,
+    SDL_ScaleMode_SDL_ScaleModeLinear, SDL_Surface, SDL_Texture, SDL_Vertex, SDL_Window, SDL_bool,
+    Uint32, Uint8,
 };
 
 macro_rules! real_sdl_api {
@@ -111,9 +112,22 @@ struct ManagedTexture {
     _shadow: crate::render::gles::ShadowTexture,
 }
 
+struct ManagedWindowRenderer {
+    window: *mut SDL_Window,
+    owned_surface: *mut SDL_Surface,
+}
+
+unsafe impl Send for ManagedWindowRenderer {}
+
 #[derive(Default)]
 struct ManagedTextureRegistry {
     by_raw: HashMap<usize, usize>,
+}
+
+#[derive(Default)]
+struct ManagedRendererRegistry {
+    by_window: HashMap<usize, usize>,
+    by_renderer: HashMap<usize, ManagedWindowRenderer>,
 }
 
 const MANAGED_TEXTURE_TAG: usize = 1;
@@ -121,6 +135,11 @@ const MANAGED_TEXTURE_TAG: usize = 1;
 fn managed_texture_registry() -> &'static Mutex<ManagedTextureRegistry> {
     static REGISTRY: OnceLock<Mutex<ManagedTextureRegistry>> = OnceLock::new();
     REGISTRY.get_or_init(|| Mutex::new(ManagedTextureRegistry::default()))
+}
+
+fn managed_renderer_registry() -> &'static Mutex<ManagedRendererRegistry> {
+    static REGISTRY: OnceLock<Mutex<ManagedRendererRegistry>> = OnceLock::new();
+    REGISTRY.get_or_init(|| Mutex::new(ManagedRendererRegistry::default()))
 }
 
 fn managed_texture_ptr(address: usize) -> *mut ManagedTexture {
@@ -210,6 +229,114 @@ unsafe fn clear_renderer_textures(renderer: *mut SDL_Renderer) {
     }
 }
 
+unsafe fn register_window_renderer(
+    window: *mut SDL_Window,
+    renderer: *mut SDL_Renderer,
+    owned_surface: *mut SDL_Surface,
+) -> *mut SDL_Renderer {
+    let mut registry = managed_renderer_registry()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    registry
+        .by_window
+        .insert(window as usize, renderer as usize);
+    registry.by_renderer.insert(
+        renderer as usize,
+        ManagedWindowRenderer {
+            window,
+            owned_surface,
+        },
+    );
+    renderer
+}
+
+fn renderer_for_window(window: *mut SDL_Window) -> *mut SDL_Renderer {
+    if window.is_null() {
+        return ptr::null_mut();
+    }
+    let registry = managed_renderer_registry()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    registry
+        .by_window
+        .get(&(window as usize))
+        .copied()
+        .unwrap_or(0) as *mut SDL_Renderer
+}
+
+unsafe fn take_window_renderer(
+    renderer: *mut SDL_Renderer,
+) -> Option<(*mut SDL_Renderer, ManagedWindowRenderer)> {
+    if renderer.is_null() {
+        return None;
+    }
+
+    let mut registry = managed_renderer_registry()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    let managed = registry.by_renderer.remove(&(renderer as usize))?;
+    registry.by_window.remove(&(managed.window as usize));
+    Some((renderer, managed))
+}
+
+unsafe fn take_window_renderer_for_window(
+    window: *mut SDL_Window,
+) -> Option<(*mut SDL_Renderer, ManagedWindowRenderer)> {
+    if window.is_null() {
+        return None;
+    }
+
+    let mut registry = managed_renderer_registry()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    let renderer = registry.by_window.remove(&(window as usize))?;
+    let managed = registry.by_renderer.remove(&renderer)?;
+    Some((renderer as *mut SDL_Renderer, managed))
+}
+
+pub(crate) fn window_has_renderer(window: *mut SDL_Window) -> bool {
+    !renderer_for_window(window).is_null()
+}
+
+pub(crate) unsafe fn destroy_window_renderer(window: *mut SDL_Window) {
+    if let Some((renderer, managed)) = take_window_renderer_for_window(window) {
+        clear_renderer_textures(renderer);
+        (api().destroy_renderer)(renderer);
+        crate::video::surface::SDL_FreeSurface(managed.owned_surface);
+    }
+}
+
+pub(crate) unsafe fn reset_managed_window_renderers() {
+    let renderers: Vec<usize> = {
+        let registry = managed_renderer_registry()
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        registry.by_renderer.keys().copied().collect()
+    };
+
+    for renderer in renderers {
+        if let Some((renderer, managed)) = take_window_renderer(renderer as *mut SDL_Renderer) {
+            clear_renderer_textures(renderer);
+            (api().destroy_renderer)(renderer);
+            crate::video::surface::SDL_FreeSurface(managed.owned_surface);
+        }
+    }
+}
+
+unsafe fn renderer_window(renderer: *mut SDL_Renderer) -> Option<*mut SDL_Window> {
+    if renderer.is_null() {
+        return None;
+    }
+
+    let registry = managed_renderer_registry()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+    registry
+        .by_renderer
+        .get(&(renderer as usize))
+        .map(|managed| managed.window)
+}
+
 macro_rules! forward_ret {
     ($(fn $name:ident($($arg:ident: $ty:ty),* $(,)?) -> $ret:ty = $field:ident;)+) => {
         $(
@@ -273,9 +400,6 @@ macro_rules! forward_texture_second_ret {
 forward_ret! {
     fn SDL_GetNumRenderDrivers() -> libc::c_int = get_num_render_drivers;
     fn SDL_GetRenderDriverInfo(index: libc::c_int, info: *mut SDL_RendererInfo) -> libc::c_int = get_render_driver_info;
-    fn SDL_CreateRenderer(window: *mut SDL_Window, index: libc::c_int, flags: Uint32) -> *mut SDL_Renderer = create_renderer;
-    fn SDL_GetRenderer(window: *mut SDL_Window) -> *mut SDL_Renderer = get_renderer;
-    fn SDL_RenderGetWindow(renderer: *mut SDL_Renderer) -> *mut SDL_Window = render_get_window;
     fn SDL_GetRendererInfo(renderer: *mut SDL_Renderer, info: *mut SDL_RendererInfo) -> libc::c_int = get_renderer_info;
     fn SDL_GetRendererOutputSize(renderer: *mut SDL_Renderer, w: *mut libc::c_int, h: *mut libc::c_int) -> libc::c_int = get_renderer_output_size;
     fn SDL_CreateTextureFromSurface(renderer: *mut SDL_Renderer, surface: *mut SDL_Surface) -> *mut SDL_Texture = create_texture_from_surface;
@@ -315,6 +439,74 @@ forward_ret! {
     fn SDL_RenderGetMetalLayer(renderer: *mut SDL_Renderer) -> *mut libc::c_void = render_get_metal_layer;
     fn SDL_RenderGetMetalCommandEncoder(renderer: *mut SDL_Renderer) -> *mut libc::c_void = render_get_metal_command_encoder;
     fn SDL_RenderSetVSync(renderer: *mut SDL_Renderer, vsync: libc::c_int) -> libc::c_int = render_set_vsync;
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn SDL_CreateRenderer(
+    window: *mut SDL_Window,
+    index: libc::c_int,
+    flags: Uint32,
+) -> *mut SDL_Renderer {
+    crate::video::clear_real_error();
+
+    if crate::video::window::is_stub_window(window) {
+        if crate::video::window::stub_window_has_surface(window).unwrap_or(false) {
+            crate::core::error::set_error_message("Surface already associated with window");
+            return ptr::null_mut();
+        }
+        if window_has_renderer(window) {
+            crate::core::error::set_error_message("Renderer already associated with window");
+            return ptr::null_mut();
+        }
+
+        let (width, height) = match crate::video::window::stub_window_size(window) {
+            Ok(size) => size,
+            Err(()) => return ptr::null_mut(),
+        };
+        let surface = crate::video::surface::SDL_CreateRGBSurfaceWithFormat(
+            0,
+            width.max(1),
+            height.max(1),
+            32,
+            SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888,
+        );
+        if surface.is_null() {
+            return ptr::null_mut();
+        }
+
+        let renderer = crate::render::software::SDL_CreateSoftwareRenderer(surface);
+        if renderer.is_null() {
+            crate::video::surface::SDL_FreeSurface(surface);
+            return ptr::null_mut();
+        }
+
+        let _ = (index, flags);
+        return register_window_renderer(window, renderer, surface);
+    }
+
+    (api().create_renderer)(window, index, flags)
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn SDL_GetRenderer(window: *mut SDL_Window) -> *mut SDL_Renderer {
+    crate::video::clear_real_error();
+
+    if crate::video::window::is_stub_window(window) {
+        return renderer_for_window(window);
+    }
+
+    (api().get_renderer)(window)
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn SDL_RenderGetWindow(renderer: *mut SDL_Renderer) -> *mut SDL_Window {
+    crate::video::clear_real_error();
+
+    if let Some(window) = renderer_window(renderer) {
+        return window;
+    }
+
+    (api().render_get_window)(renderer)
 }
 
 forward_texture_first_ret! {
@@ -418,7 +610,13 @@ pub unsafe extern "C" fn SDL_DestroyTexture(texture: *mut SDL_Texture) {
 pub unsafe extern "C" fn SDL_DestroyRenderer(renderer: *mut SDL_Renderer) {
     crate::video::clear_real_error();
     clear_renderer_textures(renderer);
-    (api().destroy_renderer)(renderer);
+
+    if let Some((renderer, managed)) = take_window_renderer(renderer) {
+        (api().destroy_renderer)(renderer);
+        crate::video::surface::SDL_FreeSurface(managed.owned_surface);
+    } else {
+        (api().destroy_renderer)(renderer);
+    }
 }
 
 forward_void! {

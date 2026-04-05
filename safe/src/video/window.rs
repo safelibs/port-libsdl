@@ -366,6 +366,23 @@ pub(crate) fn create_stub_window_internal(
     ptr
 }
 
+pub(crate) fn is_stub_window(window: *mut SDL_Window) -> bool {
+    if window.is_null() {
+        return false;
+    }
+
+    let registry = lock_window_registry();
+    registry.windows.contains_key(&(window as usize))
+}
+
+pub(crate) fn stub_window_size(window: *mut SDL_Window) -> Result<(libc::c_int, libc::c_int), ()> {
+    with_stub_window(window, |entry| (entry.w, entry.h))
+}
+
+pub(crate) fn stub_window_has_surface(window: *mut SDL_Window) -> Result<bool, ()> {
+    with_stub_window(window, |entry| !entry.surface.is_null())
+}
+
 pub(crate) fn stub_window_is_shaped(window: *const SDL_Window) -> SDL_bool {
     let Ok(shaped) = with_stub_window(window as *mut SDL_Window, |entry| entry.shaped) else {
         return 0;
@@ -415,6 +432,9 @@ pub(crate) fn stub_window_get_shape_mode(
 }
 
 pub(crate) fn reset_video_state() {
+    unsafe {
+        crate::render::core::reset_managed_window_renderers();
+    }
     let mut registry = lock_window_registry();
     for entry in registry.windows.values_mut() {
         free_surface(entry.surface);
@@ -447,16 +467,6 @@ pub unsafe extern "C" fn SDL_CreateWindowAndRenderer(
     window: *mut *mut SDL_Window,
     renderer: *mut *mut SDL_Renderer,
 ) -> libc::c_int {
-    if crate::video::display::current_driver_is_host() {
-        crate::video::clear_real_error();
-        return (host_api().create_window_and_renderer)(
-            width,
-            height,
-            window_flags,
-            window,
-            renderer,
-        );
-    }
     if window.is_null() {
         return crate::core::error::invalid_param_error("window");
     }
@@ -465,9 +475,20 @@ pub unsafe extern "C" fn SDL_CreateWindowAndRenderer(
         *renderer = std::ptr::null_mut();
     }
     if (*window).is_null() {
-        -1
-    } else {
+        return -1;
+    }
+
+    if renderer.is_null() {
         0
+    } else {
+        *renderer = crate::render::core::SDL_CreateRenderer(*window, -1, 0);
+        if (*renderer).is_null() {
+            SDL_DestroyWindow(*window);
+            *window = std::ptr::null_mut();
+            -1
+        } else {
+            0
+        }
     }
 }
 
@@ -492,6 +513,7 @@ pub unsafe extern "C" fn SDL_DestroyWindow(window: *mut SDL_Window) {
         return;
     }
 
+    crate::render::core::destroy_window_renderer(window);
     let mut registry = lock_window_registry();
     if let Some(mut entry) = registry.windows.remove(&(window as usize)) {
         registry.by_id.remove(&entry.id);
@@ -841,6 +863,10 @@ pub unsafe extern "C" fn SDL_GetWindowSurface(window: *mut SDL_Window) -> *mut S
     if crate::video::display::current_driver_is_host() {
         crate::video::clear_real_error();
         return (host_api().get_window_surface)(window);
+    }
+    if crate::render::core::window_has_renderer(window) {
+        let _ = crate::core::error::set_error_message("Renderer already associated with window");
+        return std::ptr::null_mut();
     }
     with_stub_window_mut(window, |entry| {
         if entry.surface.is_null() && recreate_surface(entry) != 0 {

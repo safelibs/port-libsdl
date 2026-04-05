@@ -23,10 +23,10 @@ use safe_sdl::abi::generated_types::{
 use safe_sdl::core::rwops::SDL_RWFromFile;
 use safe_sdl::render::core::{
     SDL_CreateRenderer, SDL_CreateTexture, SDL_CreateTextureFromSurface, SDL_DestroyRenderer,
-    SDL_DestroyTexture, SDL_RenderClear, SDL_RenderCopy, SDL_RenderCopyEx, SDL_RenderFillRect,
-    SDL_RenderPresent, SDL_RenderReadPixels, SDL_RenderSetScale, SDL_RenderSetViewport,
-    SDL_RenderTargetSupported, SDL_SetRenderDrawColor, SDL_SetRenderTarget, SDL_UpdateNVTexture,
-    SDL_UpdateTexture, SDL_UpdateYUVTexture,
+    SDL_DestroyTexture, SDL_GetRenderer, SDL_RenderClear, SDL_RenderCopy, SDL_RenderCopyEx,
+    SDL_RenderFillRect, SDL_RenderGetWindow, SDL_RenderPresent, SDL_RenderReadPixels,
+    SDL_RenderSetScale, SDL_RenderSetViewport, SDL_RenderTargetSupported, SDL_SetRenderDrawColor,
+    SDL_SetRenderTarget, SDL_UpdateNVTexture, SDL_UpdateTexture, SDL_UpdateYUVTexture,
 };
 use safe_sdl::render::gl::{
     SDL_GL_CreateContext, SDL_GL_DeleteContext, SDL_GL_GetDrawableSize, SDL_GL_GetProcAddress,
@@ -295,6 +295,8 @@ fn testoffscreen_and_testrendertarget_ports_preserve_offscreen_and_target_workfl
             testutils::string_from_c(SDL_GetCurrentVideoDriver()),
             "offscreen"
         );
+        assert_eq!(SDL_GetRenderer(harness.window), harness.renderer);
+        assert_eq!(SDL_RenderGetWindow(harness.renderer), harness.window);
 
         assert_eq!(
             SDL_SetRenderDrawColor(harness.renderer, 0x10, 0x9a, 0xce, 0xff),
@@ -344,6 +346,8 @@ fn testoverlay2_testyuv_teststreaming_testrendercopyex_testscale_testsprite2_and
 
     unsafe {
         let harness = WindowRendererHarness::new("render-demo-port", 96, 96, 0);
+        assert_eq!(SDL_GetRenderer(harness.window), harness.renderer);
+        assert_eq!(SDL_RenderGetWindow(harness.renderer), harness.window);
         let sample = load_bmp("sample.bmp");
         let sprite = load_bmp("icon.bmp");
         let yuv_source = load_bmp("testyuv.bmp");
