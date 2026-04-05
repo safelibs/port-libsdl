@@ -492,6 +492,7 @@
       "ubuntu_runnable": true,
       "owning_phase": "impl_phase_03_surface_pixels",
       "completion_state": "complete",
+      "completion_note": "covered by safe/tests/upstream_port_surface.rs with Rust-owned surface, pixel, and checked-copy paths",
       "rust_target_kind": "integration_test",
       "rust_target_path": "safe/tests/upstream_port_surface.rs",
       "upstream_targets": [
@@ -518,6 +519,7 @@
       "ubuntu_runnable": true,
       "owning_phase": "impl_phase_03_surface_pixels",
       "completion_state": "complete",
+      "completion_note": "covered by safe/tests/upstream_port_surface.rs alongside owned-surface clipping and blit validation",
       "rust_target_kind": "integration_test",
       "rust_target_path": "safe/tests/upstream_port_surface.rs",
       "upstream_targets": [
@@ -545,6 +547,7 @@
       "ubuntu_runnable": true,
       "owning_phase": "impl_phase_03_surface_pixels",
       "completion_state": "complete",
+      "completion_note": "covered by safe/tests/upstream_port_surface.rs with in-place BMP and surface fixture I/O coverage",
       "rust_target_kind": "integration_test",
       "rust_target_path": "safe/tests/upstream_port_surface.rs",
       "upstream_targets": [
@@ -599,6 +602,7 @@
       "ubuntu_runnable": true,
       "owning_phase": "impl_phase_03_surface_pixels",
       "completion_state": "complete",
+      "completion_note": "covered by safe/tests/upstream_port_surface.rs against Rust-owned surface fill, duplicate, convert, blit, and BMP roundtrip paths",
       "rust_target_kind": "integration_test",
       "rust_target_path": "safe/tests/upstream_port_surface.rs",
       "upstream_targets": [
@@ -764,6 +768,7 @@
       "ubuntu_runnable": true,
       "owning_phase": "impl_phase_03_surface_pixels",
       "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_surface.rs with the owned RWops and BMP loader/save path in place",
       "rust_target_kind": "integration_test",
       "rust_target_path": "safe/tests/original_apps_surface.rs",
       "upstream_targets": [
@@ -970,6 +975,7 @@
       "ubuntu_runnable": true,
       "owning_phase": "impl_phase_03_surface_pixels",
       "completion_state": "complete",
+      "completion_note": "covered by safe/tests/original_apps_surface.rs plus the phase-owned rect and blit clipping behavior",
       "rust_target_kind": "integration_test",
       "rust_target_path": "safe/tests/original_apps_surface.rs",
       "upstream_targets": [

@@ -5,15 +5,26 @@ use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
     SDL_BlendMode, SDL_Color, SDL_Palette, SDL_PixelFormat, SDL_RWops, SDL_Rect, SDL_Surface,
-    SDL_bool, Uint32, Uint8,
+    SDL_bool, Uint32, Uint8, SDL_PREALLOC,
 };
-use crate::core::error::{invalid_param_error, set_error_message};
+use crate::core::error::{invalid_param_error, out_of_memory_error, set_error_message};
 use crate::security::checked_math::{self, MathError};
 
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct FormatDescriptor {
     pub bits_per_pixel: u8,
     pub bytes_per_pixel: u8,
+}
+
+enum SurfaceStorage {
+    Owned(Vec<u8>),
+    Borrowed,
+}
+
+struct SurfaceRecord {
+    buffer_len: usize,
+    expected_pixels: usize,
+    storage: SurfaceStorage,
 }
 
 macro_rules! real_sdl_api {
@@ -123,6 +134,40 @@ pub(crate) fn real_sdl() -> &'static RealSdl {
     REAL.get_or_init(load_real_sdl)
 }
 
+fn surface_registry() -> &'static Mutex<HashMap<usize, SurfaceRecord>> {
+    static REGISTRY: OnceLock<Mutex<HashMap<usize, SurfaceRecord>>> = OnceLock::new();
+    REGISTRY.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn register_surface_record(surface: *mut SDL_Surface, record: SurfaceRecord) {
+    surface_registry()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .insert(surface as usize, record);
+}
+
+fn take_surface_record(surface: *mut SDL_Surface) -> Option<SurfaceRecord> {
+    surface_registry()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .remove(&(surface as usize))
+}
+
+fn surface_record_metadata(surface: *mut SDL_Surface) -> Option<(usize, usize)> {
+    surface_registry()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .get(&(surface as usize))
+        .map(|record| (record.buffer_len, record.expected_pixels))
+}
+
+pub(crate) fn is_registered_surface(surface: *mut SDL_Surface) -> bool {
+    surface_registry()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .contains_key(&(surface as usize))
+}
+
 pub(crate) fn clear_real_error() {
     unsafe {
         (real_sdl().clear_error)();
@@ -223,10 +268,264 @@ pub(crate) unsafe fn validate_surface_storage(
         descriptor.bits_per_pixel,
         descriptor.bytes_per_pixel,
     )?;
-    if layout_size > 0 && (*surface).pixels.is_null() {
+
+    if let Some((buffer_len, expected_pixels)) = surface_record_metadata(surface) {
+        if (*surface).pixels as usize != expected_pixels {
+            return Err(MathError::InvalidParam("surface"));
+        }
+        if layout_size > buffer_len {
+            return Err(MathError::InvalidParam("surface"));
+        }
+    } else if layout_size > 0 && (*surface).pixels.is_null() {
         return Err(MathError::InvalidParam("surface"));
     }
+
     Ok(descriptor)
+}
+
+pub(crate) fn intersect_rects(a: &SDL_Rect, b: &SDL_Rect) -> Option<SDL_Rect> {
+    if a.w <= 0 || a.h <= 0 || b.w <= 0 || b.h <= 0 {
+        return None;
+    }
+
+    let x1 = (a.x as i64).max(b.x as i64);
+    let y1 = (a.y as i64).max(b.y as i64);
+    let x2 = (a.x as i64 + a.w as i64).min(b.x as i64 + b.w as i64);
+    let y2 = (a.y as i64 + a.h as i64).min(b.y as i64 + b.h as i64);
+
+    if x2 <= x1 || y2 <= y1 {
+        None
+    } else {
+        Some(SDL_Rect {
+            x: x1 as libc::c_int,
+            y: y1 as libc::c_int,
+            w: (x2 - x1) as libc::c_int,
+            h: (y2 - y1) as libc::c_int,
+        })
+    }
+}
+
+pub(crate) unsafe fn full_surface_rect(surface: *mut SDL_Surface) -> SDL_Rect {
+    SDL_Rect {
+        x: 0,
+        y: 0,
+        w: (*surface).w.max(0),
+        h: (*surface).h.max(0),
+    }
+}
+
+unsafe fn rect_inside_surface(surface: *mut SDL_Surface, rect: &SDL_Rect) -> Result<(), MathError> {
+    if rect.x < 0 || rect.y < 0 || rect.w < 0 || rect.h < 0 {
+        return Err(MathError::InvalidParam("rect"));
+    }
+
+    let bounds = full_surface_rect(surface);
+    match intersect_rects(&bounds, rect) {
+        Some(clipped)
+            if clipped.x == rect.x
+                && clipped.y == rect.y
+                && clipped.w == rect.w
+                && clipped.h == rect.h =>
+        {
+            Ok(())
+        }
+        _ => Err(MathError::InvalidParam("rect")),
+    }
+}
+
+unsafe fn raw_pixel(ptr: *const u8, bytes_per_pixel: u8) -> Uint32 {
+    match bytes_per_pixel {
+        1 => ptr.read() as Uint32,
+        2 => ptr.cast::<u16>().read_unaligned() as Uint32,
+        3 => {
+            let bytes = [ptr.read(), ptr.add(1).read(), ptr.add(2).read(), 0];
+            Uint32::from_le_bytes(bytes)
+        }
+        4 => ptr.cast::<Uint32>().read_unaligned(),
+        _ => 0,
+    }
+}
+
+unsafe fn write_raw_pixel(ptr: *mut u8, bytes_per_pixel: u8, pixel: Uint32) {
+    match bytes_per_pixel {
+        1 => ptr.write(pixel as u8),
+        2 => ptr.cast::<u16>().write_unaligned(pixel as u16),
+        3 => {
+            let bytes = pixel.to_le_bytes();
+            ptr::copy_nonoverlapping(bytes.as_ptr(), ptr, 3);
+        }
+        4 => ptr.cast::<Uint32>().write_unaligned(pixel),
+        _ => {}
+    }
+}
+
+unsafe fn read_rgba_pixel(
+    format: *const SDL_PixelFormat,
+    bytes_per_pixel: u8,
+    ptr: *const u8,
+) -> (u8, u8, u8, u8) {
+    let pixel = raw_pixel(ptr, bytes_per_pixel);
+    let (mut r, mut g, mut b, mut a) = (0, 0, 0, 0);
+    (real_sdl().get_rgba)(pixel, format, &mut r, &mut g, &mut b, &mut a);
+    (r, g, b, a)
+}
+
+unsafe fn write_rgba_pixel(
+    format: *const SDL_PixelFormat,
+    bytes_per_pixel: u8,
+    ptr: *mut u8,
+    rgba: (u8, u8, u8, u8),
+) {
+    let pixel = (real_sdl().map_rgba)(format, rgba.0, rgba.1, rgba.2, rgba.3);
+    write_raw_pixel(ptr, bytes_per_pixel, pixel);
+}
+
+unsafe fn pixel_pointer(
+    surface: *mut SDL_Surface,
+    bytes_per_pixel: u8,
+    x: libc::c_int,
+    y: libc::c_int,
+    message: &'static str,
+) -> Result<*mut u8, MathError> {
+    let row = checked_math::nonnegative_to_usize("y", y)?;
+    let column = checked_math::checked_mul_usize(
+        checked_math::nonnegative_to_usize("x", x)?,
+        bytes_per_pixel as usize,
+        message,
+    )?;
+    let pitch = usize::try_from((*surface).pitch).map_err(|_| MathError::InvalidParam("pitch"))?;
+    let offset = checked_math::calculate_buffer_offset(row, pitch, column, message)?;
+    Ok((*surface).pixels.cast::<u8>().add(offset))
+}
+
+pub(crate) unsafe fn blit_surface_pixels(
+    src: *mut SDL_Surface,
+    src_rect: &SDL_Rect,
+    dst: *mut SDL_Surface,
+    dst_rect: &SDL_Rect,
+) -> Result<(), MathError> {
+    let src_descriptor = validate_surface_storage(src)?;
+    let dst_descriptor = validate_surface_storage(dst)?;
+    rect_inside_surface(src, src_rect)?;
+    rect_inside_surface(dst, dst_rect)?;
+
+    if src_rect.w != dst_rect.w || src_rect.h != dst_rect.h {
+        return Err(MathError::InvalidParam("dstrect"));
+    }
+    if src_rect.w <= 0 || src_rect.h <= 0 {
+        return Ok(());
+    }
+
+    let src_format = (*src).format;
+    let dst_format = (*dst).format;
+    let same_format = !src_format.is_null()
+        && !dst_format.is_null()
+        && (*src_format).format == (*dst_format).format;
+
+    if same_format && src_descriptor.bytes_per_pixel == dst_descriptor.bytes_per_pixel {
+        let row_bytes = checked_math::checked_mul_usize(
+            checked_math::nonnegative_to_usize("width", src_rect.w)?,
+            src_descriptor.bytes_per_pixel as usize,
+            "blit copy length overflow",
+        )?;
+        for row in 0..src_rect.h {
+            let src_row = pixel_pointer(
+                src,
+                src_descriptor.bytes_per_pixel,
+                src_rect.x,
+                src_rect.y + row,
+                "blit copy length overflow",
+            )?;
+            let dst_row = pixel_pointer(
+                dst,
+                dst_descriptor.bytes_per_pixel,
+                dst_rect.x,
+                dst_rect.y + row,
+                "blit copy length overflow",
+            )?;
+            ptr::copy(src_row, dst_row, row_bytes);
+        }
+        return Ok(());
+    }
+
+    for row in 0..src_rect.h {
+        let src_row = pixel_pointer(
+            src,
+            src_descriptor.bytes_per_pixel,
+            src_rect.x,
+            src_rect.y + row,
+            "blit copy length overflow",
+        )?;
+        let dst_row = pixel_pointer(
+            dst,
+            dst_descriptor.bytes_per_pixel,
+            dst_rect.x,
+            dst_rect.y + row,
+            "blit copy length overflow",
+        )?;
+
+        for column in 0..src_rect.w {
+            let src_pixel = src_row.add(column as usize * src_descriptor.bytes_per_pixel as usize);
+            let dst_pixel = dst_row.add(column as usize * dst_descriptor.bytes_per_pixel as usize);
+            let rgba = read_rgba_pixel((*src).format, src_descriptor.bytes_per_pixel, src_pixel);
+            write_rgba_pixel(
+                (*dst).format,
+                dst_descriptor.bytes_per_pixel,
+                dst_pixel,
+                rgba,
+            );
+        }
+    }
+
+    Ok(())
+}
+
+pub(crate) unsafe fn scale_surface_pixels_nearest(
+    src: *mut SDL_Surface,
+    src_rect: &SDL_Rect,
+    dst: *mut SDL_Surface,
+    dst_rect: &SDL_Rect,
+) -> Result<(), MathError> {
+    let src_descriptor = validate_surface_storage(src)?;
+    let dst_descriptor = validate_surface_storage(dst)?;
+    rect_inside_surface(src, src_rect)?;
+    rect_inside_surface(dst, dst_rect)?;
+
+    if src_rect.w <= 0 || src_rect.h <= 0 || dst_rect.w <= 0 || dst_rect.h <= 0 {
+        return Ok(());
+    }
+
+    for dy in 0..dst_rect.h {
+        let sy = src_rect.y + ((dy as i64 * src_rect.h as i64) / dst_rect.h as i64) as libc::c_int;
+        let dst_row = pixel_pointer(
+            dst,
+            dst_descriptor.bytes_per_pixel,
+            dst_rect.x,
+            dst_rect.y + dy,
+            "blit copy length overflow",
+        )?;
+        for dx in 0..dst_rect.w {
+            let sx =
+                src_rect.x + ((dx as i64 * src_rect.w as i64) / dst_rect.w as i64) as libc::c_int;
+            let src_pixel = pixel_pointer(
+                src,
+                src_descriptor.bytes_per_pixel,
+                sx,
+                sy,
+                "blit copy length overflow",
+            )?;
+            let dst_pixel = dst_row.add(dx as usize * dst_descriptor.bytes_per_pixel as usize);
+            let rgba = read_rgba_pixel((*src).format, src_descriptor.bytes_per_pixel, src_pixel);
+            write_rgba_pixel(
+                (*dst).format,
+                dst_descriptor.bytes_per_pixel,
+                dst_pixel,
+                rgba,
+            );
+        }
+    }
+
+    Ok(())
 }
 
 fn preflight_surface_allocation(
@@ -263,6 +562,208 @@ fn preflight_preallocated_surface(
     Ok(())
 }
 
+unsafe fn create_surface_shell(
+    depth: libc::c_int,
+    format: Uint32,
+    default_error: &str,
+) -> *mut SDL_Surface {
+    clear_real_error();
+    let surface = (real_sdl().create_rgb_surface_with_format)(0, 0, 0, depth, format);
+    if surface.is_null() {
+        let _ = sync_error_from_real(default_error);
+    }
+    surface
+}
+
+fn allocate_pixel_buffer(size: usize) -> Result<Vec<u8>, ()> {
+    let mut buffer = Vec::new();
+    buffer.try_reserve_exact(size).map_err(|_| ())?;
+    buffer.resize(size, 0);
+    Ok(buffer)
+}
+
+unsafe fn finalize_registered_surface(
+    surface: *mut SDL_Surface,
+    width: libc::c_int,
+    height: libc::c_int,
+    pitch: libc::c_int,
+    pixels: *mut libc::c_void,
+    record: SurfaceRecord,
+) -> *mut SDL_Surface {
+    (*surface).flags |= SDL_PREALLOC;
+    (*surface).w = width;
+    (*surface).h = height;
+    (*surface).pitch = pitch;
+    (*surface).pixels = pixels;
+    let _ = (real_sdl().set_clip_rect)(surface, ptr::null());
+    register_surface_record(surface, record);
+    surface
+}
+
+pub(crate) unsafe fn create_owned_surface_with_format(
+    _flags: Uint32,
+    width: libc::c_int,
+    height: libc::c_int,
+    depth: libc::c_int,
+    format: Uint32,
+) -> *mut SDL_Surface {
+    if let Err(error) = preflight_surface_allocation(format, width, height) {
+        return apply_math_error_ptr(error);
+    }
+
+    let surface = create_surface_shell(depth, format, "Couldn't create RGB surface");
+    if surface.is_null() {
+        return ptr::null_mut();
+    }
+
+    let descriptor = match descriptor_from_format_ptr((*surface).format) {
+        Ok(descriptor) => descriptor,
+        Err(error) => {
+            (real_sdl().free_surface)(surface);
+            return apply_math_error_ptr(error);
+        }
+    };
+    let (pitch, size) = match checked_math::calculate_surface_allocation(
+        width,
+        height,
+        descriptor.bits_per_pixel,
+        descriptor.bytes_per_pixel,
+    ) {
+        Ok(result) => result,
+        Err(error) => {
+            (real_sdl().free_surface)(surface);
+            return apply_math_error_ptr(error);
+        }
+    };
+
+    let mut buffer = match allocate_pixel_buffer(size) {
+        Ok(buffer) => buffer,
+        Err(()) => {
+            (real_sdl().free_surface)(surface);
+            let _ = out_of_memory_error();
+            return ptr::null_mut();
+        }
+    };
+    let pixels = if size == 0 {
+        ptr::null_mut()
+    } else {
+        buffer.as_mut_ptr().cast()
+    };
+
+    finalize_registered_surface(
+        surface,
+        width,
+        height,
+        pitch as libc::c_int,
+        pixels,
+        SurfaceRecord {
+            buffer_len: size,
+            expected_pixels: pixels as usize,
+            storage: SurfaceStorage::Owned(buffer),
+        },
+    )
+}
+
+pub(crate) unsafe fn create_preallocated_surface_with_format(
+    _flags: Uint32,
+    pixels: *mut libc::c_void,
+    width: libc::c_int,
+    height: libc::c_int,
+    depth: libc::c_int,
+    pitch: libc::c_int,
+    format: Uint32,
+) -> *mut SDL_Surface {
+    if let Err(error) = preflight_preallocated_surface(format, width, height, pitch) {
+        return apply_math_error_ptr(error);
+    }
+
+    let surface = create_surface_shell(depth, format, "Couldn't create RGB surface");
+    if surface.is_null() {
+        return ptr::null_mut();
+    }
+
+    let descriptor = match descriptor_from_format_ptr((*surface).format) {
+        Ok(descriptor) => descriptor,
+        Err(error) => {
+            (real_sdl().free_surface)(surface);
+            return apply_math_error_ptr(error);
+        }
+    };
+    let size = match checked_math::validate_preallocated_surface(
+        width,
+        height,
+        pitch,
+        descriptor.bits_per_pixel,
+        descriptor.bytes_per_pixel,
+    ) {
+        Ok(size) => size,
+        Err(error) => {
+            (real_sdl().free_surface)(surface);
+            return apply_math_error_ptr(error);
+        }
+    };
+
+    finalize_registered_surface(
+        surface,
+        width,
+        height,
+        pitch,
+        pixels,
+        SurfaceRecord {
+            buffer_len: size,
+            expected_pixels: pixels as usize,
+            storage: SurfaceStorage::Borrowed,
+        },
+    )
+}
+
+unsafe fn copy_palette_if_present(dst: *mut SDL_Surface, format: *const SDL_PixelFormat) {
+    if format.is_null() || (*format).palette.is_null() || (*(*dst).format).palette.is_null() {
+        return;
+    }
+
+    let palette = (*format).palette;
+    let dst_palette = (*(*dst).format).palette;
+    let count = (*palette).ncolors.min((*dst_palette).ncolors);
+    if count > 0 {
+        let _ = (real_sdl().set_palette_colors)(dst_palette, (*palette).colors, 0, count);
+    }
+}
+
+unsafe fn copy_surface_state(src: *mut SDL_Surface, dst: *mut SDL_Surface) {
+    let mut r = 255;
+    let mut g = 255;
+    let mut b = 255;
+    let mut a = 255;
+    let mut blend: SDL_BlendMode = 0;
+    let mut key = 0;
+
+    let clip = (*src).clip_rect;
+    let _ = (real_sdl().set_clip_rect)(dst, &clip);
+    if (real_sdl().get_surface_color_mod)(src, &mut r, &mut g, &mut b) == 0 {
+        let _ = (real_sdl().set_surface_color_mod)(dst, r, g, b);
+    }
+    if (real_sdl().get_surface_alpha_mod)(src, &mut a) == 0 {
+        let _ = (real_sdl().set_surface_alpha_mod)(dst, a);
+    }
+    if (real_sdl().get_surface_blend_mode)(src, &mut blend) == 0 {
+        let _ = (real_sdl().set_surface_blend_mode)(dst, blend);
+    }
+    if (real_sdl().has_color_key)(src) != 0 && (real_sdl().get_color_key)(src, &mut key) == 0 {
+        let _ = (real_sdl().set_color_key)(dst, 1, key);
+    } else {
+        let _ = (real_sdl().set_color_key)(dst, 0, 0);
+    }
+    let _ = (real_sdl().set_surface_rle)(
+        dst,
+        if (real_sdl().has_surface_rle)(src) != 0 {
+            1
+        } else {
+            0
+        },
+    );
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn SDL_CreateRGBSurface(
     flags: Uint32,
@@ -284,17 +785,11 @@ pub unsafe extern "C" fn SDL_CreateRGBSurface(
     }
 
     let format = (real_sdl().masks_to_pixel_format_enum)(depth, Rmask, Gmask, Bmask, Amask);
-    if let Err(error) = preflight_surface_allocation(format, width, height) {
-        return apply_math_error_ptr(error);
+    if format == 0 {
+        let _ = set_error_message("Unknown pixel format");
+        return ptr::null_mut();
     }
-
-    clear_real_error();
-    let surface =
-        (real_sdl().create_rgb_surface)(flags, width, height, depth, Rmask, Gmask, Bmask, Amask);
-    if surface.is_null() {
-        let _ = sync_error_from_real("Couldn't create RGB surface");
-    }
-    surface
+    create_owned_surface_with_format(flags, width, height, depth, format)
 }
 
 #[no_mangle]
@@ -313,16 +808,7 @@ pub unsafe extern "C" fn SDL_CreateRGBSurfaceWithFormat(
         let _ = invalid_param_error("height");
         return ptr::null_mut();
     }
-    if let Err(error) = preflight_surface_allocation(format, width, height) {
-        return apply_math_error_ptr(error);
-    }
-
-    clear_real_error();
-    let surface = (real_sdl().create_rgb_surface_with_format)(flags, width, height, depth, format);
-    if surface.is_null() {
-        let _ = sync_error_from_real("Couldn't create RGB surface");
-    }
-    surface
+    create_owned_surface_with_format(flags, width, height, depth, format)
 }
 
 #[no_mangle]
@@ -351,18 +837,12 @@ pub unsafe extern "C" fn SDL_CreateRGBSurfaceFrom(
     }
 
     let format = (real_sdl().masks_to_pixel_format_enum)(depth, Rmask, Gmask, Bmask, Amask);
-    if let Err(error) = preflight_preallocated_surface(format, width, height, pitch) {
-        return apply_math_error_ptr(error);
+    if format == 0 {
+        let _ = set_error_message("Unknown pixel format");
+        return ptr::null_mut();
     }
 
-    clear_real_error();
-    let surface = (real_sdl().create_rgb_surface_from)(
-        pixels, width, height, depth, pitch, Rmask, Gmask, Bmask, Amask,
-    );
-    if surface.is_null() {
-        let _ = sync_error_from_real("Couldn't create RGB surface");
-    }
-    surface
+    create_preallocated_surface_with_format(0, pixels, width, height, depth, pitch, format)
 }
 
 #[no_mangle]
@@ -386,23 +866,19 @@ pub unsafe extern "C" fn SDL_CreateRGBSurfaceWithFormatFrom(
         let _ = invalid_param_error("pitch");
         return ptr::null_mut();
     }
-    if let Err(error) = preflight_preallocated_surface(format, width, height, pitch) {
-        return apply_math_error_ptr(error);
-    }
 
-    clear_real_error();
-    let surface = (real_sdl().create_rgb_surface_with_format_from)(
-        pixels, width, height, depth, pitch, format,
-    );
-    if surface.is_null() {
-        let _ = sync_error_from_real("Couldn't create RGB surface");
-    }
-    surface
+    create_preallocated_surface_with_format(0, pixels, width, height, depth, pitch, format)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_FreeSurface(surface: *mut SDL_Surface) {
+    if surface.is_null() {
+        return;
+    }
+
+    let record = take_surface_record(surface);
     (real_sdl().free_surface)(surface);
+    drop(record);
 }
 
 #[no_mangle]
@@ -583,12 +1059,7 @@ pub unsafe extern "C" fn SDL_DuplicateSurface(surface: *mut SDL_Surface) -> *mut
     if let Err(error) = validate_surface_storage(surface) {
         return apply_math_error_ptr(error);
     }
-    clear_real_error();
-    let duplicate = (real_sdl().duplicate_surface)(surface);
-    if duplicate.is_null() {
-        let _ = sync_error_from_real("Couldn't duplicate surface");
-    }
-    duplicate
+    SDL_ConvertSurface(surface, (*surface).format, (*surface).flags)
 }
 
 #[no_mangle]
@@ -600,11 +1071,38 @@ pub unsafe extern "C" fn SDL_ConvertSurface(
     if let Err(error) = validate_surface_storage(src) {
         return apply_math_error_ptr(error);
     }
-    clear_real_error();
-    let converted = (real_sdl().convert_surface)(src, fmt, flags);
-    if converted.is_null() {
-        let _ = sync_error_from_real("Couldn't convert surface");
+    if fmt.is_null() {
+        let _ = invalid_param_error("format");
+        return ptr::null_mut();
     }
+
+    if !is_registered_surface(src) {
+        clear_real_error();
+        let converted = (real_sdl().convert_surface)(src, fmt, flags);
+        if converted.is_null() {
+            let _ = sync_error_from_real("Couldn't convert surface");
+        }
+        return converted;
+    }
+
+    let converted = create_owned_surface_with_format(
+        flags,
+        (*src).w,
+        (*src).h,
+        (*fmt).BitsPerPixel as libc::c_int,
+        (*fmt).format,
+    );
+    if converted.is_null() {
+        return ptr::null_mut();
+    }
+
+    copy_palette_if_present(converted, fmt);
+    let full = full_surface_rect(src);
+    if let Err(error) = blit_surface_pixels(src, &full, converted, &full) {
+        SDL_FreeSurface(converted);
+        return apply_math_error_ptr(error);
+    }
+    copy_surface_state(src, converted);
     converted
 }
 
@@ -617,11 +1115,16 @@ pub unsafe extern "C" fn SDL_ConvertSurfaceFormat(
     if let Err(error) = validate_surface_storage(src) {
         return apply_math_error_ptr(error);
     }
+
     clear_real_error();
-    let converted = (real_sdl().convert_surface_format)(src, pixel_format, flags);
-    if converted.is_null() {
+    let fmt = (real_sdl().alloc_format)(pixel_format);
+    if fmt.is_null() {
         let _ = sync_error_from_real("Couldn't convert surface");
+        return ptr::null_mut();
     }
+
+    let converted = SDL_ConvertSurface(src, fmt, flags);
+    (real_sdl().free_format)(fmt);
     converted
 }
 
@@ -631,15 +1134,27 @@ pub unsafe extern "C" fn SDL_FillRect(
     rect: *const SDL_Rect,
     color: Uint32,
 ) -> libc::c_int {
-    if let Err(error) = validate_surface_storage(dst) {
-        return apply_math_error(error);
+    if dst.is_null() {
+        return invalid_param_error("dst");
     }
-    clear_real_error();
-    let result = (real_sdl().fill_rect)(dst, rect, color);
-    if result < 0 {
-        let _ = sync_error_from_real("Couldn't fill surface");
+    if !is_registered_surface(dst) {
+        if let Err(error) = validate_surface_storage(dst) {
+            return apply_math_error(error);
+        }
+        clear_real_error();
+        let result = (real_sdl().fill_rect)(dst, rect, color);
+        if result < 0 {
+            let _ = sync_error_from_real("Couldn't fill surface");
+        }
+        return result;
     }
-    result
+
+    let fill_rect = if rect.is_null() {
+        (*dst).clip_rect
+    } else {
+        *rect
+    };
+    SDL_FillRects(dst, &fill_rect, 1, color)
 }
 
 #[no_mangle]
@@ -649,13 +1164,72 @@ pub unsafe extern "C" fn SDL_FillRects(
     count: libc::c_int,
     color: Uint32,
 ) -> libc::c_int {
-    if let Err(error) = validate_surface_storage(dst) {
-        return apply_math_error(error);
+    if dst.is_null() {
+        return invalid_param_error("dst");
     }
-    clear_real_error();
-    let result = (real_sdl().fill_rects)(dst, rects, count, color);
-    if result < 0 {
-        let _ = sync_error_from_real("Couldn't fill surface");
+    if !is_registered_surface(dst) {
+        if let Err(error) = validate_surface_storage(dst) {
+            return apply_math_error(error);
+        }
+        clear_real_error();
+        let result = (real_sdl().fill_rects)(dst, rects, count, color);
+        if result < 0 {
+            let _ = sync_error_from_real("Couldn't fill surface");
+        }
+        return result;
     }
-    result
+
+    let descriptor = match validate_surface_storage(dst) {
+        Ok(descriptor) => descriptor,
+        Err(error) => return apply_math_error(error),
+    };
+
+    if count < 0 {
+        return invalid_param_error("count");
+    }
+    if count == 0 {
+        return 0;
+    }
+    if rects.is_null() {
+        return invalid_param_error("rects");
+    }
+    if descriptor.bits_per_pixel < 8 || descriptor.bytes_per_pixel == 0 {
+        return set_error_message("SDL_FillRects(): Unsupported surface format");
+    }
+
+    let bounds = full_surface_rect(dst);
+    let clip = intersect_rects(&bounds, &(*dst).clip_rect).unwrap_or(SDL_Rect {
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0,
+    });
+    let packed = color;
+
+    for index in 0..count as isize {
+        let rect = *rects.offset(index);
+        if let Some(clipped) = intersect_rects(&rect, &clip) {
+            for row in 0..clipped.h {
+                let row_ptr = match pixel_pointer(
+                    dst,
+                    descriptor.bytes_per_pixel,
+                    clipped.x,
+                    clipped.y + row,
+                    "blit copy length overflow",
+                ) {
+                    Ok(ptr) => ptr,
+                    Err(error) => return apply_math_error(error),
+                };
+                for column in 0..clipped.w {
+                    write_raw_pixel(
+                        row_ptr.add(column as usize * descriptor.bytes_per_pixel as usize),
+                        descriptor.bytes_per_pixel,
+                        packed,
+                    );
+                }
+            }
+        }
+    }
+
+    0
 }

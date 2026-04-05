@@ -465,6 +465,8 @@ fn surface_bmp_roundtrip_and_blit_paths_match_owned_surface_behavior() {
         let loaded = load_bmp(temp.path());
         assert!(!loaded.is_null(), "{}", testutils::current_error());
         assert_eq!(((*loaded).w, (*loaded).h), (8, 8));
+        let loaded_red = SDL_MapRGBA((*loaded).format, 255, 0, 0, 255);
+        assert_eq!(read_pixel32(loaded, 0, 0), loaded_red);
 
         SDL_FreeSurface(loaded);
         SDL_FreeSurface(dest);

@@ -149,6 +149,15 @@ fn hostile_surface_with_null_pixels_is_rejected_before_host_calls() {
         assert_eq!(testutils::current_error(), "Parameter 'surface' is invalid");
 
         (*surface).pixels = original_pixels;
+        let original_pitch = (*surface).pitch;
+        (*surface).pitch = i32::MAX;
+
+        SDL_ClearError();
+        let duplicate = SDL_DuplicateSurface(surface);
+        assert!(duplicate.is_null());
+        assert_eq!(testutils::current_error(), "Parameter 'surface' is invalid");
+
+        (*surface).pitch = original_pitch;
         SDL_FreeSurface(surface);
     }
 }

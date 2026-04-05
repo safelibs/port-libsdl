@@ -80,3 +80,14 @@ fn bmp_parser_rejects_offsets_past_end_of_stream() {
         assert!(!testutils::current_error().is_empty());
     }
 }
+
+#[test]
+fn bmp_parser_rejects_truncated_pixel_payloads() {
+    let _serial = testutils::serial_lock();
+
+    unsafe {
+        let truncated = make_bmp(4, 4, 32, 64, 54);
+        assert!(load_from_bytes(&truncated[..70]).is_null());
+        assert!(!testutils::current_error().is_empty());
+    }
+}
