@@ -1,9 +1,7 @@
 use std::os::raw::{c_char, c_int};
 use std::ptr;
 
-use crate::abi::generated_types::{
-    wchar_t, SDL_bool, SDL_hid_device, SDL_hid_device_info, Uint32,
-};
+use crate::abi::generated_types::{wchar_t, SDL_bool, SDL_hid_device, SDL_hid_device_info, Uint32};
 use crate::core::error::{invalid_param_error, set_error_message};
 
 fn unsupported() -> c_int {
@@ -55,7 +53,10 @@ pub unsafe extern "C" fn SDL_hid_open(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_hid_open_path(_path: *const c_char, _exclusive: c_int) -> *mut SDL_hid_device {
+pub unsafe extern "C" fn SDL_hid_open_path(
+    _path: *const c_char,
+    _exclusive: c_int,
+) -> *mut SDL_hid_device {
     let _ = unsupported();
     ptr::null_mut()
 }
@@ -98,7 +99,10 @@ pub unsafe extern "C" fn SDL_hid_read(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_hid_set_nonblocking(dev: *mut SDL_hid_device, _nonblock: c_int) -> c_int {
+pub unsafe extern "C" fn SDL_hid_set_nonblocking(
+    dev: *mut SDL_hid_device,
+    _nonblock: c_int,
+) -> c_int {
     if dev.is_null() {
         return invalid_param_error("dev");
     }

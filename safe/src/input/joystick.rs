@@ -3,17 +3,17 @@ use std::os::raw::{c_char, c_int};
 use std::ptr;
 
 use crate::abi::generated_types::{
-    SDL_ENABLE, SDL_HAT_CENTERED, SDL_Joystick, SDL_JoystickGUID, SDL_JoystickID,
+    SDL_Joystick, SDL_JoystickGUID, SDL_JoystickID,
     SDL_JoystickPowerLevel_SDL_JOYSTICK_POWER_UNKNOWN, SDL_JoystickType,
-    SDL_JoystickType_SDL_JOYSTICK_TYPE_UNKNOWN, SDL_PRESSED, SDL_QUERY,
-    SDL_VIRTUAL_JOYSTICK_DESC_VERSION, SDL_VirtualJoystickDesc, SDL_bool, Sint16, Uint16,
-    Uint32, Uint8,
+    SDL_JoystickType_SDL_JOYSTICK_TYPE_UNKNOWN, SDL_VirtualJoystickDesc, SDL_bool, Sint16, Uint16,
+    Uint32, Uint8, SDL_ENABLE, SDL_HAT_CENTERED, SDL_PRESSED, SDL_QUERY,
+    SDL_VIRTUAL_JOYSTICK_DESC_VERSION,
 };
 use crate::core::error::{invalid_param_error, set_error_message};
 use crate::core::system::bool_to_sdl;
 
 use super::{
-    cstr_ptr, create_joystick_guid, device_by_instance, device_by_instance_mut,
+    create_joystick_guid, cstr_ptr, device_by_instance, device_by_instance_mut,
     device_index_to_instance, joystick_instance_from_handle, lock_input_state, make_cstring,
     DeviceEntry, DeviceState, JoystickHandle, VirtualCallbacks, SDL_HARDWARE_BUS_VIRTUAL,
 };
@@ -26,7 +26,10 @@ fn invalid_joystick_handle() -> c_int {
     invalid_param_error("joystick")
 }
 
-fn device_index_to_device_index(state: &mut super::InputState, device_index: c_int) -> Option<usize> {
+fn device_index_to_device_index(
+    state: &mut super::InputState,
+    device_index: c_int,
+) -> Option<usize> {
     if !state.joystick_initialized {
         return None;
     }
@@ -171,7 +174,9 @@ pub unsafe extern "C" fn SDL_JoystickOpen(device_index: c_int) -> *mut SDL_Joyst
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickFromInstanceID(instance_id: SDL_JoystickID) -> *mut SDL_Joystick {
+pub unsafe extern "C" fn SDL_JoystickFromInstanceID(
+    instance_id: SDL_JoystickID,
+) -> *mut SDL_Joystick {
     let state = lock_input_state();
     state
         .open_joysticks
@@ -225,7 +230,9 @@ pub unsafe extern "C" fn SDL_JoystickAttachVirtual(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickAttachVirtualEx(desc: *const SDL_VirtualJoystickDesc) -> c_int {
+pub unsafe extern "C" fn SDL_JoystickAttachVirtualEx(
+    desc: *const SDL_VirtualJoystickDesc,
+) -> c_int {
     if desc.is_null() {
         return crate::core::error::invalid_param_error("desc");
     }
@@ -281,7 +288,12 @@ pub unsafe extern "C" fn SDL_JoystickAttachVirtualEx(desc: *const SDL_VirtualJoy
         player_index: -1,
         is_virtual: true,
         callbacks: Some(callbacks),
-        state: DeviceState::new(desc.naxes as usize, desc.nbuttons as usize, desc.nhats as usize),
+        state: DeviceState::new(
+            desc.naxes as usize,
+            desc.nbuttons as usize,
+            desc.nhats as usize,
+        ),
+        evdev: None,
         hint_path: None,
     });
 
@@ -352,7 +364,11 @@ pub unsafe extern "C" fn SDL_JoystickSetVirtualButton(
     else {
         return crate::core::error::invalid_param_error("button");
     };
-    *slot = if value == SDL_PRESSED as Uint8 { SDL_PRESSED as Uint8 } else { 0 };
+    *slot = if value == SDL_PRESSED as Uint8 {
+        SDL_PRESSED as Uint8
+    } else {
+        0
+    };
     0
 }
 
@@ -408,7 +424,10 @@ pub unsafe extern "C" fn SDL_JoystickGetPlayerIndex(joystick: *mut SDL_Joystick)
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickSetPlayerIndex(joystick: *mut SDL_Joystick, player_index: c_int) {
+pub unsafe extern "C" fn SDL_JoystickSetPlayerIndex(
+    joystick: *mut SDL_Joystick,
+    player_index: c_int,
+) {
     let mut state = lock_input_state();
     if let Some(device) = handle_device_mut(&mut state, joystick) {
         device.player_index = player_index;
@@ -533,6 +552,9 @@ pub unsafe extern "C" fn SDL_JoystickUpdate() {
     }
     super::refresh_hint_devices(&mut state);
     for device in &mut state.devices {
+        if let Some(evdev) = device.evdev.as_mut() {
+            let _ = super::linux::evdev::poll_device(evdev, &mut device.state);
+        }
         if let Some(callbacks) = device.callbacks {
             if let Some(callback) = callbacks.update {
                 callback(callbacks.userdata);
@@ -628,7 +650,10 @@ pub unsafe extern "C" fn SDL_JoystickGetBall(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetButton(joystick: *mut SDL_Joystick, button: c_int) -> Uint8 {
+pub unsafe extern "C" fn SDL_JoystickGetButton(
+    joystick: *mut SDL_Joystick,
+    button: c_int,
+) -> Uint8 {
     let state = lock_input_state();
     let Some(device) = handle_device(&state, joystick) else {
         let _ = invalid_joystick_handle();
@@ -664,7 +689,15 @@ pub unsafe extern "C" fn SDL_JoystickRumble(
 ) -> c_int {
     with_virtual_callback_result(
         joystick,
-        |callbacks| callbacks.rumble.map(|callback| callback(callbacks.userdata, low_frequency_rumble, high_frequency_rumble)),
+        |callbacks| {
+            callbacks.rumble.map(|callback| {
+                callback(
+                    callbacks.userdata,
+                    low_frequency_rumble,
+                    high_frequency_rumble,
+                )
+            })
+        },
         "Joystick rumble is not supported",
     )
 }
@@ -678,9 +711,11 @@ pub unsafe extern "C" fn SDL_JoystickRumbleTriggers(
 ) -> c_int {
     with_virtual_callback_result(
         joystick,
-        |callbacks| callbacks
-            .rumble_triggers
-            .map(|callback| callback(callbacks.userdata, left_rumble, right_rumble)),
+        |callbacks| {
+            callbacks
+                .rumble_triggers
+                .map(|callback| callback(callbacks.userdata, left_rumble, right_rumble))
+        },
         "Joystick trigger rumble is not supported",
     )
 }
@@ -727,7 +762,11 @@ pub unsafe extern "C" fn SDL_JoystickSetLED(
 ) -> c_int {
     with_virtual_callback_result(
         joystick,
-        |callbacks| callbacks.set_led.map(|callback| callback(callbacks.userdata, red, green, blue)),
+        |callbacks| {
+            callbacks
+                .set_led
+                .map(|callback| callback(callbacks.userdata, red, green, blue))
+        },
         "Joystick LED is not supported",
     )
 }
@@ -740,7 +779,11 @@ pub unsafe extern "C" fn SDL_JoystickSendEffect(
 ) -> c_int {
     with_virtual_callback_result(
         joystick,
-        |callbacks| callbacks.send_effect.map(|callback| callback(callbacks.userdata, data, size)),
+        |callbacks| {
+            callbacks
+                .send_effect
+                .map(|callback| callback(callbacks.userdata, data, size))
+        },
         "Joystick effects are not supported",
     )
 }

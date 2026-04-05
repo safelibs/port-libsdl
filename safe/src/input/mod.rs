@@ -1,24 +1,17 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 use std::ffi::{CStr, CString};
-use std::mem;
 use std::os::raw::{c_char, c_int, c_void};
+use std::path::Path;
 use std::ptr;
 use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
-    SDL_ENABLE, SDL_HAT_CENTERED, SDL_HAT_LEFTDOWN, SDL_HAT_LEFTUP, SDL_HAT_RIGHTDOWN,
-    SDL_HAT_RIGHTUP, SDL_HintPriority, SDL_INIT_GAMECONTROLLER, SDL_INIT_HAPTIC,
-    SDL_INIT_JOYSTICK, SDL_INIT_SENSOR, SDL_Joystick, SDL_JoystickGUID, SDL_JoystickID,
-    SDL_JoystickPowerLevel, SDL_JoystickPowerLevel_SDL_JOYSTICK_POWER_UNKNOWN,
-    SDL_JoystickType, SDL_JoystickType_SDL_JOYSTICK_TYPE_GAMECONTROLLER,
-    SDL_JoystickType_SDL_JOYSTICK_TYPE_UNKNOWN, SDL_PRESSED, SDL_QUERY, SDL_RELEASED, SDL_RWops,
-    SDL_SensorType, SDL_SensorType_SDL_SENSOR_INVALID, SDL_VirtualJoystickDesc, SDL_bool,
-    SDL_bool_SDL_FALSE, SDL_bool_SDL_TRUE, Sint16, Uint16, Uint32, Uint64, Uint8,
+    SDL_Joystick, SDL_JoystickGUID, SDL_JoystickID, SDL_JoystickType, Sint16, Uint16, Uint32,
+    Uint8, SDL_ENABLE, SDL_HAT_CENTERED, SDL_INIT_GAMECONTROLLER, SDL_INIT_HAPTIC,
+    SDL_INIT_JOYSTICK, SDL_INIT_SENSOR,
 };
 use crate::core::error::{invalid_param_error, set_error_message};
 
-const SDL_HARDWARE_BUS_UNKNOWN: u16 = 0x00;
-const SDL_HARDWARE_BUS_USB: u16 = 0x03;
 const SDL_HARDWARE_BUS_VIRTUAL: u16 = 0x00ff;
 
 #[derive(Clone, Copy)]
@@ -52,7 +45,7 @@ struct VirtualCallbacks {
 unsafe impl Send for VirtualCallbacks {}
 
 #[derive(Clone)]
-struct DeviceState {
+pub(crate) struct DeviceState {
     axes: Vec<Sint16>,
     pending_axes: Vec<Sint16>,
     buttons: Vec<Uint8>,
@@ -80,8 +73,7 @@ impl DeviceState {
     }
 }
 
-#[derive(Clone)]
-struct DeviceEntry {
+pub(crate) struct DeviceEntry {
     instance_id: SDL_JoystickID,
     name: CString,
     path: Option<CString>,
@@ -96,6 +88,7 @@ struct DeviceEntry {
     is_virtual: bool,
     callbacks: Option<VirtualCallbacks>,
     state: DeviceState,
+    evdev: Option<linux::evdev::EvdevSource>,
     hint_path: Option<String>,
 }
 
@@ -112,7 +105,7 @@ pub(crate) struct ControllerHandle {
 }
 
 #[derive(Default)]
-struct InputState {
+pub(crate) struct InputState {
     next_instance_id: SDL_JoystickID,
     devices: Vec<DeviceEntry>,
     mappings: Vec<MappingEntry>,
@@ -263,87 +256,81 @@ pub(crate) fn decode_guid_info(guid: SDL_JoystickGUID) -> (u16, u16, u16, u16) {
     }
 }
 
-fn synthetic_evdev_device(path: &str, instance_id: SDL_JoystickID) -> DeviceEntry {
-    let mut state = DeviceState::new(6, 13, 1);
-    state.pending_buttons[0] = SDL_PRESSED as Uint8;
-    state.pending_hats[0] = SDL_HAT_RIGHTUP as Uint8;
-    state.pending_axes[0] = 16384;
-    state.apply_pending();
-
-    let name = "SDL Fake evdev Gamepad";
+fn evdev_device(
+    path: &str,
+    instance_id: SDL_JoystickID,
+    device: linux::evdev::ProbedDevice,
+) -> DeviceEntry {
     DeviceEntry {
         instance_id,
-        name: make_cstring(name),
+        name: make_cstring(&device.name),
         path: Some(make_cstring(path)),
         guid: create_joystick_guid(
-            SDL_HARDWARE_BUS_USB,
-            0x054c,
-            0x09cc,
-            0x0001,
+            device.bus,
+            device.vendor,
+            device.product,
+            device.version,
             None,
-            name,
+            &device.name,
             0,
             0,
         ),
-        vendor: 0x054c,
-        product: 0x09cc,
-        product_version: 0x0001,
+        vendor: device.vendor,
+        product: device.product,
+        product_version: device.version,
         firmware_version: 0,
         serial: None,
-        joystick_type: SDL_JoystickType_SDL_JOYSTICK_TYPE_GAMECONTROLLER,
+        joystick_type: device.joystick_type,
         player_index: -1,
         is_virtual: false,
         callbacks: None,
-        state,
+        state: device.state,
+        evdev: Some(device.source),
         hint_path: Some(path.to_string()),
     }
 }
 
 fn refresh_hint_devices(state: &mut InputState) {
     let wanted_paths = hint_value(crate::abi::generated_types::SDL_HINT_JOYSTICK_DEVICE)
-        .map(|value| crate::input::linux::evdev::parse_device_hint(&value))
+        .map(|value| {
+            crate::input::linux::evdev::expand_device_hint_paths(
+                crate::input::linux::evdev::parse_device_hint(&value),
+            )
+            .unwrap_or_default()
+        })
         .unwrap_or_default()
         .into_iter()
         .map(|path| path.to_string_lossy().into_owned())
         .collect::<Vec<_>>();
 
     let wanted = wanted_paths.iter().cloned().collect::<BTreeSet<_>>();
-    let mut preserved = Vec::new();
+    let mut existing = HashMap::new();
     let mut virtuals = Vec::new();
     for device in state.devices.drain(..) {
         match &device.hint_path {
-            Some(path) if wanted.contains(path) => preserved.push(device),
+            Some(path) if wanted.contains(path) => {
+                existing.insert(path.clone(), device);
+            }
             Some(_) => {}
             None => virtuals.push(device),
         }
     }
-    preserved.sort_by_key(|device| {
-        wanted_paths
-            .iter()
-            .position(|path| Some(path.as_str()) == device.hint_path.as_deref())
-            .unwrap_or(usize::MAX)
-    });
 
-    let existing = preserved
-        .iter()
-        .filter_map(|device| device.hint_path.clone().map(|path| (path, device.instance_id)))
-        .collect::<std::collections::HashMap<_, _>>();
-    for path in &wanted_paths {
-        if existing.contains_key(path) {
+    let mut hinted = Vec::new();
+    for path in wanted_paths {
+        if let Some(device) = existing.remove(&path) {
+            hinted.push(device);
             continue;
         }
+        let Ok(device) = crate::input::linux::evdev::probe_device(Path::new(&path)) else {
+            continue;
+        };
         let instance_id = state.next_instance_id;
         state.next_instance_id += 1;
-        preserved.push(synthetic_evdev_device(path, instance_id));
+        hinted.push(evdev_device(&path, instance_id, device));
     }
-    preserved.sort_by_key(|device| {
-        wanted_paths
-            .iter()
-            .position(|path| Some(path.as_str()) == device.hint_path.as_deref())
-            .unwrap_or(usize::MAX)
-    });
-    preserved.extend(virtuals);
-    state.devices = preserved;
+    hinted.extend(virtuals);
+    state.devices = hinted;
 }
 
 pub(crate) fn init_input_subsystem(flag: Uint32) -> Result<(), ()> {
@@ -382,7 +369,9 @@ unsafe fn close_joystick_handle(state: &mut InputState, handle: *mut JoystickHan
     if handle.is_null() {
         return;
     }
-    state.open_joysticks.retain(|(ptr, _)| *ptr != handle as usize);
+    state
+        .open_joysticks
+        .retain(|(ptr, _)| *ptr != handle as usize);
     drop(Box::from_raw(handle));
 }
 
@@ -414,8 +403,6 @@ pub(crate) fn quit_input_subsystem(flag: Uint32) {
             }
         }
         state.devices.retain(|device| device.is_virtual);
-        refresh_hint_devices(&mut state);
-        state.devices.retain(|device| device.is_virtual);
     }
     if flag & SDL_INIT_HAPTIC != 0 {
         state.haptic_initialized = false;
@@ -429,7 +416,10 @@ pub(crate) fn dup_c_string(value: &CString) -> *mut c_char {
     value.clone().into_raw()
 }
 
-pub(crate) fn device_index_to_instance(state: &mut InputState, device_index: c_int) -> Option<SDL_JoystickID> {
+pub(crate) fn device_index_to_instance(
+    state: &mut InputState,
+    device_index: c_int,
+) -> Option<SDL_JoystickID> {
     refresh_hint_devices(state);
     usize::try_from(device_index)
         .ok()
@@ -441,14 +431,20 @@ pub(crate) fn device_by_instance_mut(
     state: &mut InputState,
     instance_id: SDL_JoystickID,
 ) -> Option<&mut DeviceEntry> {
-    state.devices.iter_mut().find(|device| device.instance_id == instance_id)
+    state
+        .devices
+        .iter_mut()
+        .find(|device| device.instance_id == instance_id)
 }
 
 pub(crate) fn device_by_instance(
     state: &InputState,
     instance_id: SDL_JoystickID,
 ) -> Option<&DeviceEntry> {
-    state.devices.iter().find(|device| device.instance_id == instance_id)
+    state
+        .devices
+        .iter()
+        .find(|device| device.instance_id == instance_id)
 }
 
 pub(crate) fn joystick_instance_from_handle(joystick: *mut SDL_Joystick) -> Option<SDL_JoystickID> {
@@ -472,14 +468,18 @@ pub(crate) fn mapping_for_guid<'a>(
     state: &'a InputState,
     guid: &SDL_JoystickGUID,
 ) -> Option<&'a MappingEntry> {
-    state.mappings.iter().find(|mapping| mapping.guid.data == guid.data)
+    state
+        .mappings
+        .iter()
+        .find(|mapping| mapping.guid.data == guid.data)
 }
 
 pub(crate) fn mapping_for_guid_mut<'a>(
     state: &'a mut InputState,
     guid: &SDL_JoystickGUID,
 ) -> Option<&'a mut MappingEntry> {
-    state.mappings
+    state
+        .mappings
         .iter_mut()
         .find(|mapping| mapping.guid.data == guid.data)
 }
@@ -510,11 +510,11 @@ macro_rules! mapping_array {
 
 pub(crate) use mapping_array;
 
-pub mod guid;
-pub mod joystick;
 pub mod gamecontroller;
-pub mod hidapi;
+pub mod guid;
 pub mod haptic;
+pub mod hidapi;
+pub mod joystick;
 pub mod sensor;
 
 pub mod linux {

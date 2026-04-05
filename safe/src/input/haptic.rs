@@ -54,7 +54,9 @@ pub unsafe extern "C" fn SDL_JoystickIsHaptic(_joystick: *mut SDL_Joystick) -> c
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_HapticOpenFromJoystick(_joystick: *mut SDL_Joystick) -> *mut SDL_Haptic {
+pub unsafe extern "C" fn SDL_HapticOpenFromJoystick(
+    _joystick: *mut SDL_Joystick,
+) -> *mut SDL_Haptic {
     let _ = unavailable();
     ptr::null_mut()
 }
@@ -152,7 +154,10 @@ pub unsafe extern "C" fn SDL_HapticStopEffect(haptic: *mut SDL_Haptic, _effect: 
 pub unsafe extern "C" fn SDL_HapticDestroyEffect(_haptic: *mut SDL_Haptic, _effect: c_int) {}
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_HapticGetEffectStatus(haptic: *mut SDL_Haptic, _effect: c_int) -> c_int {
+pub unsafe extern "C" fn SDL_HapticGetEffectStatus(
+    haptic: *mut SDL_Haptic,
+    _effect: c_int,
+) -> c_int {
     if haptic.is_null() {
         return invalid_param_error("haptic");
     }

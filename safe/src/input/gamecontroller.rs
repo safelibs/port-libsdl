@@ -3,8 +3,7 @@ use std::os::raw::{c_char, c_int};
 use std::ptr;
 
 use crate::abi::generated_types::{
-    SDL_ENABLE, SDL_GameController, SDL_GameControllerAxis,
-    SDL_GameControllerAxis_SDL_CONTROLLER_AXIS_INVALID,
+    SDL_GameController, SDL_GameControllerAxis, SDL_GameControllerAxis_SDL_CONTROLLER_AXIS_INVALID,
     SDL_GameControllerAxis_SDL_CONTROLLER_AXIS_MAX, SDL_GameControllerBindType,
     SDL_GameControllerBindType_SDL_CONTROLLER_BINDTYPE_AXIS,
     SDL_GameControllerBindType_SDL_CONTROLLER_BINDTYPE_BUTTON,
@@ -17,10 +16,10 @@ use crate::abi::generated_types::{
     SDL_GameControllerType_SDL_CONTROLLER_TYPE_NVIDIA_SHIELD,
     SDL_GameControllerType_SDL_CONTROLLER_TYPE_PS4,
     SDL_GameControllerType_SDL_CONTROLLER_TYPE_UNKNOWN,
-    SDL_GameControllerType_SDL_CONTROLLER_TYPE_VIRTUAL, SDL_HAT_DOWN, SDL_HAT_LEFT, SDL_HAT_RIGHT,
-    SDL_HAT_UP, SDL_Joystick, SDL_JoystickGUID, SDL_JoystickID,
-    SDL_JoystickType_SDL_JOYSTICK_TYPE_GAMECONTROLLER, SDL_QUERY, SDL_RWops, SDL_SensorType,
+    SDL_GameControllerType_SDL_CONTROLLER_TYPE_VIRTUAL, SDL_Joystick, SDL_JoystickGUID,
+    SDL_JoystickID, SDL_JoystickType_SDL_JOYSTICK_TYPE_GAMECONTROLLER, SDL_RWops, SDL_SensorType,
     SDL_bool, SDL_bool_SDL_FALSE, SDL_bool_SDL_TRUE, Sint16, Uint16, Uint32, Uint64, Uint8,
+    SDL_ENABLE, SDL_HAT_DOWN, SDL_HAT_LEFT, SDL_HAT_RIGHT, SDL_HAT_UP, SDL_QUERY,
 };
 use crate::core::error::{invalid_param_error, set_error_message};
 use crate::core::memory::alloc_c_string;
@@ -79,10 +78,15 @@ fn button_name(button: SDL_GameControllerButton) -> Option<&'static [u8]> {
 }
 
 fn axis_from_string(value: &str) -> SDL_GameControllerAxis {
-    let value = value.strip_prefix('+').or_else(|| value.strip_prefix('-')).unwrap_or(value);
+    let value = value
+        .strip_prefix('+')
+        .or_else(|| value.strip_prefix('-'))
+        .unwrap_or(value);
     AXIS_NAMES
         .iter()
-        .position(|entry| value.eq_ignore_ascii_case(std::str::from_utf8(entry).unwrap().trim_end_matches('\0')))
+        .position(|entry| {
+            value.eq_ignore_ascii_case(std::str::from_utf8(entry).unwrap().trim_end_matches('\0'))
+        })
         .map(|index| index as SDL_GameControllerAxis)
         .unwrap_or(SDL_GameControllerAxis_SDL_CONTROLLER_AXIS_INVALID)
 }
@@ -90,7 +94,9 @@ fn axis_from_string(value: &str) -> SDL_GameControllerAxis {
 fn button_from_string(value: &str) -> SDL_GameControllerButton {
     BUTTON_NAMES
         .iter()
-        .position(|entry| value.eq_ignore_ascii_case(std::str::from_utf8(entry).unwrap().trim_end_matches('\0')))
+        .position(|entry| {
+            value.eq_ignore_ascii_case(std::str::from_utf8(entry).unwrap().trim_end_matches('\0'))
+        })
         .map(|index| index as SDL_GameControllerButton)
         .unwrap_or(SDL_GameControllerButton_SDL_CONTROLLER_BUTTON_INVALID)
 }
@@ -106,15 +112,23 @@ fn parse_bind(value: &str) -> BindKind {
         .or_else(|| value.strip_prefix('-'))
         .unwrap_or(value);
 
-    if let Some(button) = normalized.strip_prefix('b').and_then(|rest| rest.parse::<i32>().ok()) {
+    if let Some(button) = normalized
+        .strip_prefix('b')
+        .and_then(|rest| rest.parse::<i32>().ok())
+    {
         return BindKind::Button(button);
     }
-    if let Some(axis) = normalized.strip_prefix('a').and_then(|rest| rest.parse::<i32>().ok()) {
+    if let Some(axis) = normalized
+        .strip_prefix('a')
+        .and_then(|rest| rest.parse::<i32>().ok())
+    {
         return BindKind::Axis(axis);
     }
     if let Some(hat) = normalized.strip_prefix('h') {
         if let Some((hat_index, hat_mask)) = hat.split_once('.') {
-            if let (Ok(hat_index), Ok(hat_mask)) = (hat_index.parse::<i32>(), hat_mask.parse::<i32>()) {
+            if let (Ok(hat_index), Ok(hat_mask)) =
+                (hat_index.parse::<i32>(), hat_mask.parse::<i32>())
+            {
                 return BindKind::Hat(hat_index, hat_mask);
             }
         }
@@ -152,7 +166,11 @@ fn build_mapping_body(mapping: &MappingEntry) -> String {
 fn build_mapping_string(guid: SDL_JoystickGUID, name: &CStr, body: &str) -> String {
     let mut guid_buffer = [0i8; 33];
     unsafe {
-        crate::input::guid::SDL_JoystickGetGUIDString(guid, guid_buffer.as_mut_ptr(), guid_buffer.len() as c_int);
+        crate::input::guid::SDL_JoystickGetGUIDString(
+            guid,
+            guid_buffer.as_mut_ptr(),
+            guid_buffer.len() as c_int,
+        );
     }
     let guid_string = unsafe { CStr::from_ptr(guid_buffer.as_ptr()) }.to_string_lossy();
     let mut mapping = format!("{guid_string},{},{}", name.to_string_lossy(), body);
@@ -225,7 +243,10 @@ fn default_mapping_for_device(device: &super::DeviceEntry) -> Option<MappingEntr
     })
 }
 
-fn mapping_for_device(state: &super::InputState, instance_id: SDL_JoystickID) -> Option<MappingEntry> {
+fn mapping_for_device(
+    state: &super::InputState,
+    instance_id: SDL_JoystickID,
+) -> Option<MappingEntry> {
     let device = device_by_instance(state, instance_id)?;
     mapping_for_guid(state, &device.guid)
         .cloned()
@@ -253,12 +274,17 @@ fn controller_type_from_mapping_body(body: &str) -> Option<SDL_GameControllerTyp
     }
 }
 
-fn guess_controller_type(device: &super::DeviceEntry, mapping: Option<&MappingEntry>) -> SDL_GameControllerType {
+fn guess_controller_type(
+    device: &super::DeviceEntry,
+    mapping: Option<&MappingEntry>,
+) -> SDL_GameControllerType {
     if device.is_virtual {
         return SDL_GameControllerType_SDL_CONTROLLER_TYPE_VIRTUAL;
     }
     if let Some(mapping) = mapping {
-        if let Some(kind) = controller_type_from_mapping_body(mapping.raw.to_str().unwrap_or_default()) {
+        if let Some(kind) =
+            controller_type_from_mapping_body(mapping.raw.to_str().unwrap_or_default())
+        {
             return kind;
         }
     }
@@ -295,7 +321,11 @@ fn button_bind_state(device: &super::DeviceEntry, bind: BindKind) -> Uint8 {
                 .ok()
                 .and_then(|slot| device.state.axes.get(slot).copied())
                 .unwrap_or(0);
-            if value.abs() >= 16_000 { 1 } else { 0 }
+            if value.abs() >= 16_000 {
+                1
+            } else {
+                0
+            }
         }
         BindKind::Hat(index, mask) => usize::try_from(index)
             .ok()
@@ -305,7 +335,11 @@ fn button_bind_state(device: &super::DeviceEntry, bind: BindKind) -> Uint8 {
     }
 }
 
-fn axis_bind_state(device: &super::DeviceEntry, bind: BindKind, axis: SDL_GameControllerAxis) -> Sint16 {
+fn axis_bind_state(
+    device: &super::DeviceEntry,
+    bind: BindKind,
+    axis: SDL_GameControllerAxis,
+) -> Sint16 {
     let raw = match bind {
         BindKind::None => 0,
         BindKind::Axis(index) => usize::try_from(index)
@@ -363,9 +397,15 @@ fn bind_to_output(bind: BindKind) -> SDL_GameControllerButtonBind {
 
 fn parse_mapping(mapping_string: &str) -> Result<MappingEntry, c_int> {
     let mut parts = mapping_string.splitn(3, ',');
-    let guid_part = parts.next().ok_or_else(|| set_error_message("Couldn't parse controller GUID"))?;
-    let name_part = parts.next().ok_or_else(|| set_error_message("Couldn't parse controller name"))?;
-    let body = parts.next().ok_or_else(|| set_error_message("Couldn't parse controller mapping"))?;
+    let guid_part = parts
+        .next()
+        .ok_or_else(|| set_error_message("Couldn't parse controller GUID"))?;
+    let name_part = parts
+        .next()
+        .ok_or_else(|| set_error_message("Couldn't parse controller name"))?;
+    let body = parts
+        .next()
+        .ok_or_else(|| set_error_message("Couldn't parse controller mapping"))?;
 
     let guid = unsafe {
         let guid_c = super::make_cstring(guid_part);
@@ -456,7 +496,9 @@ pub unsafe extern "C" fn SDL_GameControllerAddMappingsFromRW(
         };
         let platform = &trimmed[platform_pos + 9..];
         let platform = platform.split(',').next().unwrap_or_default();
-        if platform.eq_ignore_ascii_case("linux") && SDL_GameControllerAddMapping(super::make_cstring(trimmed).as_ptr()) > 0 {
+        if platform.eq_ignore_ascii_case("linux")
+            && SDL_GameControllerAddMapping(super::make_cstring(trimmed).as_ptr()) > 0
+        {
             controllers += 1;
         }
     }
@@ -500,18 +542,34 @@ pub unsafe extern "C" fn SDL_GameControllerMappingForIndex(mapping_index: c_int)
         let _ = set_error_message("Mapping not available");
         return ptr::null_mut();
     };
-    alloc_c_string(&build_mapping_string(mapping.guid, &mapping.name, mapping.raw.to_str().unwrap_or_default()))
+    alloc_c_string(&build_mapping_string(
+        mapping.guid,
+        &mapping.name,
+        mapping.raw.to_str().unwrap_or_default(),
+    ))
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GameControllerMappingForGUID(guid: SDL_JoystickGUID) -> *mut c_char {
     let state = lock_input_state();
     if let Some(mapping) = mapping_for_guid(&state, &guid) {
-        return alloc_c_string(&build_mapping_string(guid, &mapping.name, mapping.raw.to_str().unwrap_or_default()));
+        return alloc_c_string(&build_mapping_string(
+            guid,
+            &mapping.name,
+            mapping.raw.to_str().unwrap_or_default(),
+        ));
     }
-    if let Some(device) = state.devices.iter().find(|device| device.guid.data == guid.data) {
+    if let Some(device) = state
+        .devices
+        .iter()
+        .find(|device| device.guid.data == guid.data)
+    {
         if let Some(mapping) = default_mapping_for_device(device) {
-            return alloc_c_string(&build_mapping_string(guid, &mapping.name, mapping.raw.to_str().unwrap_or_default()));
+            return alloc_c_string(&build_mapping_string(
+                guid,
+                &mapping.name,
+                mapping.raw.to_str().unwrap_or_default(),
+            ));
         }
     }
     let _ = set_error_message("Mapping not available");
@@ -519,7 +577,9 @@ pub unsafe extern "C" fn SDL_GameControllerMappingForGUID(guid: SDL_JoystickGUID
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerMapping(gamecontroller: *mut SDL_GameController) -> *mut c_char {
+pub unsafe extern "C" fn SDL_GameControllerMapping(
+    gamecontroller: *mut SDL_GameController,
+) -> *mut c_char {
     let state = lock_input_state();
     let Some(instance_id) = controller_instance(gamecontroller) else {
         let _ = invalid_param_error("gamecontroller");
@@ -529,7 +589,11 @@ pub unsafe extern "C" fn SDL_GameControllerMapping(gamecontroller: *mut SDL_Game
         let _ = set_error_message("Mapping not available");
         return ptr::null_mut();
     };
-    alloc_c_string(&build_mapping_string(mapping.guid, &mapping.name, mapping.raw.to_str().unwrap_or_default()))
+    alloc_c_string(&build_mapping_string(
+        mapping.guid,
+        &mapping.name,
+        mapping.raw.to_str().unwrap_or_default(),
+    ))
 }
 
 #[no_mangle]
@@ -568,7 +632,9 @@ pub unsafe extern "C" fn SDL_GameControllerPathForIndex(joystick_index: c_int) -
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerTypeForIndex(joystick_index: c_int) -> SDL_GameControllerType {
+pub unsafe extern "C" fn SDL_GameControllerTypeForIndex(
+    joystick_index: c_int,
+) -> SDL_GameControllerType {
     let mut state = lock_input_state();
     let Some(instance_id) = device_index_to_instance(&mut state, joystick_index) else {
         return SDL_GameControllerType_SDL_CONTROLLER_TYPE_UNKNOWN;
@@ -581,7 +647,9 @@ pub unsafe extern "C" fn SDL_GameControllerTypeForIndex(joystick_index: c_int) -
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerMappingForDeviceIndex(joystick_index: c_int) -> *mut c_char {
+pub unsafe extern "C" fn SDL_GameControllerMappingForDeviceIndex(
+    joystick_index: c_int,
+) -> *mut c_char {
     let mut state = lock_input_state();
     let Some(instance_id) = device_index_to_instance(&mut state, joystick_index) else {
         return ptr::null_mut();
@@ -589,7 +657,11 @@ pub unsafe extern "C" fn SDL_GameControllerMappingForDeviceIndex(joystick_index:
     let Some(mapping) = mapping_for_device(&state, instance_id) else {
         return ptr::null_mut();
     };
-    alloc_c_string(&build_mapping_string(mapping.guid, &mapping.name, mapping.raw.to_str().unwrap_or_default()))
+    alloc_c_string(&build_mapping_string(
+        mapping.guid,
+        &mapping.name,
+        mapping.raw.to_str().unwrap_or_default(),
+    ))
 }
 
 #[no_mangle]
@@ -620,12 +692,16 @@ pub unsafe extern "C" fn SDL_GameControllerOpen(joystick_index: c_int) -> *mut S
         instance_id,
         guid,
     }));
-    state.open_controllers.push((controller as usize, instance_id));
+    state
+        .open_controllers
+        .push((controller as usize, instance_id));
     controller.cast()
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerFromInstanceID(joyid: SDL_JoystickID) -> *mut SDL_GameController {
+pub unsafe extern "C" fn SDL_GameControllerFromInstanceID(
+    joyid: SDL_JoystickID,
+) -> *mut SDL_GameController {
     let state = lock_input_state();
     state
         .open_controllers
@@ -636,7 +712,9 @@ pub unsafe extern "C" fn SDL_GameControllerFromInstanceID(joyid: SDL_JoystickID)
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerFromPlayerIndex(player_index: c_int) -> *mut SDL_GameController {
+pub unsafe extern "C" fn SDL_GameControllerFromPlayerIndex(
+    player_index: c_int,
+) -> *mut SDL_GameController {
     let state = lock_input_state();
     state
         .open_controllers
@@ -649,7 +727,9 @@ pub unsafe extern "C" fn SDL_GameControllerFromPlayerIndex(player_index: c_int) 
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerName(gamecontroller: *mut SDL_GameController) -> *const c_char {
+pub unsafe extern "C" fn SDL_GameControllerName(
+    gamecontroller: *mut SDL_GameController,
+) -> *const c_char {
     let state = lock_input_state();
     let Some(instance_id) = controller_instance(gamecontroller) else {
         return ptr::null();
@@ -661,7 +741,9 @@ pub unsafe extern "C" fn SDL_GameControllerName(gamecontroller: *mut SDL_GameCon
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerPath(gamecontroller: *mut SDL_GameController) -> *const c_char {
+pub unsafe extern "C" fn SDL_GameControllerPath(
+    gamecontroller: *mut SDL_GameController,
+) -> *const c_char {
     let state = lock_input_state();
     let Some(instance_id) = controller_instance(gamecontroller) else {
         return ptr::null();
@@ -672,7 +754,9 @@ pub unsafe extern "C" fn SDL_GameControllerPath(gamecontroller: *mut SDL_GameCon
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetType(gamecontroller: *mut SDL_GameController) -> SDL_GameControllerType {
+pub unsafe extern "C" fn SDL_GameControllerGetType(
+    gamecontroller: *mut SDL_GameController,
+) -> SDL_GameControllerType {
     let state = lock_input_state();
     let Some(instance_id) = controller_instance(gamecontroller) else {
         return SDL_GameControllerType_SDL_CONTROLLER_TYPE_UNKNOWN;
@@ -685,7 +769,9 @@ pub unsafe extern "C" fn SDL_GameControllerGetType(gamecontroller: *mut SDL_Game
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetPlayerIndex(gamecontroller: *mut SDL_GameController) -> c_int {
+pub unsafe extern "C" fn SDL_GameControllerGetPlayerIndex(
+    gamecontroller: *mut SDL_GameController,
+) -> c_int {
     let state = lock_input_state();
     controller_instance(gamecontroller)
         .and_then(|instance_id| device_by_instance(&state, instance_id))
@@ -694,7 +780,10 @@ pub unsafe extern "C" fn SDL_GameControllerGetPlayerIndex(gamecontroller: *mut S
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerSetPlayerIndex(gamecontroller: *mut SDL_GameController, player_index: c_int) {
+pub unsafe extern "C" fn SDL_GameControllerSetPlayerIndex(
+    gamecontroller: *mut SDL_GameController,
+    player_index: c_int,
+) {
     let joystick = SDL_GameControllerGetJoystick(gamecontroller);
     if !joystick.is_null() {
         crate::input::joystick::SDL_JoystickSetPlayerIndex(joystick, player_index);
@@ -702,7 +791,9 @@ pub unsafe extern "C" fn SDL_GameControllerSetPlayerIndex(gamecontroller: *mut S
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetVendor(gamecontroller: *mut SDL_GameController) -> Uint16 {
+pub unsafe extern "C" fn SDL_GameControllerGetVendor(
+    gamecontroller: *mut SDL_GameController,
+) -> Uint16 {
     let state = lock_input_state();
     controller_instance(gamecontroller)
         .and_then(|instance_id| device_by_instance(&state, instance_id))
@@ -711,7 +802,9 @@ pub unsafe extern "C" fn SDL_GameControllerGetVendor(gamecontroller: *mut SDL_Ga
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetProduct(gamecontroller: *mut SDL_GameController) -> Uint16 {
+pub unsafe extern "C" fn SDL_GameControllerGetProduct(
+    gamecontroller: *mut SDL_GameController,
+) -> Uint16 {
     let state = lock_input_state();
     controller_instance(gamecontroller)
         .and_then(|instance_id| device_by_instance(&state, instance_id))
@@ -720,7 +813,9 @@ pub unsafe extern "C" fn SDL_GameControllerGetProduct(gamecontroller: *mut SDL_G
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetProductVersion(gamecontroller: *mut SDL_GameController) -> Uint16 {
+pub unsafe extern "C" fn SDL_GameControllerGetProductVersion(
+    gamecontroller: *mut SDL_GameController,
+) -> Uint16 {
     let state = lock_input_state();
     controller_instance(gamecontroller)
         .and_then(|instance_id| device_by_instance(&state, instance_id))
@@ -729,7 +824,9 @@ pub unsafe extern "C" fn SDL_GameControllerGetProductVersion(gamecontroller: *mu
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetFirmwareVersion(gamecontroller: *mut SDL_GameController) -> Uint16 {
+pub unsafe extern "C" fn SDL_GameControllerGetFirmwareVersion(
+    gamecontroller: *mut SDL_GameController,
+) -> Uint16 {
     let state = lock_input_state();
     controller_instance(gamecontroller)
         .and_then(|instance_id| device_by_instance(&state, instance_id))
@@ -738,7 +835,9 @@ pub unsafe extern "C" fn SDL_GameControllerGetFirmwareVersion(gamecontroller: *m
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetSerial(gamecontroller: *mut SDL_GameController) -> *const c_char {
+pub unsafe extern "C" fn SDL_GameControllerGetSerial(
+    gamecontroller: *mut SDL_GameController,
+) -> *const c_char {
     let state = lock_input_state();
     controller_instance(gamecontroller)
         .and_then(|instance_id| device_by_instance(&state, instance_id))
@@ -747,12 +846,16 @@ pub unsafe extern "C" fn SDL_GameControllerGetSerial(gamecontroller: *mut SDL_Ga
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetSteamHandle(_gamecontroller: *mut SDL_GameController) -> Uint64 {
+pub unsafe extern "C" fn SDL_GameControllerGetSteamHandle(
+    _gamecontroller: *mut SDL_GameController,
+) -> Uint64 {
     0
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetAttached(gamecontroller: *mut SDL_GameController) -> SDL_bool {
+pub unsafe extern "C" fn SDL_GameControllerGetAttached(
+    gamecontroller: *mut SDL_GameController,
+) -> SDL_bool {
     let state = lock_input_state();
     bool_to_sdl(
         controller_instance(gamecontroller)
@@ -762,7 +865,9 @@ pub unsafe extern "C" fn SDL_GameControllerGetAttached(gamecontroller: *mut SDL_
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetJoystick(gamecontroller: *mut SDL_GameController) -> *mut SDL_Joystick {
+pub unsafe extern "C" fn SDL_GameControllerGetJoystick(
+    gamecontroller: *mut SDL_GameController,
+) -> *mut SDL_Joystick {
     if gamecontroller.is_null() {
         ptr::null_mut()
     } else {
@@ -789,7 +894,9 @@ pub unsafe extern "C" fn SDL_GameControllerUpdate() {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetAxisFromString(str_: *const c_char) -> SDL_GameControllerAxis {
+pub unsafe extern "C" fn SDL_GameControllerGetAxisFromString(
+    str_: *const c_char,
+) -> SDL_GameControllerAxis {
     if str_.is_null() {
         return SDL_GameControllerAxis_SDL_CONTROLLER_AXIS_INVALID;
     }
@@ -797,7 +904,9 @@ pub unsafe extern "C" fn SDL_GameControllerGetAxisFromString(str_: *const c_char
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetStringForAxis(axis: SDL_GameControllerAxis) -> *const c_char {
+pub unsafe extern "C" fn SDL_GameControllerGetStringForAxis(
+    axis: SDL_GameControllerAxis,
+) -> *const c_char {
     axis_name(axis)
         .map(|name| name.as_ptr().cast())
         .unwrap_or(ptr::null())
@@ -823,7 +932,10 @@ pub unsafe extern "C" fn SDL_GameControllerHasAxis(
     gamecontroller: *mut SDL_GameController,
     axis: SDL_GameControllerAxis,
 ) -> SDL_bool {
-    bool_to_sdl(SDL_GameControllerGetBindForAxis(gamecontroller, axis).bindType != SDL_GameControllerBindType_SDL_CONTROLLER_BINDTYPE_NONE)
+    bool_to_sdl(
+        SDL_GameControllerGetBindForAxis(gamecontroller, axis).bindType
+            != SDL_GameControllerBindType_SDL_CONTROLLER_BINDTYPE_NONE,
+    )
 }
 
 #[no_mangle]
@@ -846,7 +958,9 @@ pub unsafe extern "C" fn SDL_GameControllerGetAxis(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetButtonFromString(str_: *const c_char) -> SDL_GameControllerButton {
+pub unsafe extern "C" fn SDL_GameControllerGetButtonFromString(
+    str_: *const c_char,
+) -> SDL_GameControllerButton {
     if str_.is_null() {
         return SDL_GameControllerButton_SDL_CONTROLLER_BUTTON_INVALID;
     }
@@ -854,7 +968,9 @@ pub unsafe extern "C" fn SDL_GameControllerGetButtonFromString(str_: *const c_ch
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetStringForButton(button: SDL_GameControllerButton) -> *const c_char {
+pub unsafe extern "C" fn SDL_GameControllerGetStringForButton(
+    button: SDL_GameControllerButton,
+) -> *const c_char {
     button_name(button)
         .map(|name| name.as_ptr().cast())
         .unwrap_or(ptr::null())
@@ -880,7 +996,10 @@ pub unsafe extern "C" fn SDL_GameControllerHasButton(
     gamecontroller: *mut SDL_GameController,
     button: SDL_GameControllerButton,
 ) -> SDL_bool {
-    bool_to_sdl(SDL_GameControllerGetBindForButton(gamecontroller, button).bindType != SDL_GameControllerBindType_SDL_CONTROLLER_BINDTYPE_NONE)
+    bool_to_sdl(
+        SDL_GameControllerGetBindForButton(gamecontroller, button).bindType
+            != SDL_GameControllerBindType_SDL_CONTROLLER_BINDTYPE_NONE,
+    )
 }
 
 #[no_mangle]
@@ -903,7 +1022,9 @@ pub unsafe extern "C" fn SDL_GameControllerGetButton(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerGetNumTouchpads(_gamecontroller: *mut SDL_GameController) -> c_int {
+pub unsafe extern "C" fn SDL_GameControllerGetNumTouchpads(
+    _gamecontroller: *mut SDL_GameController,
+) -> c_int {
     0
 }
 
@@ -1034,12 +1155,16 @@ pub unsafe extern "C" fn SDL_GameControllerRumbleTriggers(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerHasLED(gamecontroller: *mut SDL_GameController) -> SDL_bool {
+pub unsafe extern "C" fn SDL_GameControllerHasLED(
+    gamecontroller: *mut SDL_GameController,
+) -> SDL_bool {
     crate::input::joystick::SDL_JoystickHasLED(SDL_GameControllerGetJoystick(gamecontroller))
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_GameControllerHasRumble(gamecontroller: *mut SDL_GameController) -> SDL_bool {
+pub unsafe extern "C" fn SDL_GameControllerHasRumble(
+    gamecontroller: *mut SDL_GameController,
+) -> SDL_bool {
     crate::input::joystick::SDL_JoystickHasRumble(SDL_GameControllerGetJoystick(gamecontroller))
 }
 
@@ -1047,7 +1172,9 @@ pub unsafe extern "C" fn SDL_GameControllerHasRumble(gamecontroller: *mut SDL_Ga
 pub unsafe extern "C" fn SDL_GameControllerHasRumbleTriggers(
     gamecontroller: *mut SDL_GameController,
 ) -> SDL_bool {
-    crate::input::joystick::SDL_JoystickHasRumbleTriggers(SDL_GameControllerGetJoystick(gamecontroller))
+    crate::input::joystick::SDL_JoystickHasRumbleTriggers(SDL_GameControllerGetJoystick(
+        gamecontroller,
+    ))
 }
 
 #[no_mangle]
@@ -1057,7 +1184,12 @@ pub unsafe extern "C" fn SDL_GameControllerSetLED(
     green: Uint8,
     blue: Uint8,
 ) -> c_int {
-    crate::input::joystick::SDL_JoystickSetLED(SDL_GameControllerGetJoystick(gamecontroller), red, green, blue)
+    crate::input::joystick::SDL_JoystickSetLED(
+        SDL_GameControllerGetJoystick(gamecontroller),
+        red,
+        green,
+        blue,
+    )
 }
 
 #[no_mangle]
@@ -1066,7 +1198,11 @@ pub unsafe extern "C" fn SDL_GameControllerSendEffect(
     data: *const std::ffi::c_void,
     size: c_int,
 ) -> c_int {
-    crate::input::joystick::SDL_JoystickSendEffect(SDL_GameControllerGetJoystick(gamecontroller), data, size)
+    crate::input::joystick::SDL_JoystickSendEffect(
+        SDL_GameControllerGetJoystick(gamecontroller),
+        data,
+        size,
+    )
 }
 
 #[no_mangle]

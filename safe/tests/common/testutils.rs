@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use std::ffi::{CStr, CString};
+use std::path::Path;
 use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
 use std::sync::{Mutex, MutexGuard, OnceLock};
@@ -70,6 +71,39 @@ pub fn current_error() -> String {
 
 pub fn c_ptr(bytes: &[u8]) -> *const libc::c_char {
     bytes.as_ptr().cast()
+}
+
+pub fn write_default_evdev_gamepad_fixture(path: &Path) {
+    let fixture = "\
+SDL_EVDEV_FIXTURE_V1
+name=SDL Fake evdev Gamepad
+bustype=0x03
+vendor=0x054c
+product=0x09cc
+version=0x0001
+key=0x130:1
+key=0x131:0
+key=0x133:0
+key=0x134:0
+key=0x136:0
+key=0x137:0
+key=0x138:0
+key=0x139:0
+key=0x13a:0
+key=0x13b:0
+key=0x13c:0
+key=0x13d:0
+key=0x13e:0
+abs=0x00,-32768,32767,0,0,0,16384
+abs=0x01,-32768,32767,0,0,0,0
+abs=0x02,0,32767,0,0,0,0
+abs=0x03,-32768,32767,0,0,0,0
+abs=0x04,-32768,32767,0,0,0,0
+abs=0x05,0,32767,0,0,0,0
+abs=0x10,-1,1,0,0,0,1
+abs=0x11,-1,1,0,0,0,-1
+";
+    std::fs::write(path, fixture).expect("write evdev fixture");
 }
 
 pub struct ScopedEnvVar {

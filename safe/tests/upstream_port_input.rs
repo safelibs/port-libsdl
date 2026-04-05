@@ -7,11 +7,12 @@ use std::ffi::CStr;
 use std::ptr;
 
 use safe_sdl::abi::generated_types::{
-    SDL_GUID, SDL_INIT_GAMECONTROLLER, SDL_JoystickType_SDL_JOYSTICK_TYPE_GAMECONTROLLER,
-    SDL_VIRTUAL_JOYSTICK_DESC_VERSION, SDL_VirtualJoystickDesc, SDL_bool_SDL_FALSE,
-    SDL_bool_SDL_TRUE, SDL_GameControllerAxis_SDL_CONTROLLER_AXIS_MAX,
+    SDL_GameControllerAxis_SDL_CONTROLLER_AXIS_MAX,
     SDL_GameControllerButton_SDL_CONTROLLER_BUTTON_A,
-    SDL_GameControllerButton_SDL_CONTROLLER_BUTTON_MAX, SDL_PRESSED, SDL_RELEASED, Uint16,
+    SDL_GameControllerButton_SDL_CONTROLLER_BUTTON_MAX,
+    SDL_JoystickType_SDL_JOYSTICK_TYPE_GAMECONTROLLER, SDL_VirtualJoystickDesc, SDL_bool_SDL_FALSE,
+    SDL_bool_SDL_TRUE, Uint16, SDL_GUID, SDL_INIT_GAMECONTROLLER, SDL_PRESSED, SDL_RELEASED,
+    SDL_VIRTUAL_JOYSTICK_DESC_VERSION,
 };
 use safe_sdl::input::guid::{
     SDL_GUIDFromString, SDL_GUIDToString, SDL_GetJoystickGUIDInfo, SDL_JoystickGetGUIDFromString,
@@ -47,11 +48,31 @@ fn c_string(ptr: *const libc::c_char) -> String {
 #[test]
 fn guid_string_roundtrip_and_bounds_match_upstream_cases() {
     let cases = [
-        ("0000000000000000ffffffffffffffff", 0x0000000000000000, 0xffffffffffffffff),
-        ("00112233445566778091a2b3c4d5e6f0", 0x0011223344556677, 0x8091a2b3c4d5e6f0),
-        ("a0112233445566778091a2b3c4d5e6f0", 0xa011223344556677, 0x8091a2b3c4d5e6f0),
-        ("a0112233445566778091a2b3c4d5e6f1", 0xa011223344556677, 0x8091a2b3c4d5e6f1),
-        ("a0112233445566778191a2b3c4d5e6f0", 0xa011223344556677, 0x8191a2b3c4d5e6f0),
+        (
+            "0000000000000000ffffffffffffffff",
+            0x0000000000000000,
+            0xffffffffffffffff,
+        ),
+        (
+            "00112233445566778091a2b3c4d5e6f0",
+            0x0011223344556677,
+            0x8091a2b3c4d5e6f0,
+        ),
+        (
+            "a0112233445566778091a2b3c4d5e6f0",
+            0xa011223344556677,
+            0x8091a2b3c4d5e6f0,
+        ),
+        (
+            "a0112233445566778091a2b3c4d5e6f1",
+            0xa011223344556677,
+            0x8091a2b3c4d5e6f1,
+        ),
+        (
+            "a0112233445566778191a2b3c4d5e6f0",
+            0xa011223344556677,
+            0x8191a2b3c4d5e6f0,
+        ),
     ];
 
     for (text, upper, lower) in cases {
@@ -70,7 +91,11 @@ fn guid_string_roundtrip_and_bounds_match_upstream_cases() {
                 SDL_GUIDToString(guid, out, size);
             }
 
-            assert_eq!(&buffer[..offset], &[fill; 4], "prefix overwrite at size {size}");
+            assert_eq!(
+                &buffer[..offset],
+                &[fill; 4],
+                "prefix overwrite at size {size}"
+            );
 
             let written = buffer[offset..]
                 .iter()
@@ -82,7 +107,9 @@ fn guid_string_roundtrip_and_bounds_match_upstream_cases() {
             );
 
             if size >= 33 {
-                let actual = unsafe { CStr::from_ptr(out) }.to_string_lossy().into_owned();
+                let actual = unsafe { CStr::from_ptr(out) }
+                    .to_string_lossy()
+                    .into_owned();
                 assert_eq!(actual, text, "full GUID string at size {size}");
             }
         }
@@ -118,13 +145,22 @@ fn virtual_joystick_attach_open_guid_info_and_button_updates_match_automation_ca
 
     let device_index = unsafe { SDL_JoystickAttachVirtualEx(&desc) };
     assert!(device_index >= 0, "{}", testutils::current_error());
-    assert_eq!(unsafe { SDL_JoystickIsVirtual(device_index) }, SDL_bool_SDL_TRUE);
+    assert_eq!(
+        unsafe { SDL_JoystickIsVirtual(device_index) },
+        SDL_bool_SDL_TRUE
+    );
 
     let joystick = unsafe { SDL_JoystickOpen(device_index) };
     assert!(!joystick.is_null(), "{}", testutils::current_error());
 
-    assert_eq!(c_string(unsafe { SDL_JoystickName(joystick) }), "Virtual NVIDIA SHIELD Controller");
-    assert_eq!(unsafe { SDL_JoystickGetVendor(joystick) }, TEST_USB_VENDOR_NVIDIA);
+    assert_eq!(
+        c_string(unsafe { SDL_JoystickName(joystick) }),
+        "Virtual NVIDIA SHIELD Controller"
+    );
+    assert_eq!(
+        unsafe { SDL_JoystickGetVendor(joystick) },
+        TEST_USB_VENDOR_NVIDIA
+    );
     assert_eq!(
         unsafe { SDL_JoystickGetProduct(joystick) },
         TEST_USB_PRODUCT_NVIDIA_SHIELD_CONTROLLER_V104
@@ -217,5 +253,8 @@ fn virtual_joystick_attach_open_guid_info_and_button_updates_match_automation_ca
         SDL_JoystickClose(joystick);
     }
     assert_eq!(unsafe { SDL_JoystickDetachVirtual(device_index) }, 0);
-    assert_eq!(unsafe { SDL_JoystickIsVirtual(device_index) }, SDL_bool_SDL_FALSE);
+    assert_eq!(
+        unsafe { SDL_JoystickIsVirtual(device_index) },
+        SDL_bool_SDL_FALSE
+    );
 }

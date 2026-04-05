@@ -3,10 +3,13 @@ mod testutils;
 
 use tempfile::tempdir;
 
-use safe_sdl::abi::generated_types::{SDL_HINT_JOYSTICK_DEVICE, SDL_INIT_JOYSTICK};
+use safe_sdl::abi::generated_types::{
+    SDL_HAT_RIGHTUP, SDL_HINT_JOYSTICK_DEVICE, SDL_INIT_JOYSTICK, SDL_PRESSED,
+};
 use safe_sdl::input::joystick::{
-    SDL_JoystickGetDeviceProduct, SDL_JoystickGetDeviceVendor, SDL_JoystickNameForIndex,
-    SDL_JoystickPathForIndex, SDL_NumJoysticks,
+    SDL_JoystickClose, SDL_JoystickGetAxis, SDL_JoystickGetButton, SDL_JoystickGetDeviceProduct,
+    SDL_JoystickGetDeviceVendor, SDL_JoystickGetHat, SDL_JoystickNameForIndex, SDL_JoystickOpen,
+    SDL_JoystickPathForIndex, SDL_JoystickUpdate, SDL_NumJoysticks,
 };
 use safe_sdl::input::linux::evdev::parse_device_hint;
 use safe_sdl::input::linux::udev::discover_device_nodes;
@@ -37,15 +40,23 @@ fn discover_device_nodes_sorts_by_prefix_then_numeric_suffix() {
         .iter()
         .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
         .collect::<Vec<_>>();
-    assert_eq!(names, vec!["event1", "event2", "event10", "js2", "js3", "js11"]);
+    assert_eq!(
+        names,
+        vec!["event1", "event2", "event10", "js2", "js3", "js11"]
+    );
 }
 
 #[test]
-fn hinted_evdev_devices_appear_in_hint_order_with_synthetic_metadata() {
+fn hinted_evdev_devices_appear_in_hint_order_with_probed_fixture_metadata() {
     let _serial = testutils::serial_lock();
+    let dir = tempdir().expect("tempdir");
+    let event2 = dir.path().join("event2");
+    let event1 = dir.path().join("event1");
+    testutils::write_default_evdev_gamepad_fixture(&event2);
+    testutils::write_default_evdev_gamepad_fixture(&event1);
     let _hint = testutils::HintGuard::set(
         SDL_HINT_JOYSTICK_DEVICE,
-        "/tmp/fixture-event2:/tmp/fixture-event1",
+        &format!("{}:{}", event2.display(), event1.display()),
     );
     let _subsystem = testutils::SubsystemGuard::init(SDL_INIT_JOYSTICK);
 
@@ -53,11 +64,11 @@ fn hinted_evdev_devices_appear_in_hint_order_with_synthetic_metadata() {
         assert_eq!(SDL_NumJoysticks(), 2);
         assert_eq!(
             c_string(SDL_JoystickPathForIndex(0)),
-            "/tmp/fixture-event2"
+            event2.display().to_string()
         );
         assert_eq!(
             c_string(SDL_JoystickPathForIndex(1)),
-            "/tmp/fixture-event1"
+            event1.display().to_string()
         );
         assert_eq!(
             c_string(SDL_JoystickNameForIndex(0)),
@@ -65,5 +76,46 @@ fn hinted_evdev_devices_appear_in_hint_order_with_synthetic_metadata() {
         );
         assert_eq!(SDL_JoystickGetDeviceVendor(0), 0x054c);
         assert_eq!(SDL_JoystickGetDeviceProduct(0), 0x09cc);
+
+        let joystick = SDL_JoystickOpen(0);
+        assert!(!joystick.is_null());
+        SDL_JoystickUpdate();
+        assert!(SDL_JoystickGetAxis(joystick, 0) >= 12000);
+        assert_eq!(SDL_JoystickGetButton(joystick, 0), SDL_PRESSED as u8);
+        assert_eq!(SDL_JoystickGetHat(joystick, 0), SDL_HAT_RIGHTUP as u8);
+        SDL_JoystickClose(joystick);
+    }
+}
+
+#[test]
+fn hinted_device_directory_expands_through_linux_discovery_order() {
+    let _serial = testutils::serial_lock();
+    let dir = tempdir().expect("tempdir");
+    let event10 = dir.path().join("event10");
+    let event2 = dir.path().join("event2");
+    let event1 = dir.path().join("event1");
+    testutils::write_default_evdev_gamepad_fixture(&event10);
+    testutils::write_default_evdev_gamepad_fixture(&event2);
+    testutils::write_default_evdev_gamepad_fixture(&event1);
+    std::fs::write(dir.path().join("notes.txt"), b"ignore").expect("noise file");
+
+    let _hint =
+        testutils::HintGuard::set(SDL_HINT_JOYSTICK_DEVICE, &dir.path().display().to_string());
+    let _subsystem = testutils::SubsystemGuard::init(SDL_INIT_JOYSTICK);
+
+    unsafe {
+        assert_eq!(SDL_NumJoysticks(), 3);
+        assert_eq!(
+            c_string(SDL_JoystickPathForIndex(0)),
+            event1.display().to_string()
+        );
+        assert_eq!(
+            c_string(SDL_JoystickPathForIndex(1)),
+            event2.display().to_string()
+        );
+        assert_eq!(
+            c_string(SDL_JoystickPathForIndex(2)),
+            event10.display().to_string()
+        );
     }
 }

@@ -2,7 +2,7 @@ use std::ffi::CStr;
 use std::os::raw::{c_char, c_int};
 use std::ptr;
 
-use crate::abi::generated_types::{SDL_GUID, SDL_JoystickGUID, Uint16};
+use crate::abi::generated_types::{SDL_JoystickGUID, Uint16, SDL_GUID};
 
 const HEX: &[u8; 16] = b"0123456789abcdef";
 
@@ -41,7 +41,11 @@ pub unsafe extern "C" fn SDL_GUIDFromString(pchGUID: *const c_char) -> SDL_GUID 
 
     let bytes = CStr::from_ptr(pchGUID).to_bytes();
     let len = bytes.len() & !1usize;
-    for (index, chunk) in bytes[..len].chunks_exact(2).take(guid.data.len()).enumerate() {
+    for (index, chunk) in bytes[..len]
+        .chunks_exact(2)
+        .take(guid.data.len())
+        .enumerate()
+    {
         guid.data[index] = (nibble(chunk[0]) << 4) | nibble(chunk[1]);
     }
     guid
@@ -57,9 +61,7 @@ pub unsafe extern "C" fn SDL_JoystickGetGUIDString(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_JoystickGetGUIDFromString(
-    pchGUID: *const c_char,
-) -> SDL_JoystickGUID {
+pub unsafe extern "C" fn SDL_JoystickGetGUIDFromString(pchGUID: *const c_char) -> SDL_JoystickGUID {
     SDL_GUIDFromString(pchGUID)
 }
 

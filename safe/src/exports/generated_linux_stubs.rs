@@ -1567,12 +1567,14 @@ mod phase7_guid_controller_stubs {
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn SDL_GameControllerGetAppleSFSymbolsNameForAxis() -> *mut ::std::ffi::c_void {
+    pub unsafe extern "C" fn SDL_GameControllerGetAppleSFSymbolsNameForAxis(
+    ) -> *mut ::std::ffi::c_void {
         crate::exports::abort_unimplemented("SDL_GameControllerGetAppleSFSymbolsNameForAxis");
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn SDL_GameControllerGetAppleSFSymbolsNameForButton() -> *mut ::std::ffi::c_void {
+    pub unsafe extern "C" fn SDL_GameControllerGetAppleSFSymbolsNameForButton(
+    ) -> *mut ::std::ffi::c_void {
         crate::exports::abort_unimplemented("SDL_GameControllerGetAppleSFSymbolsNameForButton");
     }
 
@@ -1657,7 +1659,8 @@ mod phase7_guid_controller_stubs {
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn SDL_GameControllerGetSensorDataWithTimestamp() -> *mut ::std::ffi::c_void {
+    pub unsafe extern "C" fn SDL_GameControllerGetSensorDataWithTimestamp(
+    ) -> *mut ::std::ffi::c_void {
         crate::exports::abort_unimplemented("SDL_GameControllerGetSensorDataWithTimestamp");
     }
 
