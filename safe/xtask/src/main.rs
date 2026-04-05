@@ -5,9 +5,11 @@ mod perf;
 mod stage_install;
 
 use std::env;
-use std::path::PathBuf;
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::process::Command;
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, bail, Context, Result};
 
 use contracts::{
     abi_check, capture_contracts, verify_captured_contracts, verify_test_port_coverage,
@@ -303,7 +305,8 @@ fn main() -> Result<()> {
                 unsafe_report: parsed.unsafe_report,
             })
         }
-        "verify-unsafe-allowlist" => {
+        "security-regressions" => security_regressions(&repo_root),
+        "unsafe-audit" | "verify-unsafe-allowlist" => {
             let parsed = VerifyUnsafeAllowlistCliArgs::parse(&remaining)?;
             verify_unsafe_allowlist(&repo_root, &parsed.allowlist, &parsed.report).map(|_| ())
         }
@@ -313,8 +316,52 @@ fn main() -> Result<()> {
 
 fn usage<T>() -> Result<T> {
     bail!(
-        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|build-original-cmake-suite|run-original-ctest|build-original-autotools-suite|run-original-autotools-check|build-original-reference|perf-capture|perf-assert|verify-bootstrap-stage|verify-driver-contract|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone|run-evdev-fixture-tests|run-fixture-backed-original-tests|run-gesture-replay|run-xvfb|run-xvfb-window-smoke|final-check|verify-unsafe-allowlist> ..."
+        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|build-original-cmake-suite|run-original-ctest|build-original-autotools-suite|run-original-autotools-check|build-original-reference|perf-capture|perf-assert|verify-bootstrap-stage|verify-driver-contract|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone|run-evdev-fixture-tests|run-fixture-backed-original-tests|run-gesture-replay|run-xvfb|run-xvfb-window-smoke|security-regressions|final-check|unsafe-audit|verify-unsafe-allowlist> ..."
     )
+}
+
+fn security_regressions(repo_root: &Path) -> Result<()> {
+    let tests_dir = repo_root.join("safe/tests");
+    let mut tests = fs::read_dir(&tests_dir)
+        .with_context(|| format!("read {}", tests_dir.display()))?
+        .filter_map(|entry| entry.ok())
+        .filter_map(|entry| {
+            let path = entry.path();
+            (path.extension().and_then(|ext| ext.to_str()) == Some("rs")).then_some(path)
+        })
+        .filter_map(|path| {
+            path.file_stem()
+                .and_then(|stem| stem.to_str())
+                .filter(|stem| stem.starts_with("security_"))
+                .map(str::to_string)
+        })
+        .collect::<Vec<_>>();
+    tests.sort();
+    if tests.is_empty() {
+        bail!(
+            "no security regression tests found under {}",
+            tests_dir.display()
+        );
+    }
+
+    for test in tests {
+        let status = Command::new("cargo")
+            .current_dir(repo_root)
+            .args([
+                "test",
+                "--manifest-path",
+                "safe/Cargo.toml",
+                "--test",
+                &test,
+            ])
+            .status()
+            .with_context(|| format!("run security regression test {test}"))?;
+        if !status.success() {
+            bail!("security regression test {test} failed with status {status}");
+        }
+    }
+
+    Ok(())
 }
 
 #[derive(Debug)]

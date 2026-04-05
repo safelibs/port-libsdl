@@ -888,6 +888,7 @@ fn apply_stage_suite_env(cmd: &mut Command, stage_root: &Path) -> Result<()> {
     let stage_bin = stage_root.join("usr/bin");
     let stage_libdir = stage_root.join(format!("usr/lib/{UBUNTU_MULTIARCH}"));
     let stage_pkgconfig = stage_libdir.join("pkgconfig");
+    let ttf_cflags = pkg_config_cflags("SDL2_ttf")?;
 
     cmd.env("PATH", joined_env_path(&stage_bin, env::var_os("PATH"))?)
         .env("SDL2_CONFIG", stage_bin.join("sdl2-config"))
@@ -899,8 +900,43 @@ fn apply_stage_suite_env(cmd: &mut Command, stage_root: &Path) -> Result<()> {
             "LD_LIBRARY_PATH",
             joined_env_path(&stage_libdir, env::var_os("LD_LIBRARY_PATH"))?,
         );
+    if let Some(ttf_cflags) = ttf_cflags {
+        cmd.env(
+            "CFLAGS",
+            prepend_shell_flags(&ttf_cflags, env::var_os("CFLAGS")),
+        );
+    }
 
     Ok(())
+}
+
+fn pkg_config_cflags(package: &str) -> Result<Option<String>> {
+    let output = Command::new("pkg-config")
+        .args(["--cflags", package])
+        .output()
+        .with_context(|| format!("query pkg-config --cflags {package}"))?;
+    if !output.status.success() {
+        return Ok(None);
+    }
+
+    let flags = String::from_utf8(output.stdout)
+        .with_context(|| format!("decode pkg-config --cflags {package} output"))?
+        .trim()
+        .to_string();
+    if flags.is_empty() {
+        Ok(None)
+    } else {
+        Ok(Some(flags))
+    }
+}
+
+fn prepend_shell_flags(prefix: &str, existing: Option<OsString>) -> String {
+    match existing {
+        Some(existing) if !existing.is_empty() => {
+            format!("{prefix} {}", existing.to_string_lossy())
+        }
+        _ => prefix.to_string(),
+    }
 }
 
 fn joined_env_path(first: &Path, existing: Option<OsString>) -> Result<OsString> {
