@@ -1,3 +1,4 @@
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
@@ -65,38 +66,50 @@ pub(crate) fn init_event_subsystem() -> Result<(), ()> {
 }
 
 pub(crate) fn quit_event_subsystem() {
-    let mut active = lock_host_event_state();
-    if *active {
+    if !host_event_active().load(Ordering::Acquire) {
+        return;
+    }
+
+    let _guard = lock_host_event_transition();
+    if host_event_active().load(Ordering::Acquire) {
         crate::video::clear_real_error();
         unsafe {
             (api().quit_subsystem)(SDL_INIT_EVENTS);
         }
-        *active = false;
+        host_event_active().store(false, Ordering::Release);
     }
 }
 
-fn host_event_state() -> &'static Mutex<bool> {
-    static STATE: OnceLock<Mutex<bool>> = OnceLock::new();
-    STATE.get_or_init(|| Mutex::new(false))
+fn host_event_active() -> &'static AtomicBool {
+    static ACTIVE: AtomicBool = AtomicBool::new(false);
+    &ACTIVE
 }
 
-fn lock_host_event_state() -> std::sync::MutexGuard<'static, bool> {
-    match host_event_state().lock() {
+fn host_event_transition() -> &'static Mutex<()> {
+    static TRANSITION: OnceLock<Mutex<()>> = OnceLock::new();
+    TRANSITION.get_or_init(|| Mutex::new(()))
+}
+
+fn lock_host_event_transition() -> std::sync::MutexGuard<'static, ()> {
+    match host_event_transition().lock() {
         Ok(guard) => guard,
         Err(poisoned) => poisoned.into_inner(),
     }
 }
 
 fn ensure_real_event_subsystem() {
-    let mut active = lock_host_event_state();
-    if *active {
+    if host_event_active().load(Ordering::Acquire) {
         return;
     }
 
+    let _guard = lock_host_event_transition();
+    if host_event_active().load(Ordering::Acquire) {
+        return;
+    }
     crate::video::clear_real_error();
     let rc = unsafe { (api().init_subsystem)(SDL_INIT_EVENTS) };
     if rc == 0 {
-        *active = true;
+        host_event_active().store(true, Ordering::Release);
     }
 }
 
