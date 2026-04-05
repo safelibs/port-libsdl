@@ -212,7 +212,7 @@ fn multi_flag_init_rolls_back_earlier_subsystems_on_failure() {
 }
 
 #[test]
-fn audio_init_does_not_implicitly_initialize_events() {
+fn audio_init_implicitly_initializes_events_and_quit_cascades() {
     let _serial = testutils::serial_lock();
     let _audio = testutils::ScopedEnvVar::set("SDL_AUDIODRIVER", "dummy");
 
@@ -230,7 +230,7 @@ fn audio_init_does_not_implicitly_initialize_events() {
 
         let active = SDL_WasInit(SDL_INIT_AUDIO | SDL_INIT_EVENTS);
         assert_eq!(active & SDL_INIT_AUDIO, SDL_INIT_AUDIO);
-        assert_eq!(active & SDL_INIT_EVENTS, 0);
+        assert_eq!(active & SDL_INIT_EVENTS, SDL_INIT_EVENTS);
 
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         assert_eq!(SDL_WasInit(SDL_INIT_AUDIO | SDL_INIT_EVENTS), 0);
