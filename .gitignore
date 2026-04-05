@@ -1,0 +1,14 @@
+/build*
+/libsdl2*.deb
+/libsdl2*.ddeb
+/libsdl2*.buildinfo
+/libsdl2*.changes
+/safe/debian/.debhelper/
+/safe/debian/debhelper-build-stamp
+/safe/debian/files
+/safe/debian/*.debhelper.log
+/safe/debian/*.substvars
+/safe/debian/libsdl2-2.0-0/
+/safe/debian/libsdl2-dev/
+/safe/debian/libsdl2-tests/
+/safe/debian/tmp/

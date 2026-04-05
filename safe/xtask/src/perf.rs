@@ -1,12 +1,14 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::env;
 use std::fs;
+use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::thread;
 
 use anyhow::{anyhow, bail, Context, Result};
 use serde::{Deserialize, Serialize};
+use tempfile::{Builder, TempDir};
 
 use crate::contracts::UBUNTU_MULTIARCH;
 use crate::stage_install::{stage_install, StageInstallArgs, StageInstallMode};
@@ -839,6 +841,11 @@ pub struct PerfRunnerSample {
     pub checksum: u64,
 }
 
+struct PreparedBuildDir {
+    path: PathBuf,
+    _guard: Option<TempDir>,
+}
+
 pub fn build_original_reference(args: BuildOriginalReferenceArgs) -> Result<()> {
     let original_dir = absolutize(&args.repo_root, &args.original_dir);
     let build_dir = absolutize(&args.repo_root, &args.build_dir);
@@ -846,10 +853,7 @@ pub fn build_original_reference(args: BuildOriginalReferenceArgs) -> Result<()> 
 
     install_original_build_dependencies(&args.repo_root, &original_dir)?;
 
-    if build_dir.exists() {
-        fs::remove_dir_all(&build_dir)
-            .with_context(|| format!("remove {}", build_dir.display()))?;
-    }
+    let build_dir = prepare_reference_build_dir(&build_dir)?;
     if prefix_dir.exists() {
         fs::remove_dir_all(&prefix_dir)
             .with_context(|| format!("remove {}", prefix_dir.display()))?;
@@ -862,7 +866,7 @@ pub fn build_original_reference(args: BuildOriginalReferenceArgs) -> Result<()> 
         .arg("-S")
         .arg(&original_dir)
         .arg("-B")
-        .arg(&build_dir)
+        .arg(&build_dir.path)
         .arg("-DCMAKE_BUILD_TYPE=Release")
         .arg(format!("-DCMAKE_INSTALL_PREFIX={}", prefix_dir.display()))
         .arg("-DSDL_SHARED=ON")
@@ -876,7 +880,7 @@ pub fn build_original_reference(args: BuildOriginalReferenceArgs) -> Result<()> 
     build
         .current_dir(&args.repo_root)
         .arg("--build")
-        .arg(&build_dir)
+        .arg(&build_dir.path)
         .arg("--parallel")
         .arg(parallelism().to_string());
     run_command(&mut build, "build original performance reference")?;
@@ -885,8 +889,40 @@ pub fn build_original_reference(args: BuildOriginalReferenceArgs) -> Result<()> 
     install
         .current_dir(&args.repo_root)
         .arg("--install")
-        .arg(&build_dir);
+        .arg(&build_dir.path);
     run_command(&mut install, "install original performance reference")
+}
+
+fn prepare_reference_build_dir(requested: &Path) -> Result<PreparedBuildDir> {
+    if requested.exists() {
+        match fs::remove_dir_all(requested) {
+            Ok(()) => {}
+            Err(error) if error.kind() == ErrorKind::PermissionDenied => {
+                let tempdir = Builder::new()
+                    .prefix("libsdl-original-reference-")
+                    .tempdir()
+                    .context("create fallback original reference build dir")?;
+                eprintln!(
+                    "xtask: using fallback original reference build dir {} because {} could not be removed: {}",
+                    tempdir.path().display(),
+                    requested.display(),
+                    error
+                );
+                return Ok(PreparedBuildDir {
+                    path: tempdir.path().to_path_buf(),
+                    _guard: Some(tempdir),
+                });
+            }
+            Err(error) => {
+                return Err(error).with_context(|| format!("remove {}", requested.display()));
+            }
+        }
+    }
+
+    Ok(PreparedBuildDir {
+        path: requested.to_path_buf(),
+        _guard: None,
+    })
 }
 
 pub fn perf_capture(args: PerfCaptureArgs) -> Result<()> {
