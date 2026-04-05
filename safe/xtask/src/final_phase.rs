@@ -511,7 +511,8 @@ pub fn verify_install_contract(args: VerifyInstallContractArgs) -> Result<()> {
             .map(|path| absolutize(&args.repo_root, path))
             .unwrap_or_else(|| generated_dir.join("public_header_inventory.json")),
     )?;
-    let installed_files = walk_root_tree(&package_root)?;
+    let installed_files =
+        collect_relevant_rooted_files(&package_root, &install_contract, &header_inventory)?;
 
     verify_original_install_patterns(
         &original_dir,
@@ -992,8 +993,39 @@ fn walk_tree(root: &str) -> Result<Vec<String>> {
     Ok(paths)
 }
 
-fn walk_root_tree(root: &Path) -> Result<BTreeSet<String>> {
-    Ok(walk_tree_relative(root, root)?.into_iter().collect())
+fn collect_relevant_rooted_files(
+    root: &Path,
+    install_contract: &crate::contracts::InstallContract,
+    header_inventory: &PublicHeaderInventory,
+) -> Result<BTreeSet<String>> {
+    let mut scan_roots = BTreeSet::new();
+    for path in install_contract
+        .runtime_paths
+        .iter()
+        .chain(&install_contract.dev_paths)
+        .chain(&install_contract.cmake_surface)
+        .chain(&install_contract.multiarch_include_paths)
+        .chain(&install_contract.tests_package_paths)
+    {
+        if let Some(parent) = Path::new(path).parent() {
+            scan_roots.insert(parent.to_path_buf());
+        }
+    }
+    for header in &header_inventory.headers {
+        if let Some(parent) = Path::new(&header.install_relpath).parent() {
+            scan_roots.insert(parent.to_path_buf());
+        }
+    }
+
+    let mut installed_files = BTreeSet::new();
+    for scan_root in scan_roots {
+        let full_root = root.join(&scan_root);
+        if !full_root.exists() {
+            continue;
+        }
+        installed_files.extend(walk_tree_relative(&full_root, root)?);
+    }
+    Ok(installed_files)
 }
 
 fn walk_tree_relative(root: &Path, base: &Path) -> Result<Vec<String>> {
