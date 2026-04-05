@@ -924,10 +924,15 @@ EOF
 
 test_love() {
   local love_bin
+  local logfile=/tmp/love.log
+  local maps_log=/tmp/love-maps.log
+  local pid
   love_bin="$(readlink -f "$(command -v love)")"
   assert_uses_safe_sdl "$love_bin"
 
   mkdir -p /tmp/love-smoke
+  : >"$logfile"
+  : >"$maps_log"
   cat >/tmp/love-smoke/main.lua <<'LUA'
 local frames = 0
 
@@ -949,7 +954,31 @@ end
 LUA
 
   start_xvfb
-  timeout 30 env SDL_AUDIODRIVER=dummy love /tmp/love-smoke >/tmp/love.log 2>&1
+  env SDL_AUDIODRIVER=dummy love /tmp/love-smoke >"$logfile" 2>&1 &
+  pid=$!
+
+  for _ in $(seq 1 40); do
+    if ! kill -0 "$pid" >/dev/null 2>&1; then
+      wait "$pid" >/dev/null 2>&1 || true
+      printf -- '--- love log ---\n' >&2
+      cat "$logfile" >&2 || true
+      die "love smoke exited before it loaded the safe SDL runtime"
+    fi
+
+    if grep -F -- "$SAFE_SDL_SO" "/proc/$pid/maps" >"$maps_log" 2>/dev/null; then
+      terminate_pid "$pid"
+      return 0
+    fi
+
+    sleep 0.25
+  done
+
+  printf -- '--- love maps ---\n' >&2
+  cat "$maps_log" >&2 || true
+  printf -- '--- love log ---\n' >&2
+  cat "$logfile" >&2 || true
+  terminate_pid "$pid"
+  die "timed out waiting for love to load the safe SDL runtime"
 }
 
 test_pygame() {
