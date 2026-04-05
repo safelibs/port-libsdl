@@ -259,7 +259,7 @@ build_safe_sdl() {
     die "failed to build safe SDL Debian packages"
   }
 
-  local runtime_deb dev_deb tests_deb installed_pc
+  local runtime_deb dev_deb tests_deb installed_pc pkg_prefix
   runtime_deb="$(find "$SAFE_REPO" -maxdepth 1 -type f -name 'libsdl2-2.0-0_*_*.deb' | sort | tail -n1)"
   dev_deb="$(find "$SAFE_REPO" -maxdepth 1 -type f -name 'libsdl2-dev_*_*.deb' | sort | tail -n1)"
   tests_deb="$(find "$SAFE_REPO" -maxdepth 1 -type f -name 'libsdl2-tests_*_*.deb' | sort | tail -n1)"
@@ -290,7 +290,9 @@ build_safe_sdl() {
   export LD_LIBRARY_PATH="$SAFE_SDL_LIBDIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
   export PKG_CONFIG_PATH="$SAFE_SDL_PKGCONFIG_DIR${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
 
-  pkg-config --variable=prefix sdl2 | grep -Fx '/usr' >/dev/null
+  pkg_prefix="$(pkg-config --variable=prefix sdl2)"
+  pkg_prefix="$(readlink -f "$pkg_prefix")"
+  [[ "$pkg_prefix" == "/usr" ]] || die "expected installed sdl2.pc prefix to resolve to /usr, found $pkg_prefix"
 }
 
 cleanup_xvfb() {
