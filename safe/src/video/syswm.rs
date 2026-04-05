@@ -1,5 +1,3 @@
-use std::sync::OnceLock;
-
 use crate::abi::generated_types::{SDL_Window, SDL_bool, SDL_version, Uint8};
 
 pub type SDL_SYSWM_TYPE = u32;
@@ -87,14 +85,24 @@ pub struct SDL_SysWMinfo {
     pub info: SDL_SysWMinfoUnion,
 }
 
-struct SysWmApi {
+struct HostSysWmApi {
     get_window_wm_info: unsafe extern "C" fn(*mut SDL_Window, *mut SDL_SysWMinfo) -> SDL_bool,
 }
 
-fn api() -> &'static SysWmApi {
-    static API: OnceLock<SysWmApi> = OnceLock::new();
-    API.get_or_init(|| SysWmApi {
-        get_window_wm_info: crate::video::load_symbol(b"SDL_GetWindowWMInfo\0"),
+fn load_host_symbol<T>(name: &[u8]) -> T {
+    let symbol = unsafe { libc::dlsym(crate::video::real_sdl_handle(), name.as_ptr().cast()) };
+    assert!(
+        !symbol.is_null(),
+        "missing host SDL2 symbol {}",
+        String::from_utf8_lossy(&name[..name.len().saturating_sub(1)])
+    );
+    unsafe { std::mem::transmute_copy(&symbol) }
+}
+
+fn host_api() -> &'static HostSysWmApi {
+    static API: std::sync::OnceLock<HostSysWmApi> = std::sync::OnceLock::new();
+    API.get_or_init(|| HostSysWmApi {
+        get_window_wm_info: load_host_symbol(b"SDL_GetWindowWMInfo\0"),
     })
 }
 
@@ -103,6 +111,14 @@ pub unsafe extern "C" fn SDL_GetWindowWMInfo(
     window: *mut SDL_Window,
     info: *mut SDL_SysWMinfo,
 ) -> SDL_bool {
-    crate::video::clear_real_error();
-    (api().get_window_wm_info)(window, info)
+    if crate::video::display::current_driver_is_host() {
+        crate::video::clear_real_error();
+        return (host_api().get_window_wm_info)(window, info);
+    }
+
+    if !info.is_null() {
+        (*info).subsystem = SDL_SYSWM_UNKNOWN;
+        (*info).info.dummy = [0; 64];
+    }
+    0
 }

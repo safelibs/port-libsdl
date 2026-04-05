@@ -1,158 +1,261 @@
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Mutex, OnceLock};
+use std::collections::{HashMap, VecDeque};
+use std::sync::{Condvar, Mutex, OnceLock};
+use std::time::{Duration, Instant};
 
 use crate::abi::generated_types::{
-    SDL_Event, SDL_EventFilter, SDL_EventType_SDL_QUIT, SDL_bool, SDL_eventaction,
-    SDL_eventaction_SDL_PEEKEVENT, Uint32, SDL_INIT_EVENTS,
+    SDL_Event, SDL_EventFilter, SDL_EventType_SDL_LASTEVENT, SDL_EventType_SDL_QUIT,
+    SDL_EventType_SDL_USEREVENT, SDL_bool, SDL_eventaction, SDL_eventaction_SDL_ADDEVENT,
+    SDL_eventaction_SDL_GETEVENT, SDL_eventaction_SDL_PEEKEVENT, Uint32, SDL_DISABLE, SDL_ENABLE,
+    SDL_INIT_EVENTS, SDL_QUERY,
 };
 
-struct QueueApi {
-    add_event_watch: unsafe extern "C" fn(SDL_EventFilter, *mut libc::c_void),
-    del_event_watch: unsafe extern "C" fn(SDL_EventFilter, *mut libc::c_void),
-    event_state: unsafe extern "C" fn(Uint32, libc::c_int) -> u8,
-    filter_events: unsafe extern "C" fn(SDL_EventFilter, *mut libc::c_void),
-    flush_event: unsafe extern "C" fn(Uint32),
-    flush_events: unsafe extern "C" fn(Uint32, Uint32),
-    get_event_filter:
-        unsafe extern "C" fn(*mut SDL_EventFilter, *mut *mut libc::c_void) -> SDL_bool,
-    has_event: unsafe extern "C" fn(Uint32) -> SDL_bool,
-    has_events: unsafe extern "C" fn(Uint32, Uint32) -> SDL_bool,
-    peep_events: unsafe extern "C" fn(
-        *mut SDL_Event,
-        libc::c_int,
-        SDL_eventaction,
-        Uint32,
-        Uint32,
-    ) -> libc::c_int,
-    poll_event: unsafe extern "C" fn(*mut SDL_Event) -> libc::c_int,
-    pump_events: unsafe extern "C" fn(),
-    push_event: unsafe extern "C" fn(*mut SDL_Event) -> libc::c_int,
-    init_subsystem: unsafe extern "C" fn(Uint32) -> libc::c_int,
-    quit_subsystem: unsafe extern "C" fn(Uint32),
-    register_events: unsafe extern "C" fn(libc::c_int) -> Uint32,
-    set_event_filter: unsafe extern "C" fn(SDL_EventFilter, *mut libc::c_void),
-    wait_event: unsafe extern "C" fn(*mut SDL_Event) -> libc::c_int,
-    wait_event_timeout: unsafe extern "C" fn(*mut SDL_Event, libc::c_int) -> libc::c_int,
+#[derive(Clone, Copy)]
+struct CallbackRecord {
+    callback: SDL_EventFilter,
+    callback_addr: usize,
+    userdata: usize,
 }
 
-fn api() -> &'static QueueApi {
-    static API: OnceLock<QueueApi> = OnceLock::new();
-    API.get_or_init(|| QueueApi {
-        add_event_watch: crate::video::load_symbol(b"SDL_AddEventWatch\0"),
-        del_event_watch: crate::video::load_symbol(b"SDL_DelEventWatch\0"),
-        event_state: crate::video::load_symbol(b"SDL_EventState\0"),
-        filter_events: crate::video::load_symbol(b"SDL_FilterEvents\0"),
-        flush_event: crate::video::load_symbol(b"SDL_FlushEvent\0"),
-        flush_events: crate::video::load_symbol(b"SDL_FlushEvents\0"),
-        get_event_filter: crate::video::load_symbol(b"SDL_GetEventFilter\0"),
-        has_event: crate::video::load_symbol(b"SDL_HasEvent\0"),
-        has_events: crate::video::load_symbol(b"SDL_HasEvents\0"),
-        peep_events: crate::video::load_symbol(b"SDL_PeepEvents\0"),
-        poll_event: crate::video::load_symbol(b"SDL_PollEvent\0"),
-        pump_events: crate::video::load_symbol(b"SDL_PumpEvents\0"),
-        push_event: crate::video::load_symbol(b"SDL_PushEvent\0"),
-        init_subsystem: crate::video::load_symbol(b"SDL_InitSubSystem\0"),
-        quit_subsystem: crate::video::load_symbol(b"SDL_QuitSubSystem\0"),
-        register_events: crate::video::load_symbol(b"SDL_RegisterEvents\0"),
-        set_event_filter: crate::video::load_symbol(b"SDL_SetEventFilter\0"),
-        wait_event: crate::video::load_symbol(b"SDL_WaitEvent\0"),
-        wait_event_timeout: crate::video::load_symbol(b"SDL_WaitEventTimeout\0"),
+struct EventQueueState {
+    active: bool,
+    queue: VecDeque<SDL_Event>,
+    watchers: Vec<CallbackRecord>,
+    filter: Option<CallbackRecord>,
+    event_states: HashMap<Uint32, u8>,
+    next_user_event: Uint32,
+}
+
+unsafe impl Send for EventQueueState {}
+
+impl Default for EventQueueState {
+    fn default() -> Self {
+        Self {
+            active: false,
+            queue: VecDeque::new(),
+            watchers: Vec::new(),
+            filter: None,
+            event_states: HashMap::new(),
+            next_user_event: SDL_EventType_SDL_USEREVENT as Uint32,
+        }
+    }
+}
+
+struct EventRuntime {
+    state: Mutex<EventQueueState>,
+    condvar: Condvar,
+}
+
+fn runtime() -> &'static EventRuntime {
+    static RUNTIME: OnceLock<EventRuntime> = OnceLock::new();
+    RUNTIME.get_or_init(|| EventRuntime {
+        state: Mutex::new(EventQueueState::default()),
+        condvar: Condvar::new(),
     })
 }
 
-pub(crate) fn init_event_subsystem() -> Result<(), ()> {
-    let _ = SDL_INIT_EVENTS;
-    Ok(())
-}
-
-pub(crate) fn quit_event_subsystem() {
-    if !host_event_active().load(Ordering::Acquire) {
-        return;
-    }
-
-    let _guard = lock_host_event_transition();
-    if host_event_active().load(Ordering::Acquire) {
-        crate::video::clear_real_error();
-        unsafe {
-            (api().quit_subsystem)(SDL_INIT_EVENTS);
-        }
-        host_event_active().store(false, Ordering::Release);
-    }
-}
-
-fn host_event_active() -> &'static AtomicBool {
-    static ACTIVE: AtomicBool = AtomicBool::new(false);
-    &ACTIVE
-}
-
-fn host_event_transition() -> &'static Mutex<()> {
-    static TRANSITION: OnceLock<Mutex<()>> = OnceLock::new();
-    TRANSITION.get_or_init(|| Mutex::new(()))
-}
-
-fn lock_host_event_transition() -> std::sync::MutexGuard<'static, ()> {
-    match host_event_transition().lock() {
+fn lock_event_state() -> std::sync::MutexGuard<'static, EventQueueState> {
+    match runtime().state.lock() {
         Ok(guard) => guard,
         Err(poisoned) => poisoned.into_inner(),
     }
 }
 
-pub(crate) fn ensure_real_event_subsystem() {
-    if host_event_active().load(Ordering::Acquire) {
-        return;
+fn ensure_active(state: &EventQueueState) -> Result<(), ()> {
+    if state.active {
+        Ok(())
+    } else {
+        let _ = crate::core::error::set_error_message("Events subsystem has not been initialized");
+        Err(())
     }
+}
 
-    let _guard = lock_host_event_transition();
-    if host_event_active().load(Ordering::Acquire) {
-        return;
+fn current_processing_state(state: &EventQueueState, type_: Uint32) -> u8 {
+    *state
+        .event_states
+        .get(&type_)
+        .unwrap_or(&(SDL_ENABLE as u8))
+}
+
+fn event_enabled(state: &EventQueueState, type_: Uint32) -> bool {
+    current_processing_state(state, type_) != SDL_DISABLE as u8
+}
+
+fn call_filter(record: CallbackRecord, event: &mut SDL_Event) -> bool {
+    record
+        .callback
+        .map(|callback| unsafe { callback(record.userdata as *mut libc::c_void, event) != 0 })
+        .unwrap_or(true)
+}
+
+fn callback_addr(callback: SDL_EventFilter) -> usize {
+    callback.map(|callback| callback as usize).unwrap_or(0)
+}
+
+fn notify_watchers(state: &EventQueueState, event: &mut SDL_Event) {
+    for watcher in state.watchers.iter().copied() {
+        if let Some(callback) = watcher.callback {
+            unsafe {
+                callback(watcher.userdata as *mut libc::c_void, event);
+            }
+        }
     }
-    crate::video::clear_real_error();
-    let rc = unsafe { (api().init_subsystem)(SDL_INIT_EVENTS) };
-    if rc == 0 {
-        host_event_active().store(true, Ordering::Release);
+}
+
+fn queue_contains_type(state: &EventQueueState, minType: Uint32, maxType: Uint32) -> bool {
+    state
+        .queue
+        .iter()
+        .any(|event| unsafe { event.type_ >= minType && event.type_ <= maxType })
+}
+
+fn queue_count_type(state: &EventQueueState, minType: Uint32, maxType: Uint32) -> libc::c_int {
+    state
+        .queue
+        .iter()
+        .filter(|event| unsafe { event.type_ >= minType && event.type_ <= maxType })
+        .count() as libc::c_int
+}
+
+fn push_copied_event(
+    state: &mut EventQueueState,
+    mut event: SDL_Event,
+    apply_global_filter: bool,
+) -> libc::c_int {
+    let event_type = unsafe { event.type_ };
+    if !event_enabled(state, event_type) {
+        return 0;
     }
+    if apply_global_filter {
+        if let Some(filter) = state.filter {
+            if !call_filter(filter, &mut event) {
+                return 0;
+            }
+        }
+        notify_watchers(state, &mut event);
+    }
+    state.queue.push_back(event);
+    runtime().condvar.notify_all();
+    1
+}
+
+fn pop_matching_event(
+    state: &mut EventQueueState,
+    minType: Uint32,
+    maxType: Uint32,
+) -> Option<SDL_Event> {
+    let position = state
+        .queue
+        .iter()
+        .position(|event| unsafe { event.type_ >= minType && event.type_ <= maxType })?;
+    state.queue.remove(position)
+}
+
+fn peek_matching_event(
+    state: &EventQueueState,
+    minType: Uint32,
+    maxType: Uint32,
+) -> Option<SDL_Event> {
+    state
+        .queue
+        .iter()
+        .copied()
+        .find(|event| unsafe { event.type_ >= minType && event.type_ <= maxType })
+}
+
+pub(crate) fn init_event_subsystem() -> Result<(), ()> {
+    let _ = SDL_INIT_EVENTS;
+    let mut state = lock_event_state();
+    if !state.active {
+        *state = EventQueueState::default();
+        state.active = true;
+    }
+    Ok(())
+}
+
+pub(crate) fn quit_event_subsystem() {
+    *lock_event_state() = EventQueueState::default();
+    runtime().condvar.notify_all();
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_AddEventWatch(filter: SDL_EventFilter, userdata: *mut libc::c_void) {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().add_event_watch)(filter, userdata);
+    let mut state = lock_event_state();
+    if ensure_active(&state).is_err() {
+        return;
+    }
+    state.watchers.push(CallbackRecord {
+        callback: filter,
+        callback_addr: callback_addr(filter),
+        userdata: userdata as usize,
+    });
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_DelEventWatch(filter: SDL_EventFilter, userdata: *mut libc::c_void) {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().del_event_watch)(filter, userdata);
+    let mut state = lock_event_state();
+    if ensure_active(&state).is_err() {
+        return;
+    }
+    let userdata = userdata as usize;
+    let filter_addr = callback_addr(filter);
+    state
+        .watchers
+        .retain(|watcher| watcher.callback_addr != filter_addr || watcher.userdata != userdata);
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_EventState(type_: Uint32, state: libc::c_int) -> u8 {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().event_state)(type_, state)
+pub unsafe extern "C" fn SDL_EventState(type_: Uint32, state_value: libc::c_int) -> u8 {
+    let mut state = lock_event_state();
+    if ensure_active(&state).is_err() {
+        return SDL_DISABLE as u8;
+    }
+
+    let previous = current_processing_state(&state, type_);
+    if state_value == SDL_QUERY {
+        return previous;
+    }
+
+    let next = if state_value == SDL_DISABLE as libc::c_int {
+        SDL_DISABLE as u8
+    } else {
+        SDL_ENABLE as u8
+    };
+    state.event_states.insert(type_, next);
+    if next == SDL_DISABLE as u8 {
+        state.queue.retain(|event| unsafe { event.type_ != type_ });
+    }
+    previous
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_FilterEvents(filter: SDL_EventFilter, userdata: *mut libc::c_void) {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().filter_events)(filter, userdata);
+    let mut state = lock_event_state();
+    if ensure_active(&state).is_err() {
+        return;
+    }
+    let Some(callback) = filter else {
+        return;
+    };
+    let userdata = userdata as usize;
+    state
+        .queue
+        .retain_mut(|event| callback(userdata as *mut libc::c_void, event) != 0);
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_FlushEvent(type_: Uint32) {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().flush_event)(type_);
+    SDL_FlushEvents(type_, type_);
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_FlushEvents(minType: Uint32, maxType: Uint32) {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().flush_events)(minType, maxType);
+    let mut state = lock_event_state();
+    if ensure_active(&state).is_err() {
+        return;
+    }
+    state
+        .queue
+        .retain(|event| unsafe { event.type_ < minType || event.type_ > maxType });
 }
 
 #[no_mangle]
@@ -160,23 +263,41 @@ pub unsafe extern "C" fn SDL_GetEventFilter(
     filter: *mut SDL_EventFilter,
     userdata: *mut *mut libc::c_void,
 ) -> SDL_bool {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().get_event_filter)(filter, userdata)
+    let state = lock_event_state();
+    if ensure_active(&state).is_err() {
+        return 0;
+    }
+    if let Some(record) = state.filter {
+        if !filter.is_null() {
+            *filter = record.callback;
+        }
+        if !userdata.is_null() {
+            *userdata = record.userdata as *mut libc::c_void;
+        }
+        1
+    } else {
+        if !filter.is_null() {
+            *filter = None;
+        }
+        if !userdata.is_null() {
+            *userdata = std::ptr::null_mut();
+        }
+        0
+    }
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_HasEvent(type_: Uint32) -> SDL_bool {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().has_event)(type_)
+    SDL_HasEvents(type_, type_)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_HasEvents(minType: Uint32, maxType: Uint32) -> SDL_bool {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().has_events)(minType, maxType)
+    let state = lock_event_state();
+    if ensure_active(&state).is_err() {
+        return 0;
+    }
+    queue_contains_type(&state, minType, maxType) as SDL_bool
 }
 
 #[no_mangle]
@@ -187,51 +308,134 @@ pub unsafe extern "C" fn SDL_PeepEvents(
     minType: Uint32,
     maxType: Uint32,
 ) -> libc::c_int {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().peep_events)(events, numevents, action, minType, maxType)
+    let mut state = lock_event_state();
+    if ensure_active(&state).is_err() {
+        return -1;
+    }
+
+    match action {
+        SDL_eventaction_SDL_ADDEVENT => {
+            if events.is_null() || numevents < 0 {
+                return crate::core::error::invalid_param_error("events");
+            }
+            let mut inserted = 0;
+            for index in 0..numevents as usize {
+                inserted += push_copied_event(&mut state, *events.add(index), false);
+            }
+            inserted
+        }
+        SDL_eventaction_SDL_PEEKEVENT | SDL_eventaction_SDL_GETEVENT => {
+            if numevents <= 0 || events.is_null() {
+                return queue_count_type(&state, minType, maxType);
+            }
+
+            let mut copied = 0;
+            if action == SDL_eventaction_SDL_PEEKEVENT {
+                for event in state
+                    .queue
+                    .iter()
+                    .copied()
+                    .filter(|event| unsafe { event.type_ >= minType && event.type_ <= maxType })
+                    .take(numevents as usize)
+                {
+                    *events.add(copied as usize) = event;
+                    copied += 1;
+                }
+                return copied;
+            }
+
+            let mut removed_indices = Vec::new();
+            for (index, event) in state.queue.iter().copied().enumerate() {
+                if unsafe { event.type_ < minType || event.type_ > maxType } {
+                    continue;
+                }
+                *events.add(copied as usize) = event;
+                removed_indices.push(index);
+                copied += 1;
+                if copied == numevents {
+                    break;
+                }
+            }
+            for index in removed_indices.into_iter().rev() {
+                let _ = state.queue.remove(index);
+            }
+            copied
+        }
+        _ => crate::core::error::set_error_message("Unsupported event queue action"),
+    }
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_PollEvent(event: *mut SDL_Event) -> libc::c_int {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().poll_event)(event)
+    let mut state = lock_event_state();
+    if ensure_active(&state).is_err() {
+        return 0;
+    }
+    match pop_matching_event(&mut state, 0, SDL_EventType_SDL_LASTEVENT as Uint32) {
+        Some(queued) => {
+            if !event.is_null() {
+                *event = queued;
+            }
+            1
+        }
+        None => 0,
+    }
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_PumpEvents() {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().pump_events)();
-}
+pub unsafe extern "C" fn SDL_PumpEvents() {}
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_PushEvent(event: *mut SDL_Event) -> libc::c_int {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().push_event)(event)
+    if event.is_null() {
+        return crate::core::error::invalid_param_error("event");
+    }
+    let mut state = lock_event_state();
+    if ensure_active(&state).is_err() {
+        return -1;
+    }
+    push_copied_event(&mut state, *event, true)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_RegisterEvents(numevents: libc::c_int) -> Uint32 {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().register_events)(numevents)
+    if numevents <= 0 {
+        let _ = crate::core::error::set_error_message("Number of events must be positive");
+        return u32::MAX;
+    }
+
+    let mut state = lock_event_state();
+    if ensure_active(&state).is_err() {
+        return u32::MAX;
+    }
+
+    let end = state.next_user_event.saturating_add(numevents as Uint32);
+    if end > SDL_EventType_SDL_LASTEVENT as Uint32 {
+        let _ = crate::core::error::set_error_message("No more user events available");
+        return u32::MAX;
+    }
+
+    let base = state.next_user_event;
+    state.next_user_event = end;
+    base
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetEventFilter(filter: SDL_EventFilter, userdata: *mut libc::c_void) {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().set_event_filter)(filter, userdata);
+    let mut state = lock_event_state();
+    if ensure_active(&state).is_err() {
+        return;
+    }
+    state.filter = filter.map(|callback| CallbackRecord {
+        callback: Some(callback),
+        callback_addr: callback as usize,
+        userdata: userdata as usize,
+    });
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_WaitEvent(event: *mut SDL_Event) -> libc::c_int {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().wait_event)(event)
+    SDL_WaitEventTimeout(event, -1)
 }
 
 #[no_mangle]
@@ -239,20 +443,57 @@ pub unsafe extern "C" fn SDL_WaitEventTimeout(
     event: *mut SDL_Event,
     timeout: libc::c_int,
 ) -> libc::c_int {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().wait_event_timeout)(event, timeout)
+    let deadline = if timeout < 0 {
+        None
+    } else {
+        Some(Instant::now() + Duration::from_millis(timeout as u64))
+    };
+
+    let mut state = lock_event_state();
+    if ensure_active(&state).is_err() {
+        return 0;
+    }
+
+    loop {
+        if let Some(queued) =
+            pop_matching_event(&mut state, 0, SDL_EventType_SDL_LASTEVENT as Uint32)
+        {
+            if !event.is_null() {
+                *event = queued;
+            }
+            return 1;
+        }
+
+        match deadline {
+            Some(deadline) => {
+                let now = Instant::now();
+                if now >= deadline {
+                    return 0;
+                }
+                let timeout = deadline.saturating_duration_since(now);
+                state = match runtime().condvar.wait_timeout(state, timeout) {
+                    Ok((guard, _)) => guard,
+                    Err(poisoned) => poisoned.into_inner().0,
+                };
+            }
+            None => {
+                state = match runtime().condvar.wait(state) {
+                    Ok(guard) => guard,
+                    Err(poisoned) => poisoned.into_inner(),
+                };
+            }
+        }
+    }
 }
 
 pub unsafe extern "C" fn SDL_QuitRequested() -> SDL_bool {
-    ensure_real_event_subsystem();
-    crate::video::clear_real_error();
-    (api().pump_events)();
-    ((api().peep_events)(
-        std::ptr::null_mut(),
-        0,
-        SDL_eventaction_SDL_PEEKEVENT,
+    let state = lock_event_state();
+    if !state.active {
+        return 0;
+    }
+    queue_contains_type(
+        &state,
         SDL_EventType_SDL_QUIT as Uint32,
         SDL_EventType_SDL_QUIT as Uint32,
-    ) > 0) as SDL_bool
+    ) as SDL_bool
 }
