@@ -14,8 +14,12 @@ use anyhow::{anyhow, bail, Context, Result};
 use contracts::{
     abi_check, capture_contracts, verify_captured_contracts, verify_test_port_coverage,
     verify_test_port_map, AbiCheckArgs as ContractsAbiCheckArgs, ContractArgs, PHASE_08_ID,
+    UBUNTU_MULTIARCH,
 };
-use final_phase::{final_check, verify_unsafe_allowlist, FinalCheckArgs};
+use final_phase::{
+    final_check, verify_install_contract, verify_unsafe_allowlist, FinalCheckArgs,
+    VerifyInstallContractArgs,
+};
 use original_tests::{
     build_original_autotools_suite, build_original_cmake_suite, build_original_standalone,
     compile_original_test_objects, relink_original_test_objects, run_evdev_fixture_tests,
@@ -203,6 +207,15 @@ fn main() -> Result<()> {
                 stage_root: parsed.root,
             })
         }
+        "verify-install-contract" => {
+            let parsed = VerifyInstallContractCliArgs::parse(&remaining)?;
+            verify_install_contract(VerifyInstallContractArgs {
+                repo_root,
+                generated_dir: parsed.generated,
+                original_dir: parsed.original,
+                package_root: parsed.root,
+            })
+        }
         "verify-driver-contract" => {
             let parsed = VerifyDriverContractCliArgs::parse(&remaining)?;
             verify_driver_contract(VerifyDriverContractArgs {
@@ -217,6 +230,7 @@ fn main() -> Result<()> {
             compile_original_test_objects(CompileOriginalTestObjectsArgs {
                 repo_root,
                 generated_dir: parsed.generated,
+                object_manifest: parsed.object_manifest,
                 output_dir: parsed.output_dir,
             })
         }
@@ -225,6 +239,8 @@ fn main() -> Result<()> {
             relink_original_test_objects(RelinkOriginalTestObjectsArgs {
                 repo_root,
                 generated_dir: parsed.generated,
+                object_manifest: parsed.object_manifest,
+                standalone_manifest: parsed.standalone_manifest,
                 objects_dir: parsed.objects_dir,
                 output_dir: parsed.output_dir,
                 library_path: parsed.library,
@@ -246,6 +262,7 @@ fn main() -> Result<()> {
             run_relinked_original_tests(RunRelinkedOriginalTestsArgs {
                 repo_root,
                 generated_dir: parsed.generated,
+                standalone_manifest: parsed.manifest,
                 bin_dir: parsed.bin_dir,
                 filter: parsed.target,
             })
@@ -316,7 +333,7 @@ fn main() -> Result<()> {
 
 fn usage<T>() -> Result<T> {
     bail!(
-        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|build-original-cmake-suite|run-original-ctest|build-original-autotools-suite|run-original-autotools-check|build-original-reference|perf-capture|perf-assert|verify-bootstrap-stage|verify-driver-contract|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone|run-evdev-fixture-tests|run-fixture-backed-original-tests|run-gesture-replay|run-xvfb|run-xvfb-window-smoke|security-regressions|final-check|unsafe-audit|verify-unsafe-allowlist> ..."
+        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|build-original-cmake-suite|run-original-ctest|build-original-autotools-suite|run-original-autotools-check|build-original-reference|perf-capture|perf-assert|verify-bootstrap-stage|verify-install-contract|verify-driver-contract|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone|run-evdev-fixture-tests|run-fixture-backed-original-tests|run-gesture-replay|run-xvfb|run-xvfb-window-smoke|security-regressions|final-check|unsafe-audit|verify-unsafe-allowlist> ..."
     )
 }
 
@@ -1072,6 +1089,40 @@ impl VerifyBootstrapStageCliArgs {
 }
 
 #[derive(Debug)]
+struct VerifyInstallContractCliArgs {
+    generated: PathBuf,
+    original: PathBuf,
+    root: PathBuf,
+}
+
+impl VerifyInstallContractCliArgs {
+    fn parse(args: &[String]) -> Result<Self> {
+        let mut generated = PathBuf::from("safe/generated");
+        let mut original = PathBuf::from("original");
+        let mut root = None;
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            match arg.as_str() {
+                "--generated" => {
+                    generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
+                "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
+                "--package-root" | "--root" | "--destdir" => {
+                    root = Some(PathBuf::from(require_value(&mut iter, arg)?))
+                }
+                other => bail!("unknown argument {other}"),
+            }
+        }
+        Ok(Self {
+            generated,
+            original,
+            root: root
+                .ok_or_else(|| anyhow!("--package-root, --root, or --destdir is required"))?,
+        })
+    }
+}
+
+#[derive(Debug)]
 struct VerifyDriverContractCliArgs {
     contract: PathBuf,
     root: PathBuf,
@@ -1093,7 +1144,7 @@ impl VerifyDriverContractCliArgs {
                 "--contract" => {
                     contract = Some(PathBuf::from(require_value(&mut iter, "--contract")?))
                 }
-                "--root" | "--destdir" => {
+                "--package-root" | "--root" | "--destdir" => {
                     root = Some(PathBuf::from(require_value(&mut iter, arg)?))
                 }
                 "--kind" => kind = Some(require_value(&mut iter, "--kind")?.to_string()),
@@ -1130,18 +1181,23 @@ impl RunXvfbCliArgs {
 #[derive(Debug)]
 struct CompileOriginalCliArgs {
     generated: PathBuf,
+    object_manifest: Option<PathBuf>,
     output_dir: PathBuf,
 }
 
 impl CompileOriginalCliArgs {
     fn parse(args: &[String]) -> Result<Self> {
         let mut generated = PathBuf::from("safe/generated");
+        let mut object_manifest = None;
         let mut output_dir = None;
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
                 "--generated" => {
                     generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
+                "--object-manifest" | "--manifest" => {
+                    object_manifest = Some(PathBuf::from(require_value(&mut iter, arg)?))
                 }
                 "--output-dir" => {
                     output_dir = Some(PathBuf::from(require_value(&mut iter, "--output-dir")?))
@@ -1151,6 +1207,7 @@ impl CompileOriginalCliArgs {
         }
         Ok(Self {
             generated,
+            object_manifest,
             output_dir: output_dir.ok_or_else(|| anyhow!("--output-dir is required"))?,
         })
     }
@@ -1159,6 +1216,8 @@ impl CompileOriginalCliArgs {
 #[derive(Debug)]
 struct RelinkOriginalCliArgs {
     generated: PathBuf,
+    object_manifest: Option<PathBuf>,
+    standalone_manifest: Option<PathBuf>,
     objects_dir: PathBuf,
     output_dir: PathBuf,
     library: PathBuf,
@@ -1167,14 +1226,26 @@ struct RelinkOriginalCliArgs {
 impl RelinkOriginalCliArgs {
     fn parse(args: &[String]) -> Result<Self> {
         let mut generated = PathBuf::from("safe/generated");
+        let mut object_manifest = None;
+        let mut standalone_manifest = None;
         let mut objects_dir = None;
         let mut output_dir = None;
         let mut library = None;
+        let mut package_root = None;
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
                 "--generated" => {
                     generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
+                "--object-manifest" => {
+                    object_manifest = Some(PathBuf::from(require_value(
+                        &mut iter,
+                        "--object-manifest",
+                    )?))
+                }
+                "--standalone-manifest" | "--manifest" => {
+                    standalone_manifest = Some(PathBuf::from(require_value(&mut iter, arg)?))
                 }
                 "--objects-dir" => {
                     objects_dir = Some(PathBuf::from(require_value(&mut iter, "--objects-dir")?))
@@ -1182,17 +1253,25 @@ impl RelinkOriginalCliArgs {
                 "--output-dir" => {
                     output_dir = Some(PathBuf::from(require_value(&mut iter, "--output-dir")?))
                 }
+                "--package-root" | "--root" | "--destdir" => {
+                    package_root = Some(PathBuf::from(require_value(&mut iter, arg)?))
+                }
                 "--library" => {
                     library = Some(PathBuf::from(require_value(&mut iter, "--library")?))
                 }
                 other => bail!("unknown argument {other}"),
             }
         }
+        let library = library.or_else(|| {
+            package_root.map(|root| root.join(format!("usr/lib/{UBUNTU_MULTIARCH}/libSDL2-2.0.so")))
+        });
         Ok(Self {
             generated,
+            object_manifest,
+            standalone_manifest,
             objects_dir: objects_dir.ok_or_else(|| anyhow!("--objects-dir is required"))?,
             output_dir: output_dir.ok_or_else(|| anyhow!("--output-dir is required"))?,
-            library: library.ok_or_else(|| anyhow!("--library is required"))?,
+            library: library.ok_or_else(|| anyhow!("--library or --package-root is required"))?,
         })
     }
 }
@@ -1200,6 +1279,7 @@ impl RelinkOriginalCliArgs {
 #[derive(Debug)]
 struct RunRelinkedCliArgs {
     generated: PathBuf,
+    manifest: PathBuf,
     bin_dir: PathBuf,
     target: Option<String>,
 }
@@ -1207,6 +1287,7 @@ struct RunRelinkedCliArgs {
 impl RunRelinkedCliArgs {
     fn parse(args: &[String]) -> Result<Self> {
         let mut generated = PathBuf::from("safe/generated");
+        let mut manifest = PathBuf::from("safe/generated/standalone_test_manifest.json");
         let mut bin_dir = None;
         let mut target = None;
         let mut iter = args.iter();
@@ -1214,6 +1295,9 @@ impl RunRelinkedCliArgs {
             match arg.as_str() {
                 "--generated" => {
                     generated = PathBuf::from(require_value(&mut iter, "--generated")?)
+                }
+                "--standalone-manifest" | "--manifest" => {
+                    manifest = PathBuf::from(require_value(&mut iter, arg)?)
                 }
                 "--bin-dir" => {
                     bin_dir = Some(PathBuf::from(require_value(&mut iter, "--bin-dir")?))
@@ -1224,6 +1308,7 @@ impl RunRelinkedCliArgs {
         }
         Ok(Self {
             generated,
+            manifest,
             bin_dir: bin_dir.ok_or_else(|| anyhow!("--bin-dir is required"))?,
             target,
         })
@@ -1336,8 +1421,9 @@ mod tests {
     use std::path::PathBuf;
 
     use super::{
-        OriginalCtestCliArgs, RunOriginalAutotoolsCheckCliArgs, VerifyTestPortCoverageArgs,
-        PHASE_08_ID,
+        OriginalCtestCliArgs, RelinkOriginalCliArgs, RunOriginalAutotoolsCheckCliArgs,
+        RunRelinkedCliArgs, VerifyDriverContractCliArgs, VerifyInstallContractCliArgs,
+        VerifyTestPortCoverageArgs, PHASE_08_ID,
     };
     use crate::contracts::{load_original_test_port_map, verify_test_port_coverage};
     use tempfile::tempdir;
@@ -1389,6 +1475,77 @@ mod tests {
         assert_eq!(
             parsed.build_dir,
             PathBuf::from("/tmp/libsdl-safe-autotools")
+        );
+    }
+
+    #[test]
+    fn verify_install_contract_accepts_package_root_flag() {
+        let parsed = VerifyInstallContractCliArgs::parse(&[
+            "--package-root".to_string(),
+            "/tmp/pkgroot".to_string(),
+        ])
+        .expect("parse verify-install-contract args");
+        assert_eq!(parsed.root, PathBuf::from("/tmp/pkgroot"));
+    }
+
+    #[test]
+    fn verify_driver_contract_accepts_package_root_flag() {
+        let parsed = VerifyDriverContractCliArgs::parse(&[
+            "--package-root".to_string(),
+            "/tmp/pkgroot".to_string(),
+            "--kind".to_string(),
+            "video".to_string(),
+        ])
+        .expect("parse verify-driver-contract args");
+        assert_eq!(parsed.root, PathBuf::from("/tmp/pkgroot"));
+        assert_eq!(parsed.kind, "video");
+    }
+
+    #[test]
+    fn relink_original_cli_derives_library_from_package_root() {
+        let parsed = RelinkOriginalCliArgs::parse(&[
+            "--objects-dir".to_string(),
+            "build-phase10-relinked-objects".to_string(),
+            "--output-dir".to_string(),
+            "build-phase10-relinked-bins".to_string(),
+            "--package-root".to_string(),
+            "/tmp/pkgroot".to_string(),
+            "--object-manifest".to_string(),
+            "safe/generated/original_test_object_manifest.json".to_string(),
+            "--standalone-manifest".to_string(),
+            "safe/generated/standalone_test_manifest.json".to_string(),
+        ])
+        .expect("parse relink-original-test-objects args");
+        assert_eq!(
+            parsed.library,
+            PathBuf::from("/tmp/pkgroot/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so")
+        );
+        assert_eq!(
+            parsed.object_manifest,
+            Some(PathBuf::from(
+                "safe/generated/original_test_object_manifest.json"
+            ))
+        );
+        assert_eq!(
+            parsed.standalone_manifest,
+            Some(PathBuf::from(
+                "safe/generated/standalone_test_manifest.json"
+            ))
+        );
+    }
+
+    #[test]
+    fn run_relinked_cli_accepts_standalone_manifest() {
+        let parsed = RunRelinkedCliArgs::parse(&[
+            "--bin-dir".to_string(),
+            "build-phase10-relinked-bins".to_string(),
+            "--standalone-manifest".to_string(),
+            "safe/generated/standalone_test_manifest.json".to_string(),
+        ])
+        .expect("parse run-relinked-original-tests args");
+        assert_eq!(
+            parsed.manifest,
+            PathBuf::from("safe/generated/standalone_test_manifest.json")
         );
     }
 

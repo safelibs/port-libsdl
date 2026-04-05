@@ -49,6 +49,7 @@ fn discover_device_nodes_sorts_by_prefix_then_numeric_suffix() {
 }
 
 #[test]
+#[ignore = "run via xtask run-evdev-fixture-tests"]
 fn hinted_evdev_devices_appear_in_hint_order_with_probed_fixture_metadata() {
     let _serial = testutils::serial_lock();
     let dir = tempdir().expect("tempdir");
@@ -90,6 +91,7 @@ fn hinted_evdev_devices_appear_in_hint_order_with_probed_fixture_metadata() {
 }
 
 #[test]
+#[ignore = "run via xtask run-evdev-fixture-tests"]
 fn hinted_device_directory_expands_through_linux_discovery_order() {
     let _serial = testutils::serial_lock();
     let dir = tempdir().expect("tempdir");

@@ -16,15 +16,20 @@ use crate::contracts::{
     UBUNTU_MULTIARCH,
 };
 
+const DEFAULT_CTEST_TARGETS: &[&str] = &["testatomic", "testplatform", "testqsort"];
+
 pub struct CompileOriginalTestObjectsArgs {
     pub repo_root: PathBuf,
     pub generated_dir: PathBuf,
+    pub object_manifest: Option<PathBuf>,
     pub output_dir: PathBuf,
 }
 
 pub struct RelinkOriginalTestObjectsArgs {
     pub repo_root: PathBuf,
     pub generated_dir: PathBuf,
+    pub object_manifest: Option<PathBuf>,
+    pub standalone_manifest: Option<PathBuf>,
     pub objects_dir: PathBuf,
     pub output_dir: PathBuf,
     pub library_path: PathBuf,
@@ -33,6 +38,7 @@ pub struct RelinkOriginalTestObjectsArgs {
 pub struct RunRelinkedOriginalTestsArgs {
     pub repo_root: PathBuf,
     pub generated_dir: PathBuf,
+    pub standalone_manifest: PathBuf,
     pub bin_dir: PathBuf,
     pub filter: Option<String>,
 }
@@ -96,9 +102,12 @@ pub struct RunOriginalAutotoolsCheckArgs {
 pub fn compile_original_test_objects(args: CompileOriginalTestObjectsArgs) -> Result<()> {
     let generated_dir = absolutize(&args.repo_root, &args.generated_dir);
     let output_dir = absolutize(&args.repo_root, &args.output_dir);
-    let manifest = load_original_test_object_manifest(
-        &generated_dir.join("original_test_object_manifest.json"),
-    )?;
+    let object_manifest = args
+        .object_manifest
+        .as_ref()
+        .map(|path| absolutize(&args.repo_root, path))
+        .unwrap_or_else(|| generated_dir.join("original_test_object_manifest.json"));
+    let manifest = load_original_test_object_manifest(&object_manifest)?;
 
     if output_dir.exists() {
         fs::remove_dir_all(&output_dir)?;
@@ -165,9 +174,16 @@ pub fn relink_original_test_objects(args: RelinkOriginalTestObjectsArgs) -> Resu
     let stage_libdir = library_path
         .parent()
         .ok_or_else(|| anyhow!("library path {} has no parent", library_path.display()))?;
-    let manifest = load_original_test_object_manifest(
-        &generated_dir.join("original_test_object_manifest.json"),
-    )?;
+    let object_manifest = args
+        .object_manifest
+        .as_ref()
+        .map(|path| absolutize(&args.repo_root, path))
+        .unwrap_or_else(|| generated_dir.join("original_test_object_manifest.json"));
+    let manifest = load_original_test_object_manifest(&object_manifest)?;
+    if let Some(standalone_manifest) = args.standalone_manifest.as_ref() {
+        let standalone_manifest = absolutize(&args.repo_root, standalone_manifest);
+        let _ = load_standalone_test_manifest(&standalone_manifest)?;
+    }
 
     if output_dir.exists() {
         fs::remove_dir_all(&output_dir)?;
@@ -224,10 +240,10 @@ pub fn relink_original_test_objects(args: RelinkOriginalTestObjectsArgs) -> Resu
 }
 
 pub fn run_relinked_original_tests(args: RunRelinkedOriginalTestsArgs) -> Result<()> {
-    let generated_dir = absolutize(&args.repo_root, &args.generated_dir);
+    let _generated_dir = absolutize(&args.repo_root, &args.generated_dir);
     let bin_dir = absolutize(&args.repo_root, &args.bin_dir);
-    let standalone =
-        load_standalone_test_manifest(&generated_dir.join("standalone_test_manifest.json"))?;
+    let standalone_manifest = absolutize(&args.repo_root, &args.standalone_manifest);
+    let standalone = load_standalone_test_manifest(&standalone_manifest)?;
 
     for target in standalone.targets.iter().filter(|target| {
         matches!(
@@ -471,6 +487,16 @@ pub fn run_original_standalone(args: RunOriginalStandaloneArgs) -> Result<()> {
 
 pub fn run_evdev_fixture_tests(repo_root: PathBuf) -> Result<()> {
     run_safe_test_target(&repo_root, "evdev_fixtures")?;
+    run_safe_test_binary_ignored(
+        &repo_root,
+        "evdev_fixtures",
+        "hinted_evdev_devices_appear_in_hint_order_with_probed_fixture_metadata",
+    )?;
+    run_safe_test_binary_ignored(
+        &repo_root,
+        "evdev_fixtures",
+        "hinted_device_directory_expands_through_linux_discovery_order",
+    )?;
     run_safe_test_binary(
         &repo_root,
         "original_apps_input",
@@ -684,6 +710,8 @@ pub fn run_original_ctest(args: RunOriginalCtestArgs) -> Result<()> {
         .arg("--test-dir")
         .arg(&build_dir)
         .arg("--output-on-failure")
+        .arg("--timeout")
+        .arg("120")
         .env("SDL_TESTS_QUICK", "1");
     if let Some(stage_root) = args.stage_root.as_ref() {
         apply_stage_suite_env(&mut cmd, &absolutize(&args.repo_root, stage_root))?;
@@ -691,7 +719,7 @@ pub fn run_original_ctest(args: RunOriginalCtestArgs) -> Result<()> {
     let filter = match (&args.filter, &args.test_list) {
         (Some(filter), _) => Some(filter.clone()),
         (None, Some(test_list)) => ctest_filter_from_test_list(&args.repo_root, test_list)?,
-        (None, None) => None,
+        (None, None) => default_ctest_filter(&args.repo_root)?,
     };
     if let Some(filter) = &filter {
         cmd.arg("-R").arg(filter);
@@ -834,6 +862,42 @@ fn ctest_filter_from_test_list(repo_root: &Path, test_list: &str) -> Result<Opti
         .map(str::to_string)
         .collect::<Vec<_>>();
     test_names_to_ctest_regex(&targets)
+}
+
+fn default_ctest_filter(repo_root: &Path) -> Result<Option<String>> {
+    let noninteractive_path = repo_root.join("safe/generated/noninteractive_test_list.json");
+    let value: serde_json::Value = serde_json::from_slice(&fs::read(&noninteractive_path)?)
+        .with_context(|| format!("parse CTest test list {}", noninteractive_path.display()))?;
+    let targets = value
+        .get("targets")
+        .and_then(|targets| targets.as_array())
+        .ok_or_else(|| anyhow!("{} is missing targets", noninteractive_path.display()))?
+        .iter()
+        .map(|entry| {
+            entry.as_str().map(str::to_string).ok_or_else(|| {
+                anyhow!(
+                    "{} contains a non-string target",
+                    noninteractive_path.display()
+                )
+            })
+        })
+        .collect::<Result<Vec<_>>>()?;
+    let standalone = load_standalone_test_manifest(
+        &repo_root.join("safe/generated/standalone_test_manifest.json"),
+    )?;
+    let filtered = targets
+        .into_iter()
+        .filter(|target| {
+            DEFAULT_CTEST_TARGETS.contains(&target.as_str())
+                && standalone
+                    .targets
+                    .iter()
+                    .find(|entry| entry.target_name == *target)
+                    .map(|entry| entry.timeout_seconds <= 60)
+                    .unwrap_or(true)
+        })
+        .collect::<Vec<_>>();
+    test_names_to_ctest_regex(&filtered)
 }
 
 fn test_names_to_ctest_regex(targets: &[String]) -> Result<Option<String>> {
@@ -1008,6 +1072,26 @@ fn run_safe_test_binary(repo_root: &Path, test_name: &str, filter: &str) -> Resu
         .with_context(|| format!("run cargo test {test_name}::{filter}"))?;
     if !status.success() {
         bail!("cargo test {test_name} {filter} failed");
+    }
+    Ok(())
+}
+
+fn run_safe_test_binary_ignored(repo_root: &Path, test_name: &str, filter: &str) -> Result<()> {
+    let status = Command::new("cargo")
+        .current_dir(repo_root)
+        .arg("test")
+        .arg("--manifest-path")
+        .arg("safe/Cargo.toml")
+        .arg("--test")
+        .arg(test_name)
+        .arg(filter)
+        .arg("--")
+        .arg("--ignored")
+        .arg("--exact")
+        .status()
+        .with_context(|| format!("run cargo test --ignored {test_name}::{filter}"))?;
+    if !status.success() {
+        bail!("cargo test --ignored {test_name} {filter} failed");
     }
     Ok(())
 }

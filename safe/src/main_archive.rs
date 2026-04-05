@@ -5,11 +5,6 @@ use crate::abi::generated_types::{
 static REVISION: &[u8; 20] = b"safe-sdl-phase-2-rs\0";
 
 #[no_mangle]
-pub unsafe extern "C" fn SDL_main_stub_symbol() -> libc::c_int {
-    0
-}
-
-#[no_mangle]
 pub unsafe extern "C" fn SDL_SetMainReady() {
     crate::core::init::mark_main_ready();
 }

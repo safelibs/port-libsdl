@@ -789,11 +789,14 @@ fn install_installed_tests(
     compile_original_test_objects(CompileOriginalTestObjectsArgs {
         repo_root: repo_root.to_path_buf(),
         generated_dir: generated_dir.to_path_buf(),
+        object_manifest: None,
         output_dir: objects_dir.clone(),
     })?;
     relink_original_test_objects(RelinkOriginalTestObjectsArgs {
         repo_root: repo_root.to_path_buf(),
         generated_dir: generated_dir.to_path_buf(),
+        object_manifest: None,
+        standalone_manifest: None,
         objects_dir,
         output_dir: linked_dir.clone(),
         library_path: stage_root.join(format!("usr/lib/{UBUNTU_MULTIARCH}/{SDL_SONAME}")),

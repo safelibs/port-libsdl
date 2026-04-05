@@ -56,6 +56,14 @@ pub struct FinalCheckArgs {
     pub unsafe_report: PathBuf,
 }
 
+#[derive(Debug)]
+pub struct VerifyInstallContractArgs {
+    pub repo_root: PathBuf,
+    pub generated_dir: PathBuf,
+    pub original_dir: PathBuf,
+    pub package_root: PathBuf,
+}
+
 #[derive(Debug, Serialize)]
 pub struct UnsafeAuditRule {
     pattern: String,
@@ -230,11 +238,14 @@ pub fn final_check(args: FinalCheckArgs) -> Result<()> {
     compile_original_test_objects(CompileOriginalTestObjectsArgs {
         repo_root: args.repo_root.clone(),
         generated_dir: args.generated_dir.clone(),
+        object_manifest: None,
         output_dir: args.relink_objects_dir.clone(),
     })?;
     relink_original_test_objects(RelinkOriginalTestObjectsArgs {
         repo_root: args.repo_root.clone(),
         generated_dir: args.generated_dir.clone(),
+        object_manifest: None,
+        standalone_manifest: None,
         objects_dir: args.relink_objects_dir.clone(),
         output_dir: args.relink_bin_dir.clone(),
         library_path: PathBuf::from(format!("/usr/lib/{UBUNTU_MULTIARCH}/{SDL_SONAME}")),
@@ -242,6 +253,7 @@ pub fn final_check(args: FinalCheckArgs) -> Result<()> {
     run_relinked_original_tests(RunRelinkedOriginalTestsArgs {
         repo_root: args.repo_root.clone(),
         generated_dir: args.generated_dir.clone(),
+        standalone_manifest: args.generated_dir.join("standalone_test_manifest.json"),
         bin_dir: args.relink_bin_dir.clone(),
         filter: None,
     })?;
@@ -472,6 +484,57 @@ fn verify_packaged_install(
     Ok(())
 }
 
+pub fn verify_install_contract(args: VerifyInstallContractArgs) -> Result<()> {
+    let generated_dir = absolutize(&args.repo_root, &args.generated_dir);
+    let original_dir = absolutize(&args.repo_root, &args.original_dir);
+    let package_root = absolutize(&args.repo_root, &args.package_root);
+    let install_contract = load_install_contract(&generated_dir.join("install_contract.json"))?;
+    let header_inventory =
+        load_public_header_inventory(&generated_dir.join("public_header_inventory.json"))?;
+    let installed_files = walk_root_tree(&package_root)?;
+
+    verify_original_install_patterns(
+        &original_dir,
+        "debian/libsdl2-2.0-0.install",
+        &installed_files,
+        UBUNTU_MULTIARCH,
+    )?;
+    verify_original_install_patterns(
+        &original_dir,
+        "debian/libsdl2-dev.install",
+        &installed_files,
+        UBUNTU_MULTIARCH,
+    )?;
+    verify_original_install_patterns(
+        &original_dir,
+        "debian/libsdl2-tests.install",
+        &installed_files,
+        UBUNTU_MULTIARCH,
+    )?;
+
+    for path in &install_contract.runtime_paths {
+        ensure_rooted_packaged_path(&package_root, &installed_files, path)?;
+    }
+    for path in &install_contract.dev_paths {
+        ensure_rooted_packaged_path(&package_root, &installed_files, path)?;
+    }
+    for path in &install_contract.cmake_surface {
+        ensure_rooted_packaged_path(&package_root, &installed_files, path)?;
+    }
+    for path in &install_contract.multiarch_include_paths {
+        ensure_rooted_packaged_path(&package_root, &installed_files, path)?;
+    }
+
+    verify_public_headers(&installed_files, &header_inventory)?;
+    verify_authoritative_test_headers(&original_dir, &installed_files)?;
+    verify_rooted_installed_sdl_config(&original_dir, &package_root)?;
+    verify_rooted_debian_multiarch_symlinks(&original_dir, &package_root)?;
+    verify_rooted_cmake_surface(&package_root)?;
+    verify_rooted_installed_tests_payload(&package_root, &installed_files, &install_contract)?;
+    verify_rooted_static_link_surface(&package_root)?;
+    Ok(())
+}
+
 fn verify_public_headers(
     dev_files: &BTreeSet<String>,
     inventory: &PublicHeaderInventory,
@@ -523,6 +586,25 @@ fn verify_installed_sdl_config(original_dir: &Path) -> Result<()> {
     Ok(())
 }
 
+fn verify_rooted_installed_sdl_config(original_dir: &Path, root: &Path) -> Result<()> {
+    let installed = fs::read(root.join("usr/include/SDL2/SDL_config.h")).with_context(|| {
+        format!(
+            "read {}",
+            root.join("usr/include/SDL2/SDL_config.h").display()
+        )
+    })?;
+    let expected = fs::read(original_dir.join("debian/SDL_config.h"))
+        .context("read original Debian SDL_config.h wrapper")?;
+    if installed != expected {
+        bail!("usr/include/SDL2/SDL_config.h no longer matches Debian wrapper semantics");
+    }
+    ensure_rooted_path_exists(
+        root,
+        format!("usr/include/{UBUNTU_MULTIARCH}/SDL2/_real_SDL_config.h"),
+    )?;
+    Ok(())
+}
+
 fn verify_debian_multiarch_symlinks(original_dir: &Path) -> Result<()> {
     let rules = fs::read_to_string(original_dir.join("debian/rules"))
         .context("read original Debian rules for include symlink layout")?;
@@ -564,6 +646,47 @@ fn verify_debian_multiarch_symlinks(original_dir: &Path) -> Result<()> {
     Ok(())
 }
 
+fn verify_rooted_debian_multiarch_symlinks(original_dir: &Path, root: &Path) -> Result<()> {
+    let rules = fs::read_to_string(original_dir.join("debian/rules"))
+        .context("read original Debian rules for include symlink layout")?;
+    let link_re = Regex::new(
+        r#"ln -s (?P<target>\.\./\.\./SDL2/[A-Za-z0-9_\.]+) debian/tmp/usr/include/\$\(DEB_HOST_MULTIARCH\)/SDL2/"#,
+    )?;
+    let mut expected = BTreeMap::new();
+    for captures in link_re.captures_iter(&rules) {
+        let target = captures["target"].to_string();
+        let name = Path::new(&target)
+            .file_name()
+            .and_then(|name| name.to_str())
+            .ok_or_else(|| anyhow!("unable to derive basename from {target}"))?;
+        expected.insert(name.to_string(), target);
+    }
+    if expected.len() != 3 {
+        bail!(
+            "failed to recover Debian multiarch include symlink contract from original/debian/rules"
+        );
+    }
+    for (name, target) in expected {
+        let installed = root.join(format!("usr/include/{UBUNTU_MULTIARCH}/SDL2/{name}"));
+        let metadata = fs::symlink_metadata(&installed)
+            .with_context(|| format!("stat {}", installed.display()))?;
+        if !metadata.file_type().is_symlink() {
+            bail!("{} must remain a symlink", installed.display());
+        }
+        let actual_target = fs::read_link(&installed)
+            .with_context(|| format!("readlink {}", installed.display()))?;
+        if actual_target.as_path() != Path::new(&target) {
+            bail!(
+                "{} target mismatch: expected {}, found {}",
+                installed.display(),
+                target,
+                actual_target.display()
+            );
+        }
+    }
+    Ok(())
+}
+
 fn verify_cmake_surface() -> Result<()> {
     ensure_path_exists(format!(
         "usr/lib/{UBUNTU_MULTIARCH}/cmake/SDL2/sdlfind.cmake"
@@ -572,6 +695,29 @@ fn verify_cmake_surface() -> Result<()> {
         "/usr/lib/{UBUNTU_MULTIARCH}/cmake/SDL2/SDL2Config.cmake"
     ))
     .context("read installed SDL2Config.cmake")?;
+    if !config.contains("sdlfind.cmake") {
+        bail!("installed SDL2Config.cmake must include sdlfind.cmake");
+    }
+    Ok(())
+}
+
+fn verify_rooted_cmake_surface(root: &Path) -> Result<()> {
+    ensure_rooted_path_exists(
+        root,
+        format!("usr/lib/{UBUNTU_MULTIARCH}/cmake/SDL2/sdlfind.cmake"),
+    )?;
+    let config = fs::read_to_string(root.join(format!(
+        "usr/lib/{UBUNTU_MULTIARCH}/cmake/SDL2/SDL2Config.cmake"
+    )))
+    .with_context(|| {
+        format!(
+            "read {}",
+            root.join(format!(
+                "usr/lib/{UBUNTU_MULTIARCH}/cmake/SDL2/SDL2Config.cmake"
+            ))
+            .display()
+        )
+    })?;
     if !config.contains("sdlfind.cmake") {
         bail!("installed SDL2Config.cmake must include sdlfind.cmake");
     }
@@ -628,6 +774,60 @@ fn verify_installed_tests_payload(
     Ok(())
 }
 
+fn verify_rooted_installed_tests_payload(
+    root: &Path,
+    installed_files: &BTreeSet<String>,
+    install_contract: &crate::contracts::InstallContract,
+) -> Result<()> {
+    let contract_paths = install_contract
+        .tests_package_paths
+        .iter()
+        .cloned()
+        .collect::<BTreeSet<_>>();
+    let actual = walk_tree_relative(&root.join("usr/libexec/installed-tests/SDL2"), root)?
+        .into_iter()
+        .chain(walk_tree_relative(
+            &root.join("usr/share/installed-tests/SDL2"),
+            root,
+        )?)
+        .collect::<BTreeSet<_>>();
+    let missing = contract_paths
+        .difference(&actual)
+        .cloned()
+        .collect::<Vec<_>>();
+    let extra = actual
+        .difference(&contract_paths)
+        .cloned()
+        .collect::<Vec<_>>();
+    if !missing.is_empty() || !extra.is_empty() {
+        bail!(
+            "installed-tests payload mismatch\nmissing: {:?}\nextra: {:?}",
+            missing,
+            extra
+        );
+    }
+    for path in &install_contract.tests_package_paths {
+        ensure_rooted_packaged_path(root, installed_files, path)?;
+        let full_path = root.join(path);
+        if path.starts_with("usr/libexec/installed-tests/SDL2/")
+            && full_path.is_file()
+            && !path.ends_with(".bmp")
+            && !path.ends_with(".wav")
+            && !path.ends_with(".dat")
+            && !path.ends_with(".txt")
+        {
+            let mode = fs::metadata(&full_path)
+                .with_context(|| format!("stat {}", full_path.display()))?
+                .permissions()
+                .mode();
+            if mode & 0o111 == 0 {
+                bail!("installed test {} is not executable", full_path.display());
+            }
+        }
+    }
+    Ok(())
+}
+
 fn verify_static_link_surface(repo_root: &Path) -> Result<()> {
     ensure_path_exists(format!("usr/lib/{UBUNTU_MULTIARCH}/libSDL2.a"))?;
     ensure_path_exists(format!("usr/lib/{UBUNTU_MULTIARCH}/libSDL2main.a"))?;
@@ -646,6 +846,13 @@ fn verify_static_link_surface(repo_root: &Path) -> Result<()> {
     if output.contains(&repo_root.display().to_string()) {
         bail!("sdl2-config --static-libs leaked a build-tree path");
     }
+    Ok(())
+}
+
+fn verify_rooted_static_link_surface(root: &Path) -> Result<()> {
+    ensure_rooted_path_exists(root, format!("usr/lib/{UBUNTU_MULTIARCH}/libSDL2.a"))?;
+    ensure_rooted_path_exists(root, format!("usr/lib/{UBUNTU_MULTIARCH}/libSDL2main.a"))?;
+    ensure_rooted_path_exists(root, format!("usr/lib/{UBUNTU_MULTIARCH}/libSDL2_test.a"))?;
     Ok(())
 }
 
@@ -730,8 +937,28 @@ fn ensure_packaged_path(installed_files: &BTreeSet<String>, relative_path: &str)
     Ok(())
 }
 
+fn ensure_rooted_packaged_path(
+    root: &Path,
+    installed_files: &BTreeSet<String>,
+    relative_path: &str,
+) -> Result<()> {
+    if !installed_files.contains(relative_path) {
+        bail!("package root is missing {}", relative_path);
+    }
+    ensure_rooted_path_exists(root, relative_path)?;
+    Ok(())
+}
+
 fn ensure_path_exists<P: AsRef<Path>>(relative_path: P) -> Result<()> {
     let full_path = Path::new("/").join(relative_path.as_ref());
+    if !full_path.exists() {
+        bail!("missing installed path {}", full_path.display());
+    }
+    Ok(())
+}
+
+fn ensure_rooted_path_exists<P: AsRef<Path>>(root: &Path, relative_path: P) -> Result<()> {
+    let full_path = root.join(relative_path.as_ref());
     if !full_path.exists() {
         bail!("missing installed path {}", full_path.display());
     }
@@ -745,6 +972,17 @@ fn walk_tree(root: &str) -> Result<Vec<String>> {
     Ok(paths)
 }
 
+fn walk_root_tree(root: &Path) -> Result<BTreeSet<String>> {
+    Ok(walk_tree_relative(root, root)?.into_iter().collect())
+}
+
+fn walk_tree_relative(root: &Path, base: &Path) -> Result<Vec<String>> {
+    let mut paths = Vec::new();
+    walk_tree_relative_inner(root, base, &mut paths)?;
+    paths.sort();
+    Ok(paths)
+}
+
 fn walk_tree_inner(root: &Path, paths: &mut Vec<String>) -> Result<()> {
     for entry in fs::read_dir(root).with_context(|| format!("read {}", root.display()))? {
         let entry = entry?;
@@ -754,6 +992,25 @@ fn walk_tree_inner(root: &Path, paths: &mut Vec<String>) -> Result<()> {
             walk_tree_inner(&path, paths)?;
         } else if file_type.is_file() || file_type.is_symlink() {
             paths.push(strip_leading_slash(&path));
+        }
+    }
+    Ok(())
+}
+
+fn walk_tree_relative_inner(root: &Path, base: &Path, paths: &mut Vec<String>) -> Result<()> {
+    for entry in fs::read_dir(root).with_context(|| format!("read {}", root.display()))? {
+        let entry = entry?;
+        let path = entry.path();
+        let file_type = entry.file_type()?;
+        if file_type.is_dir() {
+            walk_tree_relative_inner(&path, base, paths)?;
+        } else if file_type.is_file() || file_type.is_symlink() {
+            paths.push(
+                path.strip_prefix(base)
+                    .unwrap_or(&path)
+                    .display()
+                    .to_string(),
+            );
         }
     }
     Ok(())
@@ -956,6 +1213,14 @@ fn rel(repo_root: &Path, path: &Path) -> String {
     path.strip_prefix(repo_root)
         .map(|relative| relative.display().to_string())
         .unwrap_or_else(|_| path.display().to_string())
+}
+
+fn absolutize(repo_root: &Path, path: &Path) -> PathBuf {
+    if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        repo_root.join(path)
+    }
 }
 
 fn strip_leading_slash(path: &Path) -> String {
