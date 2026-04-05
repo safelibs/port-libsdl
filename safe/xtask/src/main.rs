@@ -214,6 +214,9 @@ fn main() -> Result<()> {
                 generated_dir: parsed.generated,
                 original_dir: parsed.original,
                 package_root: parsed.root,
+                install_contract_path: parsed.contract,
+                public_header_inventory_path: parsed.public_header_inventory,
+                mode: parsed.mode,
             })
         }
         "verify-driver-contract" => {
@@ -1093,6 +1096,9 @@ struct VerifyInstallContractCliArgs {
     generated: PathBuf,
     original: PathBuf,
     root: PathBuf,
+    contract: Option<PathBuf>,
+    public_header_inventory: Option<PathBuf>,
+    mode: Option<String>,
 }
 
 impl VerifyInstallContractCliArgs {
@@ -1100,6 +1106,9 @@ impl VerifyInstallContractCliArgs {
         let mut generated = PathBuf::from("safe/generated");
         let mut original = PathBuf::from("original");
         let mut root = None;
+        let mut contract = None;
+        let mut public_header_inventory = None;
+        let mut mode = None;
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
@@ -1107,6 +1116,16 @@ impl VerifyInstallContractCliArgs {
                     generated = PathBuf::from(require_value(&mut iter, "--generated")?)
                 }
                 "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
+                "--contract" => {
+                    contract = Some(PathBuf::from(require_value(&mut iter, "--contract")?))
+                }
+                "--public-header-inventory" => {
+                    public_header_inventory = Some(PathBuf::from(require_value(
+                        &mut iter,
+                        "--public-header-inventory",
+                    )?))
+                }
+                "--mode" => mode = Some(require_value(&mut iter, "--mode")?.to_string()),
                 "--package-root" | "--root" | "--destdir" => {
                     root = Some(PathBuf::from(require_value(&mut iter, arg)?))
                 }
@@ -1118,6 +1137,9 @@ impl VerifyInstallContractCliArgs {
             original,
             root: root
                 .ok_or_else(|| anyhow!("--package-root, --root, or --destdir is required"))?,
+            contract,
+            public_header_inventory,
+            mode,
         })
     }
 }
@@ -1199,8 +1221,8 @@ impl CompileOriginalCliArgs {
                 "--object-manifest" | "--manifest" => {
                     object_manifest = Some(PathBuf::from(require_value(&mut iter, arg)?))
                 }
-                "--output-dir" => {
-                    output_dir = Some(PathBuf::from(require_value(&mut iter, "--output-dir")?))
+                "--output-dir" | "--out" => {
+                    output_dir = Some(PathBuf::from(require_value(&mut iter, arg)?))
                 }
                 other => bail!("unknown argument {other}"),
             }
@@ -1208,7 +1230,7 @@ impl CompileOriginalCliArgs {
         Ok(Self {
             generated,
             object_manifest,
-            output_dir: output_dir.ok_or_else(|| anyhow!("--output-dir is required"))?,
+            output_dir: output_dir.ok_or_else(|| anyhow!("--output-dir or --out is required"))?,
         })
     }
 }
@@ -1250,8 +1272,8 @@ impl RelinkOriginalCliArgs {
                 "--objects-dir" => {
                     objects_dir = Some(PathBuf::from(require_value(&mut iter, "--objects-dir")?))
                 }
-                "--output-dir" => {
-                    output_dir = Some(PathBuf::from(require_value(&mut iter, "--output-dir")?))
+                "--output-dir" | "--out" => {
+                    output_dir = Some(PathBuf::from(require_value(&mut iter, arg)?))
                 }
                 "--package-root" | "--root" | "--destdir" => {
                     package_root = Some(PathBuf::from(require_value(&mut iter, arg)?))
@@ -1270,7 +1292,7 @@ impl RelinkOriginalCliArgs {
             object_manifest,
             standalone_manifest,
             objects_dir: objects_dir.ok_or_else(|| anyhow!("--objects-dir is required"))?,
-            output_dir: output_dir.ok_or_else(|| anyhow!("--output-dir is required"))?,
+            output_dir: output_dir.ok_or_else(|| anyhow!("--output-dir or --out is required"))?,
             library: library.ok_or_else(|| anyhow!("--library or --package-root is required"))?,
         })
     }
@@ -1298,6 +1320,9 @@ impl RunRelinkedCliArgs {
                 }
                 "--standalone-manifest" | "--manifest" => {
                     manifest = PathBuf::from(require_value(&mut iter, arg)?)
+                }
+                "--object-manifest" => {
+                    let _ = require_value(&mut iter, "--object-manifest")?;
                 }
                 "--bin-dir" => {
                     bin_dir = Some(PathBuf::from(require_value(&mut iter, "--bin-dir")?))
@@ -1421,9 +1446,9 @@ mod tests {
     use std::path::PathBuf;
 
     use super::{
-        OriginalCtestCliArgs, RelinkOriginalCliArgs, RunOriginalAutotoolsCheckCliArgs,
-        RunRelinkedCliArgs, VerifyDriverContractCliArgs, VerifyInstallContractCliArgs,
-        VerifyTestPortCoverageArgs, PHASE_08_ID,
+        CompileOriginalCliArgs, OriginalCtestCliArgs, RelinkOriginalCliArgs,
+        RunOriginalAutotoolsCheckCliArgs, RunRelinkedCliArgs, VerifyDriverContractCliArgs,
+        VerifyInstallContractCliArgs, VerifyTestPortCoverageArgs, PHASE_08_ID,
     };
     use crate::contracts::{load_original_test_port_map, verify_test_port_coverage};
     use tempfile::tempdir;
@@ -1489,6 +1514,30 @@ mod tests {
     }
 
     #[test]
+    fn verify_install_contract_accepts_checker_compatibility_flags() {
+        let parsed = VerifyInstallContractCliArgs::parse(&[
+            "--contract".to_string(),
+            "safe/generated/install_contract.json".to_string(),
+            "--public-header-inventory".to_string(),
+            "safe/generated/public_header_inventory.json".to_string(),
+            "--package-root".to_string(),
+            "/".to_string(),
+            "--mode".to_string(),
+            "packaged".to_string(),
+        ])
+        .expect("parse checker-compatible verify-install-contract args");
+        assert_eq!(
+            parsed.contract,
+            Some(PathBuf::from("safe/generated/install_contract.json"))
+        );
+        assert_eq!(
+            parsed.public_header_inventory,
+            Some(PathBuf::from("safe/generated/public_header_inventory.json"))
+        );
+        assert_eq!(parsed.mode.as_deref(), Some("packaged"));
+    }
+
+    #[test]
     fn verify_driver_contract_accepts_package_root_flag() {
         let parsed = VerifyDriverContractCliArgs::parse(&[
             "--package-root".to_string(),
@@ -1506,7 +1555,7 @@ mod tests {
         let parsed = RelinkOriginalCliArgs::parse(&[
             "--objects-dir".to_string(),
             "build-phase10-relinked-objects".to_string(),
-            "--output-dir".to_string(),
+            "--out".to_string(),
             "build-phase10-relinked-bins".to_string(),
             "--package-root".to_string(),
             "/tmp/pkgroot".to_string(),
@@ -1537,6 +1586,8 @@ mod tests {
     #[test]
     fn run_relinked_cli_accepts_standalone_manifest() {
         let parsed = RunRelinkedCliArgs::parse(&[
+            "--object-manifest".to_string(),
+            "safe/generated/original_test_object_manifest.json".to_string(),
             "--bin-dir".to_string(),
             "build-phase10-relinked-bins".to_string(),
             "--standalone-manifest".to_string(),
@@ -1547,6 +1598,16 @@ mod tests {
             parsed.manifest,
             PathBuf::from("safe/generated/standalone_test_manifest.json")
         );
+    }
+
+    #[test]
+    fn compile_original_cli_accepts_out_alias() {
+        let parsed = CompileOriginalCliArgs::parse(&[
+            "--out".to_string(),
+            "build-phase10-relinked-objects".to_string(),
+        ])
+        .expect("parse compile-original-test-objects args");
+        assert_eq!(parsed.output_dir, PathBuf::from("build-phase10-relinked-objects"));
     }
 
     #[test]

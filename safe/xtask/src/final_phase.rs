@@ -62,6 +62,9 @@ pub struct VerifyInstallContractArgs {
     pub generated_dir: PathBuf,
     pub original_dir: PathBuf,
     pub package_root: PathBuf,
+    pub install_contract_path: Option<PathBuf>,
+    pub public_header_inventory_path: Option<PathBuf>,
+    pub mode: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -488,9 +491,26 @@ pub fn verify_install_contract(args: VerifyInstallContractArgs) -> Result<()> {
     let generated_dir = absolutize(&args.repo_root, &args.generated_dir);
     let original_dir = absolutize(&args.repo_root, &args.original_dir);
     let package_root = absolutize(&args.repo_root, &args.package_root);
-    let install_contract = load_install_contract(&generated_dir.join("install_contract.json"))?;
-    let header_inventory =
-        load_public_header_inventory(&generated_dir.join("public_header_inventory.json"))?;
+    if let Some(mode) = args.mode.as_deref() {
+        match mode {
+            "packaged" | "package" | "staged" | "stage" => {}
+            _ => bail!("unsupported verify-install-contract mode {mode}"),
+        }
+    }
+    let install_contract = load_install_contract(
+        &args
+            .install_contract_path
+            .as_ref()
+            .map(|path| absolutize(&args.repo_root, path))
+            .unwrap_or_else(|| generated_dir.join("install_contract.json")),
+    )?;
+    let header_inventory = load_public_header_inventory(
+        &args
+            .public_header_inventory_path
+            .as_ref()
+            .map(|path| absolutize(&args.repo_root, path))
+            .unwrap_or_else(|| generated_dir.join("public_header_inventory.json")),
+    )?;
     let installed_files = walk_root_tree(&package_root)?;
 
     verify_original_install_patterns(
