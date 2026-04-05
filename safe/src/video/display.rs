@@ -44,12 +44,25 @@ enum VideoBackend {
     Offscreen,
 }
 
-fn video_backend() -> &'static Mutex<Option<VideoBackend>> {
-    static BACKEND: OnceLock<Mutex<Option<VideoBackend>>> = OnceLock::new();
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum VideoOrigin {
+    Direct,
+    Subsystem,
+}
+
+#[derive(Clone, Copy)]
+struct ActiveVideo {
+    backend: VideoBackend,
+    origin: VideoOrigin,
+    started_host_events: bool,
+}
+
+fn video_backend() -> &'static Mutex<Option<ActiveVideo>> {
+    static BACKEND: OnceLock<Mutex<Option<ActiveVideo>>> = OnceLock::new();
     BACKEND.get_or_init(|| Mutex::new(None))
 }
 
-fn lock_video_backend() -> std::sync::MutexGuard<'static, Option<VideoBackend>> {
+fn lock_video_backend() -> std::sync::MutexGuard<'static, Option<ActiveVideo>> {
     match video_backend().lock() {
         Ok(guard) => guard,
         Err(poisoned) => poisoned.into_inner(),
@@ -119,27 +132,41 @@ fn api() -> &'static DisplayApi {
 
 pub(crate) fn init_video_subsystem() -> Result<(), ()> {
     if let Some(backend) = selected_stub_backend(std::ptr::null()) {
-        *lock_video_backend() = Some(backend);
+        *lock_video_backend() = Some(ActiveVideo {
+            backend,
+            origin: VideoOrigin::Subsystem,
+            started_host_events: false,
+        });
         return Ok(());
     }
 
-    crate::events::queue::ensure_real_event_subsystem();
+    let started_host_events = crate::events::queue::ensure_real_event_subsystem();
     crate::video::clear_real_error();
     let rc = unsafe { (api().video_init)(std::ptr::null()) };
     if rc == 0 {
-        *lock_video_backend() = Some(VideoBackend::Host);
+        *lock_video_backend() = Some(ActiveVideo {
+            backend: VideoBackend::Host,
+            origin: VideoOrigin::Subsystem,
+            started_host_events,
+        });
         Ok(())
     } else {
+        if started_host_events {
+            crate::events::queue::quit_event_subsystem();
+        }
         Err(())
     }
 }
 
 pub(crate) fn quit_video_subsystem() {
-    let backend = {
+    let active = {
         let mut state = lock_video_backend();
         state.take()
     };
-    if backend != Some(VideoBackend::Host) {
+    let Some(active) = active else {
+        return;
+    };
+    if active.backend != VideoBackend::Host {
         return;
     }
     unsafe {
@@ -161,8 +188,8 @@ pub unsafe extern "C" fn SDL_GetVideoDriver(index: libc::c_int) -> *const libc::
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetCurrentVideoDriver() -> *const libc::c_char {
-    if let Some(backend) = *lock_video_backend() {
-        if let Some(name) = backend_name(backend) {
+    if let Some(active) = *lock_video_backend() {
+        if let Some(name) = backend_name(active.backend) {
             return name;
         }
     }
@@ -173,30 +200,46 @@ pub unsafe extern "C" fn SDL_GetCurrentVideoDriver() -> *const libc::c_char {
 #[no_mangle]
 pub unsafe extern "C" fn SDL_VideoInit(driver_name: *const libc::c_char) -> libc::c_int {
     if let Some(backend) = selected_stub_backend(driver_name) {
-        *lock_video_backend() = Some(backend);
+        *lock_video_backend() = Some(ActiveVideo {
+            backend,
+            origin: VideoOrigin::Direct,
+            started_host_events: false,
+        });
         return 0;
     }
 
-    crate::events::queue::ensure_real_event_subsystem();
+    let started_host_events = crate::events::queue::ensure_real_event_subsystem();
     crate::video::clear_real_error();
     let rc = (api().video_init)(driver_name);
     if rc == 0 {
-        *lock_video_backend() = Some(VideoBackend::Host);
+        *lock_video_backend() = Some(ActiveVideo {
+            backend: VideoBackend::Host,
+            origin: VideoOrigin::Direct,
+            started_host_events,
+        });
+    } else if started_host_events {
+        crate::events::queue::quit_event_subsystem();
     }
     rc
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_VideoQuit() {
-    let backend = {
+    let active = {
         let mut state = lock_video_backend();
         state.take()
     };
-    if backend != Some(VideoBackend::Host) {
+    let Some(active) = active else {
+        return;
+    };
+    if active.backend != VideoBackend::Host {
         return;
     }
     crate::video::clear_real_error();
     (api().video_quit)();
+    if active.origin == VideoOrigin::Direct && active.started_host_events {
+        crate::events::queue::quit_event_subsystem();
+    }
 }
 
 #[no_mangle]
