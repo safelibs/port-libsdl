@@ -117,20 +117,25 @@ unsafe extern "C" fn mem_read(
     size: usize,
     maxnum: usize,
 ) -> usize {
-    if size == 0 || maxnum == 0 {
+    let Some(mut total_bytes) = size.checked_mul(maxnum) else {
+        return 0;
+    };
+    if total_bytes == 0 {
         return 0;
     }
     let available = (*context).hidden.mem.stop as usize - (*context).hidden.mem.here as usize;
-    let count = maxnum.min(available / size);
-    if count > 0 {
+    if total_bytes > available {
+        total_bytes = available;
+    }
+    if total_bytes > 0 {
         ptr::copy_nonoverlapping(
             (*context).hidden.mem.here.cast::<u8>(),
             ptr_.cast::<u8>(),
-            count * size,
+            total_bytes,
         );
-        (*context).hidden.mem.here = (*context).hidden.mem.here.add(count * size);
+        (*context).hidden.mem.here = (*context).hidden.mem.here.add(total_bytes);
     }
-    count
+    total_bytes / size
 }
 
 unsafe extern "C" fn mem_write(

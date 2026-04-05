@@ -9,7 +9,7 @@ use tempfile::tempdir;
 
 use crate::contracts::{
     generate_real_sdl_config, generate_sdl_revision_header, load_driver_contract,
-    load_install_contract, load_public_header_inventory, rel, DriverFamilyContract,
+    load_install_contract, load_public_header_inventory, DriverFamilyContract,
     PublicHeaderInventory, SDL_RUNTIME_REALNAME, SDL_SONAME, SDL_VERSION, UBUNTU_MULTIARCH,
 };
 
@@ -54,7 +54,7 @@ pub fn stage_install(args: StageInstallArgs) -> Result<()> {
     install_sdl2_config_script(&stage_root)?;
     install_m4(&original_dir, &stage_root)?;
     install_cmake_surface(&original_dir, &stage_root)?;
-    install_helper_archives(&args.repo_root, &original_dir, &stage_root)?;
+    install_helper_archives(&args.repo_root, &stage_root)?;
     install_library_artifacts(&args.repo_root, &stage_root, args.library_path.as_deref())?;
 
     let _ = install_contract;
@@ -617,109 +617,37 @@ fn render_imported_target_export(
     )
 }
 
-fn install_helper_archives(repo_root: &Path, original_dir: &Path, stage_root: &Path) -> Result<()> {
-    let tempdir = tempfile::tempdir().context("create helper archive tempdir")?;
-    let include_dir = tempdir.path().join("include");
-    fs::create_dir_all(&include_dir)?;
-    fs::write(include_dir.join("SDL_config.h"), generate_real_sdl_config())?;
-    fs::write(
-        include_dir.join("SDL_revision.h"),
-        generate_sdl_revision_header(),
-    )?;
-
-    let object_dir = tempdir.path().join("objects");
-    fs::create_dir_all(&object_dir)?;
+fn install_helper_archives(repo_root: &Path, stage_root: &Path) -> Result<()> {
     let libdir = stage_root.join(format!("usr/lib/{UBUNTU_MULTIARCH}"));
     fs::create_dir_all(&libdir)?;
+    let status = Command::new("cargo")
+        .current_dir(repo_root)
+        .args([
+            "build",
+            "--manifest-path",
+            "safe/Cargo.toml",
+            "-p",
+            "safe-sdl2-test",
+            "-p",
+            "safe-sdl2main",
+            "--release",
+        ])
+        .status()
+        .context("run cargo build for safe SDL helper archives")?;
+    if !status.success() {
+        bail!("cargo build --release for safe SDL helper archives failed");
+    }
 
-    let dummy_main_obj = object_dir.join("SDL_dummy_main.o");
-    compile_c_object(
-        repo_root,
-        &original_dir.join("src/main/dummy/SDL_dummy_main.c"),
-        &dummy_main_obj,
-        &[
-            format!("-I{}", include_dir.display()),
-            format!("-I{}", original_dir.join("include").display()),
-            format!("-I{}", original_dir.join("src").display()),
-        ],
-    )?;
-    archive_objects(&libdir.join("libSDL2main.a"), &[dummy_main_obj])?;
-
-    let mut test_objects = Vec::new();
-    for entry in fs::read_dir(original_dir.join("src/test"))? {
-        let entry = entry?;
-        let path = entry.path();
-        if path.extension() != Some(std::ffi::OsStr::new("c")) {
-            continue;
-        }
-        let object = object_dir.join(format!(
-            "{}.o",
-            path.file_stem().unwrap_or_default().to_string_lossy()
-        ));
-        compile_c_object(
-            repo_root,
-            &path,
-            &object,
-            &[
-                format!("-I{}", include_dir.display()),
-                format!("-I{}", original_dir.join("include").display()),
-                format!("-I{}", original_dir.join("src/test").display()),
-            ],
-        )?;
-        test_objects.push(object);
-    }
-    test_objects.sort();
-    archive_objects(&libdir.join("libSDL2_test.a"), &test_objects)?;
-    Ok(())
-}
-
-fn compile_c_object(
-    repo_root: &Path,
-    source: &Path,
-    output: &Path,
-    includes: &[String],
-) -> Result<()> {
-    if let Some(parent) = output.parent() {
-        fs::create_dir_all(parent)?;
-    }
-    let mut cmd = Command::new("cc");
-    cmd.current_dir(repo_root)
-        .arg("-c")
-        .arg(source)
-        .arg("-o")
-        .arg(output);
-    for include in includes {
-        cmd.arg(include);
-    }
-    let output_result = cmd
-        .output()
-        .with_context(|| format!("compile {}", source.display()))?;
-    if !output_result.status.success() {
-        bail!(
-            "compiling {} failed:\n{}",
-            rel(repo_root, source),
-            String::from_utf8_lossy(&output_result.stderr)
-        );
-    }
-    Ok(())
-}
-
-fn archive_objects(archive: &Path, objects: &[PathBuf]) -> Result<()> {
-    let mut cmd = Command::new("ar");
-    cmd.arg("crs").arg(archive);
-    for object in objects {
-        cmd.arg(object);
-    }
-    let output = cmd
-        .output()
-        .with_context(|| format!("archive {}", archive.display()))?;
-    if !output.status.success() {
-        bail!(
-            "archiving {} failed:\n{}",
-            archive.display(),
-            String::from_utf8_lossy(&output.stderr)
-        );
-    }
+    fs::copy(
+        repo_root.join("safe/target/release/libsafe_sdl2_test.a"),
+        libdir.join("libSDL2_test.a"),
+    )
+    .context("copy Rust-built libSDL2_test.a into stage root")?;
+    fs::copy(
+        repo_root.join("safe/target/release/libsafe_sdl2main.a"),
+        libdir.join("libSDL2main.a"),
+    )
+    .context("copy Rust-built libSDL2main.a into stage root")?;
     Ok(())
 }
 

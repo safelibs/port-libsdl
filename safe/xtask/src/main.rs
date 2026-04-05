@@ -80,7 +80,7 @@ fn main() -> Result<()> {
             let map_path = parsed
                 .map
                 .unwrap_or_else(|| parsed.generated.join("original_test_port_map.json"));
-            verify_test_port_coverage(&repo_root, &map_path, &parsed.phase)
+            verify_test_port_coverage(&repo_root, &map_path, &parsed.phase, parsed.require_complete)
         }
         "stage-install" => {
             let parsed = StageInstallCliArgs::parse(&remaining)?;
@@ -335,6 +335,7 @@ struct VerifyTestPortCoverageArgs {
     generated: PathBuf,
     map: Option<PathBuf>,
     phase: String,
+    require_complete: bool,
 }
 
 impl VerifyTestPortCoverageArgs {
@@ -342,6 +343,7 @@ impl VerifyTestPortCoverageArgs {
         let mut generated = PathBuf::from("safe/generated");
         let mut map = None;
         let mut phase = None;
+        let mut require_complete = false;
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
@@ -350,6 +352,7 @@ impl VerifyTestPortCoverageArgs {
                 }
                 "--map" => map = Some(PathBuf::from(require_value(&mut iter, "--map")?)),
                 "--phase" => phase = Some(require_value(&mut iter, "--phase")?.to_string()),
+                "--require-complete" => require_complete = true,
                 other => bail!("unknown argument {other}"),
             }
         }
@@ -357,6 +360,7 @@ impl VerifyTestPortCoverageArgs {
             generated,
             map,
             phase: phase.ok_or_else(|| anyhow!("--phase is required"))?,
+            require_complete,
         })
     }
 }

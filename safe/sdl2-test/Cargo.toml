@@ -1,0 +1,15 @@
+[package]
+name = "safe-sdl2-test"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+name = "safe_sdl2_test"
+crate-type = ["staticlib"]
+
+[dependencies]
+libc = "0.2"
+
+[build-dependencies]
+cc = "1.2"

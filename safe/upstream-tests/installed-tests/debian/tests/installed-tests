@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -eu
+
+namespace=SDL2/
+
+if [ -z "${HOME-}" ] || ! [ -w "${HOME}" ]; then
+    export HOME="${AUTOPKGTEST_TMP}"
+fi
+
+export SDL_AUDIODRIVER=dummy
+export SDL_VIDEODRIVER=dummy
+cd "$AUTOPKGTEST_TMP"
+
+if [ -z "$(ginsttest-runner -l "$namespace")" ]; then
+    echo "Error: no installed-tests found matching $namespace" >&2
+    exit 1
+fi
+
+exec ginsttest-runner --tap "$namespace"

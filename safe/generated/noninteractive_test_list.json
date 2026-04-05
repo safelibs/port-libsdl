@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_08_testsupport_and_full_upstream_tests",
+  "source_manifest": "safe/generated/standalone_test_manifest.json",
+  "targets": [
+    "testautomation",
+    "testatomic",
+    "testerror",
+    "testevdev",
+    "testthread",
+    "testlocale",
+    "testplatform",
+    "testpower",
+    "testfilesystem",
+    "testtimer",
+    "testver",
+    "testqsort",
+    "testaudioinfo",
+    "testsurround",
+    "testkeys",
+    "testbounds",
+    "testdisplayinfo"
+  ]
+}

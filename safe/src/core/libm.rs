@@ -84,6 +84,8 @@ pub unsafe extern "C" fn SDL_fabsf(x: f32) -> f32 {
 }
 export_unary_f64!(SDL_floor, floor);
 export_unary_f32!(SDL_floorf, floor);
+export_unary_f64!(SDL_trunc, trunc);
+export_unary_f32!(SDL_truncf, trunc);
 #[no_mangle]
 pub unsafe extern "C" fn SDL_fmod(x: f64, y: f64) -> f64 {
     x % y

@@ -141,7 +141,7 @@ pub unsafe extern "C" fn SDL_GetRGBA(
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_CalculateGammaRamp(gamma: f32, ramp: *mut u16) {
-    if gamma <= 0.0 {
+    if gamma < 0.0 {
         let _ = invalid_param_error("gamma");
         return;
     }
@@ -149,5 +149,23 @@ pub unsafe extern "C" fn SDL_CalculateGammaRamp(gamma: f32, ramp: *mut u16) {
         let _ = invalid_param_error("ramp");
         return;
     }
-    (real_sdl().calculate_gamma_ramp)(gamma, ramp);
+    if gamma == 0.0 {
+        std::ptr::write_bytes(ramp, 0, 256);
+        return;
+    }
+    if gamma == 1.0 {
+        for index in 0..256 {
+            *ramp.add(index) = ((index as u16) << 8) | index as u16;
+        }
+        return;
+    }
+
+    let gamma = 1.0f64 / gamma as f64;
+    for index in 0..256 {
+        let mut value = (((index as f64) / 256.0).powf(gamma) * 65535.0 + 0.5) as i32;
+        if value > 65535 {
+            value = 65535;
+        }
+        *ramp.add(index) = value as u16;
+    }
 }

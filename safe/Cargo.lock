@@ -346,6 +346,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "safe-sdl2-test"
+version = "0.1.0"
+dependencies = [
+ "cc",
+ "libc",
+]
+
+[[package]]
+name = "safe-sdl2main"
+version = "0.1.0"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "semver"
 version = "1.0.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"

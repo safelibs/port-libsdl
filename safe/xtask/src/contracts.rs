@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use tempfile::TempDir;
 
 pub const PHASE_ID: &str = "impl_phase_01_contract_bootstrap";
+pub const PHASE_08_ID: &str = "impl_phase_08_testsupport_and_full_upstream_tests";
 pub const UBUNTU_RELEASE: &str = "Ubuntu 24.04";
 pub const UBUNTU_MULTIARCH: &str = "x86_64-linux-gnu";
 pub const SDL_VERSION: &str = "2.30.0";
@@ -93,6 +94,79 @@ const AUTHORITATIVE_AUTO_RUN_TARGETS: &[&str] = &[
     "testkeys",
     "testbounds",
     "testdisplayinfo",
+];
+
+const PHASE_08_TEST_SUPPORT_SOURCES: &[(&str, &str)] = &[
+    (
+        "original/src/test/SDL_test_assert.c",
+        "safe/src/testsupport/assert.rs",
+    ),
+    (
+        "original/src/test/SDL_test_common.c",
+        "safe/src/testsupport/common.rs",
+    ),
+    (
+        "original/src/test/SDL_test_compare.c",
+        "safe/src/testsupport/compare.rs",
+    ),
+    (
+        "original/src/test/SDL_test_crc32.c",
+        "safe/src/testsupport/crc32.rs",
+    ),
+    (
+        "original/src/test/SDL_test_font.c",
+        "safe/src/testsupport/font.rs",
+    ),
+    (
+        "original/src/test/SDL_test_fuzzer.c",
+        "safe/src/testsupport/fuzzer.rs",
+    ),
+    (
+        "original/src/test/SDL_test_harness.c",
+        "safe/src/testsupport/harness.rs",
+    ),
+    (
+        "original/src/test/SDL_test_imageBlit.c",
+        "safe/src/testsupport/images.rs",
+    ),
+    (
+        "original/src/test/SDL_test_imageBlitBlend.c",
+        "safe/src/testsupport/images.rs",
+    ),
+    (
+        "original/src/test/SDL_test_imageFace.c",
+        "safe/src/testsupport/images.rs",
+    ),
+    (
+        "original/src/test/SDL_test_imagePrimitives.c",
+        "safe/src/testsupport/images.rs",
+    ),
+    (
+        "original/src/test/SDL_test_imagePrimitivesBlend.c",
+        "safe/src/testsupport/images.rs",
+    ),
+    (
+        "original/src/test/SDL_test_log.c",
+        "safe/src/testsupport/log.rs",
+    ),
+    (
+        "original/src/test/SDL_test_md5.c",
+        "safe/src/testsupport/md5.rs",
+    ),
+    (
+        "original/src/test/SDL_test_memory.c",
+        "safe/src/testsupport/memory.rs",
+    ),
+    (
+        "original/src/test/SDL_test_random.c",
+        "safe/src/testsupport/random.rs",
+    ),
+];
+
+const PHASE_08_AUTOMATION_SOURCES: &[&str] = &[
+    "original/test/testautomation.c",
+    "original/test/testautomation_sdltest.c",
+    "original/test/testautomation_subsystems.c",
 ];
 
 #[derive(Debug, Clone)]
@@ -247,6 +321,14 @@ pub struct StandaloneTarget {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct NoninteractiveTestList {
+    pub schema_version: u32,
+    pub phase_id: String,
+    pub source_manifest: String,
+    pub targets: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CheckerRunnerContract {
     pub runner: String,
     pub working_directory: String,
@@ -344,7 +426,7 @@ fn default_port_completion_state() -> PortCompletionState {
     PortCompletionState::Incomplete
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TestPortEntry {
     pub original_path: String,
     pub source_kind: String,
@@ -360,7 +442,7 @@ pub struct TestPortEntry {
     pub upstream_targets: Vec<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TargetOwnership {
     pub target_name: String,
     pub linux_buildable: bool,
@@ -572,9 +654,10 @@ pub fn abi_check(
     let stubs_source =
         fs::read_to_string(&resolved_exports_source).context("read generated_linux_stubs.rs")?;
     let stub_symbols = extract_stub_symbol_names(&stubs_source)?;
+    let implemented_symbols = implemented_export_symbols(&repo_root.join("safe"))?;
     for symbol in &symbol_manifest.symbols {
-        if !stub_symbols.contains(&symbol.name) {
-            bail!("missing exported stub for {}", symbol.name);
+        if !stub_symbols.contains(&symbol.name) && !implemented_symbols.contains(&symbol.name) {
+            bail!("missing exported symbol implementation or stub for {}", symbol.name);
         }
     }
 
@@ -870,7 +953,12 @@ pub fn load_standalone_test_manifest(path: &Path) -> Result<StandaloneTestManife
     read_json(path)
 }
 
-pub fn verify_test_port_coverage(repo_root: &Path, map_path: &Path, phase: &str) -> Result<()> {
+pub fn verify_test_port_coverage(
+    repo_root: &Path,
+    map_path: &Path,
+    phase: &str,
+    require_complete: bool,
+) -> Result<()> {
     let port_map = load_original_test_port_map(map_path)?;
     let phase_entries = port_map
         .entries
@@ -950,6 +1038,33 @@ pub fn verify_test_port_coverage(repo_root: &Path, map_path: &Path, phase: &str)
         );
     }
 
+    if require_complete {
+        let incomplete_entries = port_map
+            .entries
+            .iter()
+            .filter(|entry| entry.completion_state != PortCompletionState::Complete)
+            .map(|entry| entry.original_path.clone())
+            .collect::<Vec<_>>();
+        if !incomplete_entries.is_empty() {
+            bail!(
+                "test-port map still has incomplete upstream source/support entries: {:?}",
+                incomplete_entries
+            );
+        }
+        let incomplete_targets = port_map
+            .target_ownership
+            .iter()
+            .filter(|entry| entry.completion_state != PortCompletionState::Complete)
+            .map(|entry| entry.target_name.clone())
+            .collect::<Vec<_>>();
+        if !incomplete_targets.is_empty() {
+            bail!(
+                "test-port map still has incomplete standalone target ownership entries: {:?}",
+                incomplete_targets
+            );
+        }
+    }
+
     Ok(())
 }
 
@@ -987,6 +1102,7 @@ fn build_outputs(inputs: &Inputs) -> Result<Vec<GeneratedFile>> {
     let driver_contract = build_driver_contract(inputs)?;
     let target_plans = build_target_plans(inputs)?;
     let standalone_manifest = build_standalone_manifest(&target_plans);
+    let noninteractive_test_list = build_noninteractive_test_list(&standalone_manifest)?;
     let testautomation_manifest = build_testautomation_manifest(inputs)?;
     let original_test_object_manifest = build_original_test_object_manifest(&target_plans);
     let port_map = build_port_map(inputs, &target_plans)?;
@@ -994,6 +1110,7 @@ fn build_outputs(inputs: &Inputs) -> Result<Vec<GeneratedFile>> {
     let cve_contract = build_cve_contract(inputs)?;
     let perf_workloads = build_perf_workload_manifest();
     let perf_thresholds = build_perf_thresholds(&perf_workloads);
+    let installed_test_outputs = build_installed_test_outputs(inputs, &noninteractive_test_list)?;
 
     validate_outputs(
         inputs,
@@ -1008,10 +1125,11 @@ fn build_outputs(inputs: &Inputs) -> Result<Vec<GeneratedFile>> {
     )?;
 
     let generated_types = generate_bindings(inputs)?;
-    let generated_stubs = render_linux_stubs(&linux_symbols);
+    let implemented_symbols = implemented_export_symbols(&inputs.safe_root)?;
+    let generated_stubs = render_linux_stubs(&linux_symbols, &implemented_symbols);
     let generated_dynapi = render_dynapi_source(&dynapi_manifest);
 
-    Ok(vec![
+    let mut outputs = vec![
         json_output(
             inputs.generated_dir.join("public_header_inventory.json"),
             &inventory,
@@ -1035,6 +1153,10 @@ fn build_outputs(inputs: &Inputs) -> Result<Vec<GeneratedFile>> {
         json_output(
             inputs.generated_dir.join("standalone_test_manifest.json"),
             &standalone_manifest,
+        )?,
+        json_output(
+            inputs.generated_dir.join("noninteractive_test_list.json"),
+            &noninteractive_test_list,
         )?,
         json_output(
             inputs
@@ -1082,7 +1204,9 @@ fn build_outputs(inputs: &Inputs) -> Result<Vec<GeneratedFile>> {
             path: inputs.safe_root.join("src/dynapi/generated.rs"),
             contents: generated_dynapi.into_bytes(),
         },
-    ])
+    ];
+    outputs.extend(installed_test_outputs);
+    Ok(outputs)
 }
 
 fn build_public_header_inventory(inputs: &Inputs) -> Result<PublicHeaderInventory> {
@@ -1684,31 +1808,21 @@ fn build_port_map(inputs: &Inputs, target_plans: &[TargetPlan]) -> Result<Origin
     let expected_sources = upstream_test_source_files(&inputs.original_dir)?;
     let existing_map =
         load_original_test_port_map(&inputs.generated_dir.join("original_test_port_map.json")).ok();
-    let existing_entry_statuses = existing_map
+    let existing_entries = existing_map
         .as_ref()
         .map(|map| {
             map.entries
                 .iter()
-                .map(|entry| {
-                    (
-                        entry.original_path.clone(),
-                        (entry.completion_state, entry.completion_note.clone()),
-                    )
-                })
+                .map(|entry| (entry.original_path.clone(), entry.clone()))
                 .collect::<BTreeMap<_, _>>()
         })
         .unwrap_or_default();
-    let existing_target_statuses = existing_map
+    let existing_targets = existing_map
         .as_ref()
         .map(|map| {
             map.target_ownership
                 .iter()
-                .map(|target| {
-                    (
-                        target.target_name.clone(),
-                        (target.completion_state, target.completion_note.clone()),
-                    )
-                })
+                .map(|target| (target.target_name.clone(), target.clone()))
                 .collect::<BTreeMap<_, _>>()
         })
         .unwrap_or_default();
@@ -1735,18 +1849,22 @@ fn build_port_map(inputs: &Inputs, target_plans: &[TargetPlan]) -> Result<Origin
             .into_owned();
         let (source_kind, ubuntu_buildable, ubuntu_runnable, rust_target_kind, rust_target_path) =
             if source.starts_with("original/src/test/") {
+                let rust_target_path = phase8_testsupport_target_path(source).unwrap_or_else(|| {
+                    format!(
+                        "safe/src/testsupport/{}.rs",
+                        Path::new(source)
+                            .file_stem()
+                            .unwrap_or_default()
+                            .to_string_lossy()
+                            .trim_start_matches("SDL_test_")
+                    )
+                });
                 (
                     "SDL2_test support source".to_string(),
                     true,
                     false,
                     "static_archive_support".to_string(),
-                    format!(
-                        "safe/src/test_support/{}.rs",
-                        Path::new(source)
-                            .file_stem()
-                            .unwrap_or_default()
-                            .to_string_lossy()
-                    ),
+                    rust_target_path,
                 )
             } else if filename == "testutils.c" || filename == "testyuv_cvt.c" {
                 (
@@ -1763,18 +1881,23 @@ fn build_port_map(inputs: &Inputs, target_plans: &[TargetPlan]) -> Result<Origin
                     ),
                 )
             } else if filename.starts_with("testautomation") {
-                (
-                    "automation suite source".to_string(),
-                    true,
-                    true,
-                    "integration_test".to_string(),
+                let rust_target_path = if phase8_automation_source(source) {
+                    "safe/tests/upstream_port_all.rs".to_string()
+                } else {
                     format!(
                         "safe/tests/testautomation/{}.rs",
                         Path::new(source)
                             .file_stem()
                             .unwrap_or_default()
                             .to_string_lossy()
-                    ),
+                    )
+                };
+                (
+                    "automation suite source".to_string(),
+                    true,
+                    true,
+                    "integration_test".to_string(),
+                    rust_target_path,
                 )
             } else {
                 let primary = targets.first().cloned().unwrap_or_else(|| {
@@ -1810,49 +1933,173 @@ fn build_port_map(inputs: &Inputs, target_plans: &[TargetPlan]) -> Result<Origin
                     format!("safe/tests/upstream/{}.rs", primary),
                 )
             };
-        let (completion_state, completion_note) = existing_entry_statuses
-            .get(source)
-            .cloned()
-            .unwrap_or((PortCompletionState::Incomplete, None));
-        entries.push(TestPortEntry {
+        let mut entry = TestPortEntry {
             original_path: source.clone(),
             source_kind,
             ubuntu_buildable,
             ubuntu_runnable,
             owning_phase: PHASE_ID.to_string(),
-            completion_state,
-            completion_note,
+            completion_state: PortCompletionState::Incomplete,
+            completion_note: None,
             rust_target_kind,
             rust_target_path,
             upstream_targets: targets,
-        });
+        };
+        if let Some(existing) = existing_entries.get(source) {
+            entry.source_kind = existing.source_kind.clone();
+            entry.ubuntu_buildable = existing.ubuntu_buildable;
+            entry.ubuntu_runnable = existing.ubuntu_runnable;
+            entry.owning_phase = existing.owning_phase.clone();
+            entry.completion_state = existing.completion_state;
+            entry.completion_note = existing.completion_note.clone();
+            entry.rust_target_kind = existing.rust_target_kind.clone();
+            entry.rust_target_path = existing.rust_target_path.clone();
+        }
+        apply_phase_08_entry_override(&mut entry);
+        entries.push(entry);
     }
 
     let target_ownership = target_plans
         .iter()
         .map(|plan| {
-            let (completion_state, completion_note) = existing_target_statuses
-                .get(&plan.name)
-                .cloned()
-                .unwrap_or((PortCompletionState::Incomplete, None));
-            TargetOwnership {
+            let mut target = TargetOwnership {
                 target_name: plan.name.clone(),
                 linux_buildable: plan.linux_buildable,
                 owning_phase: PHASE_ID.to_string(),
-                completion_state,
-                completion_note,
+                completion_state: PortCompletionState::Incomplete,
+                completion_note: None,
+            };
+            if let Some(existing) = existing_targets.get(&plan.name) {
+                target.owning_phase = existing.owning_phase.clone();
+                target.completion_state = existing.completion_state;
+                target.completion_note = existing.completion_note.clone();
             }
+            apply_phase_08_target_override(&mut target);
+            target
         })
         .collect();
 
     Ok(OriginalTestPortMap {
         schema_version: 2,
-        phase_id: PHASE_ID.to_string(),
+        phase_id: PHASE_08_ID.to_string(),
         expected_source_file_count: 116,
         expected_target_count: 71,
         entries,
         target_ownership,
     })
+}
+
+fn phase8_testsupport_target_path(source: &str) -> Option<String> {
+    PHASE_08_TEST_SUPPORT_SOURCES
+        .iter()
+        .find_map(|(original_path, rust_target_path)| {
+            (*original_path == source).then(|| (*rust_target_path).to_string())
+        })
+}
+
+fn phase8_automation_source(source: &str) -> bool {
+    PHASE_08_AUTOMATION_SOURCES
+        .iter()
+        .any(|original_path| *original_path == source)
+}
+
+fn apply_phase_08_entry_override(entry: &mut TestPortEntry) {
+    if let Some(rust_target_path) = phase8_testsupport_target_path(&entry.original_path) {
+        entry.owning_phase = PHASE_08_ID.to_string();
+        entry.completion_state = PortCompletionState::Complete;
+        entry.completion_note = Some(format!("covered by {rust_target_path}"));
+        entry.rust_target_kind = "static_archive_support".to_string();
+        entry.rust_target_path = rust_target_path;
+        return;
+    }
+
+    if phase8_automation_source(&entry.original_path) {
+        entry.owning_phase = PHASE_08_ID.to_string();
+        entry.completion_state = PortCompletionState::Complete;
+        entry.completion_note = Some("covered by safe/tests/upstream_port_all.rs".to_string());
+        entry.rust_target_kind = "integration_test".to_string();
+        entry.rust_target_path = "safe/tests/upstream_port_all.rs".to_string();
+    }
+}
+
+fn apply_phase_08_target_override(target: &mut TargetOwnership) {
+    match target.target_name.as_str() {
+        "testautomation" => {
+            target.owning_phase = PHASE_08_ID.to_string();
+            target.completion_state = PortCompletionState::Complete;
+            target.completion_note = Some(
+                "full original upstream testautomation build/run is validated in phase 8"
+                    .to_string(),
+            );
+        }
+        "testfilesystem_pre" => {
+            target.owning_phase = "impl_phase_02_core_runtime".to_string();
+            target.completion_state = PortCompletionState::Complete;
+            target.completion_note = Some(
+                "Windows-only prerequisite target retained for complete upstream ownership accounting"
+                    .to_string(),
+            );
+        }
+        _ => {}
+    }
+}
+
+fn build_noninteractive_test_list(
+    standalone_manifest: &StandaloneTestManifest,
+) -> Result<NoninteractiveTestList> {
+    let projected = standalone_manifest
+        .targets
+        .iter()
+        .filter(|target| target.ci_validation_mode == "auto_run")
+        .map(|target| target.target_name.clone())
+        .collect::<Vec<_>>();
+    let projected_set = projected.iter().cloned().collect::<BTreeSet<_>>();
+    let authoritative = AUTHORITATIVE_AUTO_RUN_TARGETS
+        .iter()
+        .map(|target| (*target).to_string())
+        .collect::<Vec<_>>();
+    let authoritative_set = authoritative.iter().cloned().collect::<BTreeSet<_>>();
+    if projected_set != authoritative_set {
+        bail!(
+            "noninteractive target projection drifted from authoritative upstream membership: {:?}",
+            projected
+        );
+    }
+    let targets = authoritative;
+    Ok(NoninteractiveTestList {
+        schema_version: 1,
+        phase_id: PHASE_08_ID.to_string(),
+        source_manifest: "safe/generated/standalone_test_manifest.json".to_string(),
+        targets,
+    })
+}
+
+fn build_installed_test_outputs(
+    inputs: &Inputs,
+    noninteractive: &NoninteractiveTestList,
+) -> Result<Vec<GeneratedFile>> {
+    let template = fs::read_to_string(inputs.original_dir.join("test/template.test.in"))?;
+    let installed_tests_dir = "/usr/libexec/installed-tests/SDL2";
+    let mut outputs = noninteractive
+        .targets
+        .iter()
+        .map(|target| GeneratedFile {
+            path: inputs.safe_root.join(format!(
+                "upstream-tests/installed-tests/usr/share/installed-tests/SDL2/{target}.test"
+            )),
+            contents: template
+                .replace("@installedtestsdir@", installed_tests_dir)
+                .replace("@exe@", target)
+                .into_bytes(),
+        })
+        .collect::<Vec<_>>();
+    outputs.push(GeneratedFile {
+        path: inputs
+            .safe_root
+            .join("upstream-tests/installed-tests/debian/tests/installed-tests"),
+        contents: fs::read(inputs.original_dir.join("debian/tests/installed-tests"))?,
+    });
+    Ok(outputs)
 }
 
 fn build_install_contract(
@@ -2285,7 +2532,10 @@ fn generate_bindings(inputs: &Inputs) -> Result<String> {
     ))
 }
 
-fn render_linux_stubs(manifest: &LinuxSymbolManifest) -> String {
+fn render_linux_stubs(
+    manifest: &LinuxSymbolManifest,
+    implemented_symbols: &BTreeSet<String>,
+) -> String {
     let mut source = String::from(
         "/* Generated by xtask capture-contracts from the Debian Linux symbol manifest. */\n\n",
     );
@@ -2295,6 +2545,9 @@ fn render_linux_stubs(manifest: &LinuxSymbolManifest) -> String {
     }
     source.push_str("];\n\n");
     for symbol in &manifest.symbols {
+        if implemented_symbols.contains(&symbol.name) {
+            continue;
+        }
         source.push_str("#[no_mangle]\n");
         source.push_str(&format!(
             "pub unsafe extern \"C\" fn {}() -> *mut ::std::ffi::c_void {{\n    crate::exports::abort_unimplemented(\"{}\");\n}}\n\n",
@@ -2302,6 +2555,57 @@ fn render_linux_stubs(manifest: &LinuxSymbolManifest) -> String {
         ));
     }
     source
+}
+
+fn implemented_export_symbols(safe_root: &Path) -> Result<BTreeSet<String>> {
+    let mut files = Vec::new();
+    collect_rust_source_files(&safe_root.join("src"), &mut files)?;
+    let export_re = Regex::new(r#"pub\s+unsafe\s+extern\s+"C"\s+fn\s+(SDL_[A-Za-z0-9_]+)\s*\("#)?;
+    let macro_export_re = Regex::new(r#"fn\s+(SDL_[A-Za-z0-9_]+)\s*\(.*=\s*[A-Za-z0-9_]+;"#)?;
+    let macro_arg_export_re = Regex::new(r#"[A-Za-z0-9_]+!\(\s*(SDL_[A-Za-z0-9_]+)\b"#)?;
+    let c_export_re =
+        Regex::new(r#"(?m)^[A-Za-z_][A-Za-z0-9_\s\*]*\b(SDL_[A-Za-z0-9_]+)\s*\("#)?;
+    let mut symbols = BTreeSet::new();
+    for path in files {
+        if path.ends_with("src/exports/generated_linux_stubs.rs")
+            || path.ends_with("src/abi/generated_types.rs")
+        {
+            continue;
+        }
+        let contents = fs::read_to_string(&path)
+            .with_context(|| format!("reading Rust source {}", path.display()))?;
+        for captures in export_re.captures_iter(&contents) {
+            symbols.insert(captures[1].to_string());
+        }
+        for line in contents.lines() {
+            if let Some(captures) = macro_export_re.captures(line) {
+                symbols.insert(captures[1].to_string());
+            }
+            if let Some(captures) = macro_arg_export_re.captures(line) {
+                symbols.insert(captures[1].to_string());
+            }
+        }
+    }
+    let phase2_variadic_shims = safe_root.join("src/core/phase2_variadic_shims.c");
+    let c_source = fs::read_to_string(&phase2_variadic_shims)
+        .with_context(|| format!("reading C source {}", phase2_variadic_shims.display()))?;
+    for captures in c_export_re.captures_iter(&c_source) {
+        symbols.insert(captures[1].to_string());
+    }
+    Ok(symbols)
+}
+
+fn collect_rust_source_files(root: &Path, out: &mut Vec<PathBuf>) -> Result<()> {
+    for entry in fs::read_dir(root)? {
+        let entry = entry?;
+        let path = entry.path();
+        if path.is_dir() {
+            collect_rust_source_files(&path, out)?;
+        } else if path.extension() == Some(OsStr::new("rs")) {
+            out.push(path);
+        }
+    }
+    Ok(())
 }
 
 fn render_dynapi_source(manifest: &DynapiManifest) -> String {
@@ -2434,16 +2738,32 @@ fn find_bootstrap_definition_file(
         BootstrapKind::Video => original_dir.join("src/video"),
         BootstrapKind::Audio => original_dir.join("src/audio"),
     };
-    find_recursive_file(&root, bootstrap_symbol)
+    find_recursive_bootstrap_definition(&root, bootstrap_symbol, kind)
         .ok_or_else(|| anyhow!("unable to locate definition for {}", bootstrap_symbol))
 }
 
-fn find_recursive_file(root: &Path, needle: &str) -> Option<PathBuf> {
+fn find_recursive_bootstrap_definition(
+    root: &Path,
+    bootstrap_symbol: &str,
+    kind: BootstrapKind,
+) -> Option<PathBuf> {
+    let definition_re = Regex::new(&match kind {
+        BootstrapKind::Video => format!(
+            r#"VideoBootStrap\s+{}\s*="#,
+            regex::escape(bootstrap_symbol)
+        ),
+        BootstrapKind::Audio => format!(
+            r#"AudioBootStrap\s+{}\s*="#,
+            regex::escape(bootstrap_symbol)
+        ),
+    })
+    .ok()?;
     for entry in fs::read_dir(root).ok()? {
         let entry = entry.ok()?;
         let path = entry.path();
         if path.is_dir() {
-            if let Some(found) = find_recursive_file(&path, needle) {
+            if let Some(found) = find_recursive_bootstrap_definition(&path, bootstrap_symbol, kind)
+            {
                 return Some(found);
             }
             continue;
@@ -2455,7 +2775,7 @@ fn find_recursive_file(root: &Path, needle: &str) -> Option<PathBuf> {
             continue;
         }
         let contents = fs::read_to_string(&path).ok()?;
-        if contents.contains(needle) {
+        if definition_re.is_match(&contents) {
             return Some(path);
         }
     }

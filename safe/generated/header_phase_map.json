@@ -41,15 +41,15 @@
       "header_name": "SDL_blendmode.h",
       "install_relpath": "usr/include/SDL2/SDL_blendmode.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_03_surface_pixels",
-      "rationale": "phase 3 owns the blend-mode behavior used by surface fill, modulation, and software blit paths"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_clipboard.h",
       "install_relpath": "usr/include/SDL2/SDL_clipboard.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_04_video_events",
-      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_config.h",
@@ -160,8 +160,8 @@
       "header_name": "SDL_egl.h",
       "install_relpath": "usr/include/SDL2/SDL_egl.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_05_render_graphics",
-      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_endian.h",
@@ -181,8 +181,8 @@
       "header_name": "SDL_events.h",
       "install_relpath": "usr/include/SDL2/SDL_events.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_04_video_events",
-      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_filesystem.h",
@@ -195,36 +195,36 @@
       "header_name": "SDL_gamecontroller.h",
       "install_relpath": "usr/include/SDL2/SDL_gamecontroller.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_07_input_devices",
-      "rationale": "phase 7 owns joystick, controller, haptic, HIDAPI, sensor, and Linux discovery behavior"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_gesture.h",
       "install_relpath": "usr/include/SDL2/SDL_gesture.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_04_video_events",
-      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_guid.h",
       "install_relpath": "usr/include/SDL2/SDL_guid.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_07_input_devices",
-      "rationale": "phase 7 owns joystick, controller, haptic, HIDAPI, sensor, and Linux discovery behavior"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_haptic.h",
       "install_relpath": "usr/include/SDL2/SDL_haptic.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_07_input_devices",
-      "rationale": "phase 7 owns joystick, controller, haptic, HIDAPI, sensor, and Linux discovery behavior"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_hidapi.h",
       "install_relpath": "usr/include/SDL2/SDL_hidapi.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_07_input_devices",
-      "rationale": "phase 7 owns joystick, controller, haptic, HIDAPI, sensor, and Linux discovery behavior"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_hints.h",
@@ -237,22 +237,22 @@
       "header_name": "SDL_joystick.h",
       "install_relpath": "usr/include/SDL2/SDL_joystick.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_07_input_devices",
-      "rationale": "phase 7 owns joystick, controller, haptic, HIDAPI, sensor, and Linux discovery behavior"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_keyboard.h",
       "install_relpath": "usr/include/SDL2/SDL_keyboard.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_04_video_events",
-      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_keycode.h",
       "install_relpath": "usr/include/SDL2/SDL_keycode.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_04_video_events",
-      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_loadso.h",
@@ -286,15 +286,15 @@
       "header_name": "SDL_messagebox.h",
       "install_relpath": "usr/include/SDL2/SDL_messagebox.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_04_video_events",
-      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_metal.h",
       "install_relpath": "usr/include/SDL2/SDL_metal.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_05_render_graphics",
-      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_misc.h",
@@ -307,8 +307,8 @@
       "header_name": "SDL_mouse.h",
       "install_relpath": "usr/include/SDL2/SDL_mouse.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_04_video_events",
-      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_mutex.h",
@@ -328,64 +328,64 @@
       "header_name": "SDL_opengl.h",
       "install_relpath": "usr/include/SDL2/SDL_opengl.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_05_render_graphics",
-      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_opengl_glext.h",
       "install_relpath": "usr/include/SDL2/SDL_opengl_glext.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_05_render_graphics",
-      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_opengles.h",
       "install_relpath": "usr/include/SDL2/SDL_opengles.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_05_render_graphics",
-      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_opengles2.h",
       "install_relpath": "usr/include/SDL2/SDL_opengles2.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_05_render_graphics",
-      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_opengles2_gl2.h",
       "install_relpath": "usr/include/SDL2/SDL_opengles2_gl2.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_05_render_graphics",
-      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_opengles2_gl2ext.h",
       "install_relpath": "usr/include/SDL2/SDL_opengles2_gl2ext.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_05_render_graphics",
-      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_opengles2_gl2platform.h",
       "install_relpath": "usr/include/SDL2/SDL_opengles2_gl2platform.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_05_render_graphics",
-      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_opengles2_khrplatform.h",
       "install_relpath": "usr/include/SDL2/SDL_opengles2_khrplatform.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_05_render_graphics",
-      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_pixels.h",
       "install_relpath": "usr/include/SDL2/SDL_pixels.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_03_surface_pixels",
-      "rationale": "phase 3 owns pixel-format, palette, and color conversion semantics"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_platform.h",
@@ -412,15 +412,15 @@
       "header_name": "SDL_rect.h",
       "install_relpath": "usr/include/SDL2/SDL_rect.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_03_surface_pixels",
-      "rationale": "phase 3 owns rectangle intersection, union, enclosure, and clipping semantics"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_render.h",
       "install_relpath": "usr/include/SDL2/SDL_render.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_05_render_graphics",
-      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_revision.h",
@@ -440,22 +440,22 @@
       "header_name": "SDL_scancode.h",
       "install_relpath": "usr/include/SDL2/SDL_scancode.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_04_video_events",
-      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_sensor.h",
       "install_relpath": "usr/include/SDL2/SDL_sensor.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_07_input_devices",
-      "rationale": "phase 7 owns joystick, controller, haptic, HIDAPI, sensor, and Linux discovery behavior"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_shape.h",
       "install_relpath": "usr/include/SDL2/SDL_shape.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_04_video_events",
-      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_stdinc.h",
@@ -468,8 +468,8 @@
       "header_name": "SDL_surface.h",
       "install_relpath": "usr/include/SDL2/SDL_surface.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_03_surface_pixels",
-      "rationale": "phase 3 owns surface lifecycle, BMP I/O, fill, and software blit semantics"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_system.h",
@@ -482,8 +482,8 @@
       "header_name": "SDL_syswm.h",
       "install_relpath": "usr/include/SDL2/SDL_syswm.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_04_video_events",
-      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_test.h",
@@ -594,8 +594,8 @@
       "header_name": "SDL_touch.h",
       "install_relpath": "usr/include/SDL2/SDL_touch.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_04_video_events",
-      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_types.h",
@@ -615,15 +615,15 @@
       "header_name": "SDL_video.h",
       "install_relpath": "usr/include/SDL2/SDL_video.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_04_video_events",
-      "rationale": "event, video, clipboard, syswm, and Linux window backend behavior lands in phase 4"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "SDL_vulkan.h",
       "install_relpath": "usr/include/SDL2/SDL_vulkan.h",
       "availability_phase": "impl_phase_01_contract_bootstrap",
-      "semantic_phase": "impl_phase_05_render_graphics",
-      "rationale": "renderer, GL/GLES/EGL/Vulkan loader, and render test behavior is implemented in phase 5"
+      "semantic_phase": "future_phase_unassigned",
+      "rationale": "header is installed in phase 1 but behavior is deferred to later implementation phases"
     },
     {
       "header_name": "begin_code.h",
