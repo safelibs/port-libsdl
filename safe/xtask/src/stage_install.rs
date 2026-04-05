@@ -29,7 +29,7 @@ pub struct VerifyBootstrapStageArgs {
 
 pub struct VerifyDriverContractArgs {
     pub repo_root: PathBuf,
-    pub generated_dir: PathBuf,
+    pub contract_path: PathBuf,
     pub stage_root: PathBuf,
     pub kind: String,
 }
@@ -91,9 +91,9 @@ pub fn verify_driver_contract(args: VerifyDriverContractArgs) -> Result<()> {
         bail!("unsupported driver contract kind {}", args.kind);
     }
 
-    let generated_dir = absolutize(&args.repo_root, &args.generated_dir);
+    let contract_path = absolutize(&args.repo_root, &args.contract_path);
     let stage_root = absolutize(&args.repo_root, &args.stage_root);
-    let driver_contract = load_driver_contract(&generated_dir.join("driver_contract.json"))?;
+    let driver_contract = load_driver_contract(&contract_path)?;
     let expected = driver_contract
         .video
         .registry_order

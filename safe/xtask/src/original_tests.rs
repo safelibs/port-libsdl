@@ -1,7 +1,9 @@
 use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Child, Command, Stdio};
+use std::thread;
+use std::time::Duration;
 
 use anyhow::{anyhow, bail, Context, Result};
 use tempfile::tempdir;
@@ -426,11 +428,40 @@ pub fn run_gesture_replay(repo_root: PathBuf) -> Result<()> {
 }
 
 pub fn run_xvfb_window_smoke(repo_root: PathBuf) -> Result<()> {
-    run_safe_test_binary(
-        &repo_root,
-        "xvfb_window_smoke",
-        "xvfb_backed_x11_window_smoke_replaces_manual_window_demos",
+    run_xvfb(
+        repo_root,
+        vec![
+            "cargo".to_string(),
+            "test".to_string(),
+            "--manifest-path".to_string(),
+            "safe/Cargo.toml".to_string(),
+            "--test".to_string(),
+            "xvfb_window_smoke".to_string(),
+            "xvfb_backed_x11_window_smoke_replaces_manual_window_demos".to_string(),
+            "--".to_string(),
+            "--exact".to_string(),
+        ],
     )
+}
+
+pub fn run_xvfb(repo_root: PathBuf, command: Vec<String>) -> Result<()> {
+    if command.is_empty() {
+        bail!("run-xvfb requires a command");
+    }
+
+    let (_guard, display_name) = spawn_xvfb()?;
+    let mut child = Command::new(&command[0]);
+    child
+        .current_dir(&repo_root)
+        .args(&command[1..])
+        .env("DISPLAY", &display_name);
+    let status = child
+        .status()
+        .with_context(|| format!("run command under Xvfb: {}", command.join(" ")))?;
+    if !status.success() {
+        bail!("command under Xvfb failed: {}", command.join(" "));
+    }
+    Ok(())
 }
 
 fn resolve_token(
@@ -497,4 +528,39 @@ fn run_safe_test_binary(repo_root: &Path, test_name: &str, filter: &str) -> Resu
         bail!("cargo test {test_name} {filter} failed");
     }
     Ok(())
+}
+
+struct XvfbGuard {
+    child: Child,
+}
+
+impl Drop for XvfbGuard {
+    fn drop(&mut self) {
+        let _ = self.child.kill();
+        let _ = self.child.wait();
+    }
+}
+
+fn spawn_xvfb() -> Result<(XvfbGuard, String)> {
+    for display in 91..100 {
+        let display_name = format!(":{display}");
+        let child = Command::new("Xvfb")
+            .arg(&display_name)
+            .arg("-screen")
+            .arg("0")
+            .arg("1024x768x24")
+            .arg("-nolisten")
+            .arg("tcp")
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .spawn();
+        let Ok(child) = child else {
+            continue;
+        };
+        thread::sleep(Duration::from_millis(500));
+        return Ok((XvfbGuard { child }, display_name));
+    }
+
+    bail!("unable to start Xvfb")
 }

@@ -51,9 +51,17 @@ fn spawn_xvfb() -> Option<(XvfbGuard, String)> {
 #[test]
 fn xvfb_backed_x11_window_smoke_replaces_manual_window_demos() {
     let _serial = testutils::serial_lock();
-    let Some((_xvfb, display_name)) = spawn_xvfb() else {
+    let existing_display = std::env::var("DISPLAY").ok();
+    let xvfb = if existing_display.is_some() {
+        None
+    } else {
+        spawn_xvfb()
+    };
+    let display_name = existing_display.or_else(|| xvfb.as_ref().map(|(_, name)| name.clone()));
+    let Some(display_name) = display_name else {
         return;
     };
+    let _xvfb = xvfb;
     let _display = testutils::ScopedEnvVar::set("DISPLAY", &display_name);
     let _driver = testutils::ScopedEnvVar::set("SDL_VIDEODRIVER", "x11");
     let _subsystem = testutils::SubsystemGuard::init(SDL_INIT_VIDEO);
