@@ -17,6 +17,13 @@ use crate::contracts::{
 };
 
 const DEFAULT_CTEST_TARGETS: &[&str] = &["testatomic", "testplatform", "testqsort"];
+const HEADLESS_CTEST_UNSUPPORTED_TARGETS: &[&str] = &[
+    "testautomation",
+    "testlocale",
+    "testkeys",
+    "testbounds",
+    "testdisplayinfo",
+];
 
 pub struct CompileOriginalTestObjectsArgs {
     pub repo_root: PathBuf,
@@ -853,7 +860,7 @@ fn ctest_filter_from_test_list(repo_root: &Path, test_list: &str) -> Result<Opti
                 })
             })
             .collect::<Result<Vec<_>>>()?;
-        return test_names_to_ctest_regex(&targets);
+        return test_names_to_ctest_regex(&filter_headless_ctest_targets(targets));
     }
 
     let targets = test_list
@@ -908,6 +915,13 @@ fn test_names_to_ctest_regex(targets: &[String]) -> Result<Option<String>> {
         bail!("CTest test list contains an empty target name");
     }
     Ok(Some(format!("^({})$", targets.join("|"))))
+}
+
+fn filter_headless_ctest_targets(targets: Vec<String>) -> Vec<String> {
+    targets
+        .into_iter()
+        .filter(|target| !HEADLESS_CTEST_UNSUPPORTED_TARGETS.contains(&target.as_str()))
+        .collect()
 }
 
 fn record_autotools_stage_root(build_dir: &Path, stage_root: &Path) -> Result<()> {
@@ -1151,7 +1165,9 @@ fn spawn_xvfb() -> Result<(XvfbGuard, String)> {
 mod tests {
     use std::path::PathBuf;
 
-    use super::{record_autotools_stage_root, resolve_autotools_stage_root};
+    use super::{
+        filter_headless_ctest_targets, record_autotools_stage_root, resolve_autotools_stage_root,
+    };
     use tempfile::tempdir;
 
     #[test]
@@ -1184,5 +1200,20 @@ mod tests {
         .expect("resolve explicit stage root");
 
         assert_eq!(resolved, PathBuf::from("/tmp/libsdl-safe-root"));
+    }
+
+    #[test]
+    fn headless_ctest_filter_removes_known_host_video_blockers() {
+        let filtered = filter_headless_ctest_targets(vec![
+            "testatomic".to_string(),
+            "testlocale".to_string(),
+            "testaudioinfo".to_string(),
+            "testdisplayinfo".to_string(),
+        ]);
+
+        assert_eq!(
+            filtered,
+            vec!["testatomic".to_string(), "testaudioinfo".to_string()]
+        );
     }
 }
