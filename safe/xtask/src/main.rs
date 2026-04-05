@@ -1260,13 +1260,10 @@ impl RelinkOriginalCliArgs {
                 "--generated" => {
                     generated = PathBuf::from(require_value(&mut iter, "--generated")?)
                 }
-                "--object-manifest" => {
-                    object_manifest = Some(PathBuf::from(require_value(
-                        &mut iter,
-                        "--object-manifest",
-                    )?))
+                "--object-manifest" | "--manifest" => {
+                    object_manifest = Some(PathBuf::from(require_value(&mut iter, arg)?))
                 }
-                "--standalone-manifest" | "--manifest" => {
+                "--standalone-manifest" => {
                     standalone_manifest = Some(PathBuf::from(require_value(&mut iter, arg)?))
                 }
                 "--objects-dir" => {
@@ -1596,6 +1593,26 @@ mod tests {
             parsed.output_dir,
             PathBuf::from("build-phase10-relinked-bins")
         );
+    }
+
+    #[test]
+    fn relink_original_cli_accepts_manifest_as_object_manifest() {
+        let parsed = RelinkOriginalCliArgs::parse(&[
+            "--manifest".to_string(),
+            "safe/generated/original_test_object_manifest.json".to_string(),
+            "--objects-dir".to_string(),
+            "build-phase10-relinked-objects".to_string(),
+            "--package-root".to_string(),
+            "/tmp/pkgroot".to_string(),
+        ])
+        .expect("parse relink-original-test-objects args");
+        assert_eq!(
+            parsed.object_manifest,
+            Some(PathBuf::from(
+                "safe/generated/original_test_object_manifest.json"
+            ))
+        );
+        assert_eq!(parsed.standalone_manifest, None);
     }
 
     #[test]
