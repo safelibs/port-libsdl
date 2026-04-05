@@ -1,5 +1,5 @@
-use std::env;
 use std::collections::BTreeSet;
+use std::env;
 use std::ffi::OsString;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -76,6 +76,7 @@ pub struct RunOriginalCtestArgs {
     pub repo_root: PathBuf,
     pub build_dir: PathBuf,
     pub filter: Option<String>,
+    pub test_list: Option<String>,
 }
 
 pub struct BuildOriginalAutotoolsSuiteArgs {
@@ -672,7 +673,12 @@ pub fn run_original_ctest(args: RunOriginalCtestArgs) -> Result<()> {
         .arg("--test-dir")
         .arg(&build_dir)
         .arg("--output-on-failure");
-    if let Some(filter) = &args.filter {
+    let filter = match (&args.filter, &args.test_list) {
+        (Some(filter), _) => Some(filter.clone()),
+        (None, Some(test_list)) => ctest_filter_from_test_list(&args.repo_root, test_list)?,
+        (None, None) => None,
+    };
+    if let Some(filter) = &filter {
         cmd.arg("-R").arg(filter);
     }
     run_command(&mut cmd, "run original CMake ctest suite")
@@ -746,24 +752,66 @@ fn resolve_original_test_dir(repo_root: &Path, original_dir: &Path) -> Result<Pa
     );
 }
 
+fn ctest_filter_from_test_list(repo_root: &Path, test_list: &str) -> Result<Option<String>> {
+    let candidate_path = absolutize(repo_root, Path::new(test_list));
+    if candidate_path.exists() {
+        let value: serde_json::Value = serde_json::from_slice(&fs::read(&candidate_path)?)
+            .with_context(|| format!("parse CTest test list {}", candidate_path.display()))?;
+        let targets = value
+            .get("targets")
+            .and_then(|targets| targets.as_array())
+            .ok_or_else(|| {
+                anyhow!(
+                    "CTest test list {} is missing targets",
+                    candidate_path.display()
+                )
+            })?
+            .iter()
+            .map(|entry| {
+                entry.as_str().map(str::to_string).ok_or_else(|| {
+                    anyhow!(
+                        "CTest test list {} contains a non-string target",
+                        candidate_path.display()
+                    )
+                })
+            })
+            .collect::<Result<Vec<_>>>()?;
+        return test_names_to_ctest_regex(&targets);
+    }
+
+    let targets = test_list
+        .split(|c: char| c == ',' || c.is_whitespace())
+        .filter(|entry| !entry.is_empty())
+        .map(str::to_string)
+        .collect::<Vec<_>>();
+    test_names_to_ctest_regex(&targets)
+}
+
+fn test_names_to_ctest_regex(targets: &[String]) -> Result<Option<String>> {
+    if targets.is_empty() {
+        return Ok(None);
+    }
+    if targets.iter().any(|target| target.is_empty()) {
+        bail!("CTest test list contains an empty target name");
+    }
+    Ok(Some(format!("^({})$", targets.join("|"))))
+}
+
 fn apply_stage_suite_env(cmd: &mut Command, stage_root: &Path) -> Result<()> {
     let stage_bin = stage_root.join("usr/bin");
     let stage_libdir = stage_root.join(format!("usr/lib/{UBUNTU_MULTIARCH}"));
     let stage_pkgconfig = stage_libdir.join("pkgconfig");
 
-    cmd.env(
-        "PATH",
-        joined_env_path(&stage_bin, env::var_os("PATH"))?,
-    )
-    .env("SDL2_CONFIG", stage_bin.join("sdl2-config"))
-    .env(
-        "PKG_CONFIG_PATH",
-        joined_env_path(&stage_pkgconfig, env::var_os("PKG_CONFIG_PATH"))?,
-    )
-    .env(
-        "LD_LIBRARY_PATH",
-        joined_env_path(&stage_libdir, env::var_os("LD_LIBRARY_PATH"))?,
-    );
+    cmd.env("PATH", joined_env_path(&stage_bin, env::var_os("PATH"))?)
+        .env("SDL2_CONFIG", stage_bin.join("sdl2-config"))
+        .env(
+            "PKG_CONFIG_PATH",
+            joined_env_path(&stage_pkgconfig, env::var_os("PKG_CONFIG_PATH"))?,
+        )
+        .env(
+            "LD_LIBRARY_PATH",
+            joined_env_path(&stage_libdir, env::var_os("LD_LIBRARY_PATH"))?,
+        );
 
     Ok(())
 }
@@ -783,9 +831,7 @@ fn parallelism() -> usize {
 }
 
 fn run_command(cmd: &mut Command, description: &str) -> Result<()> {
-    let status = cmd
-        .status()
-        .with_context(|| description.to_string())?;
+    let status = cmd.status().with_context(|| description.to_string())?;
     if !status.success() {
         bail!("{description} failed with status {status}");
     }

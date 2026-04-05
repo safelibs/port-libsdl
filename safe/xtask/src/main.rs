@@ -9,7 +9,7 @@ use anyhow::{anyhow, bail, Result};
 
 use contracts::{
     abi_check, capture_contracts, verify_captured_contracts, verify_test_port_coverage,
-    verify_test_port_map, ContractArgs,
+    verify_test_port_map, ContractArgs, PHASE_08_ID,
 };
 use original_tests::{
     build_original_autotools_suite, build_original_cmake_suite, build_original_standalone,
@@ -88,7 +88,12 @@ fn main() -> Result<()> {
                 parsed.expect_source_files,
                 parsed.expect_executable_targets,
             );
-            verify_test_port_coverage(&repo_root, &map_path, &parsed.phase, parsed.require_complete)
+            verify_test_port_coverage(
+                &repo_root,
+                &map_path,
+                &parsed.phase,
+                parsed.require_complete,
+            )
         }
         "stage-install" => {
             let parsed = StageInstallCliArgs::parse(&remaining)?;
@@ -115,6 +120,7 @@ fn main() -> Result<()> {
                 repo_root,
                 build_dir: parsed.build_dir,
                 filter: parsed.filter,
+                test_list: parsed.test_list,
             })
         }
         "build-original-autotools-suite" => {
@@ -390,7 +396,7 @@ impl VerifyTestPortCoverageArgs {
         let mut generated = PathBuf::from("safe/generated");
         let mut original = PathBuf::from("original");
         let mut map = None;
-        let mut phase = None;
+        let mut phase = PHASE_08_ID.to_string();
         let mut require_complete = false;
         let mut expect_source_files = None;
         let mut expect_executable_targets = None;
@@ -402,16 +408,15 @@ impl VerifyTestPortCoverageArgs {
                 }
                 "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
                 "--map" => map = Some(PathBuf::from(require_value(&mut iter, "--map")?)),
-                "--phase" => phase = Some(require_value(&mut iter, "--phase")?.to_string()),
+                "--phase" => phase = require_value(&mut iter, "--phase")?.to_string(),
                 "--require-complete" => require_complete = true,
                 "--expect-source-files" => {
                     expect_source_files =
                         Some(require_value(&mut iter, "--expect-source-files")?.parse()?)
                 }
                 "--expect-executable-targets" => {
-                    expect_executable_targets = Some(
-                        require_value(&mut iter, "--expect-executable-targets")?.parse()?,
-                    )
+                    expect_executable_targets =
+                        Some(require_value(&mut iter, "--expect-executable-targets")?.parse()?)
                 }
                 other => bail!("unknown argument {other}"),
             }
@@ -420,7 +425,7 @@ impl VerifyTestPortCoverageArgs {
             generated,
             original,
             map,
-            phase: phase.ok_or_else(|| anyhow!("--phase is required"))?,
+            phase,
             require_complete,
             expect_source_files,
             expect_executable_targets,
@@ -519,25 +524,32 @@ impl OriginalSuiteCliArgs {
 struct OriginalCtestCliArgs {
     build_dir: PathBuf,
     filter: Option<String>,
+    test_list: Option<String>,
 }
 
 impl OriginalCtestCliArgs {
     fn parse(args: &[String], default_build_dir: &str) -> Result<Self> {
         let mut build_dir = PathBuf::from(default_build_dir);
         let mut filter = None;
+        let mut test_list = None;
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
                 "--build-dir" => {
                     build_dir = PathBuf::from(require_value(&mut iter, "--build-dir")?)
                 }
-                "--filter" | "--regex" => {
-                    filter = Some(require_value(&mut iter, arg)?.to_string())
+                "--filter" | "--regex" => filter = Some(require_value(&mut iter, arg)?.to_string()),
+                "--test-list" => {
+                    test_list = Some(require_value(&mut iter, "--test-list")?.to_string())
                 }
                 other => bail!("unknown argument {other}"),
             }
         }
-        Ok(Self { build_dir, filter })
+        Ok(Self {
+            build_dir,
+            filter,
+            test_list,
+        })
     }
 }
 
@@ -867,4 +879,34 @@ where
     iter.next()
         .map(|value| value.as_str())
         .ok_or_else(|| anyhow!("{flag} requires a value"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{OriginalCtestCliArgs, VerifyTestPortCoverageArgs, PHASE_08_ID};
+
+    #[test]
+    fn verify_test_port_coverage_defaults_phase_08() {
+        let parsed = VerifyTestPortCoverageArgs::parse(&["--require-complete".to_string()])
+            .expect("parse verify-test-port-coverage args");
+        assert_eq!(parsed.phase, PHASE_08_ID);
+    }
+
+    #[test]
+    fn run_original_ctest_accepts_test_list_flag() {
+        let parsed = OriginalCtestCliArgs::parse(
+            &[
+                "--build-dir".to_string(),
+                "build-phase8-upstream-cmake".to_string(),
+                "--test-list".to_string(),
+                "safe/generated/noninteractive_test_list.json".to_string(),
+            ],
+            "ignored",
+        )
+        .expect("parse run-original-ctest args");
+        assert_eq!(
+            parsed.test_list.as_deref(),
+            Some("safe/generated/noninteractive_test_list.json")
+        );
+    }
 }
