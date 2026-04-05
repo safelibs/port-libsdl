@@ -219,11 +219,15 @@ fn resolve_driver_index(requested: Option<&str>) -> Result<usize, ()> {
         return Err(());
     }
 
-    if let Some(index) = hint_driver_name()
-        .as_deref()
-        .and_then(resolve_driver_candidate_list)
-    {
-        return Ok(index);
+    if let Some(hint) = hint_driver_name().filter(|value| !value.is_empty()) {
+        if let Some(index) = resolve_driver_candidate_list(&hint) {
+            return Ok(index);
+        }
+        let _ = crate::core::error::set_error_message(&format!(
+            "Audio target '{}' not available",
+            hint
+        ));
+        return Err(());
     }
 
     DRIVER_REGISTRY

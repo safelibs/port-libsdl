@@ -164,6 +164,14 @@ fn audio_driver_inventory_current_driver_and_demand_only_selection_follow_contra
         assert_eq!(cstr_string(SDL_GetCurrentAudioDriver()), "dummy");
         SDL_AudioQuit();
 
+        let _invalid_hint = set_audio_driver("bogus");
+        assert_eq!(SDL_AudioInit(ptr::null()), -1);
+        assert_eq!(
+            testutils::current_error(),
+            "Audio target 'bogus' not available"
+        );
+        assert!(SDL_GetCurrentAudioDriver().is_null());
+
         assert_eq!(
             SDL_AudioInit(testutils::cstring("pulse").as_ptr()),
             0,
