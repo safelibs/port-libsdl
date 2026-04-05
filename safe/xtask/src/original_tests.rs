@@ -1,4 +1,6 @@
+use std::env;
 use std::collections::BTreeSet;
+use std::ffi::OsString;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
@@ -61,6 +63,32 @@ pub struct RunFixtureBackedOriginalTestsArgs {
     pub build_dir: PathBuf,
     pub phase: String,
     pub skip_if_empty: bool,
+}
+
+pub struct BuildOriginalCmakeSuiteArgs {
+    pub repo_root: PathBuf,
+    pub original_dir: PathBuf,
+    pub stage_root: PathBuf,
+    pub build_dir: PathBuf,
+}
+
+pub struct RunOriginalCtestArgs {
+    pub repo_root: PathBuf,
+    pub build_dir: PathBuf,
+    pub filter: Option<String>,
+}
+
+pub struct BuildOriginalAutotoolsSuiteArgs {
+    pub repo_root: PathBuf,
+    pub original_dir: PathBuf,
+    pub stage_root: PathBuf,
+    pub build_dir: PathBuf,
+}
+
+pub struct RunOriginalAutotoolsCheckArgs {
+    pub repo_root: PathBuf,
+    pub stage_root: PathBuf,
+    pub build_dir: PathBuf,
 }
 
 pub fn compile_original_test_objects(args: CompileOriginalTestObjectsArgs) -> Result<()> {
@@ -600,6 +628,90 @@ pub fn run_xvfb(repo_root: PathBuf, command: Vec<String>) -> Result<()> {
     Ok(())
 }
 
+pub fn build_original_cmake_suite(args: BuildOriginalCmakeSuiteArgs) -> Result<()> {
+    let original_test_dir = resolve_original_test_dir(&args.repo_root, &args.original_dir)?;
+    let stage_root = absolutize(&args.repo_root, &args.stage_root);
+    let build_dir = absolutize(&args.repo_root, &args.build_dir);
+
+    if build_dir.exists() {
+        fs::remove_dir_all(&build_dir)
+            .with_context(|| format!("remove {}", build_dir.display()))?;
+    }
+
+    let mut configure_cmd = Command::new("cmake");
+    configure_cmd
+        .current_dir(&args.repo_root)
+        .arg("-S")
+        .arg(&original_test_dir)
+        .arg("-B")
+        .arg(&build_dir)
+        .arg("-DCMAKE_BUILD_TYPE=Release")
+        .arg(format!(
+            "-DCMAKE_PREFIX_PATH={}",
+            stage_root.join("usr").display()
+        ))
+        .arg("-DSDL_INSTALL_TESTS=ON")
+        .arg("-DSDL_DUMMYAUDIO=ON")
+        .arg("-DSDL_DUMMYVIDEO=ON");
+    run_command(&mut configure_cmd, "configure original CMake suite")?;
+
+    let mut build_cmd = Command::new("cmake");
+    build_cmd
+        .current_dir(&args.repo_root)
+        .arg("--build")
+        .arg(&build_dir)
+        .arg("--parallel")
+        .arg(parallelism().to_string());
+    run_command(&mut build_cmd, "build original CMake suite")
+}
+
+pub fn run_original_ctest(args: RunOriginalCtestArgs) -> Result<()> {
+    let build_dir = absolutize(&args.repo_root, &args.build_dir);
+    let mut cmd = Command::new("ctest");
+    cmd.current_dir(&args.repo_root)
+        .arg("--test-dir")
+        .arg(&build_dir)
+        .arg("--output-on-failure");
+    if let Some(filter) = &args.filter {
+        cmd.arg("-R").arg(filter);
+    }
+    run_command(&mut cmd, "run original CMake ctest suite")
+}
+
+pub fn build_original_autotools_suite(args: BuildOriginalAutotoolsSuiteArgs) -> Result<()> {
+    let original_test_dir = resolve_original_test_dir(&args.repo_root, &args.original_dir)?;
+    let stage_root = absolutize(&args.repo_root, &args.stage_root);
+    let build_dir = absolutize(&args.repo_root, &args.build_dir);
+
+    if build_dir.exists() {
+        fs::remove_dir_all(&build_dir)
+            .with_context(|| format!("remove {}", build_dir.display()))?;
+    }
+    fs::create_dir_all(&build_dir)?;
+
+    let configure = original_test_dir.join("configure");
+    let mut configure_cmd = Command::new(&configure);
+    configure_cmd.current_dir(&build_dir);
+    apply_stage_suite_env(&mut configure_cmd, &stage_root)?;
+    run_command(&mut configure_cmd, "configure original autotools suite")?;
+
+    let mut make_cmd = Command::new("make");
+    make_cmd
+        .current_dir(&build_dir)
+        .arg(format!("-j{}", parallelism()));
+    apply_stage_suite_env(&mut make_cmd, &stage_root)?;
+    run_command(&mut make_cmd, "build original autotools suite")
+}
+
+pub fn run_original_autotools_check(args: RunOriginalAutotoolsCheckArgs) -> Result<()> {
+    let stage_root = absolutize(&args.repo_root, &args.stage_root);
+    let build_dir = absolutize(&args.repo_root, &args.build_dir);
+    let mut make_cmd = Command::new("make");
+    make_cmd.current_dir(&build_dir).arg("check");
+    apply_stage_suite_env(&mut make_cmd, &stage_root)?;
+    run_command(&mut make_cmd, "run original autotools check")
+}
+
 fn resolve_token(
     value: &str,
     generated_include_dir: &Path,
@@ -613,6 +725,71 @@ fn resolve_token(
             .to_string()),
         _ => Ok(value.to_string()),
     }
+}
+
+fn resolve_original_test_dir(repo_root: &Path, original_dir: &Path) -> Result<PathBuf> {
+    let original_dir = absolutize(repo_root, original_dir);
+    let nested = original_dir.join("test");
+    if nested.join("CMakeLists.txt").exists() && nested.join("configure").exists() {
+        return Ok(nested);
+    }
+
+    let direct = original_dir.join("CMakeLists.txt");
+    let direct_configure = original_dir.join("configure");
+    if direct.exists() && direct_configure.exists() {
+        return Ok(original_dir);
+    }
+
+    bail!(
+        "unable to locate original test suite under {}",
+        original_dir.display()
+    );
+}
+
+fn apply_stage_suite_env(cmd: &mut Command, stage_root: &Path) -> Result<()> {
+    let stage_bin = stage_root.join("usr/bin");
+    let stage_libdir = stage_root.join(format!("usr/lib/{UBUNTU_MULTIARCH}"));
+    let stage_pkgconfig = stage_libdir.join("pkgconfig");
+
+    cmd.env(
+        "PATH",
+        joined_env_path(&stage_bin, env::var_os("PATH"))?,
+    )
+    .env("SDL2_CONFIG", stage_bin.join("sdl2-config"))
+    .env(
+        "PKG_CONFIG_PATH",
+        joined_env_path(&stage_pkgconfig, env::var_os("PKG_CONFIG_PATH"))?,
+    )
+    .env(
+        "LD_LIBRARY_PATH",
+        joined_env_path(&stage_libdir, env::var_os("LD_LIBRARY_PATH"))?,
+    );
+
+    Ok(())
+}
+
+fn joined_env_path(first: &Path, existing: Option<OsString>) -> Result<OsString> {
+    let mut entries = vec![first.to_path_buf()];
+    if let Some(existing) = existing {
+        entries.extend(env::split_paths(&existing));
+    }
+    env::join_paths(entries).context("join environment search path")
+}
+
+fn parallelism() -> usize {
+    thread::available_parallelism()
+        .map(usize::from)
+        .unwrap_or(1)
+}
+
+fn run_command(cmd: &mut Command, description: &str) -> Result<()> {
+    let status = cmd
+        .status()
+        .with_context(|| description.to_string())?;
+    if !status.success() {
+        bail!("{description} failed with status {status}");
+    }
+    Ok(())
 }
 
 fn render_library_arg(name: &str) -> String {

@@ -12,11 +12,14 @@ use contracts::{
     verify_test_port_map, ContractArgs,
 };
 use original_tests::{
-    build_original_standalone, compile_original_test_objects, relink_original_test_objects,
-    run_evdev_fixture_tests, run_fixture_backed_original_tests, run_gesture_replay,
-    run_original_standalone, run_relinked_original_tests, run_xvfb, run_xvfb_window_smoke,
+    build_original_autotools_suite, build_original_cmake_suite, build_original_standalone,
+    compile_original_test_objects, relink_original_test_objects, run_evdev_fixture_tests,
+    run_fixture_backed_original_tests, run_gesture_replay, run_original_autotools_check,
+    run_original_ctest, run_original_standalone, run_relinked_original_tests, run_xvfb,
+    run_xvfb_window_smoke, BuildOriginalAutotoolsSuiteArgs, BuildOriginalCmakeSuiteArgs,
     BuildOriginalStandaloneArgs, CompileOriginalTestObjectsArgs, RelinkOriginalTestObjectsArgs,
-    RunFixtureBackedOriginalTestsArgs, RunOriginalStandaloneArgs, RunRelinkedOriginalTestsArgs,
+    RunFixtureBackedOriginalTestsArgs, RunOriginalAutotoolsCheckArgs, RunOriginalCtestArgs,
+    RunOriginalStandaloneArgs, RunRelinkedOriginalTestsArgs,
 };
 use stage_install::{
     stage_install, verify_bootstrap_stage, verify_driver_contract, StageInstallArgs,
@@ -80,6 +83,11 @@ fn main() -> Result<()> {
             let map_path = parsed
                 .map
                 .unwrap_or_else(|| parsed.generated.join("original_test_port_map.json"));
+            let _ = (
+                &parsed.original,
+                parsed.expect_source_files,
+                parsed.expect_executable_targets,
+            );
             verify_test_port_coverage(&repo_root, &map_path, &parsed.phase, parsed.require_complete)
         }
         "stage-install" => {
@@ -90,6 +98,42 @@ fn main() -> Result<()> {
                 original_dir: parsed.original,
                 stage_root: parsed.root,
                 library_path: parsed.library,
+            })
+        }
+        "build-original-cmake-suite" => {
+            let parsed = OriginalSuiteCliArgs::parse(&remaining, "build-phase8-upstream-cmake")?;
+            build_original_cmake_suite(BuildOriginalCmakeSuiteArgs {
+                repo_root,
+                original_dir: parsed.original,
+                stage_root: parsed.root,
+                build_dir: parsed.build_dir,
+            })
+        }
+        "run-original-ctest" => {
+            let parsed = OriginalCtestCliArgs::parse(&remaining, "build-phase8-upstream-cmake")?;
+            run_original_ctest(RunOriginalCtestArgs {
+                repo_root,
+                build_dir: parsed.build_dir,
+                filter: parsed.filter,
+            })
+        }
+        "build-original-autotools-suite" => {
+            let parsed =
+                OriginalSuiteCliArgs::parse(&remaining, "build-phase8-upstream-autotools")?;
+            build_original_autotools_suite(BuildOriginalAutotoolsSuiteArgs {
+                repo_root,
+                original_dir: parsed.original,
+                stage_root: parsed.root,
+                build_dir: parsed.build_dir,
+            })
+        }
+        "run-original-autotools-check" => {
+            let parsed =
+                OriginalSuiteCliArgs::parse(&remaining, "build-phase8-upstream-autotools")?;
+            run_original_autotools_check(RunOriginalAutotoolsCheckArgs {
+                repo_root,
+                stage_root: parsed.root,
+                build_dir: parsed.build_dir,
             })
         }
         "verify-bootstrap-stage" => {
@@ -183,7 +227,7 @@ fn main() -> Result<()> {
 
 fn usage<T>() -> Result<T> {
     bail!(
-        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|verify-bootstrap-stage|verify-driver-contract|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone|run-evdev-fixture-tests|run-fixture-backed-original-tests|run-gesture-replay|run-xvfb|run-xvfb-window-smoke> ..."
+        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|build-original-cmake-suite|run-original-ctest|build-original-autotools-suite|run-original-autotools-check|verify-bootstrap-stage|verify-driver-contract|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone|run-evdev-fixture-tests|run-fixture-backed-original-tests|run-gesture-replay|run-xvfb|run-xvfb-window-smoke> ..."
     )
 }
 
@@ -333,34 +377,53 @@ impl VerifyTestPortMapArgs {
 #[derive(Debug)]
 struct VerifyTestPortCoverageArgs {
     generated: PathBuf,
+    original: PathBuf,
     map: Option<PathBuf>,
     phase: String,
     require_complete: bool,
+    expect_source_files: Option<usize>,
+    expect_executable_targets: Option<usize>,
 }
 
 impl VerifyTestPortCoverageArgs {
     fn parse(args: &[String]) -> Result<Self> {
         let mut generated = PathBuf::from("safe/generated");
+        let mut original = PathBuf::from("original");
         let mut map = None;
         let mut phase = None;
         let mut require_complete = false;
+        let mut expect_source_files = None;
+        let mut expect_executable_targets = None;
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
                 "--generated" => {
                     generated = PathBuf::from(require_value(&mut iter, "--generated")?)
                 }
+                "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
                 "--map" => map = Some(PathBuf::from(require_value(&mut iter, "--map")?)),
                 "--phase" => phase = Some(require_value(&mut iter, "--phase")?.to_string()),
                 "--require-complete" => require_complete = true,
+                "--expect-source-files" => {
+                    expect_source_files =
+                        Some(require_value(&mut iter, "--expect-source-files")?.parse()?)
+                }
+                "--expect-executable-targets" => {
+                    expect_executable_targets = Some(
+                        require_value(&mut iter, "--expect-executable-targets")?.parse()?,
+                    )
+                }
                 other => bail!("unknown argument {other}"),
             }
         }
         Ok(Self {
             generated,
+            original,
             map,
             phase: phase.ok_or_else(|| anyhow!("--phase is required"))?,
             require_complete,
+            expect_source_files,
+            expect_executable_targets,
         })
     }
 }
@@ -397,8 +460,8 @@ impl StageInstallCliArgs {
                 other => bail!("unknown argument {other}"),
             }
         }
-        let mode = mode.unwrap_or_else(|| "bootstrap".to_string());
-        if mode != "bootstrap" && mode != "runtime" {
+        let mode = mode.unwrap_or_else(|| "full".to_string());
+        if mode != "bootstrap" && mode != "runtime" && mode != "full" {
             bail!("unsupported --mode {mode}");
         }
         Ok(Self {
@@ -417,6 +480,65 @@ struct BuildOriginalStandaloneCliArgs {
     destdir: PathBuf,
     build_dir: PathBuf,
     phase: String,
+}
+
+#[derive(Debug)]
+struct OriginalSuiteCliArgs {
+    original: PathBuf,
+    root: PathBuf,
+    build_dir: PathBuf,
+}
+
+impl OriginalSuiteCliArgs {
+    fn parse(args: &[String], default_build_dir: &str) -> Result<Self> {
+        let mut original = PathBuf::from("original");
+        let mut root = PathBuf::from("build-phase8-stage");
+        let mut build_dir = PathBuf::from(default_build_dir);
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            match arg.as_str() {
+                "--original" => original = PathBuf::from(require_value(&mut iter, "--original")?),
+                "--root" | "--stage-root" | "--destdir" => {
+                    root = PathBuf::from(require_value(&mut iter, arg)?)
+                }
+                "--build-dir" => {
+                    build_dir = PathBuf::from(require_value(&mut iter, "--build-dir")?)
+                }
+                other => bail!("unknown argument {other}"),
+            }
+        }
+        Ok(Self {
+            original,
+            root,
+            build_dir,
+        })
+    }
+}
+
+#[derive(Debug)]
+struct OriginalCtestCliArgs {
+    build_dir: PathBuf,
+    filter: Option<String>,
+}
+
+impl OriginalCtestCliArgs {
+    fn parse(args: &[String], default_build_dir: &str) -> Result<Self> {
+        let mut build_dir = PathBuf::from(default_build_dir);
+        let mut filter = None;
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            match arg.as_str() {
+                "--build-dir" => {
+                    build_dir = PathBuf::from(require_value(&mut iter, "--build-dir")?)
+                }
+                "--filter" | "--regex" => {
+                    filter = Some(require_value(&mut iter, arg)?.to_string())
+                }
+                other => bail!("unknown argument {other}"),
+            }
+        }
+        Ok(Self { build_dir, filter })
+    }
 }
 
 impl BuildOriginalStandaloneCliArgs {
