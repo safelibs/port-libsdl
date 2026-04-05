@@ -154,6 +154,25 @@ fn audio_driver_inventory_current_driver_and_demand_only_selection_follow_contra
         assert_eq!(cstr_string(SDL_GetCurrentAudioDriver()), "dummy");
         SDL_AudioQuit();
 
+        let _fallback = set_audio_driver("bogus,dummy");
+        assert_eq!(
+            SDL_AudioInit(ptr::null()),
+            0,
+            "{}",
+            testutils::current_error()
+        );
+        assert_eq!(cstr_string(SDL_GetCurrentAudioDriver()), "dummy");
+        SDL_AudioQuit();
+
+        assert_eq!(
+            SDL_AudioInit(testutils::cstring("pulse").as_ptr()),
+            0,
+            "{}",
+            testutils::current_error()
+        );
+        assert_eq!(cstr_string(SDL_GetCurrentAudioDriver()), "pulseaudio");
+        SDL_AudioQuit();
+
         assert_eq!(SDL_AudioInit(testutils::cstring("disk").as_ptr()), 0);
         assert_eq!(cstr_string(SDL_GetCurrentAudioDriver()), "disk");
         SDL_AudioQuit();

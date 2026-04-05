@@ -175,7 +175,15 @@ fn lock_device(control: &DeviceControl) -> std::sync::MutexGuard<'_, DeviceInner
     }
 }
 
+fn canonical_driver_name(name: &str) -> &str {
+    match name {
+        "pulse" => "pulseaudio",
+        _ => name,
+    }
+}
+
 fn driver_by_name(name: &str) -> Option<usize> {
+    let name = canonical_driver_name(name);
     DRIVER_REGISTRY
         .iter()
         .position(|driver| driver.name == name)
@@ -187,26 +195,34 @@ fn hint_driver_name() -> Option<String> {
         if hint.is_null() {
             return None;
         }
-        CStr::from_ptr(hint).to_str().ok().and_then(|value| {
-            value
-                .split(',')
-                .map(str::trim)
-                .find(|candidate| !candidate.is_empty())
-                .map(str::to_string)
-        })
+        CStr::from_ptr(hint).to_str().ok().map(str::to_string)
     }
+}
+
+fn resolve_driver_candidate_list(names: &str) -> Option<usize> {
+    names
+        .split(',')
+        .map(str::trim)
+        .filter(|candidate| !candidate.is_empty())
+        .find_map(driver_by_name)
 }
 
 fn resolve_driver_index(requested: Option<&str>) -> Result<usize, ()> {
     if let Some(requested) = requested.filter(|value| !value.is_empty()) {
-        if let Some(index) = requested.split(',').map(str::trim).find_map(driver_by_name) {
+        if let Some(index) = resolve_driver_candidate_list(requested) {
             return Ok(index);
         }
-        let _ = crate::core::error::set_error_message("No such audio driver");
+        let _ = crate::core::error::set_error_message(&format!(
+            "Audio target '{}' not available",
+            requested
+        ));
         return Err(());
     }
 
-    if let Some(index) = hint_driver_name().as_deref().and_then(driver_by_name) {
+    if let Some(index) = hint_driver_name()
+        .as_deref()
+        .and_then(resolve_driver_candidate_list)
+    {
         return Ok(index);
     }
 
