@@ -4,8 +4,10 @@ use std::ptr;
 use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
-    SDL_BlendMode, SDL_Color, SDL_Palette, SDL_PixelFormat, SDL_RWops, SDL_Rect, SDL_Surface,
-    SDL_bool, Uint32, Uint8, SDL_PREALLOC,
+    SDL_BlendMode, SDL_BlendMode_SDL_BLENDMODE_ADD, SDL_BlendMode_SDL_BLENDMODE_BLEND,
+    SDL_BlendMode_SDL_BLENDMODE_MOD, SDL_BlendMode_SDL_BLENDMODE_NONE, SDL_Color, SDL_Palette,
+    SDL_PixelFormat, SDL_RWops, SDL_Rect, SDL_Surface, SDL_bool, Uint32, Uint8, SDL_PREALLOC,
+    SDL_RLEACCEL,
 };
 use crate::core::error::{invalid_param_error, out_of_memory_error, set_error_message};
 use crate::security::checked_math::{self, MathError};
@@ -21,10 +23,36 @@ enum SurfaceStorage {
     Borrowed,
 }
 
+enum SurfaceShell {
+    Host,
+    Local(Box<SDL_Surface>),
+}
+
+unsafe impl Send for SurfaceShell {}
+
 struct SurfaceRecord {
     buffer_len: usize,
     expected_pixels: usize,
     storage: SurfaceStorage,
+    shell: SurfaceShell,
+    owns_format: bool,
+    color_key_enabled: bool,
+    color_key: Uint32,
+    color_mod: (Uint8, Uint8, Uint8),
+    alpha_mod: Uint8,
+    blend_mode: SDL_BlendMode,
+    rle_enabled: bool,
+}
+
+unsafe impl Send for SurfaceRecord {}
+
+#[derive(Clone, Copy)]
+pub(crate) struct SurfaceState {
+    pub(crate) color_key_enabled: bool,
+    pub(crate) color_key: Uint32,
+    pub(crate) color_mod: (Uint8, Uint8, Uint8),
+    pub(crate) alpha_mod: Uint8,
+    pub(crate) blend_mode: SDL_BlendMode,
 }
 
 macro_rules! real_sdl_api {
@@ -154,6 +182,55 @@ fn surface_record_metadata(surface: *mut SDL_Surface) -> Option<(usize, usize)> 
         .map(|record| (record.buffer_len, record.expected_pixels))
 }
 
+fn with_surface_record_mut<T>(
+    surface: *mut SDL_Surface,
+    f: impl FnOnce(&mut SurfaceRecord) -> T,
+) -> Option<T> {
+    surface_registry()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .get_mut(&(surface as usize))
+        .map(f)
+}
+
+fn with_surface_record<T>(
+    surface: *mut SDL_Surface,
+    f: impl FnOnce(&SurfaceRecord) -> T,
+) -> Option<T> {
+    surface_registry()
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .get(&(surface as usize))
+        .map(f)
+}
+
+fn default_blend_mode(format: *const SDL_PixelFormat) -> SDL_BlendMode {
+    if format.is_null() {
+        SDL_BlendMode_SDL_BLENDMODE_NONE
+    } else if unsafe { (*format).Amask } != 0 {
+        SDL_BlendMode_SDL_BLENDMODE_BLEND
+    } else {
+        SDL_BlendMode_SDL_BLENDMODE_NONE
+    }
+}
+
+pub(crate) fn surface_state(surface: *mut SDL_Surface) -> SurfaceState {
+    with_surface_record(surface, |record| SurfaceState {
+        color_key_enabled: record.color_key_enabled,
+        color_key: record.color_key,
+        color_mod: record.color_mod,
+        alpha_mod: record.alpha_mod,
+        blend_mode: record.blend_mode,
+    })
+    .unwrap_or(SurfaceState {
+        color_key_enabled: false,
+        color_key: 0,
+        color_mod: (255, 255, 255),
+        alpha_mod: 255,
+        blend_mode: SDL_BlendMode_SDL_BLENDMODE_NONE,
+    })
+}
+
 pub(crate) fn is_registered_surface(surface: *mut SDL_Surface) -> bool {
     surface_registry()
         .lock()
@@ -162,12 +239,17 @@ pub(crate) fn is_registered_surface(surface: *mut SDL_Surface) -> bool {
 }
 
 pub(crate) fn clear_real_error() {
-    unsafe {
-        (real_sdl().clear_error)();
+    if crate::video::real_sdl_is_available() {
+        unsafe {
+            (real_sdl().clear_error)();
+        }
     }
 }
 
 pub(crate) fn sync_error_from_real(default: &str) -> libc::c_int {
+    if !crate::video::real_sdl_is_available() {
+        return set_error_message(default);
+    }
     let message = unsafe {
         let ptr = (real_sdl().get_error)();
         if ptr.is_null() {
@@ -347,7 +429,7 @@ unsafe fn rect_inside_surface(surface: *mut SDL_Surface, rect: &SDL_Rect) -> Res
     }
 }
 
-unsafe fn raw_pixel(ptr: *const u8, bytes_per_pixel: u8) -> Uint32 {
+pub(crate) unsafe fn raw_pixel(ptr: *const u8, bytes_per_pixel: u8) -> Uint32 {
     match bytes_per_pixel {
         1 => ptr.read() as Uint32,
         2 => ptr.cast::<u16>().read_unaligned() as Uint32,
@@ -360,7 +442,7 @@ unsafe fn raw_pixel(ptr: *const u8, bytes_per_pixel: u8) -> Uint32 {
     }
 }
 
-unsafe fn write_raw_pixel(ptr: *mut u8, bytes_per_pixel: u8, pixel: Uint32) {
+pub(crate) unsafe fn write_raw_pixel(ptr: *mut u8, bytes_per_pixel: u8, pixel: Uint32) {
     match bytes_per_pixel {
         1 => ptr.write(pixel as u8),
         2 => ptr.cast::<u16>().write_unaligned(pixel as u16),
@@ -373,28 +455,28 @@ unsafe fn write_raw_pixel(ptr: *mut u8, bytes_per_pixel: u8, pixel: Uint32) {
     }
 }
 
-unsafe fn read_rgba_pixel(
+pub(crate) unsafe fn read_rgba_pixel(
     format: *const SDL_PixelFormat,
     bytes_per_pixel: u8,
     ptr: *const u8,
 ) -> (u8, u8, u8, u8) {
     let pixel = raw_pixel(ptr, bytes_per_pixel);
     let (mut r, mut g, mut b, mut a) = (0, 0, 0, 0);
-    (real_sdl().get_rgba)(pixel, format, &mut r, &mut g, &mut b, &mut a);
+    crate::video::pixels::SDL_GetRGBA(pixel, format, &mut r, &mut g, &mut b, &mut a);
     (r, g, b, a)
 }
 
-unsafe fn write_rgba_pixel(
+pub(crate) unsafe fn write_rgba_pixel(
     format: *const SDL_PixelFormat,
     bytes_per_pixel: u8,
     ptr: *mut u8,
     rgba: (u8, u8, u8, u8),
 ) {
-    let pixel = (real_sdl().map_rgba)(format, rgba.0, rgba.1, rgba.2, rgba.3);
+    let pixel = crate::video::pixels::SDL_MapRGBA(format, rgba.0, rgba.1, rgba.2, rgba.3);
     write_raw_pixel(ptr, bytes_per_pixel, pixel);
 }
 
-unsafe fn pixel_pointer(
+pub(crate) unsafe fn pixel_pointer(
     surface: *mut SDL_Surface,
     bytes_per_pixel: u8,
     x: libc::c_int,
@@ -410,6 +492,51 @@ unsafe fn pixel_pointer(
     let pitch = usize::try_from((*surface).pitch).map_err(|_| MathError::InvalidParam("pitch"))?;
     let offset = checked_math::calculate_buffer_offset(row, pitch, column, message)?;
     Ok((*surface).pixels.cast::<u8>().add(offset))
+}
+
+pub(crate) fn apply_color_mod(value: Uint8, modulation: Uint8) -> Uint8 {
+    (((value as u32) * (modulation as u32)) / 255) as Uint8
+}
+
+pub(crate) fn blend_pixel(
+    src: (Uint8, Uint8, Uint8, Uint8),
+    dst: (Uint8, Uint8, Uint8, Uint8),
+    mode: SDL_BlendMode,
+) -> (Uint8, Uint8, Uint8, Uint8) {
+    match mode {
+        SDL_BlendMode_SDL_BLENDMODE_BLEND => {
+            let src_alpha = src.3 as u32;
+            let inv_alpha = 255u32.saturating_sub(src_alpha);
+            let blend_component = |src: Uint8, dst: Uint8| -> Uint8 {
+                (((src as u32 * src_alpha) + (dst as u32 * inv_alpha)) / 255) as Uint8
+            };
+            (
+                blend_component(src.0, dst.0),
+                blend_component(src.1, dst.1),
+                blend_component(src.2, dst.2),
+                (src_alpha + dst.3 as u32 - ((src_alpha * dst.3 as u32) / 255)).min(255) as Uint8,
+            )
+        }
+        SDL_BlendMode_SDL_BLENDMODE_ADD => (
+            ((src.0 as u32 * src.3 as u32) / 255)
+                .saturating_add(dst.0 as u32)
+                .min(255) as Uint8,
+            ((src.1 as u32 * src.3 as u32) / 255)
+                .saturating_add(dst.1 as u32)
+                .min(255) as Uint8,
+            ((src.2 as u32 * src.3 as u32) / 255)
+                .saturating_add(dst.2 as u32)
+                .min(255) as Uint8,
+            dst.3,
+        ),
+        SDL_BlendMode_SDL_BLENDMODE_MOD => (
+            (((src.0 as u32) * (dst.0 as u32)) / 255) as Uint8,
+            (((src.1 as u32) * (dst.1 as u32)) / 255) as Uint8,
+            (((src.2 as u32) * (dst.2 as u32)) / 255) as Uint8,
+            dst.3,
+        ),
+        _ => src,
+    }
 }
 
 pub(crate) unsafe fn blit_surface_pixels(
@@ -435,8 +562,16 @@ pub(crate) unsafe fn blit_surface_pixels(
     let same_format = !src_format.is_null()
         && !dst_format.is_null()
         && (*src_format).format == (*dst_format).format;
+    let state = surface_state(src);
+    let simple_copy = !state.color_key_enabled
+        && state.color_mod == (255, 255, 255)
+        && state.alpha_mod == 255
+        && state.blend_mode == SDL_BlendMode_SDL_BLENDMODE_NONE;
 
-    if same_format && src_descriptor.bytes_per_pixel == dst_descriptor.bytes_per_pixel {
+    if simple_copy
+        && same_format
+        && src_descriptor.bytes_per_pixel == dst_descriptor.bytes_per_pixel
+    {
         let row_bytes = checked_math::checked_mul_usize(
             checked_math::nonnegative_to_usize("width", src_rect.w)?,
             src_descriptor.bytes_per_pixel as usize,
@@ -481,7 +616,23 @@ pub(crate) unsafe fn blit_surface_pixels(
         for column in 0..src_rect.w {
             let src_pixel = src_row.add(column as usize * src_descriptor.bytes_per_pixel as usize);
             let dst_pixel = dst_row.add(column as usize * dst_descriptor.bytes_per_pixel as usize);
-            let rgba = read_rgba_pixel((*src).format, src_descriptor.bytes_per_pixel, src_pixel);
+            let raw_src = raw_pixel(src_pixel, src_descriptor.bytes_per_pixel);
+            if state.color_key_enabled && raw_src == state.color_key {
+                continue;
+            }
+
+            let mut rgba =
+                read_rgba_pixel((*src).format, src_descriptor.bytes_per_pixel, src_pixel);
+            rgba.0 = apply_color_mod(rgba.0, state.color_mod.0);
+            rgba.1 = apply_color_mod(rgba.1, state.color_mod.1);
+            rgba.2 = apply_color_mod(rgba.2, state.color_mod.2);
+            rgba.3 = apply_color_mod(rgba.3, state.alpha_mod);
+
+            if state.blend_mode != SDL_BlendMode_SDL_BLENDMODE_NONE {
+                let dst_rgba =
+                    read_rgba_pixel((*dst).format, dst_descriptor.bytes_per_pixel, dst_pixel);
+                rgba = blend_pixel(rgba, dst_rgba, state.blend_mode);
+            }
             write_rgba_pixel(
                 (*dst).format,
                 dst_descriptor.bytes_per_pixel,
@@ -577,16 +728,92 @@ fn preflight_preallocated_surface(
 }
 
 unsafe fn create_surface_shell(
-    depth: libc::c_int,
+    _depth: libc::c_int,
     format: Uint32,
     default_error: &str,
-) -> *mut SDL_Surface {
-    clear_real_error();
-    let surface = (real_sdl().create_rgb_surface_with_format)(0, 0, 0, depth, format);
-    if surface.is_null() {
-        let _ = sync_error_from_real(default_error);
+) -> Option<(*mut SDL_Surface, SurfaceShell, bool)> {
+    let format_ptr = crate::video::pixels::SDL_AllocFormat(format);
+    if format_ptr.is_null() {
+        let _ = set_error_message(default_error);
+        return None;
     }
-    surface
+
+    let mut shell = Box::new(SDL_Surface {
+        flags: 0,
+        format: format_ptr,
+        w: 0,
+        h: 0,
+        pitch: 0,
+        pixels: ptr::null_mut(),
+        userdata: ptr::null_mut(),
+        locked: 0,
+        list_blitmap: ptr::null_mut(),
+        clip_rect: SDL_Rect {
+            x: 0,
+            y: 0,
+            w: 0,
+            h: 0,
+        },
+        map: ptr::null_mut(),
+        refcount: 1,
+    });
+    let surface = shell.as_mut() as *mut SDL_Surface;
+    let format = (*surface).format;
+    if !format.is_null()
+        && (*format).BitsPerPixel > 0
+        && (*format).BitsPerPixel <= 8
+        && (*format).Rmask == 0
+        && (*format).Gmask == 0
+        && (*format).Bmask == 0
+        && (*format).Amask == 0
+    {
+        let colors = 1i32.checked_shl((*format).BitsPerPixel as u32).unwrap_or(0);
+        let palette = crate::video::pixels::SDL_AllocPalette(colors);
+        if palette.is_null() {
+            crate::video::pixels::SDL_FreeFormat(format);
+            return None;
+        }
+        if colors == 2 && !(*palette).colors.is_null() {
+            *(*palette).colors.add(0) = SDL_Color {
+                r: 255,
+                g: 255,
+                b: 255,
+                a: 255,
+            };
+            *(*palette).colors.add(1) = SDL_Color {
+                r: 0,
+                g: 0,
+                b: 0,
+                a: 255,
+            };
+        }
+        if crate::video::pixels::SDL_SetPixelFormatPalette(format, palette) < 0 {
+            crate::video::pixels::SDL_FreePalette(palette);
+            crate::video::pixels::SDL_FreeFormat(format);
+            return None;
+        }
+        crate::video::pixels::SDL_FreePalette(palette);
+    }
+    Some((surface, SurfaceShell::Local(shell), true))
+}
+
+unsafe fn destroy_surface_shell(surface: *mut SDL_Surface, shell: SurfaceShell, owns_format: bool) {
+    let format = if surface.is_null() {
+        ptr::null_mut()
+    } else {
+        (*surface).format
+    };
+    if owns_format && !format.is_null() {
+        crate::video::pixels::SDL_FreeFormat(format);
+    }
+    match shell {
+        SurfaceShell::Host => {
+            if !surface.is_null() {
+                (real_sdl().free_surface)(surface);
+            }
+        }
+        SurfaceShell::Local(_) => {}
+    }
 }
 
 fn allocate_pixel_buffer(size: usize) -> Result<Vec<u8>, ()> {
@@ -602,14 +829,22 @@ unsafe fn finalize_registered_surface(
     height: libc::c_int,
     pitch: libc::c_int,
     pixels: *mut libc::c_void,
-    record: SurfaceRecord,
+    mut record: SurfaceRecord,
 ) -> *mut SDL_Surface {
     (*surface).flags |= SDL_PREALLOC;
     (*surface).w = width;
     (*surface).h = height;
     (*surface).pitch = pitch;
     (*surface).pixels = pixels;
-    let _ = (real_sdl().set_clip_rect)(surface, ptr::null());
+    (*surface).clip_rect = SDL_Rect {
+        x: 0,
+        y: 0,
+        w: width.max(0),
+        h: height.max(0),
+    };
+    (*surface).locked = 0;
+    (*surface).refcount = 1;
+    record.blend_mode = default_blend_mode((*surface).format);
     register_surface_record(surface, record);
     surface
 }
@@ -625,15 +860,16 @@ pub(crate) unsafe fn create_owned_surface_with_format(
         return apply_math_error_ptr(error);
     }
 
-    let surface = create_surface_shell(depth, format, "Couldn't create RGB surface");
-    if surface.is_null() {
+    let Some((surface, shell, owns_format)) =
+        create_surface_shell(depth, format, "Couldn't create RGB surface")
+    else {
         return ptr::null_mut();
-    }
+    };
 
     let descriptor = match descriptor_from_format_ptr((*surface).format) {
         Ok(descriptor) => descriptor,
         Err(error) => {
-            (real_sdl().free_surface)(surface);
+            destroy_surface_shell(surface, shell, owns_format);
             return apply_math_error_ptr(error);
         }
     };
@@ -645,7 +881,7 @@ pub(crate) unsafe fn create_owned_surface_with_format(
     ) {
         Ok(result) => result,
         Err(error) => {
-            (real_sdl().free_surface)(surface);
+            destroy_surface_shell(surface, shell, owns_format);
             return apply_math_error_ptr(error);
         }
     };
@@ -653,7 +889,7 @@ pub(crate) unsafe fn create_owned_surface_with_format(
     let mut buffer = match allocate_pixel_buffer(size) {
         Ok(buffer) => buffer,
         Err(()) => {
-            (real_sdl().free_surface)(surface);
+            destroy_surface_shell(surface, shell, owns_format);
             let _ = out_of_memory_error();
             return ptr::null_mut();
         }
@@ -674,6 +910,14 @@ pub(crate) unsafe fn create_owned_surface_with_format(
             buffer_len: size,
             expected_pixels: pixels as usize,
             storage: SurfaceStorage::Owned(buffer),
+            shell,
+            owns_format,
+            color_key_enabled: false,
+            color_key: 0,
+            color_mod: (255, 255, 255),
+            alpha_mod: 255,
+            blend_mode: SDL_BlendMode_SDL_BLENDMODE_NONE,
+            rle_enabled: false,
         },
     )
 }
@@ -696,15 +940,16 @@ pub(crate) unsafe fn create_preallocated_surface_with_format(
         return ptr::null_mut();
     }
 
-    let surface = create_surface_shell(depth, format, "Couldn't create RGB surface");
-    if surface.is_null() {
+    let Some((surface, shell, owns_format)) =
+        create_surface_shell(depth, format, "Couldn't create RGB surface")
+    else {
         return ptr::null_mut();
-    }
+    };
 
     let descriptor = match descriptor_from_format_ptr((*surface).format) {
         Ok(descriptor) => descriptor,
         Err(error) => {
-            (real_sdl().free_surface)(surface);
+            destroy_surface_shell(surface, shell, owns_format);
             return apply_math_error_ptr(error);
         }
     };
@@ -717,7 +962,7 @@ pub(crate) unsafe fn create_preallocated_surface_with_format(
     ) {
         Ok(size) => size,
         Err(error) => {
-            (real_sdl().free_surface)(surface);
+            destroy_surface_shell(surface, shell, owns_format);
             return apply_math_error_ptr(error);
         }
     };
@@ -732,6 +977,14 @@ pub(crate) unsafe fn create_preallocated_surface_with_format(
             buffer_len: size,
             expected_pixels: pixels as usize,
             storage: SurfaceStorage::Borrowed,
+            shell,
+            owns_format,
+            color_key_enabled: false,
+            color_key: 0,
+            color_mod: (255, 255, 255),
+            alpha_mod: 255,
+            blend_mode: SDL_BlendMode_SDL_BLENDMODE_NONE,
+            rle_enabled: false,
         },
     )
 }
@@ -745,76 +998,127 @@ unsafe fn copy_palette_if_present(dst: *mut SDL_Surface, format: *const SDL_Pixe
     let dst_palette = (*(*dst).format).palette;
     let count = (*palette).ncolors.min((*dst_palette).ncolors);
     if count > 0 {
-        let _ = (real_sdl().set_palette_colors)(dst_palette, (*palette).colors, 0, count);
+        let _ =
+            crate::video::pixels::SDL_SetPaletteColors(dst_palette, (*palette).colors, 0, count);
     }
 }
 
 unsafe fn copy_surface_state(src: *mut SDL_Surface, dst: *mut SDL_Surface) {
-    let mut r = 255;
-    let mut g = 255;
-    let mut b = 255;
-    let mut a = 255;
-    let mut blend: SDL_BlendMode = 0;
-    let mut key = 0;
-
     let clip = (*src).clip_rect;
-    let _ = (real_sdl().set_clip_rect)(dst, &clip);
-    if (real_sdl().get_surface_color_mod)(src, &mut r, &mut g, &mut b) == 0 {
-        let _ = (real_sdl().set_surface_color_mod)(dst, r, g, b);
-    }
-    if (real_sdl().get_surface_alpha_mod)(src, &mut a) == 0 {
-        let _ = (real_sdl().set_surface_alpha_mod)(dst, a);
-    }
-    if (real_sdl().get_surface_blend_mode)(src, &mut blend) == 0 {
-        let _ = (real_sdl().set_surface_blend_mode)(dst, blend);
-    }
-    if (real_sdl().has_color_key)(src) != 0 && (real_sdl().get_color_key)(src, &mut key) == 0 {
-        let _ = (real_sdl().set_color_key)(dst, 1, key);
-    } else {
-        let _ = (real_sdl().set_color_key)(dst, 0, 0);
-    }
-    let _ = (real_sdl().set_surface_rle)(
+    let _ = SDL_SetClipRect(dst, &clip);
+    let state = surface_state(src);
+    let _ = SDL_SetSurfaceColorMod(dst, state.color_mod.0, state.color_mod.1, state.color_mod.2);
+    let _ = SDL_SetSurfaceAlphaMod(dst, state.alpha_mod);
+    let _ = SDL_SetSurfaceBlendMode(dst, state.blend_mode);
+    let _ = SDL_SetColorKey(
         dst,
-        if (real_sdl().has_surface_rle)(src) != 0 {
-            1
-        } else {
-            0
-        },
+        if state.color_key_enabled { 1 } else { 0 },
+        state.color_key,
     );
+    let rle = with_surface_record(src, |record| record.rle_enabled).unwrap_or(false);
+    let _ = SDL_SetSurfaceRLE(dst, if rle { 1 } else { 0 });
 }
 
-unsafe fn convert_registered_surface_with_real_view(
+unsafe fn convert_surface_pixels_local(
+    src: *mut SDL_Surface,
+    dst: *mut SDL_Surface,
+) -> Result<(), MathError> {
+    let src_descriptor = validate_surface_storage(src)?;
+    let dst_descriptor = validate_surface_storage(dst)?;
+    if (*src).w != (*dst).w || (*src).h != (*dst).h {
+        return Err(MathError::InvalidParam("dstrect"));
+    }
+    if (*src).w <= 0 || (*src).h <= 0 {
+        return Ok(());
+    }
+
+    let src_format = (*src).format;
+    let dst_format = (*dst).format;
+    let same_format = !src_format.is_null()
+        && !dst_format.is_null()
+        && (*src_format).format == (*dst_format).format;
+
+    if same_format && src_descriptor.bytes_per_pixel == dst_descriptor.bytes_per_pixel {
+        let row_bytes = checked_math::validate_copy_layout(
+            (*src).w,
+            (*src).h,
+            src_descriptor.bits_per_pixel,
+            src_descriptor.bytes_per_pixel,
+            (*src).pitch,
+        )?
+        .0;
+        for row in 0..(*src).h {
+            let src_row = pixel_pointer(
+                src,
+                src_descriptor.bytes_per_pixel,
+                0,
+                row,
+                "surface convert copy overflow",
+            )?;
+            let dst_row = pixel_pointer(
+                dst,
+                dst_descriptor.bytes_per_pixel,
+                0,
+                row,
+                "surface convert copy overflow",
+            )?;
+            ptr::copy(src_row, dst_row, row_bytes);
+        }
+        return Ok(());
+    }
+
+    for row in 0..(*src).h {
+        for column in 0..(*src).w {
+            let src_pixel = pixel_pointer(
+                src,
+                src_descriptor.bytes_per_pixel,
+                column,
+                row,
+                "surface convert copy overflow",
+            )?;
+            let dst_pixel = pixel_pointer(
+                dst,
+                dst_descriptor.bytes_per_pixel,
+                column,
+                row,
+                "surface convert copy overflow",
+            )?;
+            let rgba = read_rgba_pixel((*src).format, src_descriptor.bytes_per_pixel, src_pixel);
+            write_rgba_pixel(
+                (*dst).format,
+                dst_descriptor.bytes_per_pixel,
+                dst_pixel,
+                rgba,
+            );
+        }
+    }
+
+    Ok(())
+}
+
+unsafe fn convert_registered_surface_local(
     src: *mut SDL_Surface,
     fmt: *const SDL_PixelFormat,
     flags: Uint32,
 ) -> *mut SDL_Surface {
-    clear_real_error();
-    let temp = (real_sdl().create_rgb_surface_with_format_from)(
-        (*src).pixels,
+    let converted = create_owned_surface_with_format(
+        flags,
         (*src).w,
         (*src).h,
-        (*(*src).format).BitsPerPixel as libc::c_int,
-        (*src).pitch,
-        (*(*src).format).format,
+        (*fmt).BitsPerPixel as libc::c_int,
+        (*fmt).format,
     );
-    if temp.is_null() {
-        let _ = sync_error_from_real("Couldn't convert surface");
+    if converted.is_null() {
         return ptr::null_mut();
     }
 
-    copy_palette_if_present(temp, (*src).format);
-    copy_surface_state(src, temp);
-
-    clear_real_error();
-    let converted = (real_sdl().convert_surface)(temp, fmt, flags);
-    let convert_failed = converted.is_null();
-    if convert_failed {
-        let _ = sync_error_from_real("Couldn't convert surface");
-    }
-    (real_sdl().free_surface)(temp);
-    if convert_failed {
+    copy_palette_if_present(converted, fmt);
+    if convert_surface_pixels_local(src, converted).is_err() {
+        SDL_FreeSurface(converted);
+        let _ = set_error_message("Couldn't convert surface");
         return ptr::null_mut();
     }
+    copy_surface_state(src, converted);
     converted
 }
 
@@ -838,7 +1142,8 @@ pub unsafe extern "C" fn SDL_CreateRGBSurface(
         return ptr::null_mut();
     }
 
-    let format = (real_sdl().masks_to_pixel_format_enum)(depth, Rmask, Gmask, Bmask, Amask);
+    let format =
+        crate::video::pixels::SDL_MasksToPixelFormatEnum(depth, Rmask, Gmask, Bmask, Amask);
     if format == 0 {
         let _ = set_error_message("Unknown pixel format");
         return ptr::null_mut();
@@ -890,7 +1195,8 @@ pub unsafe extern "C" fn SDL_CreateRGBSurfaceFrom(
         return ptr::null_mut();
     }
 
-    let format = (real_sdl().masks_to_pixel_format_enum)(depth, Rmask, Gmask, Bmask, Amask);
+    let format =
+        crate::video::pixels::SDL_MasksToPixelFormatEnum(depth, Rmask, Gmask, Bmask, Amask);
     if format == 0 {
         let _ = set_error_message("Unknown pixel format");
         return ptr::null_mut();
@@ -930,9 +1236,16 @@ pub unsafe extern "C" fn SDL_FreeSurface(surface: *mut SDL_Surface) {
         return;
     }
 
-    let record = take_surface_record(surface);
-    (real_sdl().free_surface)(surface);
-    drop(record);
+    if let Some(record) = take_surface_record(surface) {
+        let SurfaceRecord {
+            shell, owns_format, ..
+        } = record;
+        destroy_surface_shell(surface, shell, owns_format);
+        return;
+    }
+    if crate::video::real_sdl_is_available() {
+        (real_sdl().free_surface)(surface);
+    }
 }
 
 #[no_mangle]
@@ -940,6 +1253,15 @@ pub unsafe extern "C" fn SDL_SetSurfacePalette(
     surface: *mut SDL_Surface,
     palette: *mut SDL_Palette,
 ) -> libc::c_int {
+    if surface.is_null() {
+        return invalid_param_error("surface");
+    }
+    if is_registered_surface(surface) {
+        if (*surface).format.is_null() {
+            return invalid_param_error("surface");
+        }
+        return crate::video::pixels::SDL_SetPixelFormatPalette((*surface).format, palette);
+    }
     clear_real_error();
     let result = (real_sdl().set_surface_palette)(surface, palette);
     if result < 0 {
@@ -950,6 +1272,16 @@ pub unsafe extern "C" fn SDL_SetSurfacePalette(
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_LockSurface(surface: *mut SDL_Surface) -> libc::c_int {
+    if surface.is_null() {
+        return invalid_param_error("surface");
+    }
+    if is_registered_surface(surface) {
+        if let Err(error) = validate_surface_storage(surface) {
+            return apply_math_error(error);
+        }
+        (*surface).locked += 1;
+        return 0;
+    }
     clear_real_error();
     let result = (real_sdl().lock_surface)(surface);
     if result < 0 {
@@ -960,6 +1292,15 @@ pub unsafe extern "C" fn SDL_LockSurface(surface: *mut SDL_Surface) -> libc::c_i
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_UnlockSurface(surface: *mut SDL_Surface) {
+    if surface.is_null() {
+        return;
+    }
+    if is_registered_surface(surface) {
+        if (*surface).locked > 0 {
+            (*surface).locked -= 1;
+        }
+        return;
+    }
     (real_sdl().unlock_surface)(surface);
 }
 
@@ -968,6 +1309,19 @@ pub unsafe extern "C" fn SDL_SetSurfaceRLE(
     surface: *mut SDL_Surface,
     flag: libc::c_int,
 ) -> libc::c_int {
+    if surface.is_null() {
+        return invalid_param_error("surface");
+    }
+    if is_registered_surface(surface) {
+        let enabled = flag != 0;
+        let _ = with_surface_record_mut(surface, |record| record.rle_enabled = enabled);
+        if enabled {
+            (*surface).flags |= SDL_RLEACCEL;
+        } else {
+            (*surface).flags &= !SDL_RLEACCEL;
+        }
+        return 0;
+    }
     clear_real_error();
     let result = (real_sdl().set_surface_rle)(surface, flag);
     if result < 0 {
@@ -978,6 +1332,12 @@ pub unsafe extern "C" fn SDL_SetSurfaceRLE(
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_HasSurfaceRLE(surface: *mut SDL_Surface) -> SDL_bool {
+    if surface.is_null() {
+        return 0;
+    }
+    if is_registered_surface(surface) {
+        return with_surface_record(surface, |record| record.rle_enabled as SDL_bool).unwrap_or(0);
+    }
     (real_sdl().has_surface_rle)(surface)
 }
 
@@ -987,6 +1347,23 @@ pub unsafe extern "C" fn SDL_SetColorKey(
     flag: libc::c_int,
     key: Uint32,
 ) -> libc::c_int {
+    if surface.is_null() {
+        return invalid_param_error("surface");
+    }
+    if is_registered_surface(surface) {
+        let enabled = flag != 0;
+        let _ = with_surface_record_mut(surface, |record| {
+            record.color_key_enabled = enabled;
+            record.color_key = key;
+            record.rle_enabled = (flag & SDL_RLEACCEL as libc::c_int) != 0;
+        });
+        if (flag & SDL_RLEACCEL as libc::c_int) != 0 {
+            (*surface).flags |= SDL_RLEACCEL;
+        } else {
+            (*surface).flags &= !SDL_RLEACCEL;
+        }
+        return 0;
+    }
     clear_real_error();
     let result = (real_sdl().set_color_key)(surface, flag, key);
     if result < 0 {
@@ -997,6 +1374,12 @@ pub unsafe extern "C" fn SDL_SetColorKey(
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_HasColorKey(surface: *mut SDL_Surface) -> SDL_bool {
+    if surface.is_null() {
+        return 0;
+    }
+    if is_registered_surface(surface) {
+        return surface_state(surface).color_key_enabled as SDL_bool;
+    }
     (real_sdl().has_color_key)(surface)
 }
 
@@ -1005,6 +1388,20 @@ pub unsafe extern "C" fn SDL_GetColorKey(
     surface: *mut SDL_Surface,
     key: *mut Uint32,
 ) -> libc::c_int {
+    if surface.is_null() {
+        return invalid_param_error("surface");
+    }
+    if key.is_null() {
+        return invalid_param_error("key");
+    }
+    if is_registered_surface(surface) {
+        let state = surface_state(surface);
+        if !state.color_key_enabled {
+            return set_error_message("Surface doesn't have a colorkey");
+        }
+        *key = state.color_key;
+        return 0;
+    }
     clear_real_error();
     let result = (real_sdl().get_color_key)(surface, key);
     if result < 0 {
@@ -1020,6 +1417,13 @@ pub unsafe extern "C" fn SDL_SetSurfaceColorMod(
     g: Uint8,
     b: Uint8,
 ) -> libc::c_int {
+    if surface.is_null() {
+        return invalid_param_error("surface");
+    }
+    if is_registered_surface(surface) {
+        let _ = with_surface_record_mut(surface, |record| record.color_mod = (r, g, b));
+        return 0;
+    }
     clear_real_error();
     let result = (real_sdl().set_surface_color_mod)(surface, r, g, b);
     if result < 0 {
@@ -1035,6 +1439,19 @@ pub unsafe extern "C" fn SDL_GetSurfaceColorMod(
     g: *mut Uint8,
     b: *mut Uint8,
 ) -> libc::c_int {
+    if surface.is_null() {
+        return invalid_param_error("surface");
+    }
+    if r.is_null() || g.is_null() || b.is_null() {
+        return invalid_param_error("r");
+    }
+    if is_registered_surface(surface) {
+        let modulate = surface_state(surface).color_mod;
+        *r = modulate.0;
+        *g = modulate.1;
+        *b = modulate.2;
+        return 0;
+    }
     clear_real_error();
     let result = (real_sdl().get_surface_color_mod)(surface, r, g, b);
     if result < 0 {
@@ -1048,6 +1465,13 @@ pub unsafe extern "C" fn SDL_SetSurfaceAlphaMod(
     surface: *mut SDL_Surface,
     alpha: Uint8,
 ) -> libc::c_int {
+    if surface.is_null() {
+        return invalid_param_error("surface");
+    }
+    if is_registered_surface(surface) {
+        let _ = with_surface_record_mut(surface, |record| record.alpha_mod = alpha);
+        return 0;
+    }
     clear_real_error();
     let result = (real_sdl().set_surface_alpha_mod)(surface, alpha);
     if result < 0 {
@@ -1061,6 +1485,16 @@ pub unsafe extern "C" fn SDL_GetSurfaceAlphaMod(
     surface: *mut SDL_Surface,
     alpha: *mut Uint8,
 ) -> libc::c_int {
+    if surface.is_null() {
+        return invalid_param_error("surface");
+    }
+    if alpha.is_null() {
+        return invalid_param_error("alpha");
+    }
+    if is_registered_surface(surface) {
+        *alpha = surface_state(surface).alpha_mod;
+        return 0;
+    }
     clear_real_error();
     let result = (real_sdl().get_surface_alpha_mod)(surface, alpha);
     if result < 0 {
@@ -1074,6 +1508,13 @@ pub unsafe extern "C" fn SDL_SetSurfaceBlendMode(
     surface: *mut SDL_Surface,
     blendMode: SDL_BlendMode,
 ) -> libc::c_int {
+    if surface.is_null() {
+        return invalid_param_error("surface");
+    }
+    if is_registered_surface(surface) {
+        let _ = with_surface_record_mut(surface, |record| record.blend_mode = blendMode);
+        return 0;
+    }
     clear_real_error();
     let result = (real_sdl().set_surface_blend_mode)(surface, blendMode);
     if result < 0 {
@@ -1087,6 +1528,16 @@ pub unsafe extern "C" fn SDL_GetSurfaceBlendMode(
     surface: *mut SDL_Surface,
     blendMode: *mut SDL_BlendMode,
 ) -> libc::c_int {
+    if surface.is_null() {
+        return invalid_param_error("surface");
+    }
+    if blendMode.is_null() {
+        return invalid_param_error("blendMode");
+    }
+    if is_registered_surface(surface) {
+        *blendMode = surface_state(surface).blend_mode;
+        return 0;
+    }
     clear_real_error();
     let result = (real_sdl().get_surface_blend_mode)(surface, blendMode);
     if result < 0 {
@@ -1100,11 +1551,36 @@ pub unsafe extern "C" fn SDL_SetClipRect(
     surface: *mut SDL_Surface,
     rect: *const SDL_Rect,
 ) -> SDL_bool {
+    if surface.is_null() {
+        return 0;
+    }
+    if is_registered_surface(surface) {
+        let bounds = full_surface_rect(surface);
+        let clipped = if rect.is_null() {
+            bounds
+        } else {
+            intersect_rects(&bounds, &*rect).unwrap_or(SDL_Rect {
+                x: 0,
+                y: 0,
+                w: 0,
+                h: 0,
+            })
+        };
+        (*surface).clip_rect = clipped;
+        return (clipped.w > 0 && clipped.h > 0) as SDL_bool;
+    }
     (real_sdl().set_clip_rect)(surface, rect)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetClipRect(surface: *mut SDL_Surface, rect: *mut SDL_Rect) {
+    if surface.is_null() || rect.is_null() {
+        return;
+    }
+    if is_registered_surface(surface) {
+        *rect = (*surface).clip_rect;
+        return;
+    }
     (real_sdl().get_clip_rect)(surface, rect);
 }
 
@@ -1139,7 +1615,7 @@ pub unsafe extern "C" fn SDL_ConvertSurface(
         return converted;
     }
 
-    convert_registered_surface_with_real_view(src, fmt, flags)
+    convert_registered_surface_local(src, fmt, flags)
 }
 
 #[no_mangle]
@@ -1152,15 +1628,14 @@ pub unsafe extern "C" fn SDL_ConvertSurfaceFormat(
         return apply_math_error_ptr(error);
     }
 
-    clear_real_error();
-    let fmt = (real_sdl().alloc_format)(pixel_format);
+    let fmt = crate::video::pixels::SDL_AllocFormat(pixel_format);
     if fmt.is_null() {
-        let _ = sync_error_from_real("Couldn't convert surface");
+        let _ = set_error_message("Couldn't convert surface");
         return ptr::null_mut();
     }
 
     let converted = SDL_ConvertSurface(src, fmt, flags);
-    (real_sdl().free_format)(fmt);
+    crate::video::pixels::SDL_FreeFormat(fmt);
     converted
 }
 

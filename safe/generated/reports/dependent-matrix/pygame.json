@@ -7,7 +7,7 @@
       "slug": "pygame",
       "name": "pygame",
       "status": "passed",
-      "duration_seconds": 67.0,
+      "duration_seconds": 60.0,
       "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/pygame",
       "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/pygame/console.log",
       "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/pygame.json",

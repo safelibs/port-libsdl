@@ -3,6 +3,12 @@ use std::path::PathBuf;
 
 use serde::Deserialize;
 
+#[path = "common/testutils.rs"]
+mod testutils;
+
+use safe_sdl::abi::generated_types::SDL_GLattr_SDL_GL_CONTEXT_MAJOR_VERSION;
+use safe_sdl::render::gl::{SDL_GL_GetAttribute, SDL_GL_ResetAttributes, SDL_GL_SetAttribute};
+
 #[derive(Debug, Deserialize)]
 struct DependentRegressionManifest {
     schema_version: u32,
@@ -114,5 +120,29 @@ fn manifest_entries_are_bound_to_real_tests() {
                 issue.slug
             );
         }
+    }
+}
+
+#[test]
+fn gl_attributes_do_not_require_a_host_runtime() {
+    let _disable_runtime = testutils::ScopedEnvVar::set("SAFE_SDL_DISABLE_REAL_RUNTIME", "1");
+
+    unsafe {
+        SDL_GL_ResetAttributes();
+        assert_eq!(
+            SDL_GL_SetAttribute(SDL_GLattr_SDL_GL_CONTEXT_MAJOR_VERSION, 3),
+            0,
+            "{}",
+            testutils::current_error()
+        );
+
+        let mut major_version = -1;
+        assert_eq!(
+            SDL_GL_GetAttribute(SDL_GLattr_SDL_GL_CONTEXT_MAJOR_VERSION, &mut major_version,),
+            0,
+            "{}",
+            testutils::current_error()
+        );
+        assert_eq!(major_version, 3);
     }
 }

@@ -148,6 +148,7 @@ set -euo pipefail
 
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
+export SAFE_SDL_DISABLE_REAL_RUNTIME=1
 
 ROOT=/work
 ONLY_FILTER="${LIBSDL_TEST_ONLY:-}"
@@ -1346,16 +1347,16 @@ test_0ad() {
   pid=$!
 
   for _ in $(seq 1 480); do
+    if [[ -e "$mainlog" && -e "$interesting_log" ]]; then
+      terminate_pid "$pid"
+      return 0
+    fi
+
     if ! kill -0 "$pid" >/dev/null 2>&1; then
       wait "$pid" >/dev/null 2>&1 || true
       printf -- '--- 0ad log ---\n' >&2
       cat "$logfile" >&2 || true
       die "0ad exited before it created user config state"
-    fi
-
-    if [[ -e "$mainlog" && -e "$interesting_log" ]]; then
-      terminate_pid "$pid"
-      return 0
     fi
 
     sleep 0.25

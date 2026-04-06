@@ -27,15 +27,18 @@ pub mod linux {
     pub mod x11;
 }
 
-const DEFAULT_REAL_SDL_CANDIDATES: [&[u8]; 5] = [
-    b"/usr/lib/x86_64-linux-gnu/safelibs/libSDL2-2.0.so.0.0.0\0",
+const DEFAULT_REAL_SDL_CANDIDATES: [&[u8]; 4] = [
     b"/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.0.0\0",
     b"/lib/x86_64-linux-gnu/libSDL2-2.0.so.0\0",
     b"/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.0.0\0",
     b"/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0\0",
 ];
+const SAFE_RUNTIME_DISABLE_ENV: &str = "SAFE_SDL_DISABLE_REAL_RUNTIME";
 
 pub(crate) fn real_sdl_dlopen_candidates() -> Vec<CString> {
+    if real_runtime_autoload_disabled() {
+        return Vec::new();
+    }
     let mut candidates = Vec::with_capacity(DEFAULT_REAL_SDL_CANDIDATES.len() + 1);
     if let Some(path) = std::env::var_os("SAFE_SDL_REAL_SDL_PATH") {
         if !path.is_empty() {
@@ -53,21 +56,26 @@ pub(crate) fn real_sdl_dlopen_candidates() -> Vec<CString> {
 }
 
 fn open_real_sdl() -> *mut libc::c_void {
-    open_real_sdl_with_flags(real_sdl_dlopen_flags())
+    try_open_real_sdl_with_flags(real_sdl_dlopen_flags())
+        .unwrap_or_else(|| panic!("unable to load the SDL2 compatibility runtime"))
 }
 
 pub(crate) fn open_real_sdl_with_flags(flags: libc::c_int) -> *mut libc::c_void {
+    try_open_real_sdl_with_flags(flags)
+        .unwrap_or_else(|| panic!("unable to load the SDL2 compatibility runtime"))
+}
+
+pub(crate) fn try_open_real_sdl_with_flags(flags: libc::c_int) -> Option<*mut libc::c_void> {
     for candidate in real_sdl_dlopen_candidates() {
         if should_skip_real_sdl_candidate(candidate.as_c_str()) {
             continue;
         }
         let handle = unsafe { libc::dlopen(candidate.as_ptr(), flags) };
         if !handle.is_null() {
-            return handle;
+            return Some(handle);
         }
     }
-
-    panic!("unable to load the SDL2 compatibility runtime");
+    None
 }
 
 #[cfg(target_os = "linux")]
@@ -81,13 +89,27 @@ fn real_sdl_dlopen_flags() -> libc::c_int {
 }
 
 pub(crate) fn real_sdl_handle() -> *mut libc::c_void {
-    *real_sdl_handle_slot().get_or_init(|| open_real_sdl() as usize) as *mut libc::c_void
+    try_real_sdl_handle().unwrap_or_else(|| panic!("unable to load the SDL2 compatibility runtime"))
+}
+
+pub(crate) fn try_real_sdl_handle() -> Option<*mut libc::c_void> {
+    real_sdl_handle_slot()
+        .get_or_init(|| {
+            try_open_real_sdl_with_flags(real_sdl_dlopen_flags()).map(|handle| handle as usize)
+        })
+        .as_ref()
+        .map(|handle| *handle as *mut libc::c_void)
+}
+
+pub(crate) fn real_sdl_is_available() -> bool {
+    try_real_sdl_handle().is_some()
 }
 
 fn loaded_real_sdl_handle() -> Option<*mut libc::c_void> {
     real_sdl_handle_slot()
         .get()
         .copied()
+        .flatten()
         .map(|handle| handle as *mut libc::c_void)
 }
 
@@ -95,8 +117,8 @@ pub(crate) fn real_sdl_is_loaded() -> bool {
     loaded_real_sdl_handle().is_some()
 }
 
-fn real_sdl_handle_slot() -> &'static OnceLock<usize> {
-    static HANDLE: OnceLock<usize> = OnceLock::new();
+fn real_sdl_handle_slot() -> &'static OnceLock<Option<usize>> {
+    static HANDLE: OnceLock<Option<usize>> = OnceLock::new();
     &HANDLE
 }
 
@@ -107,7 +129,32 @@ fn should_skip_real_sdl_candidate(candidate: &CStr) -> bool {
     }
     let self_path = current_library_path().and_then(|path| fs::canonicalize(path).ok());
     let candidate_path = fs::canonicalize(Path::new(OsStr::from_bytes(bytes))).ok();
-    matches!((self_path, candidate_path), (Some(self_path), Some(candidate_path)) if self_path == candidate_path)
+    matches!((&self_path, &candidate_path), (Some(self_path), Some(candidate_path)) if self_path == candidate_path)
+        || candidate_path
+            .as_deref()
+            .map(candidate_looks_like_safe_sdl)
+            .unwrap_or(false)
+}
+
+fn real_runtime_autoload_disabled() -> bool {
+    matches!(
+        std::env::var_os(SAFE_RUNTIME_DISABLE_ENV),
+        Some(value) if !value.is_empty() && value != "0"
+    )
+}
+
+fn candidate_looks_like_safe_sdl(path: &Path) -> bool {
+    const SAFE_MARKERS: [&[u8]; 2] = [
+        b"safe_sdl_store_error_message",
+        b"safe-sdl bootstrap stub called",
+    ];
+
+    let Ok(bytes) = fs::read(path) else {
+        return false;
+    };
+    SAFE_MARKERS
+        .iter()
+        .any(|marker| bytes.windows(marker.len()).any(|window| window == *marker))
 }
 
 fn current_library_path() -> Option<PathBuf> {
@@ -139,6 +186,16 @@ pub(crate) fn load_symbol<T>(name: &[u8]) -> T {
         String::from_utf8_lossy(&name[..name.len().saturating_sub(1)])
     );
     unsafe { std::mem::transmute_copy(&symbol) }
+}
+
+pub(crate) fn try_load_symbol<T>(name: &[u8]) -> Option<T> {
+    let handle = try_real_sdl_handle()?;
+    let symbol = unsafe { libc::dlsym(handle, name.as_ptr().cast()) };
+    if symbol.is_null() {
+        None
+    } else {
+        Some(unsafe { std::mem::transmute_copy(&symbol) })
+    }
 }
 
 type GetErrorFn = unsafe extern "C" fn() -> *const libc::c_char;

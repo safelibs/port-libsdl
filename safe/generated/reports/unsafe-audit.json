@@ -2,16 +2,16 @@
   "phase_id": "impl_phase_10_packaging_dependents_final",
   "allowlist_path": "safe/docs/unsafe-allowlist.md",
   "summary": {
-    "generated_at_unix_seconds": 1775439883,
-    "rule_count": 19,
-    "total_unsafe_files": 94,
+    "generated_at_unix_seconds": 1775449247,
+    "rule_count": 20,
+    "total_unsafe_files": 96,
     "undocumented_files": 0,
     "category_counts": {
       "ffi": 68,
       "generated": 3,
       "os": 2,
-      "performance": 1,
-      "tests": 20
+      "performance": 2,
+      "tests": 21
     }
   },
   "rules": [
@@ -74,6 +74,11 @@
       "pattern": "safe/src/render/gles.rs",
       "category": "performance",
       "justification": "Raw GLES proc-table access and texture upload kernels kept close to the ABI and hot paths."
+    },
+    {
+      "pattern": "safe/src/render/local.rs",
+      "category": "performance",
+      "justification": "Local software renderer keeps raw SDL surface, texture, and window pointers in hot-path drawing code so the packaged fallback works without a host SDL runtime."
     },
     {
       "pattern": "safe/src/render/software.rs",
@@ -333,6 +338,11 @@
       "matched_pattern": "safe/src/render/gles.rs"
     },
     {
+      "path": "safe/src/render/local.rs",
+      "category": "performance",
+      "matched_pattern": "safe/src/render/local.rs"
+    },
+    {
       "path": "safe/src/render/software.rs",
       "category": "ffi",
       "matched_pattern": "safe/src/render/software.rs"
@@ -481,6 +491,11 @@
       "path": "safe/tests/common/testutils.rs",
       "category": "tests",
       "matched_pattern": "safe/tests/common/*.rs"
+    },
+    {
+      "path": "safe/tests/dependent_regressions.rs",
+      "category": "tests",
+      "matched_pattern": "safe/tests/*.rs"
     },
     {
       "path": "safe/tests/evdev_fixtures.rs",

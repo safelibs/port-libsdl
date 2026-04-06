@@ -2748,7 +2748,8 @@ fn implemented_export_symbols(safe_root: &Path) -> Result<BTreeSet<String>> {
     let mut files = Vec::new();
     collect_rust_source_files(&safe_root.join("src"), &mut files)?;
     let export_re = Regex::new(r#"pub\s+unsafe\s+extern\s+"C"\s+fn\s+(SDL_[A-Za-z0-9_]+)\s*\("#)?;
-    let macro_export_re = Regex::new(r#"fn\s+(SDL_[A-Za-z0-9_]+)\s*\(.*=\s*[A-Za-z0-9_]+;"#)?;
+    let macro_export_re =
+        Regex::new(r#"fn\s+(SDL_[A-Za-z0-9_]+)\s*\(.*=\s*[A-Za-z0-9_]+(?:\s*=>\s*[^;]+)?;"#)?;
     let macro_arg_export_re = Regex::new(r#"[A-Za-z0-9_]+!\(\s*(SDL_[A-Za-z0-9_]+)\b"#)?;
     let c_export_re = Regex::new(r#"(?m)^[A-Za-z_][A-Za-z0-9_\s\*]*\b(SDL_[A-Za-z0-9_]+)\s*\("#)?;
     let mut symbols = BTreeSet::new();

@@ -274,6 +274,7 @@ pub fn run_relinked_original_tests(args: RunRelinkedOriginalTestsArgs) -> Result
         let mut cmd = Command::new(&executable);
         cmd.current_dir(&bin_dir)
             .env_remove(real_runtime_env_key())
+            .env(disable_real_runtime_env_key(), "1")
             .env("SDL_AUDIODRIVER", "dummy")
             .env("SDL_VIDEODRIVER", "dummy")
             .env("SDL_TESTS_QUICK", "1");
@@ -490,7 +491,9 @@ pub fn run_original_standalone(args: RunOriginalStandaloneArgs) -> Result<()> {
         }
 
         let mut cmd = Command::new(&executable);
-        cmd.current_dir(&build_dir).env("SDL_TESTS_QUICK", "1");
+        cmd.current_dir(&build_dir)
+            .env("SDL_TESTS_QUICK", "1")
+            .env(disable_real_runtime_env_key(), "1");
         for (key, value) in &target.checker_runner_contract.environment {
             cmd.env(key, value);
         }
@@ -999,6 +1002,7 @@ fn apply_stage_suite_env(cmd: &mut Command, stage_root: &Path) -> Result<()> {
 
     cmd.env("PATH", joined_env_path(&stage_bin, env::var_os("PATH"))?)
         .env("SDL2_CONFIG", stage_bin.join("sdl2-config"))
+        .env(disable_real_runtime_env_key(), "1")
         .env(
             "PKG_CONFIG_PATH",
             joined_env_path(&stage_pkgconfig, env::var_os("PKG_CONFIG_PATH"))?,
@@ -1048,6 +1052,10 @@ fn prepend_shell_flags(prefix: &str, existing: Option<OsString>) -> String {
 
 fn real_runtime_env_key() -> &'static str {
     concat!("SAFE_SDL_REAL_", "SDL_PATH")
+}
+
+fn disable_real_runtime_env_key() -> &'static str {
+    "SAFE_SDL_DISABLE_REAL_RUNTIME"
 }
 
 fn joined_env_path(first: &Path, existing: Option<OsString>) -> Result<OsString> {

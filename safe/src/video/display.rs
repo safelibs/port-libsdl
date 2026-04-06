@@ -59,6 +59,10 @@ impl VideoDriverDescriptor {
     }
 }
 
+fn driver_uses_host_runtime(driver: &VideoDriverDescriptor) -> bool {
+    driver.is_host() && crate::video::real_sdl_is_available()
+}
+
 const DRIVER_REGISTRY: &[VideoDriverDescriptor] = &[
     VideoDriverDescriptor {
         name: "x11",
@@ -252,7 +256,7 @@ fn reset_video_runtime_state() {
 
 fn tear_down_locked(state: &mut VideoState) {
     if let Some(driver) = current_driver_from_state(state) {
-        if driver.is_host() {
+        if driver_uses_host_runtime(driver) {
             crate::video::clear_real_error();
             unsafe {
                 (host_api().video_quit)();
@@ -267,6 +271,9 @@ fn tear_down_locked(state: &mut VideoState) {
 fn try_activate_driver(index: usize) -> Result<(), ()> {
     let driver = DRIVER_REGISTRY[index];
     if driver.is_host() {
+        if !crate::video::real_sdl_is_available() {
+            return Err(());
+        }
         crate::video::clear_real_error();
         let rc = unsafe { (host_api().video_init)(driver.name_bytes.as_ptr().cast()) };
         if rc != 0 {
@@ -316,7 +323,7 @@ pub(crate) fn require_video_driver() -> Result<&'static VideoDriverDescriptor, (
 
 pub(crate) fn current_driver_is_host() -> bool {
     active_driver()
-        .map(|driver| driver.is_host())
+        .map(driver_uses_host_runtime)
         .unwrap_or(false)
 }
 
@@ -373,7 +380,7 @@ pub unsafe extern "C" fn SDL_VideoQuit() {
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetNumVideoDisplays() -> libc::c_int {
     match require_video_driver() {
-        Ok(driver) if driver.is_host() => {
+        Ok(driver) if driver_uses_host_runtime(driver) => {
             crate::video::clear_real_error();
             (host_api().get_num_video_displays)()
         }
@@ -385,7 +392,7 @@ pub unsafe extern "C" fn SDL_GetNumVideoDisplays() -> libc::c_int {
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetDisplayName(displayIndex: libc::c_int) -> *const libc::c_char {
     match require_video_driver() {
-        Ok(driver) if driver.is_host() => {
+        Ok(driver) if driver_uses_host_runtime(driver) => {
             crate::video::clear_real_error();
             (host_api().get_display_name)(displayIndex)
         }
@@ -409,7 +416,7 @@ pub unsafe extern "C" fn SDL_GetDisplayBounds(
         return crate::core::error::invalid_param_error("rect");
     }
     match require_video_driver() {
-        Ok(driver) if driver.is_host() => {
+        Ok(driver) if driver_uses_host_runtime(driver) => {
             crate::video::clear_real_error();
             (host_api().get_display_bounds)(displayIndex, rect)
         }
@@ -431,7 +438,7 @@ pub unsafe extern "C" fn SDL_GetDisplayUsableBounds(
         return crate::core::error::invalid_param_error("rect");
     }
     match require_video_driver() {
-        Ok(driver) if driver.is_host() => {
+        Ok(driver) if driver_uses_host_runtime(driver) => {
             crate::video::clear_real_error();
             (host_api().get_display_usable_bounds)(displayIndex, rect)
         }
@@ -452,7 +459,7 @@ pub unsafe extern "C" fn SDL_GetDisplayDPI(
     vdpi: *mut f32,
 ) -> libc::c_int {
     match require_video_driver() {
-        Ok(driver) if driver.is_host() => {
+        Ok(driver) if driver_uses_host_runtime(driver) => {
             crate::video::clear_real_error();
             (host_api().get_display_dpi)(displayIndex, ddpi, hdpi, vdpi)
         }
@@ -478,7 +485,7 @@ pub unsafe extern "C" fn SDL_GetDisplayOrientation(
     displayIndex: libc::c_int,
 ) -> SDL_DisplayOrientation {
     match require_video_driver() {
-        Ok(driver) if driver.is_host() => {
+        Ok(driver) if driver_uses_host_runtime(driver) => {
             crate::video::clear_real_error();
             (host_api().get_display_orientation)(displayIndex)
         }
@@ -490,7 +497,7 @@ pub unsafe extern "C" fn SDL_GetDisplayOrientation(
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetNumDisplayModes(displayIndex: libc::c_int) -> libc::c_int {
     match require_video_driver() {
-        Ok(driver) if driver.is_host() => {
+        Ok(driver) if driver_uses_host_runtime(driver) => {
             crate::video::clear_real_error();
             (host_api().get_num_display_modes)(displayIndex)
         }
@@ -510,7 +517,7 @@ pub unsafe extern "C" fn SDL_GetDisplayMode(
         return crate::core::error::invalid_param_error("mode");
     }
     match require_video_driver() {
-        Ok(driver) if driver.is_host() => {
+        Ok(driver) if driver_uses_host_runtime(driver) => {
             crate::video::clear_real_error();
             (host_api().get_display_mode)(displayIndex, modeIndex, mode)
         }
@@ -532,7 +539,7 @@ pub unsafe extern "C" fn SDL_GetDesktopDisplayMode(
         return crate::core::error::invalid_param_error("mode");
     }
     match require_video_driver() {
-        Ok(driver) if driver.is_host() => {
+        Ok(driver) if driver_uses_host_runtime(driver) => {
             crate::video::clear_real_error();
             (host_api().get_desktop_display_mode)(displayIndex, mode)
         }
@@ -554,7 +561,7 @@ pub unsafe extern "C" fn SDL_GetCurrentDisplayMode(
         return crate::core::error::invalid_param_error("mode");
     }
     match require_video_driver() {
-        Ok(driver) if driver.is_host() => {
+        Ok(driver) if driver_uses_host_runtime(driver) => {
             crate::video::clear_real_error();
             (host_api().get_current_display_mode)(displayIndex, mode)
         }
@@ -578,7 +585,7 @@ pub unsafe extern "C" fn SDL_GetClosestDisplayMode(
         return std::ptr::null_mut();
     }
     match require_video_driver() {
-        Ok(driver) if driver.is_host() => {
+        Ok(driver) if driver_uses_host_runtime(driver) => {
             crate::video::clear_real_error();
             (host_api().get_closest_display_mode)(displayIndex, mode, closest)
         }
@@ -596,7 +603,7 @@ pub unsafe extern "C" fn SDL_GetPointDisplayIndex(point: *const SDL_Point) -> li
         return crate::core::error::invalid_param_error("point");
     }
     match require_video_driver() {
-        Ok(driver) if driver.is_host() => {
+        Ok(driver) if driver_uses_host_runtime(driver) => {
             crate::video::clear_real_error();
             (host_api().get_point_display_index)(point)
         }
@@ -611,7 +618,7 @@ pub unsafe extern "C" fn SDL_GetRectDisplayIndex(rect: *const SDL_Rect) -> libc:
         return crate::core::error::invalid_param_error("rect");
     }
     match require_video_driver() {
-        Ok(driver) if driver.is_host() => {
+        Ok(driver) if driver_uses_host_runtime(driver) => {
             crate::video::clear_real_error();
             (host_api().get_rect_display_index)(rect)
         }
@@ -623,7 +630,7 @@ pub unsafe extern "C" fn SDL_GetRectDisplayIndex(rect: *const SDL_Rect) -> libc:
 #[no_mangle]
 pub unsafe extern "C" fn SDL_IsScreenSaverEnabled() -> SDL_bool {
     match require_video_driver() {
-        Ok(driver) if driver.is_host() => {
+        Ok(driver) if driver_uses_host_runtime(driver) => {
             crate::video::clear_real_error();
             (host_api().is_screen_saver_enabled)()
         }
@@ -638,7 +645,7 @@ pub unsafe extern "C" fn SDL_IsScreenSaverEnabled() -> SDL_bool {
 #[no_mangle]
 pub unsafe extern "C" fn SDL_EnableScreenSaver() {
     if let Some(driver) = active_driver() {
-        if driver.is_host() {
+        if driver_uses_host_runtime(driver) {
             crate::video::clear_real_error();
             (host_api().enable_screen_saver)();
         } else {
@@ -650,7 +657,7 @@ pub unsafe extern "C" fn SDL_EnableScreenSaver() {
 #[no_mangle]
 pub unsafe extern "C" fn SDL_DisableScreenSaver() {
     if let Some(driver) = active_driver() {
-        if driver.is_host() {
+        if driver_uses_host_runtime(driver) {
             crate::video::clear_real_error();
             (host_api().disable_screen_saver)();
         } else {

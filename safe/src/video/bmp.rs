@@ -7,7 +7,7 @@ use crate::core::rwops::{
 };
 use crate::security::checked_math;
 use crate::video::surface::{
-    apply_math_error, create_owned_surface_with_format, real_sdl, validate_surface_storage,
+    apply_math_error, create_owned_surface_with_format, validate_surface_storage,
 };
 
 const BI_RGB: u32 = 0;
@@ -128,7 +128,8 @@ unsafe fn write_argb8888_pixel(
         .pixels
         .cast::<u8>()
         .add(y * (*surface).pitch as usize);
-    let pixel = (real_sdl().map_rgba)((*surface).format, rgba.0, rgba.1, rgba.2, rgba.3);
+    let pixel =
+        crate::video::pixels::SDL_MapRGBA((*surface).format, rgba.0, rgba.1, rgba.2, rgba.3);
     row.add(x * 4).cast::<Uint32>().write_unaligned(pixel);
 }
 
@@ -351,7 +352,7 @@ unsafe fn surface_rgba(
         .add(y * (*surface).pitch as usize);
     let pixel = raw_pixel(row.add(x * bytes_per_pixel as usize), bytes_per_pixel);
     let (mut r, mut g, mut b, mut a) = (0, 0, 0, 0);
-    (real_sdl().get_rgba)(pixel, (*surface).format, &mut r, &mut g, &mut b, &mut a);
+    crate::video::pixels::SDL_GetRGBA(pixel, (*surface).format, &mut r, &mut g, &mut b, &mut a);
     (r, g, b, a)
 }
 

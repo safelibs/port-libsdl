@@ -11,6 +11,7 @@ set -eux
 real_sdl_runtime_var=SAFE_SDL_REAL_
 real_sdl_runtime_var="${real_sdl_runtime_var}SDL_PATH"
 unset "$real_sdl_runtime_var"
+export SAFE_SDL_DISABLE_REAL_RUNTIME=1
 
 WORKDIR=$(mktemp -d)
 trap 'rm -rf "$WORKDIR"' 0 INT QUIT ABRT PIPE TERM

@@ -1,13 +1,12 @@
 use std::sync::OnceLock;
 
 use crate::abi::generated_types::{
-    SDL_BlendMode, SDL_BlendMode_SDL_BLENDMODE_NONE, SDL_PixelFormat,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888, SDL_PixelFormatEnum_SDL_PIXELFORMAT_IYUV,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV12, SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV21,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_UYVY, SDL_PixelFormatEnum_SDL_PIXELFORMAT_YUY2,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_YV12, SDL_PixelFormatEnum_SDL_PIXELFORMAT_YVYU, SDL_Rect,
-    SDL_Surface, Uint32, Uint8, SDL_YUV_CONVERSION_MODE,
-    SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_AUTOMATIC,
+    SDL_PixelFormat, SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_IYUV, SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV12,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV21, SDL_PixelFormatEnum_SDL_PIXELFORMAT_UYVY,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_YUY2, SDL_PixelFormatEnum_SDL_PIXELFORMAT_YV12,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_YVYU, SDL_Rect, SDL_Surface, Uint32,
+    SDL_YUV_CONVERSION_MODE, SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_AUTOMATIC,
     SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_BT601,
     SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_BT709,
     SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_JPEG,
@@ -32,10 +31,9 @@ struct AllocatedFormat {
 
 impl AllocatedFormat {
     unsafe fn new(pixel_format: Uint32) -> Result<Self, libc::c_int> {
-        clear_real_error();
-        let raw = (real_sdl().alloc_format)(pixel_format);
+        let raw = crate::video::pixels::SDL_AllocFormat(pixel_format);
         if raw.is_null() {
-            return Err(sync_error_from_real("Couldn't allocate pixel format"));
+            return Err(set_error_message("Couldn't allocate pixel format"));
         }
 
         Ok(Self {
@@ -52,7 +50,7 @@ impl Drop for AllocatedFormat {
     fn drop(&mut self) {
         unsafe {
             if !self.raw.is_null() {
-                (real_sdl().free_format)(self.raw);
+                crate::video::pixels::SDL_FreeFormat(self.raw);
             }
         }
     }
@@ -716,31 +714,8 @@ unsafe fn ensure_blit_ready(
     Ok(())
 }
 
-unsafe fn source_requires_real_blit(surface: *mut SDL_Surface) -> bool {
-    let mut r: Uint8 = 255;
-    let mut g: Uint8 = 255;
-    let mut b: Uint8 = 255;
-    let mut alpha: Uint8 = 255;
-    let mut blend: SDL_BlendMode = SDL_BlendMode_SDL_BLENDMODE_NONE;
-
-    if (real_sdl().has_color_key)(surface) != 0 {
-        return true;
-    }
-    if (real_sdl().get_surface_color_mod)(surface, &mut r, &mut g, &mut b) < 0 {
-        return true;
-    }
-    if (real_sdl().get_surface_alpha_mod)(surface, &mut alpha) < 0 {
-        return true;
-    }
-    if (real_sdl().get_surface_blend_mode)(surface, &mut blend) < 0 {
-        return true;
-    }
-
-    (r, g, b) != (255, 255, 255) || alpha != 255 || blend != SDL_BlendMode_SDL_BLENDMODE_NONE
-}
-
 unsafe fn should_use_real_blit(src: *mut SDL_Surface, dst: *mut SDL_Surface) -> bool {
-    !(is_registered_surface(src) && is_registered_surface(dst)) || source_requires_real_blit(src)
+    !(is_registered_surface(src) && is_registered_surface(dst))
 }
 
 unsafe fn upper_blit_rects(

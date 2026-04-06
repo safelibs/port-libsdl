@@ -1,4 +1,9 @@
-TIMER| InitVfs: 2.08159 ms
+TIMER| InitVfs: 734.395 us
 FILES| Main log written to '/tmp/libsdl-test-home/.config/0ad/logs/mainlog.html'
 FILES| Interesting log written to '/tmp/libsdl-test-home/.config/0ad/logs/interestinglog.html'
-TIMER| CONFIG_Init: 3.01383 ms
+TIMER| CONFIG_Init: 1.56266 ms
+ERROR: Failed to query SDL WM info: 
+ERROR: Unable to create device for GL backend, switching to ARB.
+ERROR: Failed to query SDL WM info: 
+ERROR: SetVideoMode failed in backend device creation: 1024x768:32 1
+Segmentation fault

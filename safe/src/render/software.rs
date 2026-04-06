@@ -24,6 +24,9 @@ pub(crate) unsafe fn renderer_name(renderer: *mut SDL_Renderer) -> Option<String
     if renderer.is_null() {
         return None;
     }
+    if crate::render::local::is_local_renderer(renderer) {
+        return crate::render::local::renderer_name(renderer);
+    }
 
     let mut info = std::mem::MaybeUninit::<SDL_RendererInfo>::zeroed();
     if get_renderer_info_fn()(renderer, info.as_mut_ptr()) != 0 {
@@ -41,6 +44,9 @@ pub(crate) unsafe fn renderer_is_software(renderer: *mut SDL_Renderer) -> bool {
     if renderer.is_null() {
         return false;
     }
+    if crate::render::local::is_local_renderer(renderer) {
+        return crate::render::local::renderer_is_software(renderer);
+    }
 
     let mut info = std::mem::MaybeUninit::<SDL_RendererInfo>::zeroed();
     if get_renderer_info_fn()(renderer, info.as_mut_ptr()) != 0 {
@@ -54,5 +60,14 @@ pub unsafe extern "C" fn SDL_CreateSoftwareRenderer(
     surface: *mut SDL_Surface,
 ) -> *mut SDL_Renderer {
     crate::video::clear_real_error();
+    if surface.is_null() {
+        let _ = crate::core::error::invalid_param_error("surface");
+        return std::ptr::null_mut();
+    }
+    if crate::video::surface::is_registered_surface(surface)
+        || !crate::video::real_sdl_is_available()
+    {
+        return crate::render::local::create_software_renderer(surface);
+    }
     create_software_renderer_fn()(surface)
 }

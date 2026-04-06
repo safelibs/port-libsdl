@@ -16,6 +16,7 @@ Phase 10 keeps this file as the source of truth for `cargo run --manifest-path s
 - `safe/src/render/core.rs` [ffi]: Renderer ABI surface and raw texture/renderer pointer ownership.
 - `safe/src/render/gl.rs` [ffi]: Raw GL and Metal function-pointer forwarding across the SDL ABI.
 - `safe/src/render/gles.rs` [performance]: Raw GLES proc-table access and texture upload kernels kept close to the ABI and hot paths.
+- `safe/src/render/local.rs` [performance]: Local software renderer keeps raw SDL surface, texture, and window pointers in hot-path drawing code so the packaged fallback works without a host SDL runtime.
 - `safe/src/render/software.rs` [ffi]: Raw renderer and surface pointer forwarding for the software backend.
 - `safe/src/testsupport/*.rs` [ffi]: SDL_test support ports mirroring upstream pointer-heavy helpers.
 - `safe/src/video/*.rs` [ffi]: Exported C ABI wrappers over windows, displays, surfaces, pixels, clipboard, and platform video handles.

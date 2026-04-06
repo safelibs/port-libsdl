@@ -21,9 +21,7 @@ use crate::original_tests::{
     compile_original_test_objects, relink_original_test_objects, run_relinked_original_tests,
     CompileOriginalTestObjectsArgs, RelinkOriginalTestObjectsArgs, RunRelinkedOriginalTestsArgs,
 };
-use crate::stage_install::{
-    packaged_compat_real_sdl_relpath, verify_driver_contract, VerifyDriverContractArgs,
-};
+use crate::stage_install::{verify_driver_contract, VerifyDriverContractArgs};
 
 const PHASE_10_ID: &str = "impl_phase_10_packaging_dependents_final";
 const DISTRO_SDL_PACKAGE_VERSION: &str = "2.30.0+dfsg-1ubuntu3.1";
@@ -309,32 +307,45 @@ fn install_safe_packages(repo_root: &Path, packages: &BTreeMap<String, PathBuf>)
     let tests = packages
         .get("libsdl2-tests")
         .ok_or_else(|| anyhow!("missing built libsdl2-tests package"))?;
-    let install_once = |repo_root: &Path| {
+    let install_prereqs_once = |repo_root: &Path| {
         let mut cmd = Command::new("apt-get");
+        cmd.current_dir(repo_root).args([
+            "install",
+            "-y",
+            "--no-install-recommends",
+            "libsdl2-ttf-dev",
+            "gnome-desktop-testing",
+        ]);
+        run_command(cmd, "install autopkgtest prerequisites")
+    };
+    let install_packages_once = |repo_root: &Path| {
+        let mut cmd = Command::new("dpkg");
         cmd.current_dir(repo_root)
-            .args([
-                "install",
-                "-y",
-                "--no-install-recommends",
-                "libsdl2-ttf-dev",
-                "gnome-desktop-testing",
-            ])
+            .arg("-i")
             .arg(runtime)
             .arg(dev)
             .arg(tests);
-        run_command(
-            cmd,
-            "install safe Debian packages and autopkgtest prerequisites",
-        )
+        run_command(cmd, "install safe Debian packages")
     };
 
-    if let Err(error) = install_once(repo_root) {
+    install_prereqs_once(repo_root)?;
+    if let Err(error) = install_packages_once(repo_root) {
         let mut repair = Command::new("dpkg");
         repair.current_dir(repo_root).args(["--configure", "-a"]);
         let _ = run_command(repair, "repair dpkg state before retrying package install");
-        install_once(repo_root).with_context(|| format!("{error:#}"))?;
+        install_packages_once(repo_root).with_context(|| format!("{error:#}"))?;
     }
     Ok(())
+}
+
+fn installed_distro_sdl_archive(package: &str) -> Result<PathBuf> {
+    let mut arch_cmd = Command::new("dpkg");
+    arch_cmd.arg("--print-architecture");
+    let arch = output_command(arch_cmd, "read Debian architecture")?;
+    Ok(PathBuf::from("/var/cache/apt/archives").join(format!(
+        "{package}_{DISTRO_SDL_PACKAGE_VERSION}_{}.deb",
+        arch.trim()
+    )))
 }
 
 fn restore_system_sdl_packages(repo_root: &Path) -> Result<()> {
@@ -355,9 +366,9 @@ fn restore_system_sdl_packages(repo_root: &Path) -> Result<()> {
     }
 
     let remove_tests_once = |repo_root: &Path| {
-        let mut cmd = Command::new("apt-get");
+        let mut cmd = Command::new("dpkg");
         cmd.current_dir(repo_root)
-            .args(["remove", "-y", "libsdl2-tests"]);
+            .args(["--remove", "libsdl2-tests"]);
         run_command(
             cmd,
             "remove previously installed safe SDL tests package before final staged verification",
@@ -378,11 +389,14 @@ fn restore_system_sdl_packages(repo_root: &Path) -> Result<()> {
         }
     }
 
-    let restore_once = |repo_root: &Path| {
+    let runtime_archive = installed_distro_sdl_archive("libsdl2-2.0-0")?;
+    let dev_archive = installed_distro_sdl_archive("libsdl2-dev")?;
+    let download_once = |repo_root: &Path| {
         let mut cmd = Command::new("apt-get");
         cmd.current_dir(repo_root).args([
             "install",
             "-y",
+            "--download-only",
             "--allow-downgrades",
             "--no-install-recommends",
             &format!("libsdl2-2.0-0={DISTRO_SDL_PACKAGE_VERSION}"),
@@ -390,9 +404,21 @@ fn restore_system_sdl_packages(repo_root: &Path) -> Result<()> {
         ]);
         run_command(
             cmd,
+            "download distro SDL runtime and development packages before final staged verification",
+        )
+    };
+    let restore_once = |repo_root: &Path| {
+        let mut cmd = Command::new("dpkg");
+        cmd.current_dir(repo_root)
+            .arg("-i")
+            .arg(&runtime_archive)
+            .arg(&dev_archive);
+        run_command(
+            cmd,
             "restore distro SDL runtime and development packages before final staged verification",
         )
     };
+    download_once(repo_root)?;
     if let Err(error) = restore_once(repo_root) {
         let mut repair = Command::new("dpkg");
         repair.current_dir(repo_root).args(["--configure", "-a"]);
@@ -439,8 +465,6 @@ fn verify_packaged_install(
     for path in &install_contract.runtime_paths {
         ensure_packaged_path(&runtime_files, path)?;
     }
-    let compat_runtime = packaged_compat_real_sdl_relpath();
-    ensure_packaged_path(&runtime_files, &compat_runtime)?;
     for path in &install_contract.dev_paths {
         ensure_packaged_path(&dev_files, path)?;
     }
@@ -509,10 +533,6 @@ pub fn verify_install_contract(args: VerifyInstallContractArgs) -> Result<()> {
 
     for path in &install_contract.runtime_paths {
         ensure_rooted_packaged_path(&package_root, &installed_files, path)?;
-    }
-    if matches!(args.mode.as_deref(), Some("packaged") | Some("package")) {
-        let compat_runtime = packaged_compat_real_sdl_relpath();
-        ensure_rooted_path_exists(&package_root, &compat_runtime)?;
     }
     for path in &install_contract.dev_paths {
         ensure_rooted_packaged_path(&package_root, &installed_files, path)?;
@@ -876,6 +896,7 @@ fn run_packaged_autopkgtests(repo_root: &Path) -> Result<()> {
         let mut cmd = Command::new(safe_root.join(format!("debian/tests/{script}")));
         cmd.current_dir(&safe_root)
             .env_remove(real_runtime_env_key())
+            .env(disable_real_runtime_env_key(), "1")
             .env("AUTOPKGTEST_TMP", temp.path())
             .env("HOME", temp.path());
         run_command(cmd, &format!("run safe/debian/tests/{script}"))?;
@@ -888,7 +909,8 @@ fn run_original_consumer_script(repo_root: &Path, original_dir: &Path, script: &
     let mut cmd = Command::new("sh");
     cmd.current_dir(&original_root)
         .arg(original_root.join(format!("debian/tests/{script}")))
-        .env_remove(real_runtime_env_key());
+        .env_remove(real_runtime_env_key())
+        .env(disable_real_runtime_env_key(), "1");
     run_command(cmd, &format!("run original/debian/tests/{script}"))
 }
 
@@ -897,7 +919,8 @@ fn run_safe_consumer_script(repo_root: &Path, script: &str) -> Result<()> {
     let mut cmd = Command::new("sh");
     cmd.current_dir(&safe_root)
         .arg(safe_root.join(format!("debian/tests/{script}")))
-        .env_remove(real_runtime_env_key());
+        .env_remove(real_runtime_env_key())
+        .env(disable_real_runtime_env_key(), "1");
     run_command(cmd, &format!("run safe/debian/tests/{script}"))
 }
 
@@ -909,6 +932,7 @@ fn run_test_original_matrix(
     let mut cmd = Command::new(repo_root.join("test-original.sh"));
     cmd.current_dir(repo_root)
         .env_remove(real_runtime_env_key())
+        .env(disable_real_runtime_env_key(), "1")
         .arg("--json-out")
         .arg(absolutize(repo_root, results_path))
         .arg("--artifact-dir")
@@ -1205,11 +1229,16 @@ fn run_cargo_test(repo_root: &Path, target: &str) -> Result<()> {
     ]);
     apply_repo_rust_toolchain_env(&mut cmd);
     cmd.env_remove(real_runtime_env_key());
+    cmd.env(disable_real_runtime_env_key(), "1");
     run_command(cmd, &format!("run cargo test {target}"))
 }
 
 fn real_runtime_env_key() -> &'static str {
     concat!("SAFE_SDL_REAL_", "SDL_PATH")
+}
+
+fn disable_real_runtime_env_key() -> &'static str {
+    "SAFE_SDL_DISABLE_REAL_RUNTIME"
 }
 
 fn apply_repo_rust_toolchain_env(cmd: &mut Command) {
