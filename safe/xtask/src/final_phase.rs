@@ -896,7 +896,6 @@ fn run_packaged_autopkgtests(repo_root: &Path) -> Result<()> {
         let mut cmd = Command::new(safe_root.join(format!("debian/tests/{script}")));
         cmd.current_dir(&safe_root)
             .env_remove(real_runtime_env_key())
-            .env(disable_real_runtime_env_key(), "1")
             .env("AUTOPKGTEST_TMP", temp.path())
             .env("HOME", temp.path());
         run_command(cmd, &format!("run safe/debian/tests/{script}"))?;
@@ -909,8 +908,7 @@ fn run_original_consumer_script(repo_root: &Path, original_dir: &Path, script: &
     let mut cmd = Command::new("sh");
     cmd.current_dir(&original_root)
         .arg(original_root.join(format!("debian/tests/{script}")))
-        .env_remove(real_runtime_env_key())
-        .env(disable_real_runtime_env_key(), "1");
+        .env_remove(real_runtime_env_key());
     run_command(cmd, &format!("run original/debian/tests/{script}"))
 }
 
@@ -919,8 +917,7 @@ fn run_safe_consumer_script(repo_root: &Path, script: &str) -> Result<()> {
     let mut cmd = Command::new("sh");
     cmd.current_dir(&safe_root)
         .arg(safe_root.join(format!("debian/tests/{script}")))
-        .env_remove(real_runtime_env_key())
-        .env(disable_real_runtime_env_key(), "1");
+        .env_remove(real_runtime_env_key());
     run_command(cmd, &format!("run safe/debian/tests/{script}"))
 }
 
@@ -932,7 +929,6 @@ fn run_test_original_matrix(
     let mut cmd = Command::new(repo_root.join("test-original.sh"));
     cmd.current_dir(repo_root)
         .env_remove(real_runtime_env_key())
-        .env(disable_real_runtime_env_key(), "1")
         .arg("--json-out")
         .arg(absolutize(repo_root, results_path))
         .arg("--artifact-dir")
@@ -1229,16 +1225,11 @@ fn run_cargo_test(repo_root: &Path, target: &str) -> Result<()> {
     ]);
     apply_repo_rust_toolchain_env(&mut cmd);
     cmd.env_remove(real_runtime_env_key());
-    cmd.env(disable_real_runtime_env_key(), "1");
     run_command(cmd, &format!("run cargo test {target}"))
 }
 
 fn real_runtime_env_key() -> &'static str {
     concat!("SAFE_SDL_REAL_", "SDL_PATH")
-}
-
-fn disable_real_runtime_env_key() -> &'static str {
-    "SAFE_SDL_DISABLE_REAL_RUNTIME"
 }
 
 fn apply_repo_rust_toolchain_env(cmd: &mut Command) {

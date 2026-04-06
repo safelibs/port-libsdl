@@ -1,4 +1,4 @@
-7edc22e3e000-7edc22e8c000 r--p 00000000 00:149 135429824                 /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.0.0
-7edc22e8c000-7edc22f73000 r-xp 0004d000 00:149 135429824                 /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.0.0
-7edc22f73000-7edc22f7a000 rw-p 00133000 00:149 135429824                 /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.0.0
-7edc22f7a000-7edc22f7d000 rw-p 00139000 00:149 135429824                 /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.0.0
+7e04f4b71000-7e04f4bbc000 r--p 00000000 00:144 135677162                 /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.0.0
+7e04f4bbc000-7e04f4c9b000 r-xp 0004a000 00:144 135677162                 /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.0.0
+7e04f4c9b000-7e04f4ca2000 rw-p 00128000 00:144 135677162                 /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.0.0
+7e04f4ca2000-7e04f4ca4000 rw-p 0012e000 00:144 135677162                 /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.0.0

@@ -1021,7 +1021,6 @@ fn run_driver_probe_capture(
     cmd.env_remove("SDL_AUDIODRIVER");
     cmd.env_remove("SDL_VIDEODRIVER");
     cmd.env_remove(real_runtime_env_key());
-    cmd.env(disable_real_runtime_env_key(), "1");
     for (key, value) in envs {
         cmd.env(key, value);
     }
@@ -1042,10 +1041,6 @@ fn run_driver_probe_capture(
 
 fn real_runtime_env_key() -> &'static str {
     concat!("SAFE_SDL_REAL_", "SDL_PATH")
-}
-
-fn disable_real_runtime_env_key() -> &'static str {
-    "SAFE_SDL_DISABLE_REAL_RUNTIME"
 }
 
 struct XvfbGuard {

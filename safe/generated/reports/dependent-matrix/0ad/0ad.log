@@ -1,7 +1,7 @@
-TIMER| InitVfs: 734.395 us
+TIMER| InitVfs: 1.12875 ms
 FILES| Main log written to '/tmp/libsdl-test-home/.config/0ad/logs/mainlog.html'
 FILES| Interesting log written to '/tmp/libsdl-test-home/.config/0ad/logs/interestinglog.html'
-TIMER| CONFIG_Init: 1.56266 ms
+TIMER| CONFIG_Init: 2.15717 ms
 ERROR: Failed to query SDL WM info: 
 ERROR: Unable to create device for GL backend, switching to ARB.
 ERROR: Failed to query SDL WM info: 

@@ -2,7 +2,7 @@
   "phase_id": "impl_phase_10_packaging_dependents_final",
   "allowlist_path": "safe/docs/unsafe-allowlist.md",
   "summary": {
-    "generated_at_unix_seconds": 1775449247,
+    "generated_at_unix_seconds": 1775450813,
     "rule_count": 20,
     "total_unsafe_files": 96,
     "undocumented_files": 0,

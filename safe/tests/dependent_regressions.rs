@@ -125,8 +125,6 @@ fn manifest_entries_are_bound_to_real_tests() {
 
 #[test]
 fn gl_attributes_do_not_require_a_host_runtime() {
-    let _disable_runtime = testutils::ScopedEnvVar::set("SAFE_SDL_DISABLE_REAL_RUNTIME", "1");
-
     unsafe {
         SDL_GL_ResetAttributes();
         assert_eq!(

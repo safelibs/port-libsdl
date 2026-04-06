@@ -148,7 +148,6 @@ set -euo pipefail
 
 export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
-export SAFE_SDL_DISABLE_REAL_RUNTIME=1
 
 ROOT=/work
 ONLY_FILTER="${LIBSDL_TEST_ONLY:-}"
