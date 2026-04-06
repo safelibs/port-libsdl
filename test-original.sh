@@ -7,6 +7,8 @@ ONLY=""
 JSON_OUT=""
 ARTIFACT_DIR=""
 ARTIFACT_TMP=""
+HOST_UID="$(id -u)"
+HOST_GID="$(id -g)"
 
 usage() {
   cat <<'EOF'
@@ -140,6 +142,8 @@ set +e
 docker run --rm -i \
   -e "LIBSDL_TEST_ONLY=$ONLY" \
   -e "LIBSDL_ARTIFACT_HOST_DIR=$ARTIFACT_DIR" \
+  -e "LIBSDL_ARTIFACT_UID=$HOST_UID" \
+  -e "LIBSDL_ARTIFACT_GID=$HOST_GID" \
   -v "$ROOT":/work:ro \
   -v "$ARTIFACT_DIR":/artifacts \
   "$IMAGE_TAG" \
@@ -153,6 +157,8 @@ ROOT=/work
 ONLY_FILTER="${LIBSDL_TEST_ONLY:-}"
 ARTIFACT_DIR=/artifacts
 ARTIFACT_HOST_DIR="${LIBSDL_ARTIFACT_HOST_DIR:-/artifacts}"
+ARTIFACT_UID="${LIBSDL_ARTIFACT_UID:-}"
+ARTIFACT_GID="${LIBSDL_ARTIFACT_GID:-}"
 ROOT_HOME=/tmp/libsdl-root-home
 TEST_USER_HOME=/tmp/libsdl-test-home
 HOME="$ROOT_HOME"
@@ -463,7 +469,19 @@ cleanup_xvfb() {
   fi
 }
 
-trap cleanup_xvfb EXIT
+finalize_artifacts() {
+  chmod -R u+rwX "$ARTIFACT_DIR" >/dev/null 2>&1 || true
+  if [[ -n "$ARTIFACT_UID" && -n "$ARTIFACT_GID" ]]; then
+    chown -R "$ARTIFACT_UID:$ARTIFACT_GID" "$ARTIFACT_DIR" >/dev/null 2>&1 || true
+  fi
+}
+
+cleanup_container() {
+  cleanup_xvfb
+  finalize_artifacts
+}
+
+trap cleanup_container EXIT
 
 start_xvfb() {
   if [[ -n "$XVFB_PID" ]] && kill -0 "$XVFB_PID" >/dev/null 2>&1; then
@@ -1528,7 +1546,9 @@ docker_status=$?
 set -e
 
 if [[ -f "$ARTIFACT_DIR/results.json" && -n "$JSON_OUT" ]]; then
-  cp "$ARTIFACT_DIR/results.json" "$JSON_OUT"
+  if [[ "$(readlink -f "$ARTIFACT_DIR/results.json")" != "$(readlink -f "$JSON_OUT")" ]]; then
+    cp "$ARTIFACT_DIR/results.json" "$JSON_OUT"
+  fi
 fi
 
 exit "$docker_status"
