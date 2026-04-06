@@ -992,23 +992,8 @@ pub fn perf_capture(args: PerfCaptureArgs) -> Result<()> {
                 peak_allocation_ratio: ratio(safe.peak_rss_kib, original.peak_rss_kib),
             };
             let applied = applied_thresholds(&thresholds.default_policy, threshold);
-            let within_default = regression.median_cpu_ratio
-                <= thresholds.default_policy.max_median_cpu_regression_ratio
-                && regression.peak_allocation_ratio
-                    <= thresholds
-                        .default_policy
-                        .max_peak_allocation_regression_ratio;
-            let within_threshold = regression.median_cpu_ratio
-                <= applied.max_median_cpu_regression_ratio
-                && regression.peak_allocation_ratio <= applied.max_peak_allocation_regression_ratio;
-            let status = if !within_threshold {
-                "fail"
-            } else if !within_default && applied.waiver_id.is_some() {
-                "pass_with_waiver"
-            } else {
-                "pass"
-            };
-
+            let status = workload_status(&thresholds.default_policy, &applied, &regression)
+                .to_string();
             Ok(PerfWorkloadReport {
                 workload_id: workload.workload_id.clone(),
                 subsystem: workload.subsystem.clone(),
@@ -1018,7 +1003,7 @@ pub fn perf_capture(args: PerfCaptureArgs) -> Result<()> {
                 safe,
                 regression,
                 thresholds: applied,
-                status: status.to_string(),
+                status,
             })
         })
         .collect::<Result<Vec<_>>>()?;
@@ -1087,6 +1072,31 @@ pub fn perf_assert(args: PerfAssertArgs) -> Result<()> {
             .get(workload.workload_id.as_str())
             .ok_or_else(|| anyhow!("missing threshold for {}", workload.workload_id))?;
         let applied = applied_thresholds(&thresholds.default_policy, threshold);
+        if workload.thresholds.max_median_cpu_regression_ratio
+            != applied.max_median_cpu_regression_ratio
+            || workload.thresholds.max_peak_allocation_regression_ratio
+                != applied.max_peak_allocation_regression_ratio
+            || workload.thresholds.waiver_id != applied.waiver_id
+        {
+            bail!(
+                "{} report thresholds do not match {}",
+                workload.workload_id,
+                absolutize(&args.repo_root, &args.thresholds_path).display()
+            );
+        }
+        let expected_status = workload_status(
+            &thresholds.default_policy,
+            &applied,
+            &workload.regression,
+        );
+        if workload.status != expected_status {
+            bail!(
+                "{} report status {} does not match expected {}",
+                workload.workload_id,
+                workload.status,
+                expected_status
+            );
+        }
         if workload.regression.median_cpu_ratio > applied.max_median_cpu_regression_ratio {
             bail!(
                 "{} CPU regression {:.3} exceeds {:.3}",
@@ -1376,9 +1386,12 @@ fn render_waivers_markdown(thresholds: &PerfThresholds, report: &PerfReport) -> 
             )
         ));
         if let Some(workload) = workload {
+            markdown.push_str(&format!("- Current report status: `{}`.\n", workload.status));
             markdown.push_str(&format!(
-                "- Measured CPU ratio: {:.3}; measured allocation ratio: {:.3}.\n",
-                workload.regression.median_cpu_ratio, workload.regression.peak_allocation_ratio
+                "- Measured CPU ratio: {:.3}; measured wall ratio: {:.3}; measured allocation ratio: {:.3}.\n",
+                workload.regression.median_cpu_ratio,
+                workload.regression.median_wall_ratio,
+                workload.regression.peak_allocation_ratio
             ));
         }
         markdown.push('\n');
@@ -1423,7 +1436,14 @@ fn validate_threshold_coverage(
         );
     }
     for workload in &thresholds.workloads {
-        if workload.waiver_id.is_some() && workload.reason.is_none() {
+        if workload.waiver_id.is_some()
+            && workload
+                .reason
+                .as_deref()
+                .map(str::trim)
+                .filter(|reason| !reason.is_empty())
+                .is_none()
+        {
             bail!(
                 "waived workload {} is missing a reason",
                 workload.workload_id
@@ -1445,6 +1465,28 @@ fn applied_thresholds(
             .max_peak_allocation_regression_ratio
             .unwrap_or(default_policy.max_peak_allocation_regression_ratio),
         waiver_id: threshold.waiver_id.clone(),
+    }
+}
+
+fn workload_status(
+    default_policy: &PerfDefaultPolicy,
+    applied: &PerfAppliedThresholds,
+    regression: &PerfRegression,
+) -> &'static str {
+    let within_default = regression.median_cpu_ratio
+        <= default_policy.max_median_cpu_regression_ratio
+        && regression.peak_allocation_ratio
+            <= default_policy.max_peak_allocation_regression_ratio;
+    let within_threshold = regression.median_cpu_ratio
+        <= applied.max_median_cpu_regression_ratio
+        && regression.peak_allocation_ratio <= applied.max_peak_allocation_regression_ratio;
+
+    if !within_threshold {
+        "fail"
+    } else if !within_default && applied.waiver_id.is_some() {
+        "pass_with_waiver"
+    } else {
+        "pass"
     }
 }
 
