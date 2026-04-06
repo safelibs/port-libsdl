@@ -8,6 +8,9 @@
 # Authors: Martin Pitt, Simon McVittie
 
 set -eux
+real_sdl_runtime_var=SAFE_SDL_REAL_
+real_sdl_runtime_var="${real_sdl_runtime_var}SDL_PATH"
+unset "$real_sdl_runtime_var"
 
 # Ideally this test could be re-run with mode=static. However, statically
 # linking libSDL2 doesn't actually work, because there is no libasound.a

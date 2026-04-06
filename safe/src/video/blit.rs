@@ -1,12 +1,13 @@
 use std::sync::OnceLock;
 
 use crate::abi::generated_types::{
-    SDL_PixelFormat, SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_IYUV, SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV12,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV21, SDL_PixelFormatEnum_SDL_PIXELFORMAT_UYVY,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_YUY2, SDL_PixelFormatEnum_SDL_PIXELFORMAT_YV12,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_YVYU, SDL_Rect, SDL_Surface, Uint32,
-    SDL_YUV_CONVERSION_MODE, SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_AUTOMATIC,
+    SDL_BlendMode, SDL_BlendMode_SDL_BLENDMODE_NONE, SDL_PixelFormat,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888, SDL_PixelFormatEnum_SDL_PIXELFORMAT_IYUV,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV12, SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV21,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_UYVY, SDL_PixelFormatEnum_SDL_PIXELFORMAT_YUY2,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_YV12, SDL_PixelFormatEnum_SDL_PIXELFORMAT_YVYU, SDL_Rect,
+    SDL_Surface, Uint32, Uint8, SDL_YUV_CONVERSION_MODE,
+    SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_AUTOMATIC,
     SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_BT601,
     SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_BT709,
     SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_JPEG,
@@ -715,6 +716,33 @@ unsafe fn ensure_blit_ready(
     Ok(())
 }
 
+unsafe fn source_requires_real_blit(surface: *mut SDL_Surface) -> bool {
+    let mut r: Uint8 = 255;
+    let mut g: Uint8 = 255;
+    let mut b: Uint8 = 255;
+    let mut alpha: Uint8 = 255;
+    let mut blend: SDL_BlendMode = SDL_BlendMode_SDL_BLENDMODE_NONE;
+
+    if (real_sdl().has_color_key)(surface) != 0 {
+        return true;
+    }
+    if (real_sdl().get_surface_color_mod)(surface, &mut r, &mut g, &mut b) < 0 {
+        return true;
+    }
+    if (real_sdl().get_surface_alpha_mod)(surface, &mut alpha) < 0 {
+        return true;
+    }
+    if (real_sdl().get_surface_blend_mode)(surface, &mut blend) < 0 {
+        return true;
+    }
+
+    (r, g, b) != (255, 255, 255) || alpha != 255 || blend != SDL_BlendMode_SDL_BLENDMODE_NONE
+}
+
+unsafe fn should_use_real_blit(src: *mut SDL_Surface, dst: *mut SDL_Surface) -> bool {
+    !(is_registered_surface(src) && is_registered_surface(dst)) || source_requires_real_blit(src)
+}
+
 unsafe fn upper_blit_rects(
     src: *mut SDL_Surface,
     srcrect: *const SDL_Rect,
@@ -1209,7 +1237,7 @@ pub unsafe extern "C" fn SDL_UpperBlit(
         Err(code) => return code,
     };
 
-    if !(is_registered_surface(src) && is_registered_surface(dst)) {
+    if should_use_real_blit(src, dst) {
         clear_real_error();
         let result = (real_sdl().upper_blit)(src, srcrect, dst, dstrect);
         if result < 0 {
@@ -1241,7 +1269,7 @@ pub unsafe extern "C" fn SDL_LowerBlit(
         return invalid_param_error("dstrect");
     }
 
-    if !(is_registered_surface(src) && is_registered_surface(dst)) {
+    if should_use_real_blit(src, dst) {
         clear_real_error();
         let result = (real_sdl().lower_blit)(src, srcrect, dst, dstrect);
         if result < 0 {
@@ -1319,7 +1347,7 @@ pub unsafe extern "C" fn SDL_UpperBlitScaled(
         Err(code) => return code,
     };
 
-    if !(is_registered_surface(src) && is_registered_surface(dst)) {
+    if should_use_real_blit(src, dst) {
         clear_real_error();
         let result = (real_sdl().upper_blit_scaled)(src, srcrect, dst, dstrect);
         if result < 0 {
@@ -1351,7 +1379,7 @@ pub unsafe extern "C" fn SDL_LowerBlitScaled(
         return invalid_param_error("dstrect");
     }
 
-    if !(is_registered_surface(src) && is_registered_surface(dst)) {
+    if should_use_real_blit(src, dst) {
         clear_real_error();
         let result = (real_sdl().lower_blit_scaled)(src, srcrect, dst, dstrect);
         if result < 0 {

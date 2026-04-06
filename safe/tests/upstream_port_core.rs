@@ -5,7 +5,6 @@ mod testutils;
 
 use std::ffi::c_void;
 use std::mem::MaybeUninit;
-use std::path::Path;
 use std::ptr;
 use std::sync::atomic::{AtomicU32, Ordering};
 
@@ -105,33 +104,6 @@ fn invalid_pixel_format() -> u32 {
         | ((SDL_PackedLayout_SDL_PACKEDLAYOUT_1010102 + 1) << 16)
         | (32 << 8)
         | 4
-}
-
-fn require_real_sdl_runtime() -> testutils::ScopedEnvVar {
-    if let Ok(path) = std::env::var("SAFE_SDL_REAL_SDL_PATH") {
-        if Path::new(&path).exists() {
-            return testutils::ScopedEnvVar::set("SAFE_SDL_REAL_SDL_PATH", &path);
-        }
-    }
-
-    for candidate in [
-        "/tmp/libsdl-original-ref/lib/libSDL2-2.0.so.0",
-        "/tmp/libsdl-original-ref/lib/libSDL2-2.0.so.0.0.0",
-        "/tmp/libsdl-phase10-original-prefix/lib/libSDL2-2.0.so.0",
-        "/tmp/libsdl-phase10-original-prefix/lib/libSDL2-2.0.so.0.0.0",
-        "/tmp/libsdl-original-prefix/lib/libSDL2-2.0.so.0",
-        "/tmp/libsdl-original-prefix/lib/libSDL2-2.0.so.0.0.0",
-        "/home/yans/code/safelibs/ported/libsdl/build-phase10-original-prefix/lib/libSDL2-2.0.so.0",
-        "/home/yans/code/safelibs/ported/libsdl/build-phase10-original-prefix/lib/libSDL2-2.0.so.0.0.0",
-        "/home/yans/code/safelibs/ported/libsdl/build-phase9-original-prefix/lib/libSDL2-2.0.so.0",
-        "/home/yans/code/safelibs/ported/libsdl/build-phase9-original-prefix/lib/libSDL2-2.0.so.0.0.0",
-    ] {
-        if Path::new(candidate).exists() {
-            return testutils::ScopedEnvVar::set("SAFE_SDL_REAL_SDL_PATH", candidate);
-        }
-    }
-
-    panic!("unable to locate preserved original SDL runtime for host-forwarded test");
 }
 
 #[test]
@@ -255,7 +227,6 @@ fn main_set_error_accepts_large_strings() {
 #[test]
 fn clear_error_clears_forwarded_host_error_state() {
     let _serial = testutils::serial_lock();
-    let _real = require_real_sdl_runtime();
 
     unsafe {
         assert!(
@@ -275,7 +246,6 @@ fn clear_error_clears_forwarded_host_error_state() {
 #[test]
 fn get_pixel_format_name_invalid_format_leaves_error_empty() {
     let _serial = testutils::serial_lock();
-    let _real = require_real_sdl_runtime();
 
     unsafe {
         assert!(

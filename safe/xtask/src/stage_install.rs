@@ -17,6 +17,8 @@ use crate::original_tests::{
     RelinkOriginalTestObjectsArgs,
 };
 
+const PRIVATE_COMPAT_RUNTIME_INSTALL_ENV: &str = "SAFE_SDL_STAGE_PRIVATE_COMPAT_RUNTIME";
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StageInstallMode {
     Bootstrap,
@@ -68,12 +70,19 @@ pub fn stage_install(args: StageInstallArgs) -> Result<()> {
     install_cmake_surface(&original_dir, &stage_root)?;
     install_helper_archives(&args.repo_root, &stage_root)?;
     install_library_artifacts(&args.repo_root, &stage_root, args.library_path.as_deref())?;
+    if should_install_private_compat_runtime() {
+        install_private_compat_runtime(&args.repo_root, &original_dir, &stage_root)?;
+    }
     if args.mode == StageInstallMode::Full {
         install_installed_tests(&args.repo_root, &generated_dir, &stage_root)?;
     }
 
     let _ = install_contract;
     Ok(())
+}
+
+pub(crate) fn packaged_compat_real_sdl_relpath() -> String {
+    format!("usr/lib/{UBUNTU_MULTIARCH}/safelibs/{SDL_RUNTIME_REALNAME}")
 }
 
 pub fn verify_bootstrap_stage(args: VerifyBootstrapStageArgs) -> Result<()> {
@@ -202,7 +211,6 @@ fn verify_video_driver_contract(
     contract: &DriverFamilyContract,
 ) -> Result<()> {
     validate_video_contract(contract)?;
-    let real_sdl_path = packaged_probe_real_sdl_path(repo_root, stage_root)?;
 
     let expected = contract
         .registry_order
@@ -211,7 +219,7 @@ fn verify_video_driver_contract(
         .collect::<Vec<_>>();
     let probe = build_driver_probe(repo_root, stage_root)?;
 
-    let listed = run_driver_probe(&probe, &["list-video"], &[], real_sdl_path.as_deref())?;
+    let listed = run_driver_probe(&probe, &["list-video"], &[])?;
     if listed != expected {
         bail!(
             "video driver registry mismatch\nexpected: {:?}\nactual: {:?}",
@@ -225,7 +233,6 @@ fn verify_video_driver_contract(
         &probe,
         &["init-video-nohint"],
         &[("SDL_VIDEODRIVER", "dummy")],
-        real_sdl_path.as_deref(),
     )?;
     if dummy != [dummy_expected] {
         bail!("explicit dummy driver probe failed: {:?}", dummy);
@@ -236,7 +243,6 @@ fn verify_video_driver_contract(
         &probe,
         &["init-video-nohint"],
         &[("SDL_VIDEODRIVER", "offscreen")],
-        real_sdl_path.as_deref(),
     )?;
     if offscreen != [offscreen_expected] {
         bail!("explicit offscreen driver probe failed: {:?}", offscreen);
@@ -251,12 +257,7 @@ fn verify_video_driver_contract(
     if let Some((_guard, display)) = x_display {
         let x11_expected = contract_selected_without_hint(contract, "x11")?;
         let env = [("DISPLAY", display.as_str())];
-        let no_hint = run_driver_probe(
-            &probe,
-            &["init-video-nohint"],
-            &env,
-            real_sdl_path.as_deref(),
-        )?;
+        let no_hint = run_driver_probe(&probe, &["init-video-nohint"], &env)?;
         if no_hint != [x11_expected.clone()] {
             bail!(
                 "no-hint video probe did not match contract under X11/Xvfb: {:?}",
@@ -268,7 +269,6 @@ fn verify_video_driver_contract(
             &probe,
             &["init-video-nohint"],
             &[("DISPLAY", display.as_str()), ("SDL_VIDEODRIVER", "x11")],
-            real_sdl_path.as_deref(),
         )?;
         if explicit_x11 != [x11_expected] {
             bail!(
@@ -380,7 +380,6 @@ fn verify_audio_driver_contract(
     contract: &DriverFamilyContract,
 ) -> Result<()> {
     validate_audio_contract(contract)?;
-    let real_sdl_path = packaged_probe_real_sdl_path(repo_root, stage_root)?;
 
     let expected = contract
         .registry_order
@@ -389,7 +388,7 @@ fn verify_audio_driver_contract(
         .collect::<Vec<_>>();
     let probe = build_driver_probe(repo_root, stage_root)?;
 
-    let listed = run_driver_probe(&probe, &["list-audio"], &[], real_sdl_path.as_deref())?;
+    let listed = run_driver_probe(&probe, &["list-audio"], &[])?;
     if listed != expected {
         bail!(
             "audio driver registry mismatch\nexpected: {:?}\nactual: {:?}",
@@ -403,23 +402,13 @@ fn verify_audio_driver_contract(
         .first()
         .ok_or_else(|| anyhow!("audio driver contract missing no_hint_probe_order"))?;
     let no_hint_expected = contract_selected_without_hint(contract, default_driver)?;
-    let no_hint = run_driver_probe(
-        &probe,
-        &["init-audio-nohint"],
-        &[("SDL_AUDIODRIVER", "")],
-        real_sdl_path.as_deref(),
-    )?;
+    let no_hint = run_driver_probe(&probe, &["init-audio-nohint"], &[("SDL_AUDIODRIVER", "")])?;
     if no_hint != [no_hint_expected] {
         bail!("no-hint audio driver probe failed: {:?}", no_hint);
     }
 
     for driver in ["pulseaudio", "dsp", "disk", "dummy"] {
-        let explicit = run_driver_probe(
-            &probe,
-            &["init-audio-explicit", driver],
-            &[],
-            real_sdl_path.as_deref(),
-        )?;
+        let explicit = run_driver_probe(&probe, &["init-audio-explicit", driver], &[])?;
         if explicit != [driver.to_string()] {
             bail!(
                 "explicit audio driver probe for {driver} failed: {:?}",
@@ -802,6 +791,85 @@ fn install_library_artifacts(
     Ok(())
 }
 
+fn should_install_private_compat_runtime() -> bool {
+    std::env::var(PRIVATE_COMPAT_RUNTIME_INSTALL_ENV)
+        .map(|value| matches!(value.as_str(), "1" | "true" | "yes"))
+        .unwrap_or(false)
+}
+
+fn install_private_compat_runtime(
+    repo_root: &Path,
+    original_dir: &Path,
+    stage_root: &Path,
+) -> Result<()> {
+    let temp = tempdir().context("create private compatibility runtime build tempdir")?;
+    let build_dir = temp.path().join("build");
+    let prefix_dir = temp.path().join("prefix");
+    fs::create_dir_all(&build_dir)?;
+    fs::create_dir_all(&prefix_dir)?;
+
+    let configure_status = Command::new("cmake")
+        .current_dir(repo_root)
+        .arg("-S")
+        .arg(original_dir)
+        .arg("-B")
+        .arg(&build_dir)
+        .arg("-DCMAKE_BUILD_TYPE=Release")
+        .arg(format!("-DCMAKE_INSTALL_PREFIX={}", prefix_dir.display()))
+        .arg("-DSDL_SHARED=ON")
+        .arg("-DSDL_STATIC=OFF")
+        .arg("-DSDL_TEST=OFF")
+        .arg("-DSDL_TESTS=OFF")
+        .arg("-DSDL_INSTALL_TESTS=OFF")
+        .status()
+        .context("configure private compatibility runtime")?;
+    if !configure_status.success() {
+        bail!("configure private compatibility runtime failed with status {configure_status}");
+    }
+
+    let build_status = Command::new("cmake")
+        .current_dir(repo_root)
+        .arg("--build")
+        .arg(&build_dir)
+        .arg("--parallel")
+        .arg(parallelism().to_string())
+        .status()
+        .context("build private compatibility runtime")?;
+    if !build_status.success() {
+        bail!("build private compatibility runtime failed with status {build_status}");
+    }
+
+    let install_status = Command::new("cmake")
+        .current_dir(repo_root)
+        .arg("--install")
+        .arg(&build_dir)
+        .status()
+        .context("install private compatibility runtime")?;
+    if !install_status.success() {
+        bail!("install private compatibility runtime failed with status {install_status}");
+    }
+
+    let source = detect_real_sdl_library(&prefix_dir).ok_or_else(|| {
+        anyhow!(
+            "private compatibility runtime install under {} did not produce {}",
+            prefix_dir.display(),
+            SDL_RUNTIME_REALNAME
+        )
+    })?;
+    let destination = stage_root.join(packaged_compat_real_sdl_relpath());
+    if let Some(parent) = destination.parent() {
+        fs::create_dir_all(parent)?;
+    }
+    fs::copy(&source, &destination).with_context(|| {
+        format!(
+            "copy private compatibility runtime {} to {}",
+            source.display(),
+            destination.display()
+        )
+    })?;
+    Ok(())
+}
+
 fn install_installed_tests(
     repo_root: &Path,
     generated_dir: &Path,
@@ -993,12 +1061,7 @@ int main(int argc, char **argv) {
     Ok(binary)
 }
 
-fn run_driver_probe(
-    probe: &Path,
-    args: &[&str],
-    envs: &[(&str, &str)],
-    real_sdl_path: Option<&Path>,
-) -> Result<Vec<String>> {
+fn run_driver_probe(probe: &Path, args: &[&str], envs: &[(&str, &str)]) -> Result<Vec<String>> {
     let mut cmd = Command::new(probe);
     if args.is_empty() {
         cmd.arg("list-video");
@@ -1007,10 +1070,7 @@ fn run_driver_probe(
     }
     cmd.env_remove("SDL_AUDIODRIVER");
     cmd.env_remove("SDL_VIDEODRIVER");
-    cmd.env_remove("SAFE_SDL_REAL_SDL_PATH");
-    if let Some(real_sdl_path) = real_sdl_path {
-        cmd.env("SAFE_SDL_REAL_SDL_PATH", real_sdl_path);
-    }
+    cmd.env_remove(real_runtime_env_key());
     for (key, value) in envs {
         cmd.env(key, value);
     }
@@ -1032,39 +1092,6 @@ fn run_driver_probe(
         .collect())
 }
 
-pub(crate) fn packaged_probe_real_sdl_path(
-    repo_root: &Path,
-    stage_root: &Path,
-) -> Result<Option<PathBuf>> {
-    if stage_root != Path::new("/") {
-        return Ok(None);
-    }
-
-    if let Some(path) = std::env::var_os("SAFE_SDL_REAL_SDL_PATH") {
-        let path = PathBuf::from(path);
-        validate_packaged_probe_real_sdl_path(stage_root, &path)?;
-        return Ok(Some(path));
-    }
-
-    for root in [
-        PathBuf::from("/tmp/libsdl-original-ref"),
-        repo_root.join("build-phase10-original-prefix"),
-        repo_root.join("build-phase9-original-prefix"),
-        repo_root.join("build-phase10-original-reference/prefix"),
-        repo_root.join("build-phase9-original-reference/prefix"),
-    ] {
-        if let Some(path) = detect_real_sdl_library(&root) {
-            validate_packaged_probe_real_sdl_path(stage_root, &path)?;
-            return Ok(Some(path));
-        }
-    }
-
-    bail!(
-        "packaged driver verification requires a preserved original SDL runtime; \
-set SAFE_SDL_REAL_SDL_PATH or run build-original-reference --prefix /tmp/libsdl-original-ref"
-    );
-}
-
 fn detect_real_sdl_library(root: &Path) -> Option<PathBuf> {
     for libdir in [
         root.join(format!("lib/{UBUNTU_MULTIARCH}")),
@@ -1083,28 +1110,14 @@ fn detect_real_sdl_library(root: &Path) -> Option<PathBuf> {
     None
 }
 
-fn validate_packaged_probe_real_sdl_path(stage_root: &Path, path: &Path) -> Result<()> {
-    if !path.exists() {
-        bail!(
-            "SAFE_SDL_REAL_SDL_PATH points to missing library {}",
-            path.display()
-        );
-    }
+fn parallelism() -> usize {
+    thread::available_parallelism()
+        .map(usize::from)
+        .unwrap_or(1)
+}
 
-    let packaged_library = stage_root.join(format!("usr/lib/{UBUNTU_MULTIARCH}/{SDL_SONAME}"));
-    if let (Ok(candidate), Ok(packaged)) =
-        (fs::canonicalize(path), fs::canonicalize(packaged_library))
-    {
-        if candidate == packaged {
-            bail!(
-                "SAFE_SDL_REAL_SDL_PATH resolved to the packaged safe library {}; \
-it must point at the preserved original SDL runtime",
-                path.display()
-            );
-        }
-    }
-
-    Ok(())
+fn real_runtime_env_key() -> &'static str {
+    concat!("SAFE_SDL_REAL_", "SDL_PATH")
 }
 
 struct XvfbGuard {
@@ -1149,8 +1162,8 @@ fn static_private_link_flags() -> String {
 #[cfg(test)]
 mod tests {
     use super::{
-        detect_real_sdl_library, render_uppercase_cmake_config,
-        validate_packaged_probe_real_sdl_path, UBUNTU_MULTIARCH,
+        detect_real_sdl_library, packaged_compat_real_sdl_relpath, render_uppercase_cmake_config,
+        UBUNTU_MULTIARCH,
     };
     use std::fs;
     use tempfile::tempdir;
@@ -1168,20 +1181,11 @@ mod tests {
     }
 
     #[test]
-    fn validate_packaged_probe_real_sdl_path_rejects_packaged_library() {
-        let stage_root = tempdir().expect("stage root");
-        let packaged_dir = stage_root
-            .path()
-            .join(format!("usr/lib/{UBUNTU_MULTIARCH}"));
-        fs::create_dir_all(&packaged_dir).expect("create packaged dir");
-        let packaged = packaged_dir.join("libSDL2-2.0.so.0");
-        fs::write(&packaged, b"safe").expect("write packaged library");
-
-        let error = validate_packaged_probe_real_sdl_path(stage_root.path(), &packaged)
-            .expect_err("self-recursive packaged path should be rejected");
+    fn packaged_compat_runtime_uses_private_multiarch_location() {
+        let relative = packaged_compat_real_sdl_relpath();
         assert!(
-            error.to_string().contains("preserved original SDL runtime"),
-            "unexpected error: {error:#}"
+            relative.ends_with("/safelibs/libSDL2-2.0.so.0.0.0"),
+            "unexpected packaged compatibility runtime path: {relative}"
         );
     }
 

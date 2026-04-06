@@ -9,11 +9,15 @@ use std::mem::MaybeUninit;
 use std::ptr;
 
 use safe_sdl::abi::generated_types::{
-    SDL_DisplayMode, SDL_Event, SDL_Keycode, SDL_Rect, SDL_SystemCursor_SDL_SYSTEM_CURSOR_ARROW,
-    SDL_UserEvent, SDL_WindowFlags_SDL_WINDOW_HIDDEN, SDL_bool_SDL_TRUE,
-    SDL_eventaction_SDL_GETEVENT, SDL_DISABLE, SDL_ENABLE, SDL_INIT_EVENTS, SDL_INIT_VIDEO,
-    SDL_QUERY,
+    SDL_DisplayMode, SDL_Event, SDL_EventType_SDL_WINDOWEVENT, SDL_Keycode, SDL_Rect,
+    SDL_SystemCursor_SDL_SYSTEM_CURSOR_ARROW, SDL_UserEvent,
+    SDL_WindowEventID_SDL_WINDOWEVENT_FOCUS_GAINED, SDL_WindowFlags_SDL_WINDOW_FULLSCREEN_DESKTOP,
+    SDL_WindowFlags_SDL_WINDOW_HIDDEN, SDL_bool_SDL_TRUE, SDL_eventaction_SDL_GETEVENT,
+    SDL_DISABLE, SDL_ENABLE, SDL_HINT_GRAB_KEYBOARD, SDL_INIT_EVENTS, SDL_INIT_VIDEO, SDL_QUERY,
+    SDL_WINDOWPOS_CENTERED_MASK,
 };
+use safe_sdl::core::error::SDL_ClearError;
+use safe_sdl::core::hints::SDL_SetHint;
 use safe_sdl::events::gesture::{
     SDL_LoadDollarTemplates, SDL_RecordGesture, SDL_SaveAllDollarTemplates,
 };
@@ -45,9 +49,13 @@ use safe_sdl::video::syswm::{
     SDL_GetWindowWMInfo, SDL_SysWMinfo, SDL_SYSWM_UNKNOWN, SDL_SYSWM_X11,
 };
 use safe_sdl::video::window::{
-    SDL_CreateWindow, SDL_DestroyWindow, SDL_GetWindowData, SDL_GetWindowDisplayIndex,
-    SDL_GetWindowFlags, SDL_GetWindowFromID, SDL_GetWindowID, SDL_GetWindowPosition,
-    SDL_GetWindowSize, SDL_SetWindowData, SDL_SetWindowPosition, SDL_SetWindowSize,
+    SDL_CreateWindow, SDL_DestroyWindow, SDL_GetWindowBrightness, SDL_GetWindowData,
+    SDL_GetWindowDisplayIndex, SDL_GetWindowFlags, SDL_GetWindowFromID, SDL_GetWindowGammaRamp,
+    SDL_GetWindowGrab, SDL_GetWindowID, SDL_GetWindowKeyboardGrab, SDL_GetWindowMaximumSize,
+    SDL_GetWindowMinimumSize, SDL_GetWindowMouseGrab, SDL_GetWindowPosition, SDL_GetWindowSize,
+    SDL_RaiseWindow, SDL_SetWindowData, SDL_SetWindowFullscreen, SDL_SetWindowGrab,
+    SDL_SetWindowKeyboardGrab, SDL_SetWindowMaximumSize, SDL_SetWindowMinimumSize,
+    SDL_SetWindowMouseGrab, SDL_SetWindowPosition, SDL_SetWindowSize,
 };
 
 unsafe extern "C" fn count_events(userdata: *mut c_void, _event: *mut SDL_Event) -> libc::c_int {
@@ -106,6 +114,14 @@ fn clipboard_roundtrip_matches_upstream_automation_expectations() {
             "phase4 primary selection"
         );
         assert_ne!(SDL_HasPrimarySelectionText(), 0);
+
+        assert_eq!(SDL_SetClipboardText(ptr::null()), 0);
+        assert_eq!(testutils::string_from_c(SDL_GetClipboardText()), "");
+        assert_eq!(SDL_HasClipboardText(), 0);
+
+        assert_eq!(SDL_SetPrimarySelectionText(ptr::null()), 0);
+        assert_eq!(testutils::string_from_c(SDL_GetPrimarySelectionText()), "");
+        assert_eq!(SDL_HasPrimarySelectionText(), 0);
     }
 }
 
@@ -325,6 +341,187 @@ fn syswm_and_gesture_plumbing_are_exercisable_without_manual_loops() {
         let loaded = SDL_LoadDollarTemplates(-1, rw);
         assert!(loaded >= 0, "{}", testutils::current_error());
         assert_eq!(safe_sdl::core::rwops::SDL_RWclose(rw), 0);
+
+        SDL_DestroyWindow(window);
+    }
+}
+
+#[test]
+fn dummy_window_stub_matches_upstream_grab_and_invalid_input_semantics() {
+    let _serial = testutils::serial_lock();
+    let _video = testutils::ScopedEnvVar::set("SDL_VIDEODRIVER", "dummy");
+    let _subsystem = testutils::SubsystemGuard::init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+
+    unsafe {
+        let title = testutils::cstring("window-grab-regression");
+        let window = SDL_CreateWindow(title.as_ptr(), 32, 48, 320, 240, 0);
+        assert!(!window.is_null(), "{}", testutils::current_error());
+
+        let mut event = MaybeUninit::<SDL_Event>::zeroed();
+        while SDL_PollEvent(event.as_mut_ptr()) != 0 {}
+
+        SDL_RaiseWindow(window);
+        let mut saw_focus_gained = false;
+        while SDL_PollEvent(event.as_mut_ptr()) != 0 {
+            let event = event.assume_init();
+            if event.type_ == SDL_EventType_SDL_WINDOWEVENT
+                && event.window.event as u32 == SDL_WindowEventID_SDL_WINDOWEVENT_FOCUS_GAINED
+            {
+                saw_focus_gained = true;
+            }
+        }
+        assert!(saw_focus_gained, "expected focus gained event after raise");
+
+        SDL_SetWindowGrab(window, SDL_bool_SDL_TRUE);
+        assert_ne!(SDL_GetWindowGrab(window), 0);
+        assert_ne!(SDL_GetWindowMouseGrab(window), 0);
+        assert_eq!(SDL_GetWindowKeyboardGrab(window), 0);
+
+        let one = testutils::cstring("1");
+        assert_ne!(
+            SDL_SetHint(SDL_HINT_GRAB_KEYBOARD.as_ptr().cast(), one.as_ptr()),
+            0
+        );
+        SDL_SetWindowGrab(window, SDL_bool_SDL_TRUE);
+        assert_ne!(SDL_GetWindowGrab(window), 0);
+        assert_ne!(SDL_GetWindowMouseGrab(window), 0);
+        assert_ne!(SDL_GetWindowKeyboardGrab(window), 0);
+
+        SDL_SetWindowGrab(window, 0);
+        assert_eq!(SDL_GetWindowGrab(window), 0);
+        assert_eq!(SDL_GetWindowMouseGrab(window), 0);
+        assert_eq!(SDL_GetWindowKeyboardGrab(window), 0);
+
+        SDL_SetWindowMouseGrab(window, SDL_bool_SDL_TRUE);
+        SDL_SetWindowKeyboardGrab(window, SDL_bool_SDL_TRUE);
+        SDL_SetWindowMouseGrab(window, 0);
+        assert_eq!(SDL_GetWindowMouseGrab(window), 0);
+        assert_ne!(SDL_GetWindowGrab(window), 0);
+        SDL_SetWindowKeyboardGrab(window, 0);
+        assert_eq!(SDL_GetWindowGrab(window), 0);
+
+        assert_eq!(SDL_ShowCursor(SDL_QUERY), 1);
+        assert_eq!(SDL_ShowCursor(SDL_DISABLE as i32), 1);
+        assert_eq!(SDL_ShowCursor(SDL_QUERY), 0);
+        assert_eq!(SDL_ShowCursor(SDL_ENABLE as i32), 0);
+        assert_eq!(SDL_ShowCursor(SDL_QUERY), 1);
+
+        let empty = testutils::cstring("");
+        let payload = 0x1234usize as *mut c_void;
+        SDL_ClearError();
+        assert!(SDL_SetWindowData(window, empty.as_ptr(), payload).is_null());
+        assert!(
+            testutils::current_error().starts_with("Parameter"),
+            "{}",
+            testutils::current_error()
+        );
+
+        SDL_ClearError();
+        assert!(SDL_GetWindowData(window, empty.as_ptr()).is_null());
+        assert!(
+            testutils::current_error().starts_with("Parameter"),
+            "{}",
+            testutils::current_error()
+        );
+
+        let mut red = [0u16; 256];
+        let mut green = [0u16; 256];
+        let mut blue = [0u16; 256];
+        assert_eq!(
+            SDL_GetWindowGammaRamp(
+                window,
+                red.as_mut_ptr(),
+                green.as_mut_ptr(),
+                blue.as_mut_ptr()
+            ),
+            0,
+            "{}",
+            testutils::current_error()
+        );
+        assert_eq!(red[0], 0);
+        assert_eq!(red[255], 0xFFFF);
+
+        SDL_ClearError();
+        assert_eq!(SDL_GetWindowBrightness(ptr::null_mut()), 1.0);
+        assert_eq!(testutils::current_error(), "Invalid window");
+
+        let (mut w, mut h) = (0, 0);
+        SDL_GetWindowSize(window, &mut w, &mut h);
+        SDL_ClearError();
+        SDL_SetWindowSize(window, 0, h);
+        assert!(testutils::current_error().starts_with("Parameter"));
+        let (mut new_w, mut new_h) = (0, 0);
+        SDL_GetWindowSize(window, &mut new_w, &mut new_h);
+        assert_eq!((new_w, new_h), (w, h));
+
+        SDL_ClearError();
+        SDL_SetWindowMinimumSize(window, 0, 1);
+        assert!(testutils::current_error().starts_with("Parameter"));
+        let (mut min_w, mut min_h) = (-1, -1);
+        SDL_GetWindowMinimumSize(window, &mut min_w, &mut min_h);
+        assert_eq!((min_w, min_h), (0, 0));
+
+        SDL_ClearError();
+        SDL_SetWindowMaximumSize(window, 0, 1);
+        assert!(testutils::current_error().starts_with("Parameter"));
+        let (mut max_w, mut max_h) = (-1, -1);
+        SDL_GetWindowMaximumSize(window, &mut max_w, &mut max_h);
+        assert_eq!((max_w, max_h), (0, 0));
+
+        SDL_DestroyWindow(window);
+    }
+}
+
+#[test]
+fn dummy_window_stub_centers_and_restores_fullscreen_desktop_geometry() {
+    let _serial = testutils::serial_lock();
+    let _video = testutils::ScopedEnvVar::set("SDL_VIDEODRIVER", "dummy");
+    let _subsystem = testutils::SubsystemGuard::init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+
+    unsafe {
+        let mut display = MaybeUninit::<SDL_Rect>::zeroed();
+        assert_eq!(
+            SDL_GetDisplayBounds(0, display.as_mut_ptr()),
+            0,
+            "{}",
+            testutils::current_error()
+        );
+        let display = display.assume_init();
+
+        let width = 320;
+        let height = 180;
+        let centered = SDL_WINDOWPOS_CENTERED_MASK as i32;
+        let title = testutils::cstring("centered-window-regression");
+        let window = SDL_CreateWindow(title.as_ptr(), centered, centered, width, height, 0);
+        assert!(!window.is_null(), "{}", testutils::current_error());
+
+        let (mut x, mut y) = (0, 0);
+        let (mut w, mut h) = (0, 0);
+        SDL_GetWindowPosition(window, &mut x, &mut y);
+        SDL_GetWindowSize(window, &mut w, &mut h);
+        let expected_x = display.x + ((display.w - width) / 2);
+        let expected_y = display.y + ((display.h - height) / 2);
+        assert_eq!((x, y, w, h), (expected_x, expected_y, width, height));
+
+        assert_eq!(
+            SDL_SetWindowFullscreen(window, SDL_WindowFlags_SDL_WINDOW_FULLSCREEN_DESKTOP),
+            0,
+            "{}",
+            testutils::current_error()
+        );
+        SDL_GetWindowPosition(window, &mut x, &mut y);
+        SDL_GetWindowSize(window, &mut w, &mut h);
+        assert_eq!((x, y, w, h), (display.x, display.y, display.w, display.h));
+
+        assert_eq!(
+            SDL_SetWindowFullscreen(window, 0),
+            0,
+            "{}",
+            testutils::current_error()
+        );
+        SDL_GetWindowPosition(window, &mut x, &mut y);
+        SDL_GetWindowSize(window, &mut w, &mut h);
+        assert_eq!((x, y, w, h), (expected_x, expected_y, width, height));
 
         SDL_DestroyWindow(window);
     }

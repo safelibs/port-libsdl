@@ -3,14 +3,17 @@ use std::ffi::{CStr, CString};
 use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
-    SDL_DisplayMode, SDL_FlashOperation, SDL_HitTest, SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888,
-    SDL_Rect, SDL_Renderer, SDL_Surface, SDL_Window, SDL_WindowFlags_SDL_WINDOW_ALWAYS_ON_TOP,
-    SDL_WindowFlags_SDL_WINDOW_BORDERLESS, SDL_WindowFlags_SDL_WINDOW_FULLSCREEN,
-    SDL_WindowFlags_SDL_WINDOW_FULLSCREEN_DESKTOP, SDL_WindowFlags_SDL_WINDOW_HIDDEN,
+    SDL_DisplayMode, SDL_Event, SDL_EventType_SDL_WINDOWEVENT, SDL_FlashOperation, SDL_HitTest,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888, SDL_Rect, SDL_Renderer, SDL_Surface, SDL_Window,
+    SDL_WindowEvent, SDL_WindowEventID_SDL_WINDOWEVENT_FOCUS_GAINED,
+    SDL_WindowFlags_SDL_WINDOW_ALWAYS_ON_TOP, SDL_WindowFlags_SDL_WINDOW_BORDERLESS,
+    SDL_WindowFlags_SDL_WINDOW_FULLSCREEN, SDL_WindowFlags_SDL_WINDOW_FULLSCREEN_DESKTOP,
+    SDL_WindowFlags_SDL_WINDOW_HIDDEN, SDL_WindowFlags_SDL_WINDOW_INPUT_FOCUS,
     SDL_WindowFlags_SDL_WINDOW_KEYBOARD_GRABBED, SDL_WindowFlags_SDL_WINDOW_MAXIMIZED,
-    SDL_WindowFlags_SDL_WINDOW_MINIMIZED, SDL_WindowFlags_SDL_WINDOW_MOUSE_GRABBED,
-    SDL_WindowFlags_SDL_WINDOW_RESIZABLE, SDL_WindowFlags_SDL_WINDOW_SHOWN, SDL_WindowShapeMode,
-    SDL_bool, Uint16, Uint32,
+    SDL_WindowFlags_SDL_WINDOW_MINIMIZED, SDL_WindowFlags_SDL_WINDOW_MOUSE_FOCUS,
+    SDL_WindowFlags_SDL_WINDOW_MOUSE_GRABBED, SDL_WindowFlags_SDL_WINDOW_RESIZABLE,
+    SDL_WindowFlags_SDL_WINDOW_SHOWN, SDL_WindowShapeMode, SDL_bool, SDL_bool_SDL_FALSE, Uint16,
+    Uint32, SDL_HINT_GRAB_KEYBOARD, SDL_WINDOWPOS_CENTERED_MASK, SDL_WINDOWPOS_UNDEFINED_MASK,
 };
 
 struct HostWindowApi {
@@ -198,9 +201,18 @@ struct StubWindow {
     hit_test_data: usize,
     shaped: bool,
     shape_mode: Option<SDL_WindowShapeMode>,
+    restore_bounds: Option<WindowBounds>,
 }
 
 unsafe impl Send for StubWindow {}
+
+#[derive(Clone, Copy)]
+struct WindowBounds {
+    x: libc::c_int,
+    y: libc::c_int,
+    w: libc::c_int,
+    h: libc::c_int,
+}
 
 struct WindowRegistry {
     next_id: Uint32,
@@ -244,7 +256,7 @@ fn with_stub_window_mut<T>(
     callback: impl FnOnce(&mut StubWindow) -> T,
 ) -> Result<T, ()> {
     if window.is_null() {
-        let _ = crate::core::error::invalid_param_error("window");
+        let _ = crate::core::error::set_error_message("Invalid window");
         return Err(());
     }
     let mut registry = lock_window_registry();
@@ -262,7 +274,7 @@ fn with_stub_window<T>(
     callback: impl FnOnce(&StubWindow) -> T,
 ) -> Result<T, ()> {
     if window.is_null() {
-        let _ = crate::core::error::invalid_param_error("window");
+        let _ = crate::core::error::set_error_message("Invalid window");
         return Err(());
     }
     let registry = lock_window_registry();
@@ -313,6 +325,156 @@ fn normalize_window_flags(flags: Uint32) -> Uint32 {
     }
 }
 
+fn window_position_display_index(value: libc::c_int) -> Option<libc::c_int> {
+    let encoded = value as u32;
+    let mask = encoded & 0xFFFF_0000;
+    if mask == SDL_WINDOWPOS_CENTERED_MASK || mask == SDL_WINDOWPOS_UNDEFINED_MASK {
+        Some((encoded & 0xFFFF) as libc::c_int)
+    } else {
+        None
+    }
+}
+
+fn clamp_stub_display_index(display_index: libc::c_int) -> libc::c_int {
+    let display_count = unsafe { crate::video::display::SDL_GetNumVideoDisplays() }.max(1);
+    if display_index < 0 || display_index >= display_count {
+        0
+    } else {
+        display_index
+    }
+}
+
+fn display_bounds_for_window_position(x: libc::c_int, y: libc::c_int) -> SDL_Rect {
+    let requested_display = window_position_display_index(x)
+        .or_else(|| window_position_display_index(y))
+        .unwrap_or(0);
+    let mut bounds = SDL_Rect {
+        x: 0,
+        y: 0,
+        w: 1024,
+        h: 768,
+    };
+    unsafe {
+        let _ = crate::video::display::SDL_GetDisplayBounds(
+            clamp_stub_display_index(requested_display),
+            &mut bounds,
+        );
+    }
+    bounds
+}
+
+fn resolve_stub_window_bounds(
+    x: libc::c_int,
+    y: libc::c_int,
+    w: libc::c_int,
+    h: libc::c_int,
+    flags: Uint32,
+) -> WindowBounds {
+    let mut bounds = WindowBounds {
+        x,
+        y,
+        w: w.max(1),
+        h: h.max(1),
+    };
+    let display_bounds = display_bounds_for_window_position(x, y);
+
+    if flags & SDL_WindowFlags_SDL_WINDOW_FULLSCREEN_DESKTOP != 0 {
+        bounds.x = display_bounds.x;
+        bounds.y = display_bounds.y;
+        bounds.w = display_bounds.w;
+        bounds.h = display_bounds.h;
+        return bounds;
+    }
+
+    if (x as u32) & 0xFFFF_0000 == SDL_WINDOWPOS_CENTERED_MASK {
+        bounds.x = display_bounds.x + ((display_bounds.w - bounds.w) / 2);
+    } else if (x as u32) & 0xFFFF_0000 == SDL_WINDOWPOS_UNDEFINED_MASK {
+        bounds.x = display_bounds.x;
+    }
+
+    if (y as u32) & 0xFFFF_0000 == SDL_WINDOWPOS_CENTERED_MASK {
+        bounds.y = display_bounds.y + ((display_bounds.h - bounds.h) / 2);
+    } else if (y as u32) & 0xFFFF_0000 == SDL_WINDOWPOS_UNDEFINED_MASK {
+        bounds.y = display_bounds.y;
+    }
+
+    bounds
+}
+
+fn set_stub_window_bounds(window: &mut StubWindow, bounds: WindowBounds) {
+    window.x = bounds.x;
+    window.y = bounds.y;
+    window.w = bounds.w.max(1);
+    window.h = bounds.h.max(1);
+}
+
+fn push_stub_window_event(window_id: Uint32, event: u8, data1: libc::c_int, data2: libc::c_int) {
+    let mut sdl_event = SDL_Event {
+        window: SDL_WindowEvent {
+            type_: SDL_EventType_SDL_WINDOWEVENT,
+            timestamp: 0,
+            windowID: window_id,
+            event,
+            padding1: 0,
+            padding2: 0,
+            padding3: 0,
+            data1,
+            data2,
+        },
+    };
+    unsafe {
+        let _ = crate::events::queue::SDL_PushEvent(&mut sdl_event);
+    }
+}
+
+fn focus_stub_window(window: *mut SDL_Window, emit_focus_event: bool) {
+    if window.is_null() {
+        return;
+    }
+
+    let mut focused_window_id = 0;
+    {
+        let target = window as usize;
+        let mut registry = lock_window_registry();
+        for (key, entry) in registry.windows.iter_mut() {
+            if *key == target {
+                entry.flags |=
+                    SDL_WindowFlags_SDL_WINDOW_INPUT_FOCUS | SDL_WindowFlags_SDL_WINDOW_MOUSE_FOCUS;
+                focused_window_id = entry.id;
+            } else {
+                entry.flags &= !(SDL_WindowFlags_SDL_WINDOW_INPUT_FOCUS
+                    | SDL_WindowFlags_SDL_WINDOW_MOUSE_FOCUS);
+            }
+        }
+    }
+
+    if focused_window_id == 0 {
+        return;
+    }
+
+    crate::events::keyboard::set_keyboard_focus(window);
+    crate::events::mouse::set_mouse_focus(window);
+    if emit_focus_event {
+        push_stub_window_event(
+            focused_window_id,
+            SDL_WindowEventID_SDL_WINDOWEVENT_FOCUS_GAINED as u8,
+            0,
+            0,
+        );
+    }
+}
+
+fn fill_linear_gamma_ramp(channel: *mut Uint16) {
+    if channel.is_null() {
+        return;
+    }
+    for (index, value) in (0u32..256).enumerate() {
+        unsafe {
+            *channel.add(index) = ((value * 0xFFFF) / 0xFF) as Uint16;
+        }
+    }
+}
+
 pub(crate) fn create_stub_window_internal(
     title: *const libc::c_char,
     x: libc::c_int,
@@ -334,14 +496,15 @@ pub(crate) fn create_stub_window_internal(
     let mut registry = lock_window_registry();
     let id = registry.next_id;
     registry.next_id = registry.next_id.saturating_add(1).max(1);
+    let bounds = resolve_stub_window_bounds(x, y, w, h, flags);
 
     let mut entry = Box::new(StubWindow {
         id,
         title,
-        x,
-        y,
-        w: w.max(1),
-        h: h.max(1),
+        x: bounds.x,
+        y: bounds.y,
+        w: bounds.w,
+        h: bounds.h,
         flags: normalize_window_flags(flags),
         brightness: 1.0,
         opacity: 1.0,
@@ -355,14 +518,16 @@ pub(crate) fn create_stub_window_internal(
         hit_test_data: 0,
         shaped,
         shape_mode: None,
+        restore_bounds: None,
     });
     let ptr = entry.as_mut() as *mut StubWindow as *mut SDL_Window;
     registry.by_id.insert(id, ptr as usize);
     registry.windows.insert(ptr as usize, entry);
     drop(registry);
 
-    crate::events::keyboard::set_keyboard_focus(ptr);
-    crate::events::mouse::set_mouse_focus(ptr);
+    if flags & SDL_WindowFlags_SDL_WINDOW_HIDDEN == 0 {
+        focus_stub_window(ptr, false);
+    }
     ptr
 }
 
@@ -588,7 +753,7 @@ pub unsafe extern "C" fn SDL_GetWindowBrightness(window: *mut SDL_Window) -> f32
         crate::video::clear_real_error();
         return (host_api().get_window_brightness)(window);
     }
-    with_stub_window(window, |entry| entry.brightness).unwrap_or(0.0)
+    with_stub_window(window, |entry| entry.brightness).unwrap_or(1.0)
 }
 
 #[no_mangle]
@@ -605,6 +770,10 @@ pub unsafe extern "C" fn SDL_GetWindowData(
         return std::ptr::null_mut();
     }
     let key = CStr::from_ptr(name).to_bytes().to_vec();
+    if key.is_empty() {
+        let _ = crate::core::error::invalid_param_error("name");
+        return std::ptr::null_mut();
+    }
     with_stub_window(window, |entry| {
         entry.window_data.get(&key).copied().unwrap_or(0) as *mut libc::c_void
     })
@@ -671,8 +840,13 @@ pub unsafe extern "C" fn SDL_GetWindowGammaRamp(
         crate::video::clear_real_error();
         return (host_api().get_window_gamma_ramp)(window, red, green, blue);
     }
-    let _ = (window, red, green, blue);
-    crate::core::error::set_error_message("Gamma ramps are not supported for stub windows")
+    with_stub_window(window, |_| {
+        fill_linear_gamma_ramp(red);
+        fill_linear_gamma_ramp(green);
+        fill_linear_gamma_ramp(blue);
+        0
+    })
+    .unwrap_or(-1)
 }
 
 #[no_mangle]
@@ -682,7 +856,10 @@ pub unsafe extern "C" fn SDL_GetWindowGrab(window: *mut SDL_Window) -> SDL_bool 
         return (host_api().get_window_grab)(window);
     }
     with_stub_window(window, |entry| {
-        (entry.flags & SDL_WindowFlags_SDL_WINDOW_MOUSE_GRABBED != 0) as SDL_bool
+        ((entry.flags
+            & (SDL_WindowFlags_SDL_WINDOW_MOUSE_GRABBED
+                | SDL_WindowFlags_SDL_WINDOW_KEYBOARD_GRABBED))
+            != 0) as SDL_bool
     })
     .unwrap_or(0)
 }
@@ -756,7 +933,10 @@ pub unsafe extern "C" fn SDL_GetWindowMouseGrab(window: *mut SDL_Window) -> SDL_
         crate::video::clear_real_error();
         return (host_api().get_window_mouse_grab)(window);
     }
-    SDL_GetWindowGrab(window)
+    with_stub_window(window, |entry| {
+        (entry.flags & SDL_WindowFlags_SDL_WINDOW_MOUSE_GRABBED != 0) as SDL_bool
+    })
+    .unwrap_or(0)
 }
 
 #[no_mangle]
@@ -931,7 +1111,7 @@ pub unsafe extern "C" fn SDL_RaiseWindow(window: *mut SDL_Window) {
         crate::video::clear_real_error();
         (host_api().raise_window)(window);
     } else {
-        let _ = window;
+        focus_stub_window(window, true);
     }
 }
 
@@ -1011,17 +1191,19 @@ pub unsafe extern "C" fn SDL_SetWindowData(
         return std::ptr::null_mut();
     }
     let key = CStr::from_ptr(name).to_bytes().to_vec();
+    if key.is_empty() {
+        let _ = crate::core::error::invalid_param_error("name");
+        return std::ptr::null_mut();
+    }
     with_stub_window_mut(window, |entry| {
-        let previous = entry
-            .window_data
-            .insert(key, userdata as usize)
-            .unwrap_or(0) as *mut libc::c_void;
         if userdata.is_null() {
+            entry.window_data.remove(&key).unwrap_or(0) as *mut libc::c_void
+        } else {
             entry
                 .window_data
-                .remove(&CStr::from_ptr(name).to_bytes().to_vec());
+                .insert(key, userdata as usize)
+                .unwrap_or(0) as *mut libc::c_void
         }
-        previous
     })
     .unwrap_or(std::ptr::null_mut())
 }
@@ -1052,11 +1234,30 @@ pub unsafe extern "C" fn SDL_SetWindowFullscreen(
         return (host_api().set_window_fullscreen)(window, flags);
     }
     with_stub_window_mut(window, |entry| {
+        let had_fullscreen_desktop =
+            entry.flags & SDL_WindowFlags_SDL_WINDOW_FULLSCREEN_DESKTOP != 0;
         entry.flags &= !(SDL_WindowFlags_SDL_WINDOW_FULLSCREEN
             | SDL_WindowFlags_SDL_WINDOW_FULLSCREEN_DESKTOP);
         entry.flags |= flags
             & (SDL_WindowFlags_SDL_WINDOW_FULLSCREEN
                 | SDL_WindowFlags_SDL_WINDOW_FULLSCREEN_DESKTOP);
+        if flags & SDL_WindowFlags_SDL_WINDOW_FULLSCREEN_DESKTOP != 0 {
+            if !had_fullscreen_desktop {
+                entry.restore_bounds = Some(WindowBounds {
+                    x: entry.x,
+                    y: entry.y,
+                    w: entry.w,
+                    h: entry.h,
+                });
+            }
+            let fullscreen_bounds =
+                resolve_stub_window_bounds(entry.x, entry.y, entry.w, entry.h, flags);
+            set_stub_window_bounds(entry, fullscreen_bounds);
+        } else if had_fullscreen_desktop {
+            if let Some(windowed_bounds) = entry.restore_bounds.take() {
+                set_stub_window_bounds(entry, windowed_bounds);
+            }
+        }
         0
     })
     .unwrap_or(-1)
@@ -1070,6 +1271,14 @@ pub unsafe extern "C" fn SDL_SetWindowGrab(window: *mut SDL_Window, grabbed: SDL
         return;
     }
     SDL_SetWindowMouseGrab(window, grabbed);
+    if grabbed == 0
+        || crate::core::hints::SDL_GetHintBoolean(
+            SDL_HINT_GRAB_KEYBOARD.as_ptr().cast(),
+            SDL_bool_SDL_FALSE,
+        ) != 0
+    {
+        SDL_SetWindowKeyboardGrab(window, grabbed);
+    }
 }
 
 #[no_mangle]
@@ -1106,9 +1315,11 @@ pub unsafe extern "C" fn SDL_SetWindowInputFocus(window: *mut SDL_Window) -> lib
         crate::video::clear_real_error();
         return (host_api().set_window_input_focus)(window);
     }
-    crate::events::keyboard::set_keyboard_focus(window);
-    crate::events::mouse::set_mouse_focus(window);
-    with_stub_window(window, |_| 0).unwrap_or(-1)
+    if with_stub_window(window, |_| ()).is_err() {
+        return -1;
+    }
+    focus_stub_window(window, true);
+    0
 }
 
 #[no_mangle]
@@ -1138,6 +1349,18 @@ pub unsafe extern "C" fn SDL_SetWindowMaximumSize(
         (host_api().set_window_maximum_size)(window, max_w, max_h);
         return;
     }
+    if window.is_null() {
+        let _ = crate::core::error::set_error_message("Invalid window");
+        return;
+    }
+    if max_w <= 0 {
+        let _ = crate::core::error::invalid_param_error("max_w");
+        return;
+    }
+    if max_h <= 0 {
+        let _ = crate::core::error::invalid_param_error("max_h");
+        return;
+    }
     let _ = with_stub_window_mut(window, |entry| {
         entry.max_size = (max_w, max_h);
     });
@@ -1152,6 +1375,18 @@ pub unsafe extern "C" fn SDL_SetWindowMinimumSize(
     if crate::video::display::current_driver_is_host() {
         crate::video::clear_real_error();
         (host_api().set_window_minimum_size)(window, min_w, min_h);
+        return;
+    }
+    if window.is_null() {
+        let _ = crate::core::error::set_error_message("Invalid window");
+        return;
+    }
+    if min_w <= 0 {
+        let _ = crate::core::error::invalid_param_error("min_w");
+        return;
+    }
+    if min_h <= 0 {
+        let _ = crate::core::error::invalid_param_error("min_h");
         return;
     }
     let _ = with_stub_window_mut(window, |entry| {
@@ -1237,8 +1472,9 @@ pub unsafe extern "C" fn SDL_SetWindowPosition(
         return;
     }
     let _ = with_stub_window_mut(window, |entry| {
-        entry.x = x;
-        entry.y = y;
+        let bounds = resolve_stub_window_bounds(x, y, entry.w, entry.h, entry.flags);
+        entry.x = bounds.x;
+        entry.y = bounds.y;
     });
 }
 
@@ -1269,9 +1505,21 @@ pub unsafe extern "C" fn SDL_SetWindowSize(
         (host_api().set_window_size)(window, w, h);
         return;
     }
+    if window.is_null() {
+        let _ = crate::core::error::set_error_message("Invalid window");
+        return;
+    }
+    if w <= 0 {
+        let _ = crate::core::error::invalid_param_error("w");
+        return;
+    }
+    if h <= 0 {
+        let _ = crate::core::error::invalid_param_error("h");
+        return;
+    }
     let _ = with_stub_window_mut(window, |entry| {
-        entry.w = w.max(1);
-        entry.h = h.max(1);
+        entry.w = w;
+        entry.h = h;
         if !entry.surface.is_null() {
             let _ = recreate_surface(entry);
         }

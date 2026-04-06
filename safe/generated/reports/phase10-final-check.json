@@ -1,0 +1,14 @@
+{
+  "phase_id": "impl_phase_10_packaging_dependents_final",
+  "package_version": "2.30.0+dfsg-1ubuntu3.1+safelibs1",
+  "built_packages": {
+    "libsdl2-2.0-0": "libsdl2-2.0-0_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb",
+    "libsdl2-dev": "libsdl2-dev_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb",
+    "libsdl2-tests": "libsdl2-tests_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb"
+  },
+  "installed_library": "/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0",
+  "unsafe_audit_report": "safe/generated/reports/unsafe-audit.json",
+  "dependent_regression_manifest": "safe/generated/dependent_regression_manifest.json",
+  "dependent_matrix_results": "safe/generated/reports/dependent-matrix-results.json",
+  "dependent_matrix_artifact_dir": "safe/generated/reports/dependent-matrix"
+}

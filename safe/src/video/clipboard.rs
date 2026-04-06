@@ -43,7 +43,8 @@ pub unsafe extern "C" fn SDL_HasPrimarySelectionText() -> SDL_bool {
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetClipboardText(text: *const libc::c_char) -> libc::c_int {
     if text.is_null() {
-        return crate::core::error::invalid_param_error("text");
+        lock_clipboard_state().clipboard_text.clear();
+        return 0;
     }
     match std::ffi::CStr::from_ptr(text).to_str() {
         Ok(value) => {
@@ -57,7 +58,8 @@ pub unsafe extern "C" fn SDL_SetClipboardText(text: *const libc::c_char) -> libc
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetPrimarySelectionText(text: *const libc::c_char) -> libc::c_int {
     if text.is_null() {
-        return crate::core::error::invalid_param_error("text");
+        lock_clipboard_state().primary_selection_text.clear();
+        return 0;
     }
     match std::ffi::CStr::from_ptr(text).to_str() {
         Ok(value) => {

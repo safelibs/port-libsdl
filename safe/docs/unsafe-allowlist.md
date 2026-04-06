@@ -2,6 +2,8 @@
 
 Remaining `unsafe` in `safe/` is limited to documented FFI shims, raw OS/platform glue, generated ABI surfaces, performance-critical render code, and ABI-level tests.
 
+Phase 10 keeps this file as the source of truth for `cargo run --manifest-path safe/Cargo.toml -p xtask -- unsafe-audit`. Every remaining `unsafe` file must match one of the rules below, and the generated audit report summarizes the covered files by category.
+
 - `safe/sdl2main/src/lib.rs` [ffi]: Exports the `SDL_main` compatibility shim consumed from C toolchains.
 - `safe/src/abi/generated_types.rs` [generated]: Bindgen-generated foreign types, extern declarations, and layout assertions.
 - `safe/src/audio/*.rs` [ffi]: Exported C ABI wrappers, raw audio buffers, and decoder/stream pointer interop.

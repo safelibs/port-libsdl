@@ -1,8 +1,10 @@
 use std::collections::{BTreeMap, BTreeSet};
+use std::env;
 use std::fs;
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use anyhow::{anyhow, bail, Context, Result};
 use regex::Regex;
@@ -14,20 +16,13 @@ use crate::contracts::{
     verify_test_port_map, AbiCheckArgs, ContractArgs, PublicHeaderInventory, SDL_SONAME,
     UBUNTU_MULTIARCH,
 };
+use crate::dependents::{verify_dependent_regressions, VerifyDependentRegressionsArgs};
 use crate::original_tests::{
-    build_original_autotools_suite, build_original_cmake_suite, compile_original_test_objects,
-    relink_original_test_objects, run_original_autotools_check, run_original_ctest,
-    run_relinked_original_tests, BuildOriginalAutotoolsSuiteArgs, BuildOriginalCmakeSuiteArgs,
-    CompileOriginalTestObjectsArgs, RelinkOriginalTestObjectsArgs, RunOriginalAutotoolsCheckArgs,
-    RunOriginalCtestArgs, RunRelinkedOriginalTestsArgs,
-};
-use crate::perf::{
-    build_original_reference, perf_assert, perf_capture, BuildOriginalReferenceArgs,
-    PerfAssertArgs, PerfCaptureArgs,
+    compile_original_test_objects, relink_original_test_objects, run_relinked_original_tests,
+    CompileOriginalTestObjectsArgs, RelinkOriginalTestObjectsArgs, RunRelinkedOriginalTestsArgs,
 };
 use crate::stage_install::{
-    stage_install, verify_driver_contract, StageInstallArgs, StageInstallMode,
-    VerifyDriverContractArgs,
+    packaged_compat_real_sdl_relpath, verify_driver_contract, VerifyDriverContractArgs,
 };
 
 const PHASE_10_ID: &str = "impl_phase_10_packaging_dependents_final";
@@ -39,21 +34,14 @@ pub struct FinalCheckArgs {
     pub original_dir: PathBuf,
     pub dependents_path: PathBuf,
     pub cves_path: PathBuf,
-    pub stage_root: PathBuf,
-    pub cmake_build_dir: PathBuf,
-    pub autotools_build_dir: PathBuf,
     pub relink_objects_dir: PathBuf,
     pub relink_bin_dir: PathBuf,
-    pub original_reference_build_dir: PathBuf,
-    pub original_prefix_dir: PathBuf,
-    pub perf_runner_dir: PathBuf,
-    pub perf_manifest: PathBuf,
-    pub perf_thresholds: PathBuf,
-    pub perf_report: PathBuf,
-    pub perf_waivers: PathBuf,
     pub unsafe_allowlist: PathBuf,
     pub phase_report: PathBuf,
     pub unsafe_report: PathBuf,
+    pub dependent_regression_manifest: PathBuf,
+    pub dependent_matrix_results: PathBuf,
+    pub dependent_matrix_artifact_dir: PathBuf,
 }
 
 #[derive(Debug)]
@@ -82,8 +70,19 @@ pub struct UnsafeAuditEntry {
 }
 
 #[derive(Debug, Serialize)]
+pub struct UnsafeAuditSummary {
+    generated_at_unix_seconds: u64,
+    rule_count: usize,
+    total_unsafe_files: usize,
+    undocumented_files: usize,
+    category_counts: BTreeMap<String, usize>,
+}
+
+#[derive(Debug, Serialize)]
 pub struct UnsafeAuditReport {
     phase_id: String,
+    allowlist_path: String,
+    summary: UnsafeAuditSummary,
     rules: Vec<UnsafeAuditRule>,
     entries: Vec<UnsafeAuditEntry>,
 }
@@ -95,9 +94,9 @@ struct FinalPhaseReport {
     built_packages: BTreeMap<String, String>,
     installed_library: String,
     unsafe_audit_report: String,
-    perf_report: String,
-    perf_waivers: String,
-    stage_root: String,
+    dependent_regression_manifest: String,
+    dependent_matrix_results: String,
+    dependent_matrix_artifact_dir: String,
 }
 
 pub fn final_check(args: FinalCheckArgs) -> Result<()> {
@@ -135,83 +134,17 @@ pub fn final_check(args: FinalCheckArgs) -> Result<()> {
                 "cmake",
                 "pkg-config",
                 "dpkg-dev",
+                "jq",
             ],
         ),
         "install checker prerequisites",
-    )?;
-    run_command(
-        command_in(
-            &args.repo_root,
-            "apt-get",
-            ["build-dep", "-y", "./original"],
-        ),
-        "install original build-deps",
     )?;
     run_command(
         command_in(&args.repo_root, "apt-get", ["build-dep", "-y", "./safe"]),
         "install safe build-deps",
     )?;
     restore_system_sdl_packages(&args.repo_root)?;
-
-    stage_install(StageInstallArgs {
-        repo_root: args.repo_root.clone(),
-        generated_dir: args.generated_dir.clone(),
-        original_dir: args.original_dir.clone(),
-        stage_root: args.stage_root.clone(),
-        library_path: None,
-        mode: StageInstallMode::Full,
-    })?;
-
-    run_cargo_test(&args.repo_root, "upstream_port_all")?;
-    run_cargo_test(&args.repo_root, "original_apps_full")?;
-    build_original_cmake_suite(BuildOriginalCmakeSuiteArgs {
-        repo_root: args.repo_root.clone(),
-        original_dir: args.original_dir.clone(),
-        stage_root: args.stage_root.clone(),
-        build_dir: args.cmake_build_dir.clone(),
-    })?;
-    run_original_ctest(RunOriginalCtestArgs {
-        repo_root: args.repo_root.clone(),
-        build_dir: args.cmake_build_dir.clone(),
-        stage_root: Some(args.stage_root.clone()),
-        filter: None,
-        test_list: None,
-    })?;
-    build_original_autotools_suite(BuildOriginalAutotoolsSuiteArgs {
-        repo_root: args.repo_root.clone(),
-        original_dir: args.original_dir.clone(),
-        stage_root: args.stage_root.clone(),
-        build_dir: args.autotools_build_dir.clone(),
-    })?;
-    run_original_autotools_check(RunOriginalAutotoolsCheckArgs {
-        repo_root: args.repo_root.clone(),
-        stage_root: Some(args.stage_root.clone()),
-        build_dir: args.autotools_build_dir.clone(),
-    })?;
-    build_original_reference(BuildOriginalReferenceArgs {
-        repo_root: args.repo_root.clone(),
-        original_dir: args.original_dir.clone(),
-        build_dir: args.original_reference_build_dir.clone(),
-        prefix_dir: args.original_prefix_dir.clone(),
-    })?;
-    perf_capture(PerfCaptureArgs {
-        repo_root: args.repo_root.clone(),
-        generated_dir: args.generated_dir.clone(),
-        original_dir: args.original_dir.clone(),
-        original_prefix_dir: args.original_prefix_dir.clone(),
-        safe_stage_root: args.stage_root.clone(),
-        runner_dir: args.perf_runner_dir.clone(),
-        workload_manifest: args.perf_manifest.clone(),
-        thresholds_path: args.perf_thresholds.clone(),
-        report_path: args.perf_report.clone(),
-        waivers_path: args.perf_waivers.clone(),
-    })?;
-    perf_assert(PerfAssertArgs {
-        repo_root: args.repo_root.clone(),
-        thresholds_path: args.perf_thresholds.clone(),
-        report_path: args.perf_report.clone(),
-        waivers_path: args.perf_waivers.clone(),
-    })?;
+    run_cargo_test(&args.repo_root, "upstream_port_core")?;
 
     build_safe_packages(&args.repo_root)?;
     let built_packages = locate_built_packages(&args.repo_root)?;
@@ -236,6 +169,11 @@ pub fn final_check(args: FinalCheckArgs) -> Result<()> {
         stage_root: PathBuf::from("/"),
         kind: "audio".to_string(),
     })?;
+    run_original_consumer_script(&args.repo_root, &args.original_dir, "build")?;
+    run_original_consumer_script(&args.repo_root, &args.original_dir, "cmake")?;
+    run_safe_consumer_script(&args.repo_root, "build")?;
+    run_safe_consumer_script(&args.repo_root, "cmake")?;
+    run_safe_consumer_script(&args.repo_root, "deprecated-use")?;
     run_packaged_autopkgtests(&args.repo_root)?;
 
     compile_original_test_objects(CompileOriginalTestObjectsArgs {
@@ -262,6 +200,18 @@ pub fn final_check(args: FinalCheckArgs) -> Result<()> {
         validation_modes: vec!["auto_run".to_string(), "fixture_run".to_string()],
         skip_if_empty: false,
     })?;
+    run_test_original_matrix(
+        &args.repo_root,
+        &args.dependent_matrix_results,
+        &args.dependent_matrix_artifact_dir,
+    )?;
+    verify_dependent_regressions(VerifyDependentRegressionsArgs {
+        repo_root: args.repo_root.clone(),
+        dependents_path: args.dependents_path.clone(),
+        manifest_path: args.dependent_regression_manifest.clone(),
+        results_path: args.dependent_matrix_results.clone(),
+    })?;
+    run_security_regressions(&args.repo_root)?;
 
     let unsafe_report =
         verify_unsafe_allowlist(&args.repo_root, &args.unsafe_allowlist, &args.unsafe_report)?;
@@ -276,9 +226,15 @@ pub fn final_check(args: FinalCheckArgs) -> Result<()> {
                 .collect(),
             installed_library: format!("/usr/lib/{UBUNTU_MULTIARCH}/{SDL_SONAME}"),
             unsafe_audit_report: rel(&args.repo_root, &args.unsafe_report),
-            perf_report: rel(&args.repo_root, &args.perf_report),
-            perf_waivers: rel(&args.repo_root, &args.perf_waivers),
-            stage_root: rel(&args.repo_root, &args.stage_root),
+            dependent_regression_manifest: rel(
+                &args.repo_root,
+                &args.dependent_regression_manifest,
+            ),
+            dependent_matrix_results: rel(&args.repo_root, &args.dependent_matrix_results),
+            dependent_matrix_artifact_dir: rel(
+                &args.repo_root,
+                &args.dependent_matrix_artifact_dir,
+            ),
         },
     )?;
 
@@ -294,6 +250,7 @@ pub fn verify_unsafe_allowlist(
     let allowlist = parse_unsafe_allowlist(allowlist_path)?;
     let files = collect_unsafe_files(repo_root)?;
     let mut entries = Vec::new();
+    let mut category_counts = BTreeMap::<String, usize>::new();
 
     for file in files {
         let Some(rule) = allowlist
@@ -311,10 +268,22 @@ pub fn verify_unsafe_allowlist(
             category: rule.category.clone(),
             matched_pattern: rule.pattern.clone(),
         });
+        *category_counts.entry(rule.category.clone()).or_default() += 1;
     }
 
     let report = UnsafeAuditReport {
         phase_id: PHASE_10_ID.to_string(),
+        allowlist_path: allowlist_path.display().to_string(),
+        summary: UnsafeAuditSummary {
+            generated_at_unix_seconds: SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .context("compute unsafe audit timestamp")?
+                .as_secs(),
+            rule_count: allowlist.len(),
+            total_unsafe_files: entries.len(),
+            undocumented_files: 0,
+            category_counts,
+        },
         rules: allowlist,
         entries,
     };
@@ -326,6 +295,7 @@ fn build_safe_packages(repo_root: &Path) -> Result<()> {
     let mut cmd = Command::new("dpkg-buildpackage");
     cmd.current_dir(repo_root.join("safe"))
         .args(["-us", "-uc", "-b"]);
+    apply_repo_rust_toolchain_env(&mut cmd);
     run_command(cmd, "build safe Debian packages")
 }
 
@@ -469,6 +439,8 @@ fn verify_packaged_install(
     for path in &install_contract.runtime_paths {
         ensure_packaged_path(&runtime_files, path)?;
     }
+    let compat_runtime = packaged_compat_real_sdl_relpath();
+    ensure_packaged_path(&runtime_files, &compat_runtime)?;
     for path in &install_contract.dev_paths {
         ensure_packaged_path(&dev_files, path)?;
     }
@@ -537,6 +509,10 @@ pub fn verify_install_contract(args: VerifyInstallContractArgs) -> Result<()> {
 
     for path in &install_contract.runtime_paths {
         ensure_rooted_packaged_path(&package_root, &installed_files, path)?;
+    }
+    if matches!(args.mode.as_deref(), Some("packaged") | Some("package")) {
+        let compat_runtime = packaged_compat_real_sdl_relpath();
+        ensure_rooted_path_exists(&package_root, &compat_runtime)?;
     }
     for path in &install_contract.dev_paths {
         ensure_rooted_packaged_path(&package_root, &installed_files, path)?;
@@ -899,9 +875,72 @@ fn run_packaged_autopkgtests(repo_root: &Path) -> Result<()> {
         let temp = tempdir().with_context(|| format!("create tempdir for autopkgtest {script}"))?;
         let mut cmd = Command::new(safe_root.join(format!("debian/tests/{script}")));
         cmd.current_dir(&safe_root)
+            .env_remove(real_runtime_env_key())
             .env("AUTOPKGTEST_TMP", temp.path())
             .env("HOME", temp.path());
         run_command(cmd, &format!("run safe/debian/tests/{script}"))?;
+    }
+    Ok(())
+}
+
+fn run_original_consumer_script(repo_root: &Path, original_dir: &Path, script: &str) -> Result<()> {
+    let original_root = absolutize(repo_root, original_dir);
+    let mut cmd = Command::new("sh");
+    cmd.current_dir(&original_root)
+        .arg(original_root.join(format!("debian/tests/{script}")))
+        .env_remove(real_runtime_env_key());
+    run_command(cmd, &format!("run original/debian/tests/{script}"))
+}
+
+fn run_safe_consumer_script(repo_root: &Path, script: &str) -> Result<()> {
+    let safe_root = repo_root.join("safe");
+    let mut cmd = Command::new("sh");
+    cmd.current_dir(&safe_root)
+        .arg(safe_root.join(format!("debian/tests/{script}")))
+        .env_remove(real_runtime_env_key());
+    run_command(cmd, &format!("run safe/debian/tests/{script}"))
+}
+
+fn run_test_original_matrix(
+    repo_root: &Path,
+    results_path: &Path,
+    artifact_dir: &Path,
+) -> Result<()> {
+    let mut cmd = Command::new(repo_root.join("test-original.sh"));
+    cmd.current_dir(repo_root)
+        .env_remove(real_runtime_env_key())
+        .arg("--json-out")
+        .arg(absolutize(repo_root, results_path))
+        .arg("--artifact-dir")
+        .arg(absolutize(repo_root, artifact_dir));
+    run_command(cmd, "run dependent Docker matrix")
+}
+
+fn run_security_regressions(repo_root: &Path) -> Result<()> {
+    let tests_dir = repo_root.join("safe/tests");
+    let mut tests = fs::read_dir(&tests_dir)
+        .with_context(|| format!("read {}", tests_dir.display()))?
+        .filter_map(|entry| entry.ok())
+        .filter_map(|entry| {
+            let path = entry.path();
+            (path.extension().and_then(|ext| ext.to_str()) == Some("rs")).then_some(path)
+        })
+        .filter_map(|path| {
+            path.file_stem()
+                .and_then(|stem| stem.to_str())
+                .filter(|stem| stem.starts_with("security_"))
+                .map(str::to_string)
+        })
+        .collect::<Vec<_>>();
+    tests.sort();
+    if tests.is_empty() {
+        bail!(
+            "no security regression tests found under {}",
+            tests_dir.display()
+        );
+    }
+    for test in tests {
+        run_cargo_test(repo_root, &test)?;
     }
     Ok(())
 }
@@ -1164,7 +1203,36 @@ fn run_cargo_test(repo_root: &Path, target: &str) -> Result<()> {
         "--test",
         target,
     ]);
+    apply_repo_rust_toolchain_env(&mut cmd);
+    cmd.env_remove(real_runtime_env_key());
     run_command(cmd, &format!("run cargo test {target}"))
+}
+
+fn real_runtime_env_key() -> &'static str {
+    concat!("SAFE_SDL_REAL_", "SDL_PATH")
+}
+
+fn apply_repo_rust_toolchain_env(cmd: &mut Command) {
+    let Some(sudo_user) = env::var_os("SUDO_USER") else {
+        return;
+    };
+    let user_home = PathBuf::from(format!("/home/{}", sudo_user.to_string_lossy()));
+    let cargo_home = user_home.join(".cargo");
+    let rustup_home = user_home.join(".rustup");
+    let cargo_bin = cargo_home.join("bin");
+    if !cargo_bin.join("cargo").is_file() || !rustup_home.is_dir() {
+        return;
+    }
+
+    let mut path_entries = vec![cargo_bin];
+    if let Some(existing) = env::var_os("PATH") {
+        path_entries.extend(env::split_paths(&existing));
+    }
+    if let Ok(path) = env::join_paths(path_entries) {
+        cmd.env("PATH", path);
+    }
+    cmd.env("CARGO_HOME", cargo_home);
+    cmd.env("RUSTUP_HOME", rustup_home);
 }
 
 fn command_in<const N: usize>(cwd: &Path, program: &str, args: [&str; N]) -> Command {

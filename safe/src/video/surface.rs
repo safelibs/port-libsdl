@@ -113,14 +113,7 @@ real_sdl_api! {
 }
 
 fn open_real_sdl() -> *mut libc::c_void {
-    for candidate in crate::video::real_sdl_dlopen_candidates() {
-        let handle = unsafe { libc::dlopen(candidate.as_ptr(), libc::RTLD_LOCAL | libc::RTLD_NOW) };
-        if !handle.is_null() {
-            return handle;
-        }
-    }
-
-    panic!("unable to load the host SDL2 runtime");
+    crate::video::open_real_sdl_with_flags(libc::RTLD_LOCAL | libc::RTLD_NOW)
 }
 
 fn load_symbol<T>(handle: *mut libc::c_void, name: *const libc::c_char) -> T {
@@ -790,6 +783,41 @@ unsafe fn copy_surface_state(src: *mut SDL_Surface, dst: *mut SDL_Surface) {
     );
 }
 
+unsafe fn convert_registered_surface_with_real_view(
+    src: *mut SDL_Surface,
+    fmt: *const SDL_PixelFormat,
+    flags: Uint32,
+) -> *mut SDL_Surface {
+    clear_real_error();
+    let temp = (real_sdl().create_rgb_surface_with_format_from)(
+        (*src).pixels,
+        (*src).w,
+        (*src).h,
+        (*(*src).format).BitsPerPixel as libc::c_int,
+        (*src).pitch,
+        (*(*src).format).format,
+    );
+    if temp.is_null() {
+        let _ = sync_error_from_real("Couldn't convert surface");
+        return ptr::null_mut();
+    }
+
+    copy_palette_if_present(temp, (*src).format);
+    copy_surface_state(src, temp);
+
+    clear_real_error();
+    let converted = (real_sdl().convert_surface)(temp, fmt, flags);
+    let convert_failed = converted.is_null();
+    if convert_failed {
+        let _ = sync_error_from_real("Couldn't convert surface");
+    }
+    (real_sdl().free_surface)(temp);
+    if convert_failed {
+        return ptr::null_mut();
+    }
+    converted
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn SDL_CreateRGBSurface(
     flags: Uint32,
@@ -1111,25 +1139,7 @@ pub unsafe extern "C" fn SDL_ConvertSurface(
         return converted;
     }
 
-    let converted = create_owned_surface_with_format(
-        flags,
-        (*src).w,
-        (*src).h,
-        (*fmt).BitsPerPixel as libc::c_int,
-        (*fmt).format,
-    );
-    if converted.is_null() {
-        return ptr::null_mut();
-    }
-
-    copy_palette_if_present(converted, fmt);
-    let full = full_surface_rect(src);
-    if let Err(error) = blit_surface_pixels(src, &full, converted, &full) {
-        SDL_FreeSurface(converted);
-        return apply_math_error_ptr(error);
-    }
-    copy_surface_state(src, converted);
-    converted
+    convert_registered_surface_with_real_view(src, fmt, flags)
 }
 
 #[no_mangle]

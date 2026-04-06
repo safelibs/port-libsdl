@@ -29,6 +29,7 @@
   "dependents": [
     {
       "name": "QEMU system GUI modules",
+      "slug": "qemu",
       "binary_package": "qemu-system-gui",
       "source_package": "qemu",
       "category": "system emulator",
@@ -53,6 +54,7 @@
     },
     {
       "name": "FFmpeg",
+      "slug": "ffmpeg",
       "binary_package": "ffmpeg",
       "source_package": "ffmpeg",
       "category": "multimedia toolkit",
@@ -77,6 +79,7 @@
     },
     {
       "name": "scrcpy",
+      "slug": "scrcpy",
       "binary_package": "scrcpy",
       "source_package": "scrcpy",
       "category": "Android mirroring utility",
@@ -101,6 +104,7 @@
     },
     {
       "name": "LOVE",
+      "slug": "love",
       "binary_package": "love",
       "source_package": "love",
       "category": "game development framework",
@@ -125,6 +129,7 @@
     },
     {
       "name": "pygame",
+      "slug": "pygame",
       "binary_package": "python3-pygame",
       "source_package": "pygame",
       "category": "Python binding",
@@ -149,6 +154,7 @@
     },
     {
       "name": "ScummVM",
+      "slug": "scummvm",
       "binary_package": "scummvm",
       "source_package": "scummvm",
       "category": "adventure-game engine",
@@ -168,6 +174,7 @@
     },
     {
       "name": "SuperTuxKart",
+      "slug": "supertuxkart",
       "binary_package": "supertuxkart",
       "source_package": "supertuxkart",
       "category": "racing game",
@@ -192,6 +199,7 @@
     },
     {
       "name": "Tux Paint",
+      "slug": "tuxpaint",
       "binary_package": "tuxpaint",
       "source_package": "tuxpaint",
       "category": "children's graphics application",
@@ -216,6 +224,7 @@
     },
     {
       "name": "OpenTTD",
+      "slug": "openttd",
       "binary_package": "openttd",
       "source_package": "openttd",
       "category": "transport simulation game",
@@ -240,6 +249,7 @@
     },
     {
       "name": "0 A.D.",
+      "slug": "0ad",
       "binary_package": "0ad",
       "source_package": "0ad",
       "category": "real-time strategy game",
@@ -264,6 +274,7 @@
     },
     {
       "name": "Dear ImGui development package",
+      "slug": "imgui",
       "binary_package": "libimgui-dev",
       "source_package": "imgui",
       "category": "GUI toolkit development package",
@@ -283,6 +294,7 @@
     },
     {
       "name": "libtcod development package",
+      "slug": "libtcod",
       "binary_package": "libtcod-dev",
       "source_package": "libtcod",
       "category": "roguelike library development package",

@@ -4,10 +4,13 @@ set -euo pipefail
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 IMAGE_TAG="${LIBSDL_ORIGINAL_TEST_IMAGE:-libsdl-original-test:ubuntu24.04}"
 ONLY=""
+JSON_OUT=""
+ARTIFACT_DIR=""
+ARTIFACT_TMP=""
 
 usage() {
   cat <<'EOF'
-usage: test-original.sh [--only <slug-or-manifest-name>]
+usage: test-original.sh [--only <slug-or-manifest-name>] [--json-out <path>] [--artifact-dir <dir>]
 
 Builds the safe SDL Debian packages from ./safe using the checked-in
 contracts/original inputs inside an Ubuntu 24.04 Docker container, installs
@@ -16,6 +19,9 @@ them, and then exercises the dependent software listed in dependents.json.
 --only runs a single dependent check. Accepted values include:
   qemu, ffmpeg, scrcpy, love, pygame, scummvm, supertuxkart,
   tuxpaint, openttd, 0ad, imgui, libtcod
+
+--json-out writes a combined structured results file.
+--artifact-dir stores per-dependent logs, per-dependent JSON, and the raw combined results JSON.
 EOF
 }
 
@@ -23,6 +29,14 @@ while (($#)); do
   case "$1" in
     --only)
       ONLY="${2:?missing value for --only}"
+      shift 2
+      ;;
+    --json-out)
+      JSON_OUT="${2:?missing value for --json-out}"
+      shift 2
+      ;;
+    --artifact-dir)
+      ARTIFACT_DIR="${2:?missing value for --artifact-dir}"
       shift 2
       ;;
     --help|-h)
@@ -56,6 +70,36 @@ command -v docker >/dev/null 2>&1 || {
   echo "missing dependents.json" >&2
   exit 1
 }
+
+resolve_host_path() {
+  local value="$1"
+  if [[ "$value" = /* ]]; then
+    printf '%s\n' "$value"
+  else
+    printf '%s\n' "$ROOT/$value"
+  fi
+}
+
+cleanup_host_artifacts() {
+  if [[ -n "$ARTIFACT_TMP" && -d "$ARTIFACT_TMP" ]]; then
+    rm -rf "$ARTIFACT_TMP"
+  fi
+}
+
+trap cleanup_host_artifacts EXIT
+
+if [[ -n "$ARTIFACT_DIR" ]]; then
+  ARTIFACT_DIR="$(resolve_host_path "$ARTIFACT_DIR")"
+  mkdir -p "$ARTIFACT_DIR"
+else
+  ARTIFACT_TMP="$(mktemp -d)"
+  ARTIFACT_DIR="$ARTIFACT_TMP"
+fi
+
+if [[ -n "$JSON_OUT" ]]; then
+  JSON_OUT="$(resolve_host_path "$JSON_OUT")"
+  mkdir -p "$(dirname "$JSON_OUT")"
+fi
 
 docker build -t "$IMAGE_TAG" - <<'DOCKERFILE'
 FROM ubuntu:24.04
@@ -92,9 +136,12 @@ RUN sed 's/^Types: deb$/Types: deb-src/' /etc/apt/sources.list.d/ubuntu.sources 
 ENV PATH=/root/.cargo/bin:${PATH}
 DOCKERFILE
 
+set +e
 docker run --rm -i \
   -e "LIBSDL_TEST_ONLY=$ONLY" \
+  -e "LIBSDL_ARTIFACT_HOST_DIR=$ARTIFACT_DIR" \
   -v "$ROOT":/work:ro \
+  -v "$ARTIFACT_DIR":/artifacts \
   "$IMAGE_TAG" \
   bash -s <<'CONTAINER_SCRIPT'
 set -euo pipefail
@@ -104,6 +151,8 @@ export LC_ALL=C.UTF-8
 
 ROOT=/work
 ONLY_FILTER="${LIBSDL_TEST_ONLY:-}"
+ARTIFACT_DIR=/artifacts
+ARTIFACT_HOST_DIR="${LIBSDL_ARTIFACT_HOST_DIR:-/artifacts}"
 ROOT_HOME=/tmp/libsdl-root-home
 TEST_USER_HOME=/tmp/libsdl-test-home
 HOME="$ROOT_HOME"
@@ -117,12 +166,15 @@ SAFE_SDL_LIBDIR=""
 SAFE_SDL_PKGCONFIG_DIR=""
 XVFB_PID=""
 MATCHED_ONLY=0
+FAILED_CASES=0
 TEST_USER=libsdltest
 TEST_USER_RUNTIME_DIR="/tmp/${TEST_USER}-runtime"
+RESULTS_TSV="$ARTIFACT_DIR/results.tsv"
 
 export HOME RUSTUP_HOME CARGO_HOME PATH
 
-mkdir -p "$ROOT_HOME" "$TEST_USER_HOME"
+mkdir -p "$ROOT_HOME" "$TEST_USER_HOME" "$ARTIFACT_DIR"
+: >"$RESULTS_TSV"
 
 log_step() {
   printf '\n==> %s\n' "$1"
@@ -151,25 +203,132 @@ import json
 from pathlib import Path
 
 expected = [
-    "QEMU system GUI modules",
-    "FFmpeg",
-    "scrcpy",
-    "LOVE",
-    "pygame",
-    "ScummVM",
-    "SuperTuxKart",
-    "Tux Paint",
-    "OpenTTD",
-    "0 A.D.",
-    "Dear ImGui development package",
-    "libtcod development package",
+    {"slug": "qemu", "name": "QEMU system GUI modules"},
+    {"slug": "ffmpeg", "name": "FFmpeg"},
+    {"slug": "scrcpy", "name": "scrcpy"},
+    {"slug": "love", "name": "LOVE"},
+    {"slug": "pygame", "name": "pygame"},
+    {"slug": "scummvm", "name": "ScummVM"},
+    {"slug": "supertuxkart", "name": "SuperTuxKart"},
+    {"slug": "tuxpaint", "name": "Tux Paint"},
+    {"slug": "openttd", "name": "OpenTTD"},
+    {"slug": "0ad", "name": "0 A.D."},
+    {"slug": "imgui", "name": "Dear ImGui development package"},
+    {"slug": "libtcod", "name": "libtcod development package"},
 ]
 
 data = json.loads(Path("/work/dependents.json").read_text(encoding="utf-8"))
-actual = [entry["name"] for entry in data["dependents"]]
+actual = [{"slug": entry["slug"], "name": entry["name"]} for entry in data["dependents"]]
 if actual != expected:
     raise SystemExit(
         f"unexpected dependents.json contents: expected {expected}, found {actual}"
+    )
+PY
+}
+
+collect_case_artifacts() {
+  local slug="$1"
+  local case_dir="$2"
+  local path
+
+  mkdir -p "$case_dir"
+  for path in "/tmp/${slug}.log" "/tmp/${slug}-maps.log" "/tmp/${slug}-windows.log" /tmp/xvfb.log; do
+    if [[ -f "$path" ]]; then
+      cp "$path" "$case_dir/" || true
+    fi
+  done
+
+  if [[ "$slug" == "0ad" && -d "$TEST_USER_HOME/.config/0ad/logs" ]]; then
+    mkdir -p "$case_dir/0ad-logs"
+    cp -a "$TEST_USER_HOME/.config/0ad/logs/." "$case_dir/0ad-logs/" || true
+  fi
+}
+
+record_case_result() {
+  local slug="$1"
+  local manifest_name="$2"
+  local status="$3"
+  local duration="$4"
+  local case_dir="$5"
+  local note="$6"
+  local host_case_dir="${ARTIFACT_HOST_DIR}/${slug}"
+  local host_log_path="${host_case_dir}/console.log"
+  local host_json_path="${ARTIFACT_HOST_DIR}/${slug}.json"
+
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+    "$slug" \
+    "$manifest_name" \
+    "$status" \
+    "$duration" \
+    "$host_case_dir" \
+    "$host_log_path" \
+    "$host_json_path" \
+    "$note" \
+    >>"$RESULTS_TSV"
+}
+
+write_results_json() {
+  python3 <<'PY'
+import json
+import os
+from pathlib import Path
+
+dependents = json.loads(Path("/work/dependents.json").read_text(encoding="utf-8"))["dependents"]
+results_tsv = Path("/artifacts/results.tsv")
+entries = []
+if results_tsv.exists():
+    for line in results_tsv.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        slug, name, status, duration, artifact_dir, log_path, json_path, note = line.split("\t")
+        entry = {
+            "slug": slug,
+            "name": name,
+            "status": status,
+            "duration_seconds": float(duration),
+            "artifact_dir": artifact_dir,
+            "log_path": log_path,
+            "json_path": json_path,
+            "notes": [note] if note else [],
+        }
+        entries.append(entry)
+
+ordered = []
+entry_by_slug = {entry["slug"]: entry for entry in entries}
+for dependent in dependents:
+    entry = entry_by_slug.get(dependent["slug"])
+    if entry is not None:
+        ordered.append(entry)
+
+summary = {
+    "total": len(ordered),
+    "passed": sum(1 for entry in ordered if entry["status"] == "passed"),
+    "failed": sum(1 for entry in ordered if entry["status"] == "failed"),
+}
+payload = {
+    "schema_version": 1,
+    "phase_id": "impl_phase_10_packaging_dependents_final",
+    "only_filter": os.environ.get("LIBSDL_TEST_ONLY") or None,
+    "dependents": ordered,
+    "summary": summary,
+}
+results_json = Path("/artifacts/results.json")
+results_json.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+for entry in ordered:
+    per_slug = {
+        "schema_version": 1,
+        "phase_id": payload["phase_id"],
+        "only_filter": entry["slug"],
+        "dependents": [entry],
+        "summary": {
+            "total": 1,
+            "passed": 1 if entry["status"] == "passed" else 0,
+            "failed": 1 if entry["status"] == "failed" else 0,
+        },
+    }
+    Path("/artifacts", f"{entry['slug']}.json").write_text(
+        json.dumps(per_slug, indent=2) + "\n",
+        encoding="utf-8",
     )
 PY
 }
@@ -1311,10 +1470,27 @@ run_case() {
   local slug="$1"
   local manifest_name="$2"
   local function_name="$3"
+  local case_dir="$ARTIFACT_DIR/$slug"
+  local status duration note
+  local start_ts end_ts
 
   if should_run "$slug" "$manifest_name"; then
     log_step "$manifest_name"
-    "$function_name"
+    rm -rf "$case_dir"
+    mkdir -p "$case_dir"
+    start_ts="$(date +%s)"
+    note=""
+    if ( "$function_name" ) 2>&1 | tee "$case_dir/console.log"; then
+      status="passed"
+    else
+      status="failed"
+      note="see artifacts in ${ARTIFACT_HOST_DIR}/${slug}"
+      FAILED_CASES=$((FAILED_CASES + 1))
+    fi
+    end_ts="$(date +%s)"
+    duration=$((end_ts - start_ts))
+    collect_case_artifacts "$slug" "$case_dir"
+    record_case_result "$slug" "$manifest_name" "$status" "$duration" "$case_dir" "$note"
   fi
 }
 
@@ -1340,4 +1516,19 @@ run_case libtcod "libtcod development package" test_libtcod
 if [[ -n "$ONLY_FILTER" && "$MATCHED_ONLY" != "1" ]]; then
   die "unknown dependent selector: $ONLY_FILTER"
 fi
+
+write_results_json
+
+if (( FAILED_CASES > 0 )); then
+  printf 'error: %d dependent checks failed\n' "$FAILED_CASES" >&2
+  exit 1
+fi
 CONTAINER_SCRIPT
+docker_status=$?
+set -e
+
+if [[ -f "$ARTIFACT_DIR/results.json" && -n "$JSON_OUT" ]]; then
+  cp "$ARTIFACT_DIR/results.json" "$JSON_OUT"
+fi
+
+exit "$docker_status"

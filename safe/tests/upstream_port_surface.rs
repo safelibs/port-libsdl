@@ -8,10 +8,10 @@ use std::path::Path;
 use std::ptr;
 
 use safe_sdl::abi::generated_types::{
-    SDL_BlendMode_SDL_BLENDMODE_BLEND, SDL_Color, SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_INDEX8, SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB565,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGBA8888, SDL_Point, SDL_Rect, Uint32, SDL_RWOPS_MEMORY,
-    SDL_RWOPS_MEMORY_RO,
+    SDL_BlendMode_SDL_BLENDMODE_BLEND, SDL_Color, SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB2101010,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888, SDL_PixelFormatEnum_SDL_PIXELFORMAT_INDEX8,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB565, SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGBA8888,
+    SDL_Point, SDL_Rect, Uint32, SDL_RWOPS_MEMORY, SDL_RWOPS_MEMORY_RO,
 };
 use safe_sdl::core::error::SDL_ClearError;
 use safe_sdl::core::rwops::{
@@ -37,6 +37,17 @@ use safe_sdl::video::surface::{
     SDL_GetSurfaceColorMod, SDL_LockSurface, SDL_SetClipRect, SDL_SetColorKey,
     SDL_SetSurfaceAlphaMod, SDL_SetSurfaceBlendMode, SDL_SetSurfaceColorMod, SDL_UnlockSurface,
 };
+
+#[link(name = "SDL2_test")]
+unsafe extern "C" {
+    fn SDLTest_CompareSurfaces(
+        surface: *mut safe_sdl::abi::generated_types::SDL_Surface,
+        referenceSurface: *mut safe_sdl::abi::generated_types::SDL_Surface,
+        allowable_error: i32,
+    ) -> i32;
+    fn SDLTest_ImageBlit() -> *mut safe_sdl::abi::generated_types::SDL_Surface;
+    fn SDLTest_ImageFace() -> *mut safe_sdl::abi::generated_types::SDL_Surface;
+}
 
 unsafe fn create_argb8888_surface(
     width: i32,
@@ -107,6 +118,12 @@ fn pixels_alloc_name_masks_palette_and_rgba_roundtrip() {
         SDL_GetRGBA(pixel, format, &mut r, &mut g, &mut b, &mut a);
         assert_eq!((r, g, b, a), (0x11, 0x22, 0x33, 0x44));
 
+        let argb2101010 = SDL_AllocFormat(SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB2101010);
+        assert!(!argb2101010.is_null(), "{}", testutils::current_error());
+        let pixel_2101010 = SDL_MapRGBA(argb2101010, 0x12, 0x34, 0x56, 0xff);
+        SDL_GetRGBA(pixel_2101010, argb2101010, &mut r, &mut g, &mut b, &mut a);
+        assert_eq!((r, g, b, a), (0x12, 0x34, 0x56, 0xff));
+
         let mut bpp = 0;
         let mut rmask = 0;
         let mut gmask = 0;
@@ -155,6 +172,7 @@ fn pixels_alloc_name_masks_palette_and_rgba_roundtrip() {
 
         SDL_FreePalette(palette);
         SDL_FreeFormat(palette_format);
+        SDL_FreeFormat(argb2101010);
         SDL_FreeFormat(format);
     }
 }
@@ -470,6 +488,75 @@ fn surface_bmp_roundtrip_and_blit_paths_match_owned_surface_behavior() {
         SDL_FreeSurface(loaded);
         SDL_FreeSurface(dest);
         SDL_FreeSurface(source);
+    }
+}
+
+#[test]
+fn surface_blit_matches_upstream_face_reference_when_source_uses_default_blend_mode() {
+    let _serial = testutils::serial_lock();
+
+    unsafe {
+        let face = SDLTest_ImageFace();
+        let expected = SDLTest_ImageBlit();
+        assert!(!face.is_null(), "{}", testutils::current_error());
+        assert!(!expected.is_null(), "{}", testutils::current_error());
+
+        let dest = SDL_CreateRGBSurfaceWithFormat(
+            0,
+            (*expected).w,
+            (*expected).h,
+            (*(*expected).format).BitsPerPixel as i32,
+            (*(*expected).format).format,
+        );
+        assert!(!dest.is_null(), "{}", testutils::current_error());
+
+        let black = SDL_MapRGBA((*dest).format, 0, 0, 0, 255);
+        assert_eq!(SDL_FillRect(dest, ptr::null(), black), 0);
+        assert_eq!(SDL_SetSurfaceAlphaMod(face, 255), 0);
+        assert_eq!(SDL_SetSurfaceColorMod(face, 255, 255, 255), 0);
+        assert_eq!(SDL_SetColorKey(face, 0, 0), 0);
+
+        let ni = (*dest).w - (*face).w;
+        let nj = (*dest).h - (*face).h;
+        for y in (0..=nj).step_by(4) {
+            for x in (0..=ni).step_by(4) {
+                let mut rect = SDL_Rect {
+                    x,
+                    y,
+                    w: (*face).w,
+                    h: (*face).h,
+                };
+                assert_eq!(SDL_UpperBlit(face, ptr::null(), dest, &mut rect), 0);
+            }
+        }
+
+        assert_eq!(SDLTest_CompareSurfaces(dest, expected, 0), 0);
+
+        SDL_FreeSurface(dest);
+        SDL_FreeSurface(expected);
+        SDL_FreeSurface(face);
+    }
+}
+
+#[test]
+fn surface_convert_handles_argb2101010_to_index8_without_crashing() {
+    let _serial = testutils::serial_lock();
+
+    unsafe {
+        let face = SDLTest_ImageFace();
+        assert!(!face.is_null(), "{}", testutils::current_error());
+
+        let argb2101010 =
+            SDL_ConvertSurfaceFormat(face, SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB2101010, 0);
+        assert!(!argb2101010.is_null(), "{}", testutils::current_error());
+
+        let index8 =
+            SDL_ConvertSurfaceFormat(argb2101010, SDL_PixelFormatEnum_SDL_PIXELFORMAT_INDEX8, 0);
+        assert!(!index8.is_null(), "{}", testutils::current_error());
+
+        SDL_FreeSurface(index8);
+        SDL_FreeSurface(argb2101010);
+        SDL_FreeSurface(face);
     }
 }
 

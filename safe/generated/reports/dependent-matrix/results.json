@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_10_packaging_dependents_final",
+  "only_filter": null,
+  "dependents": [
+    {
+      "slug": "qemu",
+      "name": "QEMU system GUI modules",
+      "status": "passed",
+      "duration_seconds": 10.0,
+      "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/qemu",
+      "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/qemu/console.log",
+      "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/qemu.json",
+      "notes": []
+    },
+    {
+      "slug": "ffmpeg",
+      "name": "FFmpeg",
+      "status": "passed",
+      "duration_seconds": 1.0,
+      "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/ffmpeg",
+      "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/ffmpeg/console.log",
+      "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/ffmpeg.json",
+      "notes": []
+    },
+    {
+      "slug": "scrcpy",
+      "name": "scrcpy",
+      "status": "passed",
+      "duration_seconds": 2.0,
+      "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/scrcpy",
+      "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/scrcpy/console.log",
+      "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/scrcpy.json",
+      "notes": []
+    },
+    {
+      "slug": "love",
+      "name": "LOVE",
+      "status": "passed",
+      "duration_seconds": 0.0,
+      "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/love",
+      "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/love/console.log",
+      "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/love.json",
+      "notes": []
+    },
+    {
+      "slug": "pygame",
+      "name": "pygame",
+      "status": "passed",
+      "duration_seconds": 67.0,
+      "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/pygame",
+      "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/pygame/console.log",
+      "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/pygame.json",
+      "notes": []
+    },
+    {
+      "slug": "scummvm",
+      "name": "ScummVM",
+      "status": "passed",
+      "duration_seconds": 0.0,
+      "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/scummvm",
+      "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/scummvm/console.log",
+      "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/scummvm.json",
+      "notes": []
+    },
+    {
+      "slug": "supertuxkart",
+      "name": "SuperTuxKart",
+      "status": "passed",
+      "duration_seconds": 0.0,
+      "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/supertuxkart",
+      "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/supertuxkart/console.log",
+      "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/supertuxkart.json",
+      "notes": []
+    },
+    {
+      "slug": "tuxpaint",
+      "name": "Tux Paint",
+      "status": "passed",
+      "duration_seconds": 0.0,
+      "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/tuxpaint",
+      "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/tuxpaint/console.log",
+      "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/tuxpaint.json",
+      "notes": []
+    },
+    {
+      "slug": "openttd",
+      "name": "OpenTTD",
+      "status": "passed",
+      "duration_seconds": 0.0,
+      "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/openttd",
+      "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/openttd/console.log",
+      "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/openttd.json",
+      "notes": []
+    },
+    {
+      "slug": "0ad",
+      "name": "0 A.D.",
+      "status": "passed",
+      "duration_seconds": 1.0,
+      "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/0ad",
+      "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/0ad/console.log",
+      "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/0ad.json",
+      "notes": []
+    },
+    {
+      "slug": "imgui",
+      "name": "Dear ImGui development package",
+      "status": "passed",
+      "duration_seconds": 3.0,
+      "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/imgui",
+      "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/imgui/console.log",
+      "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/imgui.json",
+      "notes": []
+    },
+    {
+      "slug": "libtcod",
+      "name": "libtcod development package",
+      "status": "passed",
+      "duration_seconds": 0.0,
+      "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/libtcod",
+      "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/libtcod/console.log",
+      "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/libtcod.json",
+      "notes": []
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "passed": 12,
+    "failed": 0
+  }
+}

@@ -243,10 +243,15 @@ pub unsafe extern "C" fn SDL_SetRelativeMouseMode(enabled: SDL_bool) -> libc::c_
 #[no_mangle]
 pub unsafe extern "C" fn SDL_ShowCursor(toggle: libc::c_int) -> libc::c_int {
     let mut state = lock_mouse_state();
+    let previous = state.visible;
     if toggle != SDL_QUERY {
         state.visible = if toggle == 0 { 0 } else { 1 };
     }
-    state.visible
+    if toggle == SDL_QUERY {
+        state.visible
+    } else {
+        previous
+    }
 }
 
 #[no_mangle]

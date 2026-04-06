@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_10_packaging_dependents_final",
+  "only_filter": "imgui",
+  "dependents": [
+    {
+      "slug": "imgui",
+      "name": "Dear ImGui development package",
+      "status": "passed",
+      "duration_seconds": 3.0,
+      "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/imgui",
+      "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/imgui/console.log",
+      "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/imgui.json",
+      "notes": []
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0
+  }
+}

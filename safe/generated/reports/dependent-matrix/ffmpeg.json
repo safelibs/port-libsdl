@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_10_packaging_dependents_final",
+  "only_filter": "ffmpeg",
+  "dependents": [
+    {
+      "slug": "ffmpeg",
+      "name": "FFmpeg",
+      "status": "passed",
+      "duration_seconds": 1.0,
+      "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/ffmpeg",
+      "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/ffmpeg/console.log",
+      "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/ffmpeg.json",
+      "notes": []
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0
+  }
+}

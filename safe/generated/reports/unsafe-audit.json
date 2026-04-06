@@ -1,5 +1,19 @@
 {
   "phase_id": "impl_phase_10_packaging_dependents_final",
+  "allowlist_path": "safe/docs/unsafe-allowlist.md",
+  "summary": {
+    "generated_at_unix_seconds": 1775439883,
+    "rule_count": 19,
+    "total_unsafe_files": 94,
+    "undocumented_files": 0,
+    "category_counts": {
+      "ffi": 68,
+      "generated": 3,
+      "os": 2,
+      "performance": 1,
+      "tests": 20
+    }
+  },
   "rules": [
     {
       "pattern": "safe/sdl2main/src/lib.rs",

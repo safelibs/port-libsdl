@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "phase_id": "impl_phase_10_packaging_dependents_final",
+  "only_filter": "openttd",
+  "dependents": [
+    {
+      "slug": "openttd",
+      "name": "OpenTTD",
+      "status": "passed",
+      "duration_seconds": 0.0,
+      "artifact_dir": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/openttd",
+      "log_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/openttd/console.log",
+      "json_path": "/home/yans/code/safelibs/ported/libsdl/safe/generated/reports/dependent-matrix/openttd.json",
+      "notes": []
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0
+  }
+}

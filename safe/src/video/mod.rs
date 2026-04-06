@@ -1,5 +1,7 @@
-use std::ffi::CString;
-use std::os::unix::ffi::OsStrExt;
+use std::ffi::{CStr, CString, OsStr};
+use std::fs;
+use std::os::unix::ffi::{OsStrExt, OsStringExt};
+use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
 pub mod blit;
@@ -25,15 +27,12 @@ pub mod linux {
     pub mod x11;
 }
 
-const DEFAULT_REAL_SDL_CANDIDATES: [&[u8]; 8] = [
-    b"/tmp/libsdl-original-ref/lib/libSDL2-2.0.so.0\0",
-    b"/tmp/libsdl-phase10-original-prefix/lib/libSDL2-2.0.so.0\0",
-    b"/tmp/libsdl-original-prefix/lib/libSDL2-2.0.so.0\0",
-    b"/home/yans/code/safelibs/ported/libsdl/build-phase10-original-prefix/lib/libSDL2-2.0.so.0\0",
-    b"/home/yans/code/safelibs/ported/libsdl/build-phase9-original-prefix/lib/libSDL2-2.0.so.0\0",
+const DEFAULT_REAL_SDL_CANDIDATES: [&[u8]; 5] = [
+    b"/usr/lib/x86_64-linux-gnu/safelibs/libSDL2-2.0.so.0.0.0\0",
+    b"/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.0.0\0",
     b"/lib/x86_64-linux-gnu/libSDL2-2.0.so.0\0",
+    b"/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.0.0\0",
     b"/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0\0",
-    b"libSDL2-2.0.so.0\0",
 ];
 
 pub(crate) fn real_sdl_dlopen_candidates() -> Vec<CString> {
@@ -54,14 +53,21 @@ pub(crate) fn real_sdl_dlopen_candidates() -> Vec<CString> {
 }
 
 fn open_real_sdl() -> *mut libc::c_void {
+    open_real_sdl_with_flags(real_sdl_dlopen_flags())
+}
+
+pub(crate) fn open_real_sdl_with_flags(flags: libc::c_int) -> *mut libc::c_void {
     for candidate in real_sdl_dlopen_candidates() {
-        let handle = unsafe { libc::dlopen(candidate.as_ptr(), real_sdl_dlopen_flags()) };
+        if should_skip_real_sdl_candidate(candidate.as_c_str()) {
+            continue;
+        }
+        let handle = unsafe { libc::dlopen(candidate.as_ptr(), flags) };
         if !handle.is_null() {
             return handle;
         }
     }
 
-    panic!("unable to load the host SDL2 runtime");
+    panic!("unable to load the SDL2 compatibility runtime");
 }
 
 #[cfg(target_os = "linux")]
@@ -92,6 +98,37 @@ pub(crate) fn real_sdl_is_loaded() -> bool {
 fn real_sdl_handle_slot() -> &'static OnceLock<usize> {
     static HANDLE: OnceLock<usize> = OnceLock::new();
     &HANDLE
+}
+
+fn should_skip_real_sdl_candidate(candidate: &CStr) -> bool {
+    let bytes = candidate.to_bytes();
+    if !bytes.starts_with(b"/") {
+        return false;
+    }
+    let self_path = current_library_path().and_then(|path| fs::canonicalize(path).ok());
+    let candidate_path = fs::canonicalize(Path::new(OsStr::from_bytes(bytes))).ok();
+    matches!((self_path, candidate_path), (Some(self_path), Some(candidate_path)) if self_path == candidate_path)
+}
+
+fn current_library_path() -> Option<PathBuf> {
+    let mut info = std::mem::MaybeUninit::<libc::Dl_info>::uninit();
+    let rc = unsafe {
+        libc::dladdr(
+            current_library_path as *const () as *const libc::c_void,
+            info.as_mut_ptr(),
+        )
+    };
+    if rc == 0 {
+        return None;
+    }
+    let info = unsafe { info.assume_init() };
+    if info.dli_fname.is_null() {
+        return None;
+    }
+    let bytes = unsafe { CStr::from_ptr(info.dli_fname) }
+        .to_bytes()
+        .to_vec();
+    Some(PathBuf::from(std::ffi::OsString::from_vec(bytes)))
 }
 
 pub(crate) fn load_symbol<T>(name: &[u8]) -> T {

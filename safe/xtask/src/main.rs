@@ -1,4 +1,5 @@
 mod contracts;
+mod dependents;
 mod final_phase;
 mod original_tests;
 mod perf;
@@ -16,6 +17,7 @@ use contracts::{
     verify_test_port_map, AbiCheckArgs as ContractsAbiCheckArgs, ContractArgs, PHASE_08_ID,
     UBUNTU_MULTIARCH,
 };
+use dependents::{verify_dependent_regressions, VerifyDependentRegressionsArgs};
 use final_phase::{
     final_check, verify_install_contract, verify_unsafe_allowlist, FinalCheckArgs,
     VerifyInstallContractArgs,
@@ -310,21 +312,23 @@ fn main() -> Result<()> {
                 original_dir: parsed.original,
                 dependents_path: parsed.dependents,
                 cves_path: parsed.cves,
-                stage_root: parsed.stage_root,
-                cmake_build_dir: parsed.cmake_build_dir,
-                autotools_build_dir: parsed.autotools_build_dir,
                 relink_objects_dir: parsed.relink_objects_dir,
                 relink_bin_dir: parsed.relink_bin_dir,
-                original_reference_build_dir: parsed.original_reference_build_dir,
-                original_prefix_dir: parsed.original_prefix_dir,
-                perf_runner_dir: parsed.perf_runner_dir,
-                perf_manifest: parsed.perf_manifest,
-                perf_thresholds: parsed.perf_thresholds,
-                perf_report: parsed.perf_report,
-                perf_waivers: parsed.perf_waivers,
                 unsafe_allowlist: parsed.unsafe_allowlist,
                 phase_report: parsed.phase_report,
                 unsafe_report: parsed.unsafe_report,
+                dependent_regression_manifest: parsed.dependent_regression_manifest,
+                dependent_matrix_results: parsed.dependent_matrix_results,
+                dependent_matrix_artifact_dir: parsed.dependent_matrix_artifact_dir,
+            })
+        }
+        "verify-dependent-regressions" => {
+            let parsed = VerifyDependentRegressionsCliArgs::parse(&remaining)?;
+            verify_dependent_regressions(VerifyDependentRegressionsArgs {
+                repo_root,
+                dependents_path: parsed.dependents,
+                manifest_path: parsed.manifest,
+                results_path: parsed.results,
             })
         }
         "security-regressions" => security_regressions(&repo_root),
@@ -338,7 +342,7 @@ fn main() -> Result<()> {
 
 fn usage<T>() -> Result<T> {
     bail!(
-        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|build-original-cmake-suite|run-original-ctest|build-original-autotools-suite|run-original-autotools-check|build-original-reference|perf-capture|perf-assert|verify-bootstrap-stage|verify-install-contract|verify-driver-contract|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone|run-evdev-fixture-tests|run-fixture-backed-original-tests|run-gesture-replay|run-xvfb|run-xvfb-window-smoke|security-regressions|final-check|unsafe-audit|verify-unsafe-allowlist> ..."
+        "usage: xtask <capture-contracts|verify-captured-contracts|abi-check|verify-test-port-map|verify-test-port-coverage|stage-install|build-original-cmake-suite|run-original-ctest|build-original-autotools-suite|run-original-autotools-check|build-original-reference|perf-capture|perf-assert|verify-bootstrap-stage|verify-install-contract|verify-driver-contract|compile-original-test-objects|relink-original-test-objects|build-original-standalone|run-relinked-original-tests|run-original-standalone|run-evdev-fixture-tests|run-fixture-backed-original-tests|run-gesture-replay|run-xvfb|run-xvfb-window-smoke|verify-dependent-regressions|security-regressions|final-check|unsafe-audit|verify-unsafe-allowlist> ..."
     )
 }
 
@@ -638,21 +642,14 @@ struct FinalCheckCliArgs {
     original: PathBuf,
     dependents: PathBuf,
     cves: PathBuf,
-    stage_root: PathBuf,
-    cmake_build_dir: PathBuf,
-    autotools_build_dir: PathBuf,
     relink_objects_dir: PathBuf,
     relink_bin_dir: PathBuf,
-    original_reference_build_dir: PathBuf,
-    original_prefix_dir: PathBuf,
-    perf_runner_dir: PathBuf,
-    perf_manifest: PathBuf,
-    perf_thresholds: PathBuf,
-    perf_report: PathBuf,
-    perf_waivers: PathBuf,
     unsafe_allowlist: PathBuf,
     phase_report: PathBuf,
     unsafe_report: PathBuf,
+    dependent_regression_manifest: PathBuf,
+    dependent_matrix_results: PathBuf,
+    dependent_matrix_artifact_dir: PathBuf,
 }
 
 impl FinalCheckCliArgs {
@@ -661,21 +658,17 @@ impl FinalCheckCliArgs {
         let mut original = PathBuf::from("original");
         let mut dependents = PathBuf::from("dependents.json");
         let mut cves = PathBuf::from("relevant_cves.json");
-        let mut stage_root = PathBuf::from("build-phase10-safe-stage");
-        let mut cmake_build_dir = PathBuf::from("build-phase10-upstream-cmake");
-        let mut autotools_build_dir = PathBuf::from("build-phase10-upstream-autotools");
         let mut relink_objects_dir = PathBuf::from("build-phase10-relinked-objects");
         let mut relink_bin_dir = PathBuf::from("build-phase10-relinked-bins");
-        let mut original_reference_build_dir = PathBuf::from("build-phase10-original-reference");
-        let mut original_prefix_dir = PathBuf::from("build-phase10-original-prefix");
-        let mut perf_runner_dir = PathBuf::from("build-phase10-perf");
-        let mut perf_manifest = PathBuf::from(DEFAULT_PERF_MANIFEST);
-        let mut perf_thresholds = PathBuf::from(DEFAULT_PERF_THRESHOLDS);
-        let mut perf_report = PathBuf::from(DEFAULT_PERF_REPORT);
-        let mut perf_waivers = PathBuf::from(DEFAULT_PERF_WAIVERS);
         let mut unsafe_allowlist = PathBuf::from("safe/docs/unsafe-allowlist.md");
         let mut phase_report = PathBuf::from("safe/generated/reports/phase10-final-check.json");
         let mut unsafe_report = PathBuf::from("safe/generated/reports/unsafe-audit.json");
+        let mut dependent_regression_manifest =
+            PathBuf::from("safe/generated/dependent_regression_manifest.json");
+        let mut dependent_matrix_results =
+            PathBuf::from("safe/generated/reports/dependent-matrix-results.json");
+        let mut dependent_matrix_artifact_dir =
+            PathBuf::from("safe/generated/reports/dependent-matrix");
         let mut iter = args.iter();
         while let Some(arg) = iter.next() {
             match arg.as_str() {
@@ -687,45 +680,12 @@ impl FinalCheckCliArgs {
                     dependents = PathBuf::from(require_value(&mut iter, "--dependents")?)
                 }
                 "--cves" => cves = PathBuf::from(require_value(&mut iter, "--cves")?),
-                "--stage-root" => {
-                    stage_root = PathBuf::from(require_value(&mut iter, "--stage-root")?)
-                }
-                "--cmake-build-dir" => {
-                    cmake_build_dir = PathBuf::from(require_value(&mut iter, "--cmake-build-dir")?)
-                }
-                "--autotools-build-dir" => {
-                    autotools_build_dir =
-                        PathBuf::from(require_value(&mut iter, "--autotools-build-dir")?)
-                }
                 "--relink-objects-dir" => {
                     relink_objects_dir =
                         PathBuf::from(require_value(&mut iter, "--relink-objects-dir")?)
                 }
                 "--relink-bin-dir" => {
                     relink_bin_dir = PathBuf::from(require_value(&mut iter, "--relink-bin-dir")?)
-                }
-                "--original-reference-build-dir" => {
-                    original_reference_build_dir =
-                        PathBuf::from(require_value(&mut iter, "--original-reference-build-dir")?)
-                }
-                "--original-prefix-dir" => {
-                    original_prefix_dir =
-                        PathBuf::from(require_value(&mut iter, "--original-prefix-dir")?)
-                }
-                "--perf-runner-dir" => {
-                    perf_runner_dir = PathBuf::from(require_value(&mut iter, "--perf-runner-dir")?)
-                }
-                "--perf-manifest" => {
-                    perf_manifest = PathBuf::from(require_value(&mut iter, "--perf-manifest")?)
-                }
-                "--perf-thresholds" => {
-                    perf_thresholds = PathBuf::from(require_value(&mut iter, "--perf-thresholds")?)
-                }
-                "--perf-report" => {
-                    perf_report = PathBuf::from(require_value(&mut iter, "--perf-report")?)
-                }
-                "--perf-waivers" => {
-                    perf_waivers = PathBuf::from(require_value(&mut iter, "--perf-waivers")?)
                 }
                 "--unsafe-allowlist" => {
                     unsafe_allowlist =
@@ -737,6 +697,18 @@ impl FinalCheckCliArgs {
                 "--unsafe-report" => {
                     unsafe_report = PathBuf::from(require_value(&mut iter, "--unsafe-report")?)
                 }
+                "--dependent-regression-manifest" => {
+                    dependent_regression_manifest =
+                        PathBuf::from(require_value(&mut iter, "--dependent-regression-manifest")?)
+                }
+                "--dependent-matrix-results" => {
+                    dependent_matrix_results =
+                        PathBuf::from(require_value(&mut iter, "--dependent-matrix-results")?)
+                }
+                "--dependent-matrix-artifact-dir" => {
+                    dependent_matrix_artifact_dir =
+                        PathBuf::from(require_value(&mut iter, "--dependent-matrix-artifact-dir")?)
+                }
                 other => bail!("unknown argument {other}"),
             }
         }
@@ -745,21 +717,45 @@ impl FinalCheckCliArgs {
             original,
             dependents,
             cves,
-            stage_root,
-            cmake_build_dir,
-            autotools_build_dir,
             relink_objects_dir,
             relink_bin_dir,
-            original_reference_build_dir,
-            original_prefix_dir,
-            perf_runner_dir,
-            perf_manifest,
-            perf_thresholds,
-            perf_report,
-            perf_waivers,
             unsafe_allowlist,
             phase_report,
             unsafe_report,
+            dependent_regression_manifest,
+            dependent_matrix_results,
+            dependent_matrix_artifact_dir,
+        })
+    }
+}
+
+#[derive(Debug)]
+struct VerifyDependentRegressionsCliArgs {
+    dependents: PathBuf,
+    manifest: PathBuf,
+    results: PathBuf,
+}
+
+impl VerifyDependentRegressionsCliArgs {
+    fn parse(args: &[String]) -> Result<Self> {
+        let mut dependents = PathBuf::from("dependents.json");
+        let mut manifest = PathBuf::from("safe/generated/dependent_regression_manifest.json");
+        let mut results = PathBuf::from("safe/generated/reports/dependent-matrix-results.json");
+        let mut iter = args.iter();
+        while let Some(arg) = iter.next() {
+            match arg.as_str() {
+                "--dependents" => {
+                    dependents = PathBuf::from(require_value(&mut iter, "--dependents")?)
+                }
+                "--manifest" => manifest = PathBuf::from(require_value(&mut iter, "--manifest")?),
+                "--results" => results = PathBuf::from(require_value(&mut iter, "--results")?),
+                other => bail!("unknown argument {other}"),
+            }
+        }
+        Ok(Self {
+            dependents,
+            manifest,
+            results,
         })
     }
 }

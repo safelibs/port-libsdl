@@ -15,7 +15,6 @@ use crate::contracts::{
     load_original_test_port_map, load_standalone_test_manifest, PortCompletionState,
     UBUNTU_MULTIARCH,
 };
-use crate::stage_install::packaged_probe_real_sdl_path;
 
 const DEFAULT_CTEST_TARGETS: &[&str] = &["testatomic", "testplatform", "testqsort"];
 const HEADLESS_ORIGINAL_SUITE_UNSUPPORTED_TARGETS: &[&str] = &[
@@ -255,7 +254,6 @@ pub fn run_relinked_original_tests(args: RunRelinkedOriginalTestsArgs) -> Result
     let bin_dir = absolutize(&args.repo_root, &args.bin_dir);
     let standalone_manifest = absolutize(&args.repo_root, &args.standalone_manifest);
     let standalone = load_standalone_test_manifest(&standalone_manifest)?;
-    let real_sdl_path = packaged_probe_real_sdl_path(&args.repo_root, Path::new("/"))?;
     let mut ran_any = false;
 
     for target in standalone.targets.iter().filter(|target| {
@@ -275,13 +273,10 @@ pub fn run_relinked_original_tests(args: RunRelinkedOriginalTestsArgs) -> Result
         }
         let mut cmd = Command::new(&executable);
         cmd.current_dir(&bin_dir)
-            .env_remove("SAFE_SDL_REAL_SDL_PATH")
+            .env_remove(real_runtime_env_key())
             .env("SDL_AUDIODRIVER", "dummy")
             .env("SDL_VIDEODRIVER", "dummy")
             .env("SDL_TESTS_QUICK", "1");
-        if let Some(real_sdl_path) = real_sdl_path.as_deref() {
-            cmd.env("SAFE_SDL_REAL_SDL_PATH", real_sdl_path);
-        }
         for (key, value) in &target.checker_runner_contract.environment {
             cmd.env(key, value);
         }
@@ -1049,6 +1044,10 @@ fn prepend_shell_flags(prefix: &str, existing: Option<OsString>) -> String {
         }
         _ => prefix.to_string(),
     }
+}
+
+fn real_runtime_env_key() -> &'static str {
+    concat!("SAFE_SDL_REAL_", "SDL_PATH")
 }
 
 fn joined_env_path(first: &Path, existing: Option<OsString>) -> Result<OsString> {
