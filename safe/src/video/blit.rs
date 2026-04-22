@@ -1326,6 +1326,9 @@ pub unsafe extern "C" fn SDL_UpperBlitScaled(
         clear_real_error();
         let result = (real_sdl().upper_blit_scaled)(src, srcrect, dst, dstrect);
         if result < 0 {
+            if scale_surface_pixels_nearest(src, &src_region, dst, &dst_region).is_ok() {
+                return 0;
+            }
             let _ = sync_error_from_real("Couldn't scale-blit surface");
         }
         return result;
@@ -1358,6 +1361,9 @@ pub unsafe extern "C" fn SDL_LowerBlitScaled(
         clear_real_error();
         let result = (real_sdl().lower_blit_scaled)(src, srcrect, dst, dstrect);
         if result < 0 {
+            if scale_surface_pixels_nearest(src, &*srcrect, dst, &*dstrect).is_ok() {
+                return 0;
+            }
             let _ = sync_error_from_real("Couldn't scale-blit surface");
         }
         return result;

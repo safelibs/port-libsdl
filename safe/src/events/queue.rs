@@ -390,11 +390,39 @@ pub unsafe extern "C" fn SDL_PushEvent(event: *mut SDL_Event) -> libc::c_int {
     if event.is_null() {
         return crate::core::error::invalid_param_error("event");
     }
+    let mut event = *event;
+    let (filter, watchers) = {
+        let state = lock_event_state();
+        if ensure_active(&state).is_err() {
+            return -1;
+        }
+        if !event_enabled(&state, event.type_) {
+            return 0;
+        }
+        (state.filter, state.watchers.clone())
+    };
+
+    if let Some(filter) = filter {
+        if !call_filter(filter, &mut event) {
+            return 0;
+        }
+    }
+    for watcher in watchers {
+        if let Some(callback) = watcher.callback {
+            callback(watcher.userdata as *mut libc::c_void, &mut event);
+        }
+    }
+
     let mut state = lock_event_state();
     if ensure_active(&state).is_err() {
         return -1;
     }
-    push_copied_event(&mut state, *event, true)
+    if !event_enabled(&state, event.type_) {
+        return 0;
+    }
+    state.queue.push_back(event);
+    runtime().condvar.notify_all();
+    1
 }
 
 #[no_mangle]
