@@ -1,57 +1,51 @@
-# Phase 3 Event and Timer Validator Report
+# Phase 4 Surface and Render Validator Report
 
-Phase ID: `impl_phase_03_event_timer_fixes`
+Phase ID: `impl_phase_04_surface_render_fixes`
 
 Date: 2026-04-28
 
 ## Outcome
 
-- Baseline and phase-02 evidence had event/timer validator failures in pygame usage cases: custom event, event clear, event peek, event queue, key event, mouse event, and timer event all timed out. `headless-event-timer` already passed.
-- Root cause: `SDL_PushEvent` invoked the global event filter and event watchers while holding the event queue mutex. Pygame event callbacks can re-enter SDL event APIs, which blocked on the same mutex and produced the validator timeouts.
-- Fix: `safe/src/events/queue.rs` now snapshots filters/watchers, invokes callbacks outside the queue mutex, then re-locks only to enqueue and notify waiters. `SDL_FilterEvents` also runs caller callbacks outside the queue mutex while preserving queued event order around concurrent pushes.
-- Added `safe/tests/validator_events_timers.rs` with targeted coverage for validator event/timer behavior under `SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS` and `SDL_VIDEODRIVER=dummy`.
-- Event/timer regression tests pass with `--test-threads=1`.
-- Existing core and upstream core tests pass with `--test-threads=1`.
-- Local safe package build: passed.
-- Local override package verification: passed for exactly `libsdl2-2.0-0`, `libsdl2-dev`, and `libsdl2-tests`.
-- Full phase-03 validator run completed with validator exit code `1`: `85` cases, `82` passed, `3` failed, `5` source cases passed, `80` usage cases, `85` casts.
-- Event/timer outcome: no event/timer validator failures remain in phase-03 evidence.
+- Prior phase evidence left three in-scope surface/transform failures: `usage-python3-pygame-alpha-blit`, `usage-python3-pygame-transform-scale`, and `usage-python3-pygame-transform-scale2x`.
+- Root cause for the alpha-blit crash: safe-owned `SDL_Surface` values left the ABI-visible `surface->map` pointer null. Pygame can inspect SDL's blit-map state directly, especially for alpha/blend flags, so safe-created surfaces needed a compatible local blit-map shell.
+- Root cause for the transform scale failures: local `SDL_AllocFormat` reported packed 4-byte `RGB888`/`BGR888` formats as 24-bit formats. Pygame derives destination surfaces from masks and bit depth; the wrong bit depth remapped `RGB888` to `BGR24`, triggering `ValueError: Source and destination surfaces need the same format.`
+- Additional local regression fixed while running existing surface tests: RGB-to-RGB `SDL_ConvertPixels` attempted to load host SDL YUV and pixel map/get symbols even when no YUV conversion was involved. The safe implementation now uses local pixel APIs for local RGB conversion.
+- Added `safe/tests/validator_surface_render.rs` with direct SDL-level reproducers for alpha blit state and mask-derived scaled blit format compatibility.
+- Updated `safe/src/video/surface.rs`, `safe/src/video/pixels.rs`, and `safe/src/video/blit.rs`; no render module changes were needed.
+- `safe/docs/unsafe-allowlist.md` did not need an update because the changed files remain covered by existing `safe/src/video/*.rs` and `safe/tests/*.rs` entries.
+- Full phase-04 validator run completed cleanly with validator exit code `0`: `85` cases, `85` passed, `0` failed, `5` source cases passed, `80` usage cases, `85` casts.
 - Override install verification: all `85` testcase JSON files have `override_debs_installed: true`.
-- True validator bug: none identified for event/timer behavior in this phase.
-
-The full validator run is not globally clean because three non-event pygame surface/transform failures remain: `usage-python3-pygame-alpha-blit`, `usage-python3-pygame-transform-scale`, and `usage-python3-pygame-transform-scale2x`. Those failures are outside the event/timer file-change scope for this phase.
-The unrelated preexisting `original/src/joystick/__pycache__/` remains untouched and untracked.
+- Surface/render outcome: no surface/render validator failures remain in `validator/artifacts/.workspace/libsdl-safe-phase04/results/libsdl/`.
+- True validator bug: none identified for surface/render behavior in this phase.
+- The unrelated preexisting `original/src/joystick/__pycache__/` remains untouched and untracked.
 
 ## Commands Run
-
-```bash
-timeout 20s cargo test --manifest-path safe/Cargo.toml --test validator_events_timers event_filter_and_watch_callbacks_can_query_queue_without_deadlock -- --test-threads=1
-```
-
-Before the queue fix, this bounded Rust reproduction timed out with exit code `124`.
 
 ```bash
 cargo fmt --manifest-path safe/Cargo.toml
 ```
 
 ```bash
-cargo test --manifest-path safe/Cargo.toml --test validator_events_timers -- --test-threads=1
+cargo test --manifest-path safe/Cargo.toml --test validator_surface_render -- --test-threads=1
 ```
 
 ```bash
-cargo test --manifest-path safe/Cargo.toml --test original_apps_core -- --test-threads=1
+cargo test --manifest-path safe/Cargo.toml --test upstream_port_surface -- --test-threads=1
 ```
 
 ```bash
-cargo test --manifest-path safe/Cargo.toml --test upstream_port_core -- --test-threads=1
+cargo test --manifest-path safe/Cargo.toml --test security_surface_math -- --test-threads=1
 ```
 
 ```bash
-cargo test --manifest-path safe/Cargo.toml --features host-video-tests --test upstream_port_video_events -- --test-threads=1
+cargo test --manifest-path safe/Cargo.toml --test upstream_port_render -- --test-threads=1
 ```
 
 ```bash
-rm -f libsdl2*.deb libsdl2*.ddeb libsdl2*.buildinfo libsdl2*.changes
+cargo run --manifest-path safe/Cargo.toml -p xtask -- security-regressions
+```
+
+```bash
 cd safe
 dpkg-buildpackage -us -uc -b
 cd ..
@@ -60,7 +54,7 @@ cd ..
 ```bash
 rm -rf validator/artifacts/debs/local/libsdl
 mkdir -p validator/artifacts/debs/local/libsdl
-cp -v libsdl2*.deb validator/artifacts/debs/local/libsdl/
+cp -v libsdl2-2.0-0_*.deb libsdl2-dev_*.deb libsdl2-tests_*.deb validator/artifacts/debs/local/libsdl/
 python3 - <<'PY'
 from pathlib import Path
 import subprocess
@@ -75,18 +69,44 @@ PY
 
 ```bash
 cd validator
-. .work/venv/bin/activate
-rm -rf artifacts/.workspace/libsdl-safe-phase03
+rm -rf artifacts/.workspace/libsdl-safe-phase04
 validator_status=0
 bash test.sh \
   --config repositories.yml \
   --tests-root tests \
-  --artifact-root artifacts/.workspace/libsdl-safe-phase03 \
+  --artifact-root artifacts/.workspace/libsdl-safe-phase04 \
   --mode original \
   --override-deb-root artifacts/debs/local \
   --library libsdl \
   --record-casts || validator_status=$?
-cd ..
+echo "validator_status=${validator_status}"
+exit ${validator_status}
+```
+
+```bash
+python3 - <<'PY'
+from pathlib import Path
+import json
+root = Path("validator/artifacts/.workspace/libsdl-safe-phase04/results/libsdl")
+summary = json.loads((root / "summary.json").read_text())
+results = []
+missing_override = []
+not_passed = []
+for path in sorted(root.glob("*.json")):
+    if path.name == "summary.json":
+        continue
+    data = json.loads(path.read_text())
+    results.append(data)
+    if data.get("override_debs_installed") is not True:
+        missing_override.append(data.get("testcase_id"))
+    if data.get("status") != "passed":
+        not_passed.append((data.get("testcase_id"), data.get("status"), data.get("exit_code")))
+assert summary["cases"] == 85, summary
+assert summary["passed"] == 85 and summary["failed"] == 0, summary
+assert len(results) == 85, len(results)
+assert not missing_override, missing_override
+assert not not_passed, not_passed
+PY
 ```
 
 ## Local Override Debs
@@ -95,44 +115,29 @@ Artifact directory: `validator/artifacts/debs/local/libsdl/`
 
 | File | Package | Version | Architecture | SHA256 |
 | --- | --- | --- | --- | --- |
-| `libsdl2-2.0-0_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb` | `libsdl2-2.0-0` | `2.30.0+dfsg-1ubuntu3.1+safelibs1` | `amd64` | `2a8d0e4dbb4fe96d7720aa295b412c2b2a5697a0abc1d60fac784df4eeb2243f` |
-| `libsdl2-dev_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb` | `libsdl2-dev` | `2.30.0+dfsg-1ubuntu3.1+safelibs1` | `amd64` | `9a986f8fb1c8993dae4c469ec0e777de62b394c3024106356844486820555ce5` |
+| `libsdl2-2.0-0_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb` | `libsdl2-2.0-0` | `2.30.0+dfsg-1ubuntu3.1+safelibs1` | `amd64` | `33f129b8c8f85c66d8b11f967f1c9193893949b0f0d9b4520ade5e7ac707c96f` |
+| `libsdl2-dev_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb` | `libsdl2-dev` | `2.30.0+dfsg-1ubuntu3.1+safelibs1` | `amd64` | `c54a8c35e47c97bbd02a93efbb90e46040b43b3ac054181e40718579b1c2361b` |
 | `libsdl2-tests_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb` | `libsdl2-tests` | `2.30.0+dfsg-1ubuntu3.1+safelibs1` | `amd64` | `6d9e7172e5c48d7a0f831aacf64b37dc61ef06eb78e13554c9cab5c520e5af66` |
 
-## Event and Timer Results
+## Surface and Render Results
 
-All event/timer cases passed in `validator/artifacts/.workspace/libsdl-safe-phase03/results/libsdl/`.
+All previously failing surface/transform cases passed in `validator/artifacts/.workspace/libsdl-safe-phase04/results/libsdl/`.
 
 | Case ID | Status | Exit Code | Override Debs Installed |
 | --- | --- | --- | --- |
-| `headless-event-timer` | `passed` | `0` | `true` |
-| `usage-python3-pygame-custom-event` | `passed` | `0` | `true` |
-| `usage-python3-pygame-event-clear` | `passed` | `0` | `true` |
-| `usage-python3-pygame-event-name-keydown` | `passed` | `0` | `true` |
-| `usage-python3-pygame-event-peek` | `passed` | `0` | `true` |
-| `usage-python3-pygame-event-queue` | `passed` | `0` | `true` |
-| `usage-python3-pygame-event-set-blocked` | `passed` | `0` | `true` |
-| `usage-python3-pygame-key-event` | `passed` | `0` | `true` |
-| `usage-python3-pygame-mouse-event` | `passed` | `0` | `true` |
-| `usage-python3-pygame-time-delay` | `passed` | `0` | `true` |
-| `usage-python3-pygame-time-wait` | `passed` | `0` | `true` |
-| `usage-python3-pygame-timer-event` | `passed` | `0` | `true` |
+| `usage-python3-pygame-alpha-blit` | `passed` | `0` | `true` |
+| `usage-python3-pygame-transform-scale` | `passed` | `0` | `true` |
+| `usage-python3-pygame-transform-scale2x` | `passed` | `0` | `true` |
 
-## Remaining Non-Event Failures
-
-| Case ID | Symptom |
-| --- | --- |
-| `usage-python3-pygame-alpha-blit` | Exit `139`; the pygame alpha-blit script still segfaults. |
-| `usage-python3-pygame-transform-scale` | Exit `1`; traceback reports `ValueError: Source and destination surfaces need the same format.` |
-| `usage-python3-pygame-transform-scale2x` | Exit `1`; traceback reports `ValueError: Source and destination surfaces need the same format.` |
+No other surface, pixel, blit, image, mask, display, window, render, texture, draw, copy, or present validator case failed in the phase-04 run.
 
 ## Raw Artifacts
 
-- Results: `validator/artifacts/.workspace/libsdl-safe-phase03/results/libsdl/`
-- Logs: `validator/artifacts/.workspace/libsdl-safe-phase03/logs/libsdl/`
-- Casts: `validator/artifacts/.workspace/libsdl-safe-phase03/casts/libsdl/`
-- Summary JSON: `validator/artifacts/.workspace/libsdl-safe-phase03/results/libsdl/summary.json`
+- Results: `validator/artifacts/.workspace/libsdl-safe-phase04/results/libsdl/`
+- Logs: `validator/artifacts/.workspace/libsdl-safe-phase04/logs/libsdl/`
+- Casts: `validator/artifacts/.workspace/libsdl-safe-phase04/casts/libsdl/`
+- Summary JSON: `validator/artifacts/.workspace/libsdl-safe-phase04/results/libsdl/summary.json`
 
 ## Preexisting Input Handling
 
-The prepared source snapshots, generated contracts/manifests, CVE data, dependent inventories, performance evidence, dependent regression reports, unsafe audit report, existing integration tests, and upstream test tree were consumed in place. I did not refetch, recollect, rediscover, or regenerate those checked-in artifacts.
+The prepared source snapshots, generated contracts/manifests, CVE data, dependent inventories, performance evidence, dependent regression reports, unsafe audit report, existing integration tests, prior validator artifacts, and upstream test tree were consumed in place. I did not refetch, recollect, rediscover, or regenerate those checked-in artifacts.

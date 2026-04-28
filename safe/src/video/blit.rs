@@ -313,7 +313,7 @@ unsafe fn fill_rgba_from_rgb(
             let src_pixel = src_row.add(x * bytes_per_pixel as usize);
             let pixel = raw_pixel(src_pixel, bytes_per_pixel);
             let (mut r, mut g, mut b, mut a) = (0, 0, 0, 0);
-            (real_sdl().get_rgba)(pixel, format.raw, &mut r, &mut g, &mut b, &mut a);
+            crate::video::pixels::SDL_GetRGBA(pixel, format.raw, &mut r, &mut g, &mut b, &mut a);
             rgba[y * width + x] = [r, g, b, a];
         }
     }
@@ -337,7 +337,9 @@ unsafe fn write_rgba_to_rgb(
         let dst_row = dst.add(y * dst_pitch);
         for x in 0..width {
             let pixel = rgba[y * width + x];
-            let mapped = (real_sdl().map_rgba)(format.raw, pixel[0], pixel[1], pixel[2], pixel[3]);
+            let mapped = crate::video::pixels::SDL_MapRGBA(
+                format.raw, pixel[0], pixel[1], pixel[2], pixel[3],
+            );
             let dst_pixel = dst_row.add(x * bytes_per_pixel as usize);
             write_raw_pixel(dst_pixel, bytes_per_pixel, mapped);
         }
@@ -1016,7 +1018,11 @@ pub unsafe extern "C" fn SDL_ConvertPixels(
         Ok(pixels) => pixels,
         Err(code) => return code,
     };
-    let mode = effective_yuv_mode(width, height);
+    let yuv_mode = if src_is_yuv || dst_is_yuv {
+        Some(effective_yuv_mode(width, height))
+    } else {
+        None
+    };
 
     if src_is_yuv {
         fill_rgba_from_yuv(
@@ -1025,7 +1031,7 @@ pub unsafe extern "C" fn SDL_ConvertPixels(
             width_usize,
             height_usize,
             src_layout.unwrap(),
-            mode,
+            yuv_mode.unwrap(),
             &mut rgba,
         );
     } else {
@@ -1052,7 +1058,7 @@ pub unsafe extern "C" fn SDL_ConvertPixels(
             width_usize,
             height_usize,
             dst_layout.unwrap(),
-            mode,
+            yuv_mode.unwrap(),
             &rgba,
         );
     } else {

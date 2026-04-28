@@ -5,9 +5,9 @@ use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
     SDL_BlendMode, SDL_BlendMode_SDL_BLENDMODE_ADD, SDL_BlendMode_SDL_BLENDMODE_BLEND,
-    SDL_BlendMode_SDL_BLENDMODE_MOD, SDL_BlendMode_SDL_BLENDMODE_NONE, SDL_Color, SDL_Palette,
-    SDL_PixelFormat, SDL_RWops, SDL_Rect, SDL_Surface, SDL_bool, Uint32, Uint8, SDL_PREALLOC,
-    SDL_RLEACCEL,
+    SDL_BlendMode_SDL_BLENDMODE_MOD, SDL_BlendMode_SDL_BLENDMODE_MUL,
+    SDL_BlendMode_SDL_BLENDMODE_NONE, SDL_BlitMap, SDL_Color, SDL_Palette, SDL_PixelFormat,
+    SDL_RWops, SDL_Rect, SDL_Surface, SDL_bool, Uint32, Uint8, SDL_PREALLOC, SDL_RLEACCEL,
 };
 use crate::core::error::{invalid_param_error, out_of_memory_error, set_error_message};
 use crate::security::checked_math::{self, MathError};
@@ -30,11 +30,58 @@ enum SurfaceShell {
 
 unsafe impl Send for SurfaceShell {}
 
+type LocalBlitFn = Option<
+    unsafe extern "C" fn(
+        *mut SDL_Surface,
+        *mut SDL_Rect,
+        *mut SDL_Surface,
+        *mut SDL_Rect,
+    ) -> libc::c_int,
+>;
+
+#[repr(C)]
+struct LocalBlitInfo {
+    src: *mut Uint8,
+    src_w: libc::c_int,
+    src_h: libc::c_int,
+    src_pitch: libc::c_int,
+    src_skip: libc::c_int,
+    dst: *mut Uint8,
+    dst_w: libc::c_int,
+    dst_h: libc::c_int,
+    dst_pitch: libc::c_int,
+    dst_skip: libc::c_int,
+    src_fmt: *mut SDL_PixelFormat,
+    dst_fmt: *mut SDL_PixelFormat,
+    table: *mut Uint8,
+    flags: libc::c_int,
+    colorkey: Uint32,
+    r: Uint8,
+    g: Uint8,
+    b: Uint8,
+    a: Uint8,
+}
+
+#[repr(C)]
+struct LocalBlitMap {
+    dst: *mut SDL_Surface,
+    identity: libc::c_int,
+    blit: LocalBlitFn,
+    data: *mut libc::c_void,
+    info: LocalBlitInfo,
+    dst_palette_version: Uint32,
+    src_palette_version: Uint32,
+}
+
+unsafe impl Send for LocalBlitInfo {}
+unsafe impl Send for LocalBlitMap {}
+
 struct SurfaceRecord {
     buffer_len: usize,
     expected_pixels: usize,
     storage: SurfaceStorage,
     shell: SurfaceShell,
+    blit_map: Box<LocalBlitMap>,
     owns_format: bool,
     color_key_enabled: bool,
     color_key: Uint32,
@@ -212,6 +259,117 @@ fn default_blend_mode(format: *const SDL_PixelFormat) -> SDL_BlendMode {
     } else {
         SDL_BlendMode_SDL_BLENDMODE_NONE
     }
+}
+
+const SDL_COPY_MODULATE_COLOR: libc::c_int = 0x0000_0001;
+const SDL_COPY_MODULATE_ALPHA: libc::c_int = 0x0000_0002;
+const SDL_COPY_BLEND: libc::c_int = 0x0000_0010;
+const SDL_COPY_ADD: libc::c_int = 0x0000_0020;
+const SDL_COPY_MOD: libc::c_int = 0x0000_0040;
+const SDL_COPY_MUL: libc::c_int = 0x0000_0080;
+const SDL_COPY_COLORKEY: libc::c_int = 0x0000_0100;
+const SDL_COPY_RLE_DESIRED: libc::c_int = 0x0000_1000;
+
+unsafe extern "C" fn local_blit_map_blit(
+    src: *mut SDL_Surface,
+    srcrect: *mut SDL_Rect,
+    dst: *mut SDL_Surface,
+    dstrect: *mut SDL_Rect,
+) -> libc::c_int {
+    crate::video::blit::SDL_LowerBlit(src, srcrect, dst, dstrect)
+}
+
+fn new_local_blit_map() -> Box<LocalBlitMap> {
+    Box::new(LocalBlitMap {
+        dst: ptr::null_mut(),
+        identity: 0,
+        blit: Some(local_blit_map_blit),
+        data: ptr::null_mut(),
+        info: LocalBlitInfo {
+            src: ptr::null_mut(),
+            src_w: 0,
+            src_h: 0,
+            src_pitch: 0,
+            src_skip: 0,
+            dst: ptr::null_mut(),
+            dst_w: 0,
+            dst_h: 0,
+            dst_pitch: 0,
+            dst_skip: 0,
+            src_fmt: ptr::null_mut(),
+            dst_fmt: ptr::null_mut(),
+            table: ptr::null_mut(),
+            flags: 0,
+            colorkey: 0,
+            r: 255,
+            g: 255,
+            b: 255,
+            a: 255,
+        },
+        dst_palette_version: 0,
+        src_palette_version: 0,
+    })
+}
+
+fn blend_mode_copy_flags(mode: SDL_BlendMode) -> libc::c_int {
+    match mode {
+        SDL_BlendMode_SDL_BLENDMODE_BLEND => SDL_COPY_BLEND,
+        SDL_BlendMode_SDL_BLENDMODE_ADD => SDL_COPY_ADD,
+        SDL_BlendMode_SDL_BLENDMODE_MOD => SDL_COPY_MOD,
+        SDL_BlendMode_SDL_BLENDMODE_MUL => SDL_COPY_MUL,
+        _ => 0,
+    }
+}
+
+unsafe fn sync_blit_map_state(surface: *mut SDL_Surface, record: &mut SurfaceRecord) {
+    let map = record.blit_map.as_mut();
+    map.dst = ptr::null_mut();
+    map.identity = 0;
+    map.info.src = (*surface).pixels.cast();
+    map.info.src_w = (*surface).w;
+    map.info.src_h = (*surface).h;
+    map.info.src_pitch = (*surface).pitch;
+    map.info.src_skip = 0;
+    map.info.dst = ptr::null_mut();
+    map.info.dst_w = 0;
+    map.info.dst_h = 0;
+    map.info.dst_pitch = 0;
+    map.info.dst_skip = 0;
+    map.info.src_fmt = (*surface).format;
+    map.info.dst_fmt = ptr::null_mut();
+    map.info.table = ptr::null_mut();
+    map.info.colorkey = record.color_key;
+    map.info.r = record.color_mod.0;
+    map.info.g = record.color_mod.1;
+    map.info.b = record.color_mod.2;
+    map.info.a = record.alpha_mod;
+
+    let mut flags = blend_mode_copy_flags(record.blend_mode);
+    if record.color_mod != (255, 255, 255) {
+        flags |= SDL_COPY_MODULATE_COLOR;
+    }
+    if record.alpha_mod != 255 {
+        flags |= SDL_COPY_MODULATE_ALPHA;
+    }
+    if record.color_key_enabled {
+        flags |= SDL_COPY_COLORKEY;
+    }
+    if record.rle_enabled {
+        flags |= SDL_COPY_RLE_DESIRED;
+    }
+    map.info.flags = flags;
+
+    map.dst_palette_version = 0;
+    map.src_palette_version = if !(*surface).format.is_null() {
+        let palette = (*(*surface).format).palette;
+        if palette.is_null() {
+            0
+        } else {
+            (*palette).version
+        }
+    } else {
+        0
+    };
 }
 
 pub(crate) fn surface_state(surface: *mut SDL_Surface) -> SurfaceState {
@@ -845,6 +1003,8 @@ unsafe fn finalize_registered_surface(
     (*surface).locked = 0;
     (*surface).refcount = 1;
     record.blend_mode = default_blend_mode((*surface).format);
+    (*surface).map = record.blit_map.as_mut() as *mut LocalBlitMap as *mut SDL_BlitMap;
+    sync_blit_map_state(surface, &mut record);
     register_surface_record(surface, record);
     surface
 }
@@ -911,6 +1071,7 @@ pub(crate) unsafe fn create_owned_surface_with_format(
             expected_pixels: pixels as usize,
             storage: SurfaceStorage::Owned(buffer),
             shell,
+            blit_map: new_local_blit_map(),
             owns_format,
             color_key_enabled: false,
             color_key: 0,
@@ -978,6 +1139,7 @@ pub(crate) unsafe fn create_preallocated_surface_with_format(
             expected_pixels: pixels as usize,
             storage: SurfaceStorage::Borrowed,
             shell,
+            blit_map: new_local_blit_map(),
             owns_format,
             color_key_enabled: false,
             color_key: 0,
@@ -1260,7 +1422,13 @@ pub unsafe extern "C" fn SDL_SetSurfacePalette(
         if (*surface).format.is_null() {
             return invalid_param_error("surface");
         }
-        return crate::video::pixels::SDL_SetPixelFormatPalette((*surface).format, palette);
+        let result = crate::video::pixels::SDL_SetPixelFormatPalette((*surface).format, palette);
+        if result == 0 {
+            let _ = with_surface_record_mut(surface, |record| {
+                sync_blit_map_state(surface, record);
+            });
+        }
+        return result;
     }
     clear_real_error();
     let result = (real_sdl().set_surface_palette)(surface, palette);
@@ -1314,7 +1482,10 @@ pub unsafe extern "C" fn SDL_SetSurfaceRLE(
     }
     if is_registered_surface(surface) {
         let enabled = flag != 0;
-        let _ = with_surface_record_mut(surface, |record| record.rle_enabled = enabled);
+        let _ = with_surface_record_mut(surface, |record| {
+            record.rle_enabled = enabled;
+            sync_blit_map_state(surface, record);
+        });
         if enabled {
             (*surface).flags |= SDL_RLEACCEL;
         } else {
@@ -1355,12 +1526,13 @@ pub unsafe extern "C" fn SDL_SetColorKey(
         let _ = with_surface_record_mut(surface, |record| {
             record.color_key_enabled = enabled;
             record.color_key = key;
-            record.rle_enabled = (flag & SDL_RLEACCEL as libc::c_int) != 0;
+            if (flag & SDL_RLEACCEL as libc::c_int) != 0 {
+                record.rle_enabled = true;
+            }
+            sync_blit_map_state(surface, record);
         });
         if (flag & SDL_RLEACCEL as libc::c_int) != 0 {
             (*surface).flags |= SDL_RLEACCEL;
-        } else {
-            (*surface).flags &= !SDL_RLEACCEL;
         }
         return 0;
     }
@@ -1421,7 +1593,10 @@ pub unsafe extern "C" fn SDL_SetSurfaceColorMod(
         return invalid_param_error("surface");
     }
     if is_registered_surface(surface) {
-        let _ = with_surface_record_mut(surface, |record| record.color_mod = (r, g, b));
+        let _ = with_surface_record_mut(surface, |record| {
+            record.color_mod = (r, g, b);
+            sync_blit_map_state(surface, record);
+        });
         return 0;
     }
     clear_real_error();
@@ -1469,7 +1644,10 @@ pub unsafe extern "C" fn SDL_SetSurfaceAlphaMod(
         return invalid_param_error("surface");
     }
     if is_registered_surface(surface) {
-        let _ = with_surface_record_mut(surface, |record| record.alpha_mod = alpha);
+        let _ = with_surface_record_mut(surface, |record| {
+            record.alpha_mod = alpha;
+            sync_blit_map_state(surface, record);
+        });
         return 0;
     }
     clear_real_error();
@@ -1512,7 +1690,18 @@ pub unsafe extern "C" fn SDL_SetSurfaceBlendMode(
         return invalid_param_error("surface");
     }
     if is_registered_surface(surface) {
-        let _ = with_surface_record_mut(surface, |record| record.blend_mode = blendMode);
+        match blendMode {
+            SDL_BlendMode_SDL_BLENDMODE_NONE
+            | SDL_BlendMode_SDL_BLENDMODE_BLEND
+            | SDL_BlendMode_SDL_BLENDMODE_ADD
+            | SDL_BlendMode_SDL_BLENDMODE_MOD
+            | SDL_BlendMode_SDL_BLENDMODE_MUL => {}
+            _ => return set_error_message("That operation is not supported"),
+        }
+        let _ = with_surface_record_mut(surface, |record| {
+            record.blend_mode = blendMode;
+            sync_blit_map_state(surface, record);
+        });
         return 0;
     }
     clear_real_error();

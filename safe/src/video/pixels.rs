@@ -367,7 +367,7 @@ fn pixel_format_spec(format: Uint32) -> Option<PixelFormatSpec> {
             name: b"SDL_PIXELFORMAT_BGR24\0",
         },
         SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB888 => PixelFormatSpec {
-            bits_per_pixel: 24,
+            bits_per_pixel: 32,
             bytes_per_pixel: 4,
             rmask: 0x00FF0000,
             gmask: 0x0000FF00,
@@ -387,7 +387,7 @@ fn pixel_format_spec(format: Uint32) -> Option<PixelFormatSpec> {
             name: b"SDL_PIXELFORMAT_RGBX8888\0",
         },
         SDL_PixelFormatEnum_SDL_PIXELFORMAT_BGR888 => PixelFormatSpec {
-            bits_per_pixel: 24,
+            bits_per_pixel: 32,
             bytes_per_pixel: 4,
             rmask: 0x000000FF,
             gmask: 0x0000FF00,
