@@ -91,8 +91,8 @@ fn callback_addr(callback: SDL_EventFilter) -> usize {
     callback.map(|callback| callback as usize).unwrap_or(0)
 }
 
-fn notify_watchers(state: &EventQueueState, event: &mut SDL_Event) {
-    for watcher in state.watchers.iter().copied() {
+fn notify_watchers(watchers: &[CallbackRecord], event: &mut SDL_Event) {
+    for watcher in watchers.iter().copied() {
         if let Some(callback) = watcher.callback {
             unsafe {
                 callback(watcher.userdata as *mut libc::c_void, event);
@@ -116,26 +116,41 @@ fn queue_count_type(state: &EventQueueState, minType: Uint32, maxType: Uint32) -
         .count() as libc::c_int
 }
 
-fn push_copied_event(
-    state: &mut EventQueueState,
-    mut event: SDL_Event,
-    apply_global_filter: bool,
-) -> libc::c_int {
+fn queue_copied_event(state: &mut EventQueueState, event: SDL_Event) -> libc::c_int {
     let event_type = unsafe { event.type_ };
     if !event_enabled(state, event_type) {
         return 0;
     }
-    if apply_global_filter {
-        if let Some(filter) = state.filter {
-            if !call_filter(filter, &mut event) {
-                return 0;
-            }
-        }
-        notify_watchers(state, &mut event);
-    }
     state.queue.push_back(event);
     runtime().condvar.notify_all();
     1
+}
+
+fn push_filtered_event(mut event: SDL_Event) -> libc::c_int {
+    let (filter, watchers) = {
+        let state = lock_event_state();
+        if ensure_active(&state).is_err() {
+            return -1;
+        }
+        let event_type = unsafe { event.type_ };
+        if !event_enabled(&state, event_type) {
+            return 0;
+        }
+        (state.filter, state.watchers.clone())
+    };
+
+    if let Some(filter) = filter {
+        if !call_filter(filter, &mut event) {
+            return 0;
+        }
+    }
+    notify_watchers(&watchers, &mut event);
+
+    let mut state = lock_event_state();
+    if ensure_active(&state).is_err() {
+        return -1;
+    }
+    queue_copied_event(&mut state, event)
 }
 
 fn pop_matching_event(
@@ -236,10 +251,19 @@ pub unsafe extern "C" fn SDL_FilterEvents(filter: SDL_EventFilter, userdata: *mu
     let Some(callback) = filter else {
         return;
     };
+    let mut queue = std::mem::take(&mut state.queue);
+    drop(state);
+
     let userdata = userdata as usize;
-    state
-        .queue
-        .retain_mut(|event| callback(userdata as *mut libc::c_void, event) != 0);
+    queue.retain_mut(|event| callback(userdata as *mut libc::c_void, event) != 0);
+
+    let mut state = lock_event_state();
+    if !state.active {
+        return;
+    }
+    let mut concurrent = std::mem::take(&mut state.queue);
+    state.queue = queue;
+    state.queue.append(&mut concurrent);
 }
 
 #[no_mangle]
@@ -320,7 +344,7 @@ pub unsafe extern "C" fn SDL_PeepEvents(
             }
             let mut inserted = 0;
             for index in 0..numevents as usize {
-                inserted += push_copied_event(&mut state, *events.add(index), false);
+                inserted += queue_copied_event(&mut state, *events.add(index));
             }
             inserted
         }
@@ -390,11 +414,7 @@ pub unsafe extern "C" fn SDL_PushEvent(event: *mut SDL_Event) -> libc::c_int {
     if event.is_null() {
         return crate::core::error::invalid_param_error("event");
     }
-    let mut state = lock_event_state();
-    if ensure_active(&state).is_err() {
-        return -1;
-    }
-    push_copied_event(&mut state, *event, true)
+    push_filtered_event(*event)
 }
 
 #[no_mangle]
