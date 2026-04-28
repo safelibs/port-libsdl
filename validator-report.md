@@ -1,69 +1,33 @@
-# Phase 4 Surface and Render Validator Report
+# Phase 5 Audio and Runtime Validator Report
 
-Phase ID: `impl_phase_04_surface_render_fixes`
+Phase ID: `impl_phase_05_audio_runtime_fixes`
 
 Date: 2026-04-28
 
 ## Outcome
 
-- Prior phase evidence left three in-scope surface/transform failures: `usage-python3-pygame-alpha-blit`, `usage-python3-pygame-transform-scale`, and `usage-python3-pygame-transform-scale2x`.
-- Root cause for the alpha-blit crash: safe-owned `SDL_Surface` values left the ABI-visible `surface->map` pointer null. Pygame can inspect SDL's blit-map state directly, especially for alpha/blend flags, so safe-created surfaces needed a compatible local blit-map shell.
-- Root cause for the transform scale failures: safe-created `RGB888`/`BGR888` surfaces inherited the standalone 24-bit `SDL_AllocFormat` metadata. Pygame derives destination surfaces from `surface->format->BitsPerPixel` plus masks; with a 24-bit surface depth, `SDL_MasksToPixelFormatEnum` correctly remaps the masks to `BGR24`, triggering `ValueError: Source and destination surfaces need the same format.`
-- Senior-checker regression fixed after the first implementation: standalone `SDL_AllocFormat` and `SDL_PixelFormatEnumToMasks` metadata for `RGB888`/`BGR888` now match SDL2's public contract (`BitsPerPixel = 24`, `BytesPerPixel = 4`, no alpha mask). Surface-owned `RGB888`/`BGR888` formats preserve a requested 32-bit depth only when the surface is created with depth `32`, which keeps pygame's derived destination format aligned without changing public pixel-format enum metadata.
-- Additional local regression fixed while running existing surface tests: RGB-to-RGB `SDL_ConvertPixels` attempted to load host SDL YUV and pixel map/get symbols even when no YUV conversion was involved. The safe implementation now uses local pixel APIs for local RGB conversion.
-- Required checker render regressions from the verification bounce were fixed:
-  - `SDL_SetYUVConversionMode`, `SDL_GetYUVConversionMode`, and `SDL_GetYUVConversionModeForResolution` now use local SDL-compatible state instead of host SDL symbols.
-  - Local software-renderer textures now retain the requested texture format while using an ARGB backing surface for YUV formats, and local `SDL_UpdateYUVTexture`/`SDL_UpdateNVTexture` convert planar/NV input into that backing surface.
-  - A single explicitly requested host video driver such as `SDL_VIDEODRIVER=x11` can activate as a local stub when the host SDL runtime is unavailable; Vulkan loader paths report unavailable instead of failing video initialization, and the local render checker treats missing GL procedure lookup as an unavailable optional GL path.
-- Added `safe/tests/validator_surface_render.rs` with direct SDL-level reproducers for alpha blit state, `RGB888`/`BGR888` public metadata, mask-derived scaled blit format compatibility, local YUV texture updates, and local YUV conversion-mode state.
-- Updated `safe/src/video/surface.rs`, `safe/src/video/pixels.rs`, `safe/src/video/blit.rs`, `safe/src/render/local.rs`, `safe/src/video/display.rs`, `safe/src/video/window.rs`, `safe/tests/validator_surface_render.rs`, and the render regression test expectation in `safe/tests/original_apps_render.rs`.
-- `safe/docs/unsafe-allowlist.md` did not need an update because the changed files remain covered by existing `safe/src/video/*.rs`, `safe/src/render/*.rs`, and `safe/tests/*.rs` entries.
-- Full phase-04 validator run completed cleanly with validator exit code `0`: `85` cases, `85` passed, `0` failed, `5` source cases passed, `80` usage cases, `85` casts.
+- Consumed the baseline and prior phase validator evidence in place. Phase 04 already had a clean libsdl run, and the audio/runtime-relevant cases were passing there.
+- Rebuilt the local safe override packages and reran the full libsdl validator suite into `validator/artifacts/.workspace/libsdl-safe-phase05/`.
+- Full phase-05 validator run completed cleanly with validator exit code `0`: `85` cases, `85` passed, `0` failed, `5` source cases passed, `80` usage cases, `85` casts.
 - Override install verification: all `85` testcase JSON files have `override_debs_installed: true`.
-- Surface/render outcome: no surface/render validator failures remain in `validator/artifacts/.workspace/libsdl-safe-phase04/results/libsdl/`.
-- True validator bug: none identified for surface/render behavior in this phase.
+- Audio/runtime outcome: no audio, mixer, queued-audio, dummy-driver, installed-test, init/quit, or runtime validator failures exist in `validator/artifacts/.workspace/libsdl-safe-phase05/results/libsdl/`.
+- The focused audio and WAV regression tests passed locally. Existing coverage already exercises dummy audio driver selection, queue playback/capture sizing, pause/unpause status, callback and push paths, audio conversion/streaming, and malformed WAV rejection, so no new `safe/tests/validator_audio_runtime.rs` file was created.
+- No audio source, runtime init/quit, installed-test staging, or validator testcase source changes were required.
+- True validator bug: none identified for audio/runtime behavior in this phase.
 - The unrelated preexisting `original/src/joystick/__pycache__/` remains untouched and untracked.
 
 ## Commands Run
 
 ```bash
-cargo fmt --manifest-path safe/Cargo.toml
+cargo test --manifest-path safe/Cargo.toml --test upstream_port_audio -- --test-threads=1
 ```
 
 ```bash
-cargo fmt --manifest-path safe/Cargo.toml --check
+cargo test --manifest-path safe/Cargo.toml --test original_apps_audio -- --test-threads=1
 ```
 
 ```bash
-cargo test --manifest-path safe/Cargo.toml --test validator_surface_render -- --test-threads=1
-```
-
-```bash
-cargo test --manifest-path safe/Cargo.toml --test upstream_port_surface -- --test-threads=1
-```
-
-```bash
-cargo test --manifest-path safe/Cargo.toml --test original_apps_surface -- --test-threads=1
-```
-
-```bash
-cargo test --manifest-path safe/Cargo.toml --test security_surface_math --features host-video-tests -- --test-threads=1
-```
-
-```bash
-cargo test --manifest-path safe/Cargo.toml --test upstream_port_render --features host-video-tests -- --test-threads=1
-```
-
-```bash
-cargo test --manifest-path safe/Cargo.toml --test original_apps_render --features host-video-tests -- --test-threads=1
-```
-
-```bash
-cargo test --manifest-path safe/Cargo.toml --test security_gles_texture_lifecycle --features host-video-tests -- --test-threads=1
-```
-
-```bash
-cargo run --manifest-path safe/Cargo.toml -p xtask -- security-regressions
+cargo test --manifest-path safe/Cargo.toml --test security_wave_adpcm -- --test-threads=1
 ```
 
 ```bash
@@ -78,24 +42,32 @@ mkdir -p validator/artifacts/debs/local/libsdl
 cp -v libsdl2-2.0-0_*.deb libsdl2-dev_*.deb libsdl2-tests_*.deb validator/artifacts/debs/local/libsdl/
 python3 - <<'PY'
 from pathlib import Path
+import hashlib
 import subprocess
+
 root = Path("validator/artifacts/debs/local/libsdl")
-packages = sorted(
-    subprocess.check_output(["dpkg-deb", "--field", str(path), "Package"], text=True).strip()
-    for path in root.glob("*.deb")
-)
+rows = []
+for path in sorted(root.glob("*.deb")):
+    pkg = subprocess.check_output(["dpkg-deb", "--field", str(path), "Package"], text=True).strip()
+    ver = subprocess.check_output(["dpkg-deb", "--field", str(path), "Version"], text=True).strip()
+    arch = subprocess.check_output(["dpkg-deb", "--field", str(path), "Architecture"], text=True).strip()
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    rows.append((path.name, pkg, ver, arch, digest))
+packages = sorted(row[1] for row in rows)
 assert packages == ["libsdl2-2.0-0", "libsdl2-dev", "libsdl2-tests"], packages
+for row in rows:
+    print("\t".join(row))
 PY
 ```
 
 ```bash
 cd validator
-rm -rf artifacts/.workspace/libsdl-safe-phase04
+rm -rf artifacts/.workspace/libsdl-safe-phase05
 validator_status=0
 bash test.sh \
   --config repositories.yml \
   --tests-root tests \
-  --artifact-root artifacts/.workspace/libsdl-safe-phase04 \
+  --artifact-root artifacts/.workspace/libsdl-safe-phase05 \
   --mode original \
   --override-deb-root artifacts/debs/local \
   --library libsdl \
@@ -108,7 +80,8 @@ exit ${validator_status}
 python3 - <<'PY'
 from pathlib import Path
 import json
-root = Path("validator/artifacts/.workspace/libsdl-safe-phase04/results/libsdl")
+
+root = Path("validator/artifacts/.workspace/libsdl-safe-phase05/results/libsdl")
 summary = json.loads((root / "summary.json").read_text())
 results = []
 missing_override = []
@@ -127,6 +100,10 @@ assert summary["passed"] == 85 and summary["failed"] == 0, summary
 assert len(results) == 85, len(results)
 assert not missing_override, missing_override
 assert not not_passed, not_passed
+for case in ["dummy-audio-queue", "usage-python3-pygame-audio-dummy", "installed-test-binary", "headless-event-timer"]:
+    data = json.loads((root / f"{case}.json").read_text())
+    print(f"{case}\t{data.get('status')}\texit={data.get('exit_code')}\toverride={data.get('override_debs_installed')}")
+print("summary", summary)
 PY
 ```
 
@@ -140,31 +117,25 @@ Artifact directory: `validator/artifacts/debs/local/libsdl/`
 | `libsdl2-dev_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb` | `libsdl2-dev` | `2.30.0+dfsg-1ubuntu3.1+safelibs1` | `amd64` | `1c35bf70b2cb508afc6cefebbfdc063b4879643476cfcc5540c22583a3fb47ad` |
 | `libsdl2-tests_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb` | `libsdl2-tests` | `2.30.0+dfsg-1ubuntu3.1+safelibs1` | `amd64` | `6d9e7172e5c48d7a0f831aacf64b37dc61ef06eb78e13554c9cab5c520e5af66` |
 
-## Surface and render results
+## Audio and Runtime Results
 
-All previously failing surface/transform cases passed in `validator/artifacts/.workspace/libsdl-safe-phase04/results/libsdl/`.
+Audio/runtime-relevant validator cases all passed in the phase-05 run.
 
 | Case ID | Status | Exit Code | Override Debs Installed |
 | --- | --- | --- | --- |
-| `usage-python3-pygame-alpha-blit` | `passed` | `0` | `true` |
-| `usage-python3-pygame-transform-scale` | `passed` | `0` | `true` |
-| `usage-python3-pygame-transform-scale2x` | `passed` | `0` | `true` |
+| `dummy-audio-queue` | `passed` | `0` | `true` |
+| `usage-python3-pygame-audio-dummy` | `passed` | `0` | `true` |
+| `installed-test-binary` | `passed` | `0` | `true` |
+| `headless-event-timer` | `passed` | `0` | `true` |
 
-No other surface, pixel, blit, image, mask, display, window, render, texture, draw, copy, or present validator case failed in the phase-04 run.
-
-Required checker render tests also passed locally:
-
-| Checker | Status |
-| --- | --- |
-| `original_apps_render` with `host-video-tests` | `passed` |
-| `upstream_port_render` with `host-video-tests` | `passed` |
+No other audio, mixer, queued-audio, dummy-driver, installed-test, init/quit, or runtime validator case failed in the phase-05 run.
 
 ## Raw Artifacts
 
-- Results: `validator/artifacts/.workspace/libsdl-safe-phase04/results/libsdl/`
-- Logs: `validator/artifacts/.workspace/libsdl-safe-phase04/logs/libsdl/`
-- Casts: `validator/artifacts/.workspace/libsdl-safe-phase04/casts/libsdl/`
-- Summary JSON: `validator/artifacts/.workspace/libsdl-safe-phase04/results/libsdl/summary.json`
+- Results: `validator/artifacts/.workspace/libsdl-safe-phase05/results/libsdl/`
+- Logs: `validator/artifacts/.workspace/libsdl-safe-phase05/logs/libsdl/`
+- Casts: `validator/artifacts/.workspace/libsdl-safe-phase05/casts/libsdl/`
+- Summary JSON: `validator/artifacts/.workspace/libsdl-safe-phase05/results/libsdl/summary.json`
 
 ## Preexisting Input Handling
 
