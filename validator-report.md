@@ -1,33 +1,56 @@
-# Phase 5 Audio and Runtime Validator Report
+# Phase 6 Remaining Validator Failure Triage Report
 
-Phase ID: `impl_phase_05_audio_runtime_fixes`
+Phase ID: `impl_phase_06_remaining_and_validator_bug_triage`
 
 Date: 2026-04-28
 
+Validator commit: `1319bb0374ef66428a42dd71e49553c6d057feaf`
+
 ## Outcome
 
-- Consumed the baseline and prior phase validator evidence in place. Phase 04 already had a clean libsdl run, and the audio/runtime-relevant cases were passing there.
-- Rebuilt the local safe override packages and reran the full libsdl validator suite into `validator/artifacts/.workspace/libsdl-safe-phase05/`.
-- Full phase-05 validator run completed cleanly with validator exit code `0`: `85` cases, `85` passed, `0` failed, `5` source cases passed, `80` usage cases, `85` casts.
+- Consumed the prior phase report and prepared source snapshots, generated contracts, manifests, CVE data, dependent reports, performance evidence, unsafe audit, local safe tree, and prior validator artifacts in place.
+- Ran the full safe Rust workspace test suite from the current safe source tree. Result: passed.
+- Rebuilt the local safe Debian override packages and refreshed `validator/artifacts/debs/local/libsdl/`.
+- Reran the full libsdl validator suite into `validator/artifacts/.workspace/libsdl-safe-phase06/`.
+- Full phase-06 validator run completed cleanly with validator exit code `0`: `85` cases, `85` passed, `0` failed, `5` source cases, `80` usage cases, `85` casts.
 - Override install verification: all `85` testcase JSON files have `override_debs_installed: true`.
-- Audio/runtime outcome: no audio, mixer, queued-audio, dummy-driver, installed-test, init/quit, or runtime validator failures exist in `validator/artifacts/.workspace/libsdl-safe-phase05/results/libsdl/`.
-- The focused audio and WAV regression tests passed locally. Existing coverage already exercises dummy audio driver selection, queue playback/capture sizing, pause/unpause status, callback and push paths, audio conversion/streaming, and malformed WAV rejection, so no new `safe/tests/validator_audio_runtime.rs` file was created.
-- No audio source, runtime init/quit, installed-test staging, or validator testcase source changes were required.
-- True validator bug: none identified for audio/runtime behavior in this phase.
+- No remaining validator failures were present, so no additional `safe/tests/validator_*.rs` regression files and no safe implementation fixes were required in this phase.
+- No validator bug skip was required. No filtered tests root was created.
 - The unrelated preexisting `original/src/joystick/__pycache__/` remains untouched and untracked.
+
+## Remaining Failures
+
+None.
+
+The clean phase-06 full validator run is recorded under:
+
+- Results: `validator/artifacts/.workspace/libsdl-safe-phase06/results/libsdl/`
+- Logs: `validator/artifacts/.workspace/libsdl-safe-phase06/logs/libsdl/`
+- Casts: `validator/artifacts/.workspace/libsdl-safe-phase06/casts/libsdl/`
+- Summary JSON: `validator/artifacts/.workspace/libsdl-safe-phase06/results/libsdl/summary.json`
+
+Validated summary:
+
+```text
+cases=85
+source_cases=5
+usage_cases=80
+passed=85
+failed=0
+casts=85
+override_debs_installed=true for 85/85 testcase JSON files
+```
+
+## Validator Bugs
+
+None identified.
+
+No validator-bug skip, copied filtered tests root, or filtered rerun was needed.
 
 ## Commands Run
 
 ```bash
-cargo test --manifest-path safe/Cargo.toml --test upstream_port_audio -- --test-threads=1
-```
-
-```bash
-cargo test --manifest-path safe/Cargo.toml --test original_apps_audio -- --test-threads=1
-```
-
-```bash
-cargo test --manifest-path safe/Cargo.toml --test security_wave_adpcm -- --test-threads=1
+cargo test --manifest-path safe/Cargo.toml --workspace --all-targets
 ```
 
 ```bash
@@ -39,7 +62,11 @@ cd ..
 ```bash
 rm -rf validator/artifacts/debs/local/libsdl
 mkdir -p validator/artifacts/debs/local/libsdl
-cp -v libsdl2-2.0-0_*.deb libsdl2-dev_*.deb libsdl2-tests_*.deb validator/artifacts/debs/local/libsdl/
+cp -v \
+  libsdl2-2.0-0_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb \
+  libsdl2-dev_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb \
+  libsdl2-tests_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb \
+  validator/artifacts/debs/local/libsdl/
 python3 - <<'PY'
 from pathlib import Path
 import hashlib
@@ -62,18 +89,16 @@ PY
 
 ```bash
 cd validator
-rm -rf artifacts/.workspace/libsdl-safe-phase05
-validator_status=0
+rm -rf artifacts/.workspace/libsdl-safe-phase06
 bash test.sh \
   --config repositories.yml \
   --tests-root tests \
-  --artifact-root artifacts/.workspace/libsdl-safe-phase05 \
+  --artifact-root artifacts/.workspace/libsdl-safe-phase06 \
   --mode original \
   --override-deb-root artifacts/debs/local \
   --library libsdl \
-  --record-casts || validator_status=$?
-echo "validator_status=${validator_status}"
-exit ${validator_status}
+  --record-casts
+cd ..
 ```
 
 ```bash
@@ -81,11 +106,11 @@ python3 - <<'PY'
 from pathlib import Path
 import json
 
-root = Path("validator/artifacts/.workspace/libsdl-safe-phase05/results/libsdl")
+root = Path("validator/artifacts/.workspace/libsdl-safe-phase06/results/libsdl")
 summary = json.loads((root / "summary.json").read_text())
-results = []
 missing_override = []
 not_passed = []
+results = []
 for path in sorted(root.glob("*.json")):
     if path.name == "summary.json":
         continue
@@ -100,10 +125,6 @@ assert summary["passed"] == 85 and summary["failed"] == 0, summary
 assert len(results) == 85, len(results)
 assert not missing_override, missing_override
 assert not not_passed, not_passed
-for case in ["dummy-audio-queue", "usage-python3-pygame-audio-dummy", "installed-test-binary", "headless-event-timer"]:
-    data = json.loads((root / f"{case}.json").read_text())
-    print(f"{case}\t{data.get('status')}\texit={data.get('exit_code')}\toverride={data.get('override_debs_installed')}")
-print("summary", summary)
 PY
 ```
 
@@ -117,26 +138,16 @@ Artifact directory: `validator/artifacts/debs/local/libsdl/`
 | `libsdl2-dev_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb` | `libsdl2-dev` | `2.30.0+dfsg-1ubuntu3.1+safelibs1` | `amd64` | `1c35bf70b2cb508afc6cefebbfdc063b4879643476cfcc5540c22583a3fb47ad` |
 | `libsdl2-tests_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb` | `libsdl2-tests` | `2.30.0+dfsg-1ubuntu3.1+safelibs1` | `amd64` | `6d9e7172e5c48d7a0f831aacf64b37dc61ef06eb78e13554c9cab5c520e5af66` |
 
-## Audio and Runtime Results
-
-Audio/runtime-relevant validator cases all passed in the phase-05 run.
+## Spot-Checked Validator Cases
 
 | Case ID | Status | Exit Code | Override Debs Installed |
 | --- | --- | --- | --- |
-| `dummy-audio-queue` | `passed` | `0` | `true` |
-| `usage-python3-pygame-audio-dummy` | `passed` | `0` | `true` |
 | `installed-test-binary` | `passed` | `0` | `true` |
 | `headless-event-timer` | `passed` | `0` | `true` |
-
-No other audio, mixer, queued-audio, dummy-driver, installed-test, init/quit, or runtime validator case failed in the phase-05 run.
-
-## Raw Artifacts
-
-- Results: `validator/artifacts/.workspace/libsdl-safe-phase05/results/libsdl/`
-- Logs: `validator/artifacts/.workspace/libsdl-safe-phase05/logs/libsdl/`
-- Casts: `validator/artifacts/.workspace/libsdl-safe-phase05/casts/libsdl/`
-- Summary JSON: `validator/artifacts/.workspace/libsdl-safe-phase05/results/libsdl/summary.json`
+| `dummy-audio-queue` | `passed` | `0` | `true` |
+| `usage-python3-pygame-audio-dummy` | `passed` | `0` | `true` |
+| `usage-python3-pygame-rect-inflate-ip` | `passed` | `0` | `true` |
 
 ## Preexisting Input Handling
 
-The prepared source snapshots, generated contracts/manifests, CVE data, dependent inventories, performance evidence, dependent regression reports, unsafe audit report, existing integration tests, prior validator artifacts, and upstream test tree were consumed in place. I did not refetch, recollect, rediscover, or regenerate those checked-in artifacts.
+The prepared source snapshots, generated ABI/install/dynapi/runtime contracts, CVE data, dependent inventories, original-test manifests, performance thresholds, dependent regression reports, unsafe audit report, existing tests, prior validator artifacts, and upstream test tree were consumed in place. I did not refetch, recollect, rediscover, regenerate, or update validator checkout content.
