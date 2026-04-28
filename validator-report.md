@@ -13,7 +13,7 @@ Date: 2026-04-28
 - Validator libsdl manifest check: passed with `85` cases, `5` source cases, and `80` usage cases.
 - Local safe package build: passed.
 - Local override package verification: passed for exactly `libsdl2-2.0-0`, `libsdl2-dev`, and `libsdl2-tests`.
-- Validator libsdl baseline run: completed with validator exit code `1`.
+- Baseline validator run: completed with validator exit code `1`.
 - Result summary: `85` cases, `75` passed, `10` failed, `85` casts.
 - Override install verification: all `85` testcase JSON files have `override_debs_installed: true`.
 - True validator bug: none identified in this phase. The failures are recorded as local safe override compatibility symptoms.
@@ -104,7 +104,7 @@ Artifact directory: `validator/artifacts/debs/local/libsdl/`
 - Validator exit code: `validator/artifacts/.workspace/libsdl-safe/validator-exit-code.txt`
 - Summary JSON: `validator/artifacts/.workspace/libsdl-safe/results/libsdl/summary.json`
 
-## Failure Summary
+## Failures
 
 | Case ID | Symptom |
 | --- | --- |
