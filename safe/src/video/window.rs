@@ -12,8 +12,9 @@ use crate::abi::generated_types::{
     SDL_WindowFlags_SDL_WINDOW_KEYBOARD_GRABBED, SDL_WindowFlags_SDL_WINDOW_MAXIMIZED,
     SDL_WindowFlags_SDL_WINDOW_MINIMIZED, SDL_WindowFlags_SDL_WINDOW_MOUSE_FOCUS,
     SDL_WindowFlags_SDL_WINDOW_MOUSE_GRABBED, SDL_WindowFlags_SDL_WINDOW_RESIZABLE,
-    SDL_WindowFlags_SDL_WINDOW_SHOWN, SDL_WindowShapeMode, SDL_bool, SDL_bool_SDL_FALSE, Uint16,
-    Uint32, SDL_HINT_GRAB_KEYBOARD, SDL_WINDOWPOS_CENTERED_MASK, SDL_WINDOWPOS_UNDEFINED_MASK,
+    SDL_WindowFlags_SDL_WINDOW_SHOWN, SDL_WindowFlags_SDL_WINDOW_VULKAN, SDL_WindowShapeMode,
+    SDL_bool, SDL_bool_SDL_FALSE, Uint16, Uint32, SDL_HINT_GRAB_KEYBOARD,
+    SDL_WINDOWPOS_CENTERED_MASK, SDL_WINDOWPOS_UNDEFINED_MASK,
 };
 
 struct HostWindowApi {
@@ -485,6 +486,10 @@ pub(crate) fn create_stub_window_internal(
     shaped: bool,
 ) -> *mut SDL_Window {
     if crate::video::display::require_video_driver().is_err() {
+        return std::ptr::null_mut();
+    }
+    if flags & SDL_WindowFlags_SDL_WINDOW_VULKAN != 0 && !crate::video::real_sdl_is_available() {
+        let _ = crate::core::error::set_error_message("Vulkan support is not available");
         return std::ptr::null_mut();
     }
 

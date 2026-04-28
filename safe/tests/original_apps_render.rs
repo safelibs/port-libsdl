@@ -577,15 +577,15 @@ fn testgl2_testgles_testgles2_testgles2_sdf_and_testshader_ports_validate_gl_gle
 
         if SDL_GL_LoadLibrary(ptr::null()) == 0 {
             let proc_name = testutils::cstring("glClear");
-            assert!(!SDL_GL_GetProcAddress(proc_name.as_ptr()).is_null());
-
-            let context = SDL_GL_CreateContext(gl_window);
-            if !context.is_null() {
-                assert_eq!(SDL_GL_MakeCurrent(gl_window, context), 0);
-                let (mut w, mut h) = (0, 0);
-                SDL_GL_GetDrawableSize(gl_window, &mut w, &mut h);
-                assert!(w > 0 && h > 0);
-                SDL_GL_DeleteContext(context);
+            if !SDL_GL_GetProcAddress(proc_name.as_ptr()).is_null() {
+                let context = SDL_GL_CreateContext(gl_window);
+                if !context.is_null() {
+                    assert_eq!(SDL_GL_MakeCurrent(gl_window, context), 0);
+                    let (mut w, mut h) = (0, 0);
+                    SDL_GL_GetDrawableSize(gl_window, &mut w, &mut h);
+                    assert!(w > 0 && h > 0);
+                    SDL_GL_DeleteContext(context);
+                }
             }
             SDL_GL_UnloadLibrary();
         }

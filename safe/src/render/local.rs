@@ -4,12 +4,15 @@ use std::sync::{Mutex, OnceLock};
 
 use crate::abi::generated_types::{
     SDL_BlendMode, SDL_BlendMode_SDL_BLENDMODE_NONE, SDL_FPoint, SDL_FRect,
-    SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888, SDL_Point, SDL_Rect, SDL_Renderer,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888, SDL_PixelFormatEnum_SDL_PIXELFORMAT_IYUV,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV12, SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV21,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_YV12, SDL_Point, SDL_Rect, SDL_Renderer,
     SDL_RendererFlags_SDL_RENDERER_SOFTWARE, SDL_RendererFlags_SDL_RENDERER_TARGETTEXTURE,
     SDL_RendererInfo, SDL_ScaleMode, SDL_ScaleMode_SDL_ScaleModeNearest, SDL_Surface, SDL_Texture,
     SDL_Vertex, SDL_Window, SDL_bool, Uint32, Uint8,
 };
-use crate::core::error::{invalid_param_error, set_error_message};
+use crate::core::error::{invalid_param_error, out_of_memory_error, set_error_message};
+use crate::security::checked_math;
 
 const LOCAL_RENDERER_TAG: usize = 0x1;
 const LOCAL_TEXTURE_TAG: usize = 0x2;
@@ -34,6 +37,7 @@ unsafe impl Send for LocalRenderer {}
 struct LocalTexture {
     owner_renderer: *mut SDL_Renderer,
     surface: *mut SDL_Surface,
+    format: Uint32,
     access: libc::c_int,
     scale_mode: SDL_ScaleMode,
     user_data: *mut libc::c_void,
@@ -226,6 +230,159 @@ unsafe fn current_draw_clip(renderer: *mut SDL_Renderer) -> Option<SDL_Rect> {
 
 unsafe fn texture_region(texture: *mut SDL_Texture) -> SDL_Rect {
     crate::video::surface::full_surface_rect((*texture_ptr(texture)).surface)
+}
+
+fn is_planar_yuv_texture_format(format: Uint32) -> bool {
+    matches!(
+        format,
+        SDL_PixelFormatEnum_SDL_PIXELFORMAT_YV12 | SDL_PixelFormatEnum_SDL_PIXELFORMAT_IYUV
+    )
+}
+
+fn is_nv_yuv_texture_format(format: Uint32) -> bool {
+    matches!(
+        format,
+        SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV12 | SDL_PixelFormatEnum_SDL_PIXELFORMAT_NV21
+    )
+}
+
+fn is_local_yuv_texture_format(format: Uint32) -> bool {
+    is_planar_yuv_texture_format(format) || is_nv_yuv_texture_format(format)
+}
+
+fn checked_update_layout(
+    format: Uint32,
+    width: usize,
+    height: usize,
+) -> Result<(usize, usize, usize, usize, usize), libc::c_int> {
+    let y_pitch = width;
+    let y_len = checked_math::checked_mul_usize(height, y_pitch, "texture update overflow")
+        .map_err(crate::video::surface::apply_math_error)?;
+    let chroma_h = height.div_ceil(2);
+    let chroma_pitch = if is_nv_yuv_texture_format(format) {
+        checked_math::checked_mul_usize(width.div_ceil(2), 2, "texture update overflow")
+            .map_err(crate::video::surface::apply_math_error)?
+    } else {
+        width.div_ceil(2)
+    };
+    let chroma_len =
+        checked_math::checked_mul_usize(chroma_h, chroma_pitch, "texture update overflow")
+            .map_err(crate::video::surface::apply_math_error)?;
+    let total = if is_nv_yuv_texture_format(format) {
+        checked_math::checked_add_usize(y_len, chroma_len, "texture update overflow")
+            .map_err(crate::video::surface::apply_math_error)?
+    } else {
+        let chroma_total =
+            checked_math::checked_mul_usize(chroma_len, 2, "texture update overflow")
+                .map_err(crate::video::surface::apply_math_error)?;
+        checked_math::checked_add_usize(y_len, chroma_total, "texture update overflow")
+            .map_err(crate::video::surface::apply_math_error)?
+    };
+    Ok((y_pitch, chroma_pitch, y_len, chroma_len, total))
+}
+
+fn allocate_update_buffer(size: usize) -> Result<Vec<u8>, libc::c_int> {
+    let mut buffer = Vec::new();
+    if buffer.try_reserve_exact(size).is_err() {
+        return Err(out_of_memory_error());
+    }
+    buffer.resize(size, 0);
+    Ok(buffer)
+}
+
+fn positive_pitch(name: &'static str, pitch: libc::c_int) -> Result<usize, libc::c_int> {
+    if pitch <= 0 {
+        return Err(invalid_param_error(name));
+    }
+    usize::try_from(pitch).map_err(|_| invalid_param_error(name))
+}
+
+unsafe fn copy_plane_rows(
+    src: *const Uint8,
+    src_pitch: usize,
+    dst: *mut u8,
+    dst_pitch: usize,
+    row_bytes: usize,
+    rows: usize,
+) {
+    for row in 0..rows {
+        ptr::copy_nonoverlapping(
+            src.add(row * src_pitch),
+            dst.add(row * dst_pitch),
+            row_bytes,
+        );
+    }
+}
+
+unsafe fn validated_update_region(
+    texture: *mut SDL_Texture,
+    rect: *const SDL_Rect,
+) -> Result<SDL_Rect, libc::c_int> {
+    let bounds = texture_region(texture);
+    let region = if rect.is_null() { bounds } else { *rect };
+    if region.w <= 0 || region.h <= 0 {
+        return Ok(SDL_Rect {
+            x: region.x,
+            y: region.y,
+            w: 0,
+            h: 0,
+        });
+    }
+    let right = region
+        .x
+        .checked_add(region.w)
+        .ok_or_else(|| set_error_message("Invalid rectangle"))?;
+    let bottom = region
+        .y
+        .checked_add(region.h)
+        .ok_or_else(|| set_error_message("Invalid rectangle"))?;
+    if region.x < 0 || region.y < 0 || right > bounds.w || bottom > bounds.h {
+        return Err(set_error_message("Invalid rectangle"));
+    }
+    Ok(region)
+}
+
+unsafe fn update_backing_from_yuv(
+    texture: *mut SDL_Texture,
+    rect: *const SDL_Rect,
+    src_format: Uint32,
+    src: *const u8,
+    src_pitch: libc::c_int,
+) -> libc::c_int {
+    let region = match validated_update_region(texture, rect) {
+        Ok(region) => region,
+        Err(code) => return code,
+    };
+    if region.w <= 0 || region.h <= 0 {
+        return 0;
+    }
+
+    let surface = (*texture_ptr(texture)).surface;
+    let descriptor = match crate::video::surface::validate_surface_storage(surface) {
+        Ok(descriptor) => descriptor,
+        Err(error) => return crate::video::surface::apply_math_error(error),
+    };
+    let dst = match crate::video::surface::pixel_pointer(
+        surface,
+        descriptor.bytes_per_pixel,
+        region.x,
+        region.y,
+        "texture update overflow",
+    ) {
+        Ok(ptr) => ptr,
+        Err(error) => return crate::video::surface::apply_math_error(error),
+    };
+
+    crate::video::blit::SDL_ConvertPixels(
+        region.w,
+        region.h,
+        src_format,
+        src.cast(),
+        src_pitch,
+        (*(*surface).format).format,
+        dst.cast(),
+        (*surface).pitch,
+    )
 }
 
 unsafe fn surface_clip_guard<T>(
@@ -438,7 +595,7 @@ unsafe fn render_copy_common(
 }
 
 unsafe fn texture_format(texture: *mut SDL_Texture) -> Uint32 {
-    (*(*(*texture_ptr(texture)).surface).format).format
+    (*texture_ptr(texture)).format
 }
 
 unsafe fn texture_size(texture: *mut SDL_Texture) -> (libc::c_int, libc::c_int) {
@@ -558,7 +715,13 @@ pub(crate) unsafe fn create_texture(
         return ptr::null_mut();
     }
 
-    let surface = crate::video::surface::SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, format);
+    let backing_format = if is_local_yuv_texture_format(format) {
+        SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888
+    } else {
+        format
+    };
+    let surface =
+        crate::video::surface::SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, backing_format);
     if surface.is_null() {
         return ptr::null_mut();
     }
@@ -566,6 +729,7 @@ pub(crate) unsafe fn create_texture(
     let texture = Box::new(LocalTexture {
         owner_renderer: renderer,
         surface,
+        format,
         access,
         scale_mode: SDL_ScaleMode_SDL_ScaleModeNearest,
         user_data: ptr::null_mut(),
@@ -595,6 +759,7 @@ pub(crate) unsafe fn create_texture_from_surface(
     let texture = Box::new(LocalTexture {
         owner_renderer: renderer,
         surface: duplicated,
+        format: (*(*duplicated).format).format,
         access: 0,
         scale_mode: SDL_ScaleMode_SDL_ScaleModeNearest,
         user_data: ptr::null_mut(),
@@ -748,34 +913,186 @@ pub(crate) unsafe fn update_texture(
         texture_format(texture),
         pixels,
         pitch,
-        texture_format(texture),
+        (*(*surface).format).format,
         dst.cast(),
         (*surface).pitch,
     )
 }
 
 pub(crate) unsafe fn update_yuv_texture(
-    _texture: *mut SDL_Texture,
-    _rect: *const SDL_Rect,
-    _yplane: *const Uint8,
-    _ypitch: libc::c_int,
-    _uplane: *const Uint8,
-    _upitch: libc::c_int,
-    _vplane: *const Uint8,
-    _vpitch: libc::c_int,
+    texture: *mut SDL_Texture,
+    rect: *const SDL_Rect,
+    yplane: *const Uint8,
+    ypitch: libc::c_int,
+    uplane: *const Uint8,
+    upitch: libc::c_int,
+    vplane: *const Uint8,
+    vpitch: libc::c_int,
 ) -> libc::c_int {
-    set_error_message("YUV texture updates require the host renderer")
+    if !is_local_texture(texture) {
+        return invalid_param_error("texture");
+    }
+    if yplane.is_null() {
+        return invalid_param_error("Yplane");
+    }
+    if uplane.is_null() {
+        return invalid_param_error("Uplane");
+    }
+    if vplane.is_null() {
+        return invalid_param_error("Vplane");
+    }
+    let format = texture_format(texture);
+    if !is_planar_yuv_texture_format(format) {
+        return set_error_message("Texture format is not planar YUV");
+    }
+
+    let region = match validated_update_region(texture, rect) {
+        Ok(region) => region,
+        Err(code) => return code,
+    };
+    if region.w <= 0 || region.h <= 0 {
+        return 0;
+    }
+    let width = match checked_math::nonnegative_to_usize("width", region.w) {
+        Ok(value) => value,
+        Err(error) => return crate::video::surface::apply_math_error(error),
+    };
+    let height = match checked_math::nonnegative_to_usize("height", region.h) {
+        Ok(value) => value,
+        Err(error) => return crate::video::surface::apply_math_error(error),
+    };
+    let ypitch = match positive_pitch("Ypitch", ypitch) {
+        Ok(value) => value,
+        Err(code) => return code,
+    };
+    let upitch = match positive_pitch("Upitch", upitch) {
+        Ok(value) => value,
+        Err(code) => return code,
+    };
+    let vpitch = match positive_pitch("Vpitch", vpitch) {
+        Ok(value) => value,
+        Err(code) => return code,
+    };
+    let chroma_w = width.div_ceil(2);
+
+    let (tight_y_pitch, tight_chroma_pitch, y_len, chroma_len, total) =
+        match checked_update_layout(format, width, height) {
+            Ok(layout) => layout,
+            Err(code) => return code,
+        };
+    let mut buffer = match allocate_update_buffer(total) {
+        Ok(buffer) => buffer,
+        Err(code) => return code,
+    };
+    let dst = buffer.as_mut_ptr();
+    copy_plane_rows(yplane, ypitch, dst, tight_y_pitch, width, height);
+
+    let chroma_h = height.div_ceil(2);
+    let (u_offset, v_offset) = if format == SDL_PixelFormatEnum_SDL_PIXELFORMAT_YV12 {
+        (y_len + chroma_len, y_len)
+    } else {
+        (y_len, y_len + chroma_len)
+    };
+    copy_plane_rows(
+        uplane,
+        upitch,
+        dst.add(u_offset),
+        tight_chroma_pitch,
+        chroma_w,
+        chroma_h,
+    );
+    copy_plane_rows(
+        vplane,
+        vpitch,
+        dst.add(v_offset),
+        tight_chroma_pitch,
+        chroma_w,
+        chroma_h,
+    );
+
+    update_backing_from_yuv(
+        texture,
+        rect,
+        format,
+        buffer.as_ptr(),
+        tight_y_pitch as libc::c_int,
+    )
 }
 
 pub(crate) unsafe fn update_nv_texture(
-    _texture: *mut SDL_Texture,
-    _rect: *const SDL_Rect,
-    _yplane: *const Uint8,
-    _ypitch: libc::c_int,
-    _uvplane: *const Uint8,
-    _uvpitch: libc::c_int,
+    texture: *mut SDL_Texture,
+    rect: *const SDL_Rect,
+    yplane: *const Uint8,
+    ypitch: libc::c_int,
+    uvplane: *const Uint8,
+    uvpitch: libc::c_int,
 ) -> libc::c_int {
-    set_error_message("NV texture updates require the host renderer")
+    if !is_local_texture(texture) {
+        return invalid_param_error("texture");
+    }
+    if yplane.is_null() {
+        return invalid_param_error("Yplane");
+    }
+    if uvplane.is_null() {
+        return invalid_param_error("UVplane");
+    }
+    let format = texture_format(texture);
+    if !is_nv_yuv_texture_format(format) {
+        return set_error_message("Texture format is not NV YUV");
+    }
+
+    let region = match validated_update_region(texture, rect) {
+        Ok(region) => region,
+        Err(code) => return code,
+    };
+    if region.w <= 0 || region.h <= 0 {
+        return 0;
+    }
+    let width = match checked_math::nonnegative_to_usize("width", region.w) {
+        Ok(value) => value,
+        Err(error) => return crate::video::surface::apply_math_error(error),
+    };
+    let height = match checked_math::nonnegative_to_usize("height", region.h) {
+        Ok(value) => value,
+        Err(error) => return crate::video::surface::apply_math_error(error),
+    };
+    let ypitch = match positive_pitch("Ypitch", ypitch) {
+        Ok(value) => value,
+        Err(code) => return code,
+    };
+    let uvpitch = match positive_pitch("UVpitch", uvpitch) {
+        Ok(value) => value,
+        Err(code) => return code,
+    };
+    let chroma_row_bytes = width.div_ceil(2) * 2;
+
+    let (tight_y_pitch, tight_chroma_pitch, y_len, _chroma_len, total) =
+        match checked_update_layout(format, width, height) {
+            Ok(layout) => layout,
+            Err(code) => return code,
+        };
+    let mut buffer = match allocate_update_buffer(total) {
+        Ok(buffer) => buffer,
+        Err(code) => return code,
+    };
+    let dst = buffer.as_mut_ptr();
+    copy_plane_rows(yplane, ypitch, dst, tight_y_pitch, width, height);
+    copy_plane_rows(
+        uvplane,
+        uvpitch,
+        dst.add(y_len),
+        tight_chroma_pitch,
+        chroma_row_bytes,
+        height.div_ceil(2),
+    );
+
+    update_backing_from_yuv(
+        texture,
+        rect,
+        format,
+        buffer.as_ptr(),
+        tight_y_pitch as libc::c_int,
+    )
 }
 
 pub(crate) unsafe fn lock_texture(

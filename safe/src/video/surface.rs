@@ -7,6 +7,7 @@ use crate::abi::generated_types::{
     SDL_BlendMode, SDL_BlendMode_SDL_BLENDMODE_ADD, SDL_BlendMode_SDL_BLENDMODE_BLEND,
     SDL_BlendMode_SDL_BLENDMODE_MOD, SDL_BlendMode_SDL_BLENDMODE_MUL,
     SDL_BlendMode_SDL_BLENDMODE_NONE, SDL_BlitMap, SDL_Color, SDL_Palette, SDL_PixelFormat,
+    SDL_PixelFormatEnum_SDL_PIXELFORMAT_BGR888, SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB888,
     SDL_RWops, SDL_Rect, SDL_Surface, SDL_bool, Uint32, Uint8, SDL_PREALLOC, SDL_RLEACCEL,
 };
 use crate::core::error::{invalid_param_error, out_of_memory_error, set_error_message};
@@ -885,8 +886,27 @@ fn preflight_preallocated_surface(
     Ok(())
 }
 
+unsafe fn apply_surface_depth_metadata(format_ptr: *mut SDL_PixelFormat, depth: libc::c_int) {
+    if format_ptr.is_null() || depth != 32 {
+        return;
+    }
+
+    // SDL_CreateRGBSurface exposes the requested 32-bit surface depth for
+    // 4-byte RGB888/BGR888 surfaces, while SDL_AllocFormat still reports the
+    // enum's public 24-bit metadata.
+    let format = (*format_ptr).format;
+    if matches!(
+        format,
+        SDL_PixelFormatEnum_SDL_PIXELFORMAT_RGB888 | SDL_PixelFormatEnum_SDL_PIXELFORMAT_BGR888
+    ) && (*format_ptr).BitsPerPixel == 24
+        && (*format_ptr).BytesPerPixel == 4
+    {
+        (*format_ptr).BitsPerPixel = 32;
+    }
+}
+
 unsafe fn create_surface_shell(
-    _depth: libc::c_int,
+    depth: libc::c_int,
     format: Uint32,
     default_error: &str,
 ) -> Option<(*mut SDL_Surface, SurfaceShell, bool)> {
@@ -895,6 +915,7 @@ unsafe fn create_surface_shell(
         let _ = set_error_message(default_error);
         return None;
     }
+    apply_surface_depth_metadata(format_ptr, depth);
 
     let mut shell = Box::new(SDL_Surface {
         flags: 0,

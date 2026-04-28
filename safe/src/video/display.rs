@@ -225,7 +225,7 @@ fn requested_driver_list(driver_name: *const libc::c_char) -> Option<Vec<String>
     }
 }
 
-fn candidate_driver_indices(driver_name: *const libc::c_char) -> Result<Vec<usize>, ()> {
+fn candidate_driver_indices(driver_name: *const libc::c_char) -> Result<(Vec<usize>, bool), ()> {
     if let Some(requested) = requested_driver_list(driver_name) {
         let indices = requested
             .iter()
@@ -235,10 +235,10 @@ fn candidate_driver_indices(driver_name: *const libc::c_char) -> Result<Vec<usiz
             let _ = crate::core::error::set_error_message("No available video device");
             return Err(());
         }
-        return Ok(indices);
+        return Ok((indices, true));
     }
 
-    Ok((0..DRIVER_REGISTRY.len()).collect())
+    Ok(((0..DRIVER_REGISTRY.len()).collect(), false))
 }
 
 fn current_driver_from_state(state: &VideoState) -> Option<&'static VideoDriverDescriptor> {
@@ -268,16 +268,19 @@ fn tear_down_locked(state: &mut VideoState) {
     reset_video_runtime_state();
 }
 
-fn try_activate_driver(index: usize) -> Result<(), ()> {
+fn try_activate_driver(index: usize, allow_host_stub: bool) -> Result<(), ()> {
     let driver = DRIVER_REGISTRY[index];
     if driver.is_host() {
         if !crate::video::real_sdl_is_available() {
-            return Err(());
-        }
-        crate::video::clear_real_error();
-        let rc = unsafe { (host_api().video_init)(driver.name_bytes.as_ptr().cast()) };
-        if rc != 0 {
-            return Err(());
+            if !allow_host_stub {
+                return Err(());
+            }
+        } else {
+            crate::video::clear_real_error();
+            let rc = unsafe { (host_api().video_init)(driver.name_bytes.as_ptr().cast()) };
+            if rc != 0 {
+                return Err(());
+            }
         }
     }
 
@@ -288,7 +291,8 @@ fn try_activate_driver(index: usize) -> Result<(), ()> {
 }
 
 fn init_video_internal(driver_name: *const libc::c_char) -> Result<(), ()> {
-    let candidates = candidate_driver_indices(driver_name)?;
+    let (candidates, requested) = candidate_driver_indices(driver_name)?;
+    let allow_host_stub = requested && candidates.len() == 1;
 
     {
         let mut state = lock_video_state();
@@ -296,7 +300,7 @@ fn init_video_internal(driver_name: *const libc::c_char) -> Result<(), ()> {
     }
 
     for index in candidates {
-        if try_activate_driver(index).is_ok() {
+        if try_activate_driver(index, allow_host_stub).is_ok() {
             return Ok(());
         }
     }

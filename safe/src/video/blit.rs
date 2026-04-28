@@ -1,4 +1,4 @@
-use std::sync::OnceLock;
+use std::sync::atomic::{AtomicU32, Ordering};
 
 use crate::abi::generated_types::{
     SDL_PixelFormat, SDL_PixelFormatEnum_SDL_PIXELFORMAT_ARGB8888,
@@ -18,11 +18,6 @@ use crate::video::surface::{
     intersect_rects, is_registered_surface, real_sdl, scale_surface_pixels_nearest,
     sync_error_from_real, validate_surface_storage, FormatDescriptor,
 };
-
-type SetYuvConversionModeFn = unsafe extern "C" fn(SDL_YUV_CONVERSION_MODE);
-type GetYuvConversionModeFn = unsafe extern "C" fn() -> SDL_YUV_CONVERSION_MODE;
-type GetYuvConversionModeForResolutionFn =
-    unsafe extern "C" fn(libc::c_int, libc::c_int) -> SDL_YUV_CONVERSION_MODE;
 
 struct AllocatedFormat {
     raw: *mut SDL_PixelFormat,
@@ -65,19 +60,9 @@ struct YuvLayout {
     total_size: usize,
 }
 
-fn set_yuv_conversion_mode_fn() -> SetYuvConversionModeFn {
-    static FN: OnceLock<SetYuvConversionModeFn> = OnceLock::new();
-    *FN.get_or_init(|| crate::video::load_symbol(b"SDL_SetYUVConversionMode\0"))
-}
-
-fn get_yuv_conversion_mode_fn() -> GetYuvConversionModeFn {
-    static FN: OnceLock<GetYuvConversionModeFn> = OnceLock::new();
-    *FN.get_or_init(|| crate::video::load_symbol(b"SDL_GetYUVConversionMode\0"))
-}
-
-fn get_yuv_conversion_mode_for_resolution_fn() -> GetYuvConversionModeForResolutionFn {
-    static FN: OnceLock<GetYuvConversionModeForResolutionFn> = OnceLock::new();
-    *FN.get_or_init(|| crate::video::load_symbol(b"SDL_GetYUVConversionModeForResolution\0"))
+fn yuv_conversion_mode() -> &'static AtomicU32 {
+    static MODE: AtomicU32 = AtomicU32::new(SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_BT601);
+    &MODE
 }
 
 unsafe fn validate_blit_surface(surface: *mut SDL_Surface) -> Result<(), MathError> {
@@ -108,7 +93,15 @@ fn clip_unit_interval(value: f32) -> f32 {
 }
 
 fn effective_yuv_mode(width: libc::c_int, height: libc::c_int) -> SDL_YUV_CONVERSION_MODE {
-    let mode = unsafe { get_yuv_conversion_mode_for_resolution_fn()(width, height) };
+    let mode = yuv_conversion_mode_for_resolution(width, height);
+    mode
+}
+
+fn yuv_conversion_mode_for_resolution(
+    _width: libc::c_int,
+    height: libc::c_int,
+) -> SDL_YUV_CONVERSION_MODE {
+    let mode = yuv_conversion_mode().load(Ordering::Relaxed);
     if mode == SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_AUTOMATIC {
         if height <= 576 {
             SDL_YUV_CONVERSION_MODE_SDL_YUV_CONVERSION_BT601
@@ -1084,13 +1077,13 @@ pub unsafe extern "C" fn SDL_ConvertPixels(
 #[no_mangle]
 pub unsafe extern "C" fn SDL_SetYUVConversionMode(mode: SDL_YUV_CONVERSION_MODE) {
     crate::video::clear_real_error();
-    set_yuv_conversion_mode_fn()(mode);
+    yuv_conversion_mode().store(mode, Ordering::Relaxed);
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn SDL_GetYUVConversionMode() -> SDL_YUV_CONVERSION_MODE {
     crate::video::clear_real_error();
-    get_yuv_conversion_mode_fn()()
+    yuv_conversion_mode().load(Ordering::Relaxed)
 }
 
 #[no_mangle]
@@ -1099,7 +1092,7 @@ pub unsafe extern "C" fn SDL_GetYUVConversionModeForResolution(
     height: libc::c_int,
 ) -> SDL_YUV_CONVERSION_MODE {
     crate::video::clear_real_error();
-    get_yuv_conversion_mode_for_resolution_fn()(width, height)
+    yuv_conversion_mode_for_resolution(width, height)
 }
 
 #[no_mangle]
