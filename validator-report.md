@@ -20,7 +20,7 @@ Validator commit: `1319bb0374ef66428a42dd71e49553c6d057feaf`
 - No validator bug skip was required. No filtered tests root was created.
 - The unrelated preexisting `original/src/joystick/__pycache__/` remains untouched and untracked.
 
-## Remaining Failures
+## Remaining failures
 
 None.
 
@@ -49,7 +49,7 @@ casts=85
 override_debs_installed=true for 85/85 testcase JSON files
 ```
 
-## Validator Bugs
+## Validator bug
 
 None identified.
 
