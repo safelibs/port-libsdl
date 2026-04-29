@@ -8,7 +8,7 @@ Validator repository: `https://github.com/safelibs/validator`
 
 Validator commit: `1319bb0374ef66428a42dd71e49553c6d057feaf`
 
-## Final Verdict
+## Final validator run
 
 Pass. The final local safe tests passed, the final unfiltered libsdl validator matrix passed, and no validator-bug skip was used.
 
@@ -69,7 +69,7 @@ This phase adds the final report commit on top of that history.
 
 The override directory contains exactly these required runtime, development, and test packages.
 
-## Checks Executed
+## Checks executed
 
 - Final safe Rust workspace test suite with host-video tests: passed.
 - Final Debian package rebuild from `safe/`: passed.
@@ -187,7 +187,7 @@ assert not not_passed, not_passed
 PY
 ```
 
-## Failures Found By Phase
+## Failures found by phase
 
 | Phase | Failures | Outcome |
 | --- | --- | --- |
@@ -199,7 +199,7 @@ PY
 | Phase 6 remaining and validator-bug triage | Local `xvfb_window_smoke` regression: `SDL_GetWindowWMInfo` returned `0` for an explicitly requested safe `x11` stub window when host SDL was unavailable. No remaining validator failures were present. | Fixed in `safe/src/video/syswm.rs`; full matrix remained clean. No validator-bug skip was required. |
 | Phase 7 final | No new failure. | Rebuilt final packages and reran the unfiltered 85-case validator matrix cleanly. |
 
-## Fixes Applied
+## Fixes applied
 
 - `safe/src/events/queue.rs`: callbacks for filters/watchers now run outside the queue mutex while preserving queue behavior.
 - `safe/src/video/surface.rs`: safe-owned surfaces expose compatible blit-map state and preserve requested 32-bit depth where needed for pygame-derived RGB888/BGR888 surfaces.
