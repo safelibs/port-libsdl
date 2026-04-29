@@ -1,4 +1,4 @@
-use crate::abi::generated_types::{SDL_Window, SDL_bool, SDL_version, Uint8};
+use crate::abi::generated_types::{SDL_Window, SDL_bool, SDL_version, Uint8, SDL_MAJOR_VERSION};
 
 pub type SDL_SYSWM_TYPE = u32;
 
@@ -116,9 +116,36 @@ pub unsafe extern "C" fn SDL_GetWindowWMInfo(
         return (host_api().get_window_wm_info)(window, info);
     }
 
-    if !info.is_null() {
-        (*info).subsystem = SDL_SYSWM_UNKNOWN;
-        (*info).info.dummy = [0; 64];
+    if !crate::video::window::is_stub_window(window) {
+        let _ = crate::core::error::set_error_message("Invalid window");
+        return 0;
     }
+    if info.is_null() {
+        let _ = crate::core::error::invalid_param_error("info");
+        return 0;
+    }
+
+    (*info).subsystem = SDL_SYSWM_UNKNOWN;
+    (*info).info.dummy = [0; 64];
+
+    let Some(driver) = crate::video::display::active_driver() else {
+        let _ = crate::core::error::set_error_message("Video subsystem has not been initialized");
+        return 0;
+    };
+    if driver.name.eq_ignore_ascii_case("x11") {
+        if (*info).version.major != SDL_MAJOR_VERSION as Uint8 {
+            let _ = crate::core::error::set_error_message(&format!(
+                "Application not compiled with SDL {}",
+                SDL_MAJOR_VERSION
+            ));
+            return 0;
+        }
+        (*info).subsystem = SDL_SYSWM_X11;
+        (*info).info.x11.display = std::ptr::null_mut();
+        (*info).info.x11.window = crate::video::window::SDL_GetWindowID(window) as libc::c_ulong;
+        return 1;
+    }
+
+    let _ = crate::core::error::set_error_message("That operation is not supported");
     0
 }

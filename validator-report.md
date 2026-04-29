@@ -9,18 +9,26 @@ Validator commit: `1319bb0374ef66428a42dd71e49553c6d057feaf`
 ## Outcome
 
 - Consumed the prior phase report and prepared source snapshots, generated contracts, manifests, CVE data, dependent reports, performance evidence, unsafe audit, local safe tree, and prior validator artifacts in place.
-- Ran the full safe Rust workspace test suite from the current safe source tree. Result: passed.
+- Reproduced the software-tester failure in `safe/tests/xvfb_window_smoke.rs`: `SDL_GetWindowWMInfo` returned `0` for an explicitly requested `x11` safe-stub window when no real host SDL runtime was loaded.
+- Fixed `safe/src/video/syswm.rs` so the non-forwarded `x11` stub path validates stub windows, preserves SDL null-info/version error behavior, and returns `SDL_SYSWM_X11` metadata for safe-created X11 stub windows.
+- Ran the full safe Rust workspace test suite with host video tests from the current safe source tree. Result: passed.
 - Rebuilt the local safe Debian override packages and refreshed `validator/artifacts/debs/local/libsdl/`.
 - Reran the full libsdl validator suite into `validator/artifacts/.workspace/libsdl-safe-phase06/`.
 - Full phase-06 validator run completed cleanly with validator exit code `0`: `85` cases, `85` passed, `0` failed, `5` source cases, `80` usage cases, `85` casts.
 - Override install verification: all `85` testcase JSON files have `override_debs_installed: true`.
-- No remaining validator failures were present, so no additional `safe/tests/validator_*.rs` regression files and no safe implementation fixes were required in this phase.
+- No remaining validator failures were present after the syswm fix, so no additional `safe/tests/validator_*.rs` regression files were required in this phase. The regression is covered by the existing `xvfb_window_smoke` host-video test.
 - No validator bug skip was required. No filtered tests root was created.
 - The unrelated preexisting `original/src/joystick/__pycache__/` remains untouched and untracked.
 
 ## Remaining Failures
 
 None.
+
+Fixed local safe-suite regression:
+
+| Case | Symptom | Fix | Regression Coverage |
+| --- | --- | --- | --- |
+| `xvfb_window_smoke::xvfb_backed_x11_window_smoke_replaces_manual_window_demos` | `SDL_GetWindowWMInfo` returned `0` for the safe `x11` stub driver | `safe/src/video/syswm.rs` now returns X11 syswm metadata for valid safe-created X11 stub windows | `cargo test --manifest-path safe/Cargo.toml --workspace --features host-video-tests -- --test-threads=1` |
 
 The clean phase-06 full validator run is recorded under:
 
@@ -50,7 +58,21 @@ No validator-bug skip, copied filtered tests root, or filtered rerun was needed.
 ## Commands Run
 
 ```bash
-cargo test --manifest-path safe/Cargo.toml --workspace --all-targets
+cargo test --manifest-path safe/Cargo.toml \
+  --workspace \
+  --features host-video-tests \
+  xvfb_backed_x11_window_smoke_replaces_manual_window_demos \
+  -- \
+  --test-threads=1 \
+  --nocapture
+```
+
+```bash
+cargo test --manifest-path safe/Cargo.toml \
+  --workspace \
+  --features host-video-tests \
+  -- \
+  --test-threads=1
 ```
 
 ```bash
@@ -134,8 +156,8 @@ Artifact directory: `validator/artifacts/debs/local/libsdl/`
 
 | File | Package | Version | Architecture | SHA256 |
 | --- | --- | --- | --- | --- |
-| `libsdl2-2.0-0_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb` | `libsdl2-2.0-0` | `2.30.0+dfsg-1ubuntu3.1+safelibs1` | `amd64` | `48bda642be7d4bd70cfae450c2db3d3ebfc0dd33e11e2a416de067a884db965b` |
-| `libsdl2-dev_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb` | `libsdl2-dev` | `2.30.0+dfsg-1ubuntu3.1+safelibs1` | `amd64` | `1c35bf70b2cb508afc6cefebbfdc063b4879643476cfcc5540c22583a3fb47ad` |
+| `libsdl2-2.0-0_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb` | `libsdl2-2.0-0` | `2.30.0+dfsg-1ubuntu3.1+safelibs1` | `amd64` | `84c6b5fc32190c363857dd087094538bb130d81f639bf1ffaabd9166df48f336` |
+| `libsdl2-dev_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb` | `libsdl2-dev` | `2.30.0+dfsg-1ubuntu3.1+safelibs1` | `amd64` | `d8b9f7362c42bc257ca030fe40226d0968cf13a0191e4511d5cc78c595d6c933` |
 | `libsdl2-tests_2.30.0+dfsg-1ubuntu3.1+safelibs1_amd64.deb` | `libsdl2-tests` | `2.30.0+dfsg-1ubuntu3.1+safelibs1` | `amd64` | `6d9e7172e5c48d7a0f831aacf64b37dc61ef06eb78e13554c9cab5c520e5af66` |
 
 ## Spot-Checked Validator Cases
